@@ -35,11 +35,39 @@ import org.jetbrains.annotations.Nullable;
 )
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
-    private boolean myMouseLineSelection;
-    private boolean myEditorBackspaceKey;
-    private boolean myEditorDeleteKey;
-    private boolean myEditorUpDownKeys;
-    private boolean myEditorLeftRightKeys;
+    private int myAutoLineMode = AutoLineSettingType.DEFAULT.getIntValue();
+    private int myMouseModifier = MouseModifierType.DEFAULT.getIntValue();
+    private boolean myMouseLineSelection = false;
+    private boolean myDeleteOperations = false;
+    private boolean myUpDownMovement = false;
+    private boolean myLeftRightMovement = false;
+    private boolean myUpDownSelection = false;
+
+    public boolean isLineModeEnabled() {
+        return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
+                myMouseLineSelection
+                        || myUpDownSelection
+                        //|| myDeleteOperations
+                        //|| myUpDownMovement
+                        //|| myLeftRightMovement
+        );
+    }
+
+    public int getMouseModifier() {
+        return myMouseModifier;
+    }
+
+    public void setMouseModifier(int mouseModifier) {
+        myMouseModifier = mouseModifier;
+    }
+
+    public boolean isUpDownSelection() {
+        return myUpDownSelection;
+    }
+
+    public void setUpDownSelection(boolean upDownSelection) {
+        myUpDownSelection = upDownSelection;
+    }
 
     public boolean isMouseLineSelection() {
         return myMouseLineSelection;
@@ -49,36 +77,36 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myMouseLineSelection = mouseLineSelection;
     }
 
-    public boolean isEditorBackspaceKey() {
-        return myEditorBackspaceKey;
+    public int getAutoLineMode() {
+        return myAutoLineMode;
     }
 
-    public void setEditorBackspaceKey(boolean editorBackspaceKey) {
-        myEditorBackspaceKey = editorBackspaceKey;
+    public void setAutoLineMode(int autoLineMode) {
+        myAutoLineMode = autoLineMode;
     }
 
-    public boolean isEditorDeleteKey() {
-        return myEditorDeleteKey;
+    public boolean isDeleteOperations() {
+        return myDeleteOperations;
     }
 
-    public void setEditorDeleteKey(boolean editorDeleteKey) {
-        myEditorDeleteKey = editorDeleteKey;
+    public void setDeleteOperations(boolean deleteOperations) {
+        myDeleteOperations = deleteOperations;
     }
 
-    public boolean isEditorUpDownKeys() {
-        return myEditorUpDownKeys;
+    public boolean isUpDownMovement() {
+        return myUpDownMovement;
     }
 
-    public void setEditorUpDownKeys(boolean editorUpDownKeys) {
-        myEditorUpDownKeys = editorUpDownKeys;
+    public void setUpDownMovement(boolean upDownMovement) {
+        myUpDownMovement = upDownMovement;
     }
 
-    public boolean isEditorLeftRightKeys() {
-        return myEditorLeftRightKeys;
+    public boolean isLeftRightMovement() {
+        return myLeftRightMovement;
     }
 
-    public void setEditorLeftRightKeys(boolean editorLeftRightKeys) {
-        myEditorLeftRightKeys = editorLeftRightKeys;
+    public void setLeftRightMovement(boolean leftRightMovement) {
+        myLeftRightMovement = leftRightMovement;
     }
 
     @Nullable
@@ -109,5 +137,4 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public static ApplicationSettings getInstance() {
         return ApplicationManager.getApplication().getComponent(ApplicationSettings.class);
     }
-
 }

@@ -82,7 +82,7 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
             } else {
                 // make it line selection
                 if (wantLine()) {
-                    adjuster.adjustCharacterSelectionToLineSelection(caret, false);
+                    adjuster.adjustCharacterSelectionToLineSelection(caret, true);
                 }
             }
         }

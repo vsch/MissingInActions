@@ -3,11 +3,19 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.5.1 - Initial Release](#051---initial-release)
+- [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
+- [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
 
-### 0.5.1 - Initial Release
+### 0.6.0 - Bug Fix and Features
+
+- Fix: toggle carets/selection would not work during indexing, was missing dumb aware flag.
+- Change: implementation to work with standard actions where possible and adjust their
+  operation to work with line selections.
+- Add: config options to enable, disable and tweak options
+
+### 0.5.1 - Bug Fix
 
 - Fix: missing dependency in `plugin.xml`
 

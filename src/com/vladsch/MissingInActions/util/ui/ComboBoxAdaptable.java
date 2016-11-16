@@ -19,21 +19,12 @@
  * under the License.
  */
 
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 13, 2002
- * Time: 3:16:36 PM
- * To change template for new class use 
- * Code Style | Class Templates options (Tools | IDE Options).
- */
-package com.vladsch.MissingInActions.actions.wrappers;
+package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.editor.actions.PageDownWithSelectionAction;
-import com.vladsch.MissingInActions.actions.SelectionActionAdjustWrapperBase;
-
-public class PageDownWithLineSelectionAction extends SelectionActionAdjustWrapperBase {
-    public PageDownWithLineSelectionAction() {
-        super(new PageDownWithSelectionAction());
-    }
+public interface ComboBoxAdaptable<E> {
+    E[] getEnumValues();
+    String getDisplayName();
+    String name();
+    int getIntValue();
+    boolean isDefault();
 }

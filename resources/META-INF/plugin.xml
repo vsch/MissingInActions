@@ -19,7 +19,7 @@
   ~ under the License.
   -->
 
-<idea-plugin version="2" url="http://github.com/vsch/MissingInActions" xmlns:xi="http://www.w3.org/2001/XInclude">
+<idea-plugin version="2" url="http://github.com/vsch/MissingInActions">
     <id>com.vladsch.MissingInActions</id>
     <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
@@ -36,12 +36,25 @@
         ]]>
     </description>
 
-    <version>0.5.1</version>
+    <version>0.5.1.1</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h2>Markdown Navigator</h2>
+            <div>
+                <h1>Version History</h1>
+                <ul>
+                    <li><a href="#052---bug-fix">0.5.2 - Bug Fix</a></li>
+                    <li><a href="#051---initial-release">0.5.1 - Bug Fix</a></li>
+                    <li><a href="#050---initial-release">0.5.0 - Initial Release</a></li>
+                </ul>
+            </div>
+            <h3>0.5.2 - Bug Fix</h3>
+            <ul>
+                <li>Fix: toggle carets/selection would not work during indexing, was missing dumb aware flag.</li>
+            </ul>
             <h3>0.5.1 - Initial Release</h3>
             <ul>
                 <li>Fix: missing dependency in <code>plugin.xml</code></li>
@@ -64,7 +77,6 @@
                     </ul>
                 </li>
             </ul>
-
         </div>
         ]]></change-notes>
 
@@ -93,46 +105,8 @@
     </extensions>
 
     <actions>
-<!--
-        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteAction"
-                id="MissingInActions.DeleteCharacter"
-                text="Delete (Line Selection Aware)"
-                description="Delete (Line Selection Aware)">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.BackspaceAction"
-                id="MissingInActions.BackspaceCharacter"
-                text="Backspace (Line Selection Aware)"
-                description="Backspace (Line Selection Aware)">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineDownAction"
-                id="MissingInActions.MoveCaretLineDown"
-                text="Move Caret Down"
-                description="Move Caret Down">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineUpAction"
-                id="MissingInActions.MoveCaretLineUpAction"
-                text="Move Caret Up"
-                description="Move Caret Up">
-        </action>
-        
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineRightAction"
-                id="MissingInActions.MoveCaretLineRight"
-                text="Move Caret Right"
-                description="Move Caret Right">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineLeftAction"
-                id="MissingInActions.MoveCaretLineLeftAction"
-                text="Move Caret Left"
-                description="Move Caret Left">
-        </action>
--->
-        
         <!-- Line Based movement and selection -->
-        
+
         <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineDownWithSelectionAction"
                 id="MissingInActions.MoveCaretLineDownWithSelection"
                 text="Move Caret Down with Line Selection"
@@ -145,43 +119,7 @@
                 description="Move Caret Up with Line Selection">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineRightWithSelectionAction"
-                id="MissingInActions.MoveCaretLineRightWithSelection"
-                text="Move Caret Right with Line Selection"
-                description="Move Caret Right with Line Selection">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineLeftWithSelectionAction"
-                id="MissingInActions.MoveCaretLineLeftWithSelection"
-                text="Move Caret Left with Line Selection"
-                description="Move Caret Left with Line Selection">
-        </action>
-
         <!-- Line Selection Aware Selection Wrappers -->
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.PageBottomWithLineSelectionAction"
-                id="MissingInActions.PageBottomWithLineSelection"
-                text="Page Bottom With Line Selection"
-                description="Page Bottom With Line Selection)">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.PageDownWithLineSelectionAction"
-                id="MissingInActions.PageDownWithLineSelection"
-                text="Page Down With Line Selection"
-                description="Page Down With Line Selection)">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.PageTopWithLineSelectionAction"
-                id="MissingInActions.PageTopWithLineSelection"
-                text="Page Top With Line Selection"
-                description="Page Top With Line Selection)">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.PageUpWithLineSelectionAction"
-                id="MissingInActions.PageUpWithLineSelection"
-                text="Page Up With Line Selection"
-                description="Page Up With Line Selection)">
-        </action>
 
         <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleLineCharacterSelectionAction"
                 id="MissingInActions.ToggleLineCharacterSelection"
@@ -287,7 +225,6 @@
                 text='Delete to Word End in Different "CamelHumps" Mode not EOL'
                 description='Delete to Word End in Different "CamelHumps" Mode not EOL'>
         </action>
-
 
         <!-- Next Word End Actions -->
 

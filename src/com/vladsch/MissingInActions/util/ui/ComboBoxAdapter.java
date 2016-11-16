@@ -19,21 +19,14 @@
  * under the License.
  */
 
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 13, 2002
- * Time: 9:58:23 PM
- * To change template for new class use
- * Code Style | Class Templates options (Tools | IDE Options).
- */
-package com.vladsch.MissingInActions.actions.wrappers;
+package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.editor.actionSystem.EditorAction;
-import com.vladsch.MissingInActions.actions.MoveCaretLineUpOrDownActionHandler;
+import javax.swing.*;
 
-public class MoveCaretLineDownAction extends EditorAction {
-    public MoveCaretLineDownAction() {
-        super(new MoveCaretLineUpOrDownActionHandler(false, false));
-    }
+public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
+    void fillComboBox(JComboBox comboBox, E... exclude);
+    E findEnum(int intValue);
+    E findEnum(String displayName);
+    E valueOf(String name);
+    E getDefault();
 }

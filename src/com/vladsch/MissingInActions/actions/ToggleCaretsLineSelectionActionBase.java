@@ -49,6 +49,11 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction {
     }
 
     @Override
+    public boolean isDumbAware() {
+        return true;
+    }
+
+    @Override
     public void update(AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
@@ -132,7 +137,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction {
                         if (!getCaretInSelection()) caretModel.removeCaret(primaryCaret);
                     }
                 } else {
-                    adjuster.adjustCharacterSelectionToLineSelection(primaryCaret, false);
+                    adjuster.adjustCharacterSelectionToLineSelection(primaryCaret, true);
                 }
             }
         });

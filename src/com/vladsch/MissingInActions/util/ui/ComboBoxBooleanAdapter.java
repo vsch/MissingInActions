@@ -19,21 +19,8 @@
  * under the License.
  */
 
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 13, 2002
- * Time: 9:58:23 PM
- * To change template for new class use 
- * Code Style | Class Templates options (Tools | IDE Options).
- */
-package com.vladsch.MissingInActions.actions.wrappers;
+package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.editor.actionSystem.EditorAction;
-import com.vladsch.MissingInActions.actions.MoveCaretLineLeftOrRightHandler;
-
-public class MoveCaretLineRightAction extends EditorAction {
-    public MoveCaretLineRightAction() {
-        super(new MoveCaretLineLeftOrRightHandler(true, false));
-    }
+public interface ComboBoxBooleanAdapter<E extends ComboBoxAdaptable<E>> extends ComboBoxAdapter<E>{
+    E getNonDefault();
 }

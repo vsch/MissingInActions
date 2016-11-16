@@ -22,6 +22,8 @@
 package com.vladsch.MissingInActions;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
@@ -35,16 +37,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Plugin implements ApplicationComponent, EditorFactoryListener, Disposable {
+public class Plugin implements ApplicationComponent, EditorFactoryListener, AnActionListener, Disposable {
     final private HashMap<Editor, LineSelectionAdjuster> myAdjusterMap = new HashMap<>();
     private boolean caretInSelection = true;
 
     final public static int FEATURE_ENHANCED = 1;
     final public static int FEATURE_DEVELOPMENT = 2;
 
-    @SuppressWarnings("FieldCanBeLocal") 
+    @SuppressWarnings("FieldCanBeLocal")
     private static int license_features = 0;
-    
+
     @NotNull public static final String productVersion = "0.1.0";
     private static boolean license_initialized = false;
 
@@ -52,7 +54,7 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
         return license_features;
     }
 
-    public static boolean  isFeatureLicensed(int feature) {
+    public static boolean isFeatureLicensed(int feature) {
         return (license_features & feature) == feature;
     }
 
@@ -60,7 +62,7 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
         return Bundle.message("plugin.product-id");
     }
 
-    private static String  getProductDisplayName() {
+    private static String getProductDisplayName() {
         return Bundle.message("plugin.name");
     }
 
@@ -79,12 +81,6 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
 
     @Override
     public void dispose() {
-        for (Map.Entry<Editor, LineSelectionAdjuster> pair : myAdjusterMap.entrySet()) {
-            LineSelectionAdjuster adjuster = myAdjusterMap.remove(pair.getKey());
-            if (adjuster != null) {
-                Disposer.dispose(adjuster);
-            }
-        }
     }
 
     @Override
@@ -106,10 +102,52 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     @Override
     public void initComponent() {
         EditorFactory.getInstance().addEditorFactoryListener(this, ApplicationManager.getApplication());
+        ActionManager.getInstance().addAnActionListener(this);
+    }
+
+    @Override
+    public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
+        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
+        if (editor != null) {
+            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
+            if (adjuster != null) {
+                adjuster.beforeActionPerformed(action, dataContext, event);
+            }
+        }
+    }
+
+    @Override
+    public void afterActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
+        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
+        if (editor != null) {
+            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
+            if (adjuster != null) {
+                adjuster.afterActionPerformed(action, dataContext, event);
+            }
+        }
+    }
+
+    @Override
+    public void beforeEditorTyping(char c, DataContext dataContext) {
+        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
+        if (editor != null) {
+            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
+            if (adjuster != null) {
+                adjuster.beforeEditorTyping(c, dataContext);
+            }
+        }
     }
 
     @Override
     public void disposeComponent() {
+        ActionManager.getInstance().removeAnActionListener(this);
+
+        for (Map.Entry<Editor, LineSelectionAdjuster> pair : myAdjusterMap.entrySet()) {
+            LineSelectionAdjuster adjuster = myAdjusterMap.remove(pair.getKey());
+            if (adjuster != null) {
+                Disposer.dispose(adjuster);
+            }
+        }
     }
 
     @NotNull

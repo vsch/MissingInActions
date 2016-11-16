@@ -19,21 +19,34 @@
  * under the License.
  */
 
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 13, 2002
- * Time: 9:58:23 PM
- * To change template for new class use 
- * Code Style | Class Templates options (Tools | IDE Options).
- */
-package com.vladsch.MissingInActions.actions.wrappers;
+package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.editor.actionSystem.EditorAction;
-import com.vladsch.MissingInActions.actions.MoveCaretLineLeftOrRightHandler;
+import javax.swing.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-public class MoveCaretLineLeftWithSelectionAction extends EditorAction {
-    public MoveCaretLineLeftWithSelectionAction() {
-        super(new MoveCaretLineLeftOrRightHandler(false, true));
+public class ComboBoxBooleanAdapterImpl<E extends ComboBoxAdaptable<E>> extends ComboBoxAdapterImpl<E> implements ComboBoxBooleanAdapter<E> {
+    protected final E myNonDefault;
+
+    public ComboBoxBooleanAdapterImpl(E falseValue, E trueValue) {
+        super(falseValue);
+        this.myNonDefault = trueValue;
+    }
+
+    @Override
+    public void fillComboBox(JComboBox comboBox, E... exclude) {
+        Set<E> excluded = new HashSet<E>(Arrays.asList(exclude));
+
+        for (E item : myDefault.getEnumValues()) {
+            if (item == myDefault || item == myNonDefault) {
+                comboBox.addItem(item.getDisplayName());
+            }
+        }
+    }
+
+    @Override
+    public E getNonDefault() {
+        return myNonDefault;
     }
 }

@@ -29,16 +29,24 @@ import javax.swing.*;
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettingsForm implements Disposable {
     private JPanel myMainPanel;
+    final private ApplicationSettings mySettings;
+
+    private JComboBox myAutoLineMode;
     private JBCheckBox myMouseLineSelection;
-    private JBCheckBox myEditorBackspaceKey;
-    private JBCheckBox myEditorDeleteKey;
-    private JBCheckBox myEditorUpDownKeys;
-    private JBCheckBox myEditorLeftRightKeys;
-    private ApplicationSettings mySettings;
+    private JBCheckBox myUpDownSelection;
+    private JBCheckBox myDeleteOperations;
+    private JBCheckBox myUpDownMovement;
+    private JBCheckBox myLeftRightMovement;
+    private JComboBox myMouseModifier;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
-        myEditorLeftRightKeys.setVisible(false);
+        myLeftRightMovement.setVisible(false);
+
+        myMouseLineSelection.addActionListener(e -> updateOptions(false));
+        myUpDownSelection.addActionListener(e -> updateOptions(false));
+        
+        updateOptions(true);
     }
 
     public JComponent getComponent() {
@@ -48,32 +56,78 @@ public class ApplicationSettingsForm implements Disposable {
     public boolean isModified() {
         //noinspection PointlessBooleanExpression
         return false
+                || AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue() != mySettings.getAutoLineMode()
+                || MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue() != mySettings.getMouseModifier()
                 || myMouseLineSelection.isSelected() != mySettings.isMouseLineSelection()
-                || myEditorBackspaceKey.isSelected() != mySettings.isEditorBackspaceKey()
-                || myEditorDeleteKey.isSelected() != mySettings.isEditorDeleteKey()
-                || myEditorUpDownKeys.isSelected() != mySettings.isEditorUpDownKeys()
-                || myEditorLeftRightKeys.isSelected() != mySettings.isEditorLeftRightKeys()
+                || myDeleteOperations.isSelected() != mySettings.isDeleteOperations()
+                || myUpDownMovement.isSelected() != mySettings.isUpDownMovement()
+                || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
+                || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
                 ;
     }
 
     public void apply() {
+        mySettings.setAutoLineMode(AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue());
+        mySettings.setMouseModifier(MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue());
         mySettings.setMouseLineSelection(myMouseLineSelection.isSelected());
-        mySettings.setEditorBackspaceKey(myEditorBackspaceKey.isSelected());
-        mySettings.setEditorDeleteKey(myEditorDeleteKey.isSelected());
-        mySettings.setEditorUpDownKeys(myEditorUpDownKeys.isSelected());
-        mySettings.setEditorLeftRightKeys(myEditorLeftRightKeys.isSelected());
+        mySettings.setDeleteOperations(myDeleteOperations.isSelected());
+        mySettings.setUpDownMovement(myUpDownMovement.isSelected());
+        mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
+        mySettings.setUpDownSelection(myUpDownSelection.isSelected());
     }
 
     public void reset() {
+        myAutoLineMode.setSelectedItem(AutoLineSettingType.ADAPTER.findEnum(mySettings.getAutoLineMode()).getDisplayName());
+        myMouseModifier.setSelectedItem(MouseModifierType.ADAPTER.findEnum(mySettings.getAutoLineMode()).getDisplayName());
         myMouseLineSelection.setSelected(mySettings.isMouseLineSelection());
-        myEditorBackspaceKey.setSelected(mySettings.isEditorBackspaceKey());
-        myEditorDeleteKey.setSelected(mySettings.isEditorDeleteKey());
-        myEditorUpDownKeys.setSelected(mySettings.isEditorUpDownKeys());
-        myEditorLeftRightKeys.setSelected(mySettings.isEditorLeftRightKeys());
+        myDeleteOperations.setSelected(mySettings.isDeleteOperations());
+        myUpDownMovement.setSelected(mySettings.isUpDownMovement());
+        myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
+        myUpDownSelection.setSelected(mySettings.isUpDownSelection());
+        updateOptions(false);
     }
 
     @Override
     public void dispose() {
 
+    }
+
+    void updateOptions(boolean typeChanged) {
+        AutoLineSettingType type = AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem());
+        boolean enabled = false;
+        boolean selected = false;
+        
+        if (type == AutoLineSettingType.ENABLED) {
+            enabled = false;
+            selected = true;
+        } else if (type == AutoLineSettingType.EXPERT) {
+            enabled = true;
+            selected = true;
+        } else {
+            typeChanged = true;
+        }
+        
+        if (typeChanged) myMouseLineSelection.setSelected(selected);
+        if (typeChanged) myUpDownSelection.setSelected(selected);
+
+        boolean modeEnabled = myMouseLineSelection.isSelected() || myUpDownSelection.isSelected();
+        if (typeChanged || !modeEnabled) myDeleteOperations.setSelected(selected && modeEnabled);
+        if (typeChanged || !modeEnabled) myLeftRightMovement.setSelected(selected && modeEnabled);
+        if (typeChanged || !modeEnabled) myUpDownMovement.setSelected(selected && modeEnabled);
+
+        myMouseLineSelection.setEnabled(selected);
+        myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
+        myUpDownSelection.setEnabled(enabled);
+        myUpDownMovement.setEnabled(enabled && modeEnabled);
+        myDeleteOperations.setEnabled(enabled && modeEnabled);
+        myLeftRightMovement.setEnabled(enabled && modeEnabled);
+    }
+
+    private void createUIComponents() {
+        myAutoLineMode = new JComboBox();
+        AutoLineSettingType.fillComboBox(myAutoLineMode);
+        myAutoLineMode.addActionListener(e -> updateOptions(true));
+        myMouseModifier = new JComboBox();
+        MouseModifierType.fillComboBox(myMouseModifier);
     }
 }
