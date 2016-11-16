@@ -1,0 +1,393 @@
+<!--
+  ~ Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+  ~
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<idea-plugin version="2" url="http://github.com/vsch/MissingInActions" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <id>com.vladsch.MissingInActions</id>
+    <name>Missing in Actions</name>
+    <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
+    <description><![CDATA[
+        <div xmlns="http://www.w3.org/1999/html">
+            <p>Adds missing editor actions for navigation, selection and manipulation of selections and multiple carets.</p>
+            <p><strong>Plugin website: <a href="http://github.com/vsch/MissingInActions"><span
+                    style="color:#30A0D8">Missing in Actions GitHub Repo</span></a></strong></p>
+            <p><strong>Bug tracking & feature requests: <a
+                    href="https://github.com/vsch/MissingInActions/issues"><span style="color:#30A0D8">Missing in Actions GitHub Issues</span></a></strong>
+            </p>
+            <!--<p><strong>Documentation: <a href="https://github.com/vsch/idea-multimarkdown/wiki"><span style="color:#30A0D8">MultiMarkdown GitHub Wiki page.</span></a></strong>--></p>
+        </div>
+        ]]>
+    </description>
+
+    <version>0.5.0</version>
+    <idea-version since-build="143.2370"/>
+
+    <!--<xi:include href="/META-INF/version-notes.xml" xpointer="xpointer(/idea-plugin/*)"/>-->
+    <change-notes><![CDATA[
+        <div xmlns="http://www.w3.org/1999/html">
+            <h3>0.5.0 - Initial Release</h3>
+            <ul>
+                <li>Add: Next/Prev Word variations</li>
+                <li>Add: Multiple caret friendly versions of editing actions that will not inadvertently move
+                    carets to other lines</li>
+                <li>Add: Line based selection mode that can be toggled between line/char mode</li>
+                <li>Add: Line based mouse selections: more than one line automatically switches to line selection
+                    without moving caret to column 1</li>
+                <li>Add: Switch selection direction to move the caret to the other end of the selection</li>
+                <li>Add: caret straightening and toggle between selection and multiple carets to allow quick
+                    creation of multiple carets with line filtering:
+                    <ul>
+                        <li>on all lines</li>
+                        <li>only on non-blank lines</li>
+                        <li>only on blank lines</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        ]]></change-notes>
+
+    <project-components>
+        <!-- Plugin's project components -->
+    </project-components>
+
+    <application-components>
+        <!-- Add your application components here -->
+        <component>
+            <implementation-class>com.vladsch.MissingInActions.Plugin</implementation-class>
+        </component>
+        <component>
+            <implementation-class>com.vladsch.MissingInActions.settings.ApplicationSettings</implementation-class>
+        </component>
+    </application-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationConfigurable id="MissingInActions.Settings.Application"
+                                 bundle="com.vladsch.MissingInActions.localization.strings"
+                                 groupId="tools"
+                                 key="plugin.name"
+                                 instance="com.vladsch.MissingInActions.settings.ApplicationConfigurable">
+        </applicationConfigurable>
+    </extensions>
+
+    <actions>
+<!--
+        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteAction"
+                id="MissingInActions.DeleteCharacter"
+                text="Delete (Line Selection Aware)"
+                description="Delete (Line Selection Aware)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.BackspaceAction"
+                id="MissingInActions.BackspaceCharacter"
+                text="Backspace (Line Selection Aware)"
+                description="Backspace (Line Selection Aware)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineDownAction"
+                id="MissingInActions.MoveCaretLineDown"
+                text="Move Caret Down"
+                description="Move Caret Down">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineUpAction"
+                id="MissingInActions.MoveCaretLineUpAction"
+                text="Move Caret Up"
+                description="Move Caret Up">
+        </action>
+        
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineRightAction"
+                id="MissingInActions.MoveCaretLineRight"
+                text="Move Caret Right"
+                description="Move Caret Right">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineLeftAction"
+                id="MissingInActions.MoveCaretLineLeftAction"
+                text="Move Caret Left"
+                description="Move Caret Left">
+        </action>
+-->
+        
+        <!-- Line Based movement and selection -->
+        
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineDownWithSelectionAction"
+                id="MissingInActions.MoveCaretLineDownWithSelection"
+                text="Move Caret Down with Line Selection"
+                description="Move Caret Down with Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineUpWithSelectionAction"
+                id="MissingInActions.MoveCaretLineUpWithSelection"
+                text="Move Caret Up with Line Selection"
+                description="Move Caret Up with Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineRightWithSelectionAction"
+                id="MissingInActions.MoveCaretLineRightWithSelection"
+                text="Move Caret Right with Line Selection"
+                description="Move Caret Right with Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineLeftWithSelectionAction"
+                id="MissingInActions.MoveCaretLineLeftWithSelection"
+                text="Move Caret Left with Line Selection"
+                description="Move Caret Left with Line Selection">
+        </action>
+
+        <!-- Line Selection Aware Selection Wrappers -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PageBottomWithLineSelectionAction"
+                id="MissingInActions.PageBottomWithLineSelection"
+                text="Page Bottom With Line Selection"
+                description="Page Bottom With Line Selection)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PageDownWithLineSelectionAction"
+                id="MissingInActions.PageDownWithLineSelection"
+                text="Page Down With Line Selection"
+                description="Page Down With Line Selection)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PageTopWithLineSelectionAction"
+                id="MissingInActions.PageTopWithLineSelection"
+                text="Page Top With Line Selection"
+                description="Page Top With Line Selection)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PageUpWithLineSelectionAction"
+                id="MissingInActions.PageUpWithLineSelection"
+                text="Page Up With Line Selection"
+                description="Page Up With Line Selection)">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleLineCharacterSelectionAction"
+                id="MissingInActions.ToggleLineCharacterSelection"
+                text="Toggle Line/Character Selection"
+                description="Toggle Line/Character Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToCharacterSelectionAction"
+                id="MissingInActions.To Character Selection"
+                text="To Character Selection"
+                description="To Character Selection">
+        </action>
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToLineSelectionAction"
+                id="MissingInActions.To Line Selection"
+                text="To Line Selection"
+                description="To Line Selection">
+        </action>
+
+        <!-- Caret/Selection Shapers and Filters -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.StraightenCaretsAction"
+                id="MissingInActions.StraightenCarets"
+                text="Straighten Carets"
+                description="Straighten Carets">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.RemoveBlankLineCaretsAction"
+                id="MissingInActions.RemoveBlankLineCarets"
+                text="Remove Blank Line Carets"
+                description="Remove Blank Line Carets">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.RemoveNonBlankLineCaretsAction"
+                id="MissingInActions.RemoveNonBlankLineCarets"
+                text="Remove Non Blank Line Carets"
+                description="Remove Non Blank Line Carets">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleCaretsLineSelectionAction"
+                id="MissingInActions.ToggleCaretsLineSelection"
+                text="Toggle Between Carets and Line Selection"
+                description="Toggle Between Carets and Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleNonBlankLineCaretsLineSelectionAction"
+                id="MissingInActions.ToggleNonBlankLineCaretsLineSelection"
+                text="Toggle Between Non Blank Line Carets and Line Selection"
+                description="Toggle Between Non Blank Line Carets and Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleBlankLineCaretsLineSelectionAction"
+                id="MissingInActions.ToggleBlankLineCaretsLineSelection"
+                text="Toggle Between Blank Line Carets and Line Selection"
+                description="Toggle Between Blank Line Carets and Line Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleSelectionAnchorAction"
+                id="MissingInActions.ToggleSelectionDirection"
+                text="Toggle Direction of Selection"
+                description="Toggle Direction of Selection">
+        </action>
+
+        <!-- Multi Caret Friendly Deletes  -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteToLineEndNotEolAction"
+                id="MissingInActions.DeleteToLineEndNotEol"
+                text="Delete to Line End not EOL"
+                description="Delete to Line End not EOL">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteToLineStartIndentAction"
+                id="MissingInActions.DeleteToLineStartIndent"
+                text="Delete to Line Start Indent"
+                description="Delete to Line Start Indent">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.ClearToLineStartAction"
+                id="MissingInActions.ClearToLineStart"
+                text="Clear to Line Start"
+                description="Clear to Line Start">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.BackspaceToWordStartNotEolAction"
+                id="MissingInActions.BackspaceToWordStartNotEol"
+                text="Backspace to Word Start not EOL"
+                description="Backspace to Word Start not EOL">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.BackspaceToWordStartNotEolInDifferentHumpsModeAction"
+                id="MissingInActions.BackspaceToWordStartNotEolInDifferentHumpsMode"
+                text='Backspace to Word End in Different "CamelHumps" Mode not EOL'
+                description='Backspace to Word Start in Different "CamelHumps" Mode not EOL'>
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteToWordEndNotEolAction"
+                id="MissingInActions.DeleteToWordEndNotEol"
+                text="Delete to Word End not EOL"
+                description="Delete to Word End not EOL">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.DeleteToWordEndNotEolInDifferentHumpsModeAction"
+                id="MissingInActions.DeleteToWordEndNotEolInDifferentHumpsMode"
+                text='Delete to Word End in Different "CamelHumps" Mode not EOL'
+                description='Delete to Word End in Different "CamelHumps" Mode not EOL'>
+        </action>
+
+
+        <!-- Next Word End Actions -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordEndAction"
+                id="MissingInActions.NextWordEnd"
+                text="Move Caret to Next End of Word"
+                description="Move Caret to Next End of Word">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordEndWithSelectionAction"
+                id="MissingInActions.NextWordEndWithSelection"
+                text="Move Caret to Next End of Word with Selection"
+                description="Move Caret to Next End of Word with Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordEndInDifferentHumpsModeAction"
+                id="MissingInActions.NextWordInDifferentHumpsModeEnd"
+                text='Move Caret to Next End of Word in Different "CamelHumps" Mode'
+                description='"Move Caret to Next End of Word in Different "CamelHumps" Mode'>
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordEndInDifferentHumpsModeWithSelectionAction"
+                id="MissingInActions.NextWordInDifferentHumpsModeEndWithSelection"
+                text='Move Caret to Next End of Word in Different "CamelHumps" Mode with Selection'
+                description='Move Caret to Next End of Word in Different "CamelHumps" Mode with Selection'>
+        </action>
+
+        <!-- Previous Word End Actions -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordEndAction"
+                id="MissingInActions.PreviousWordEnd"
+                text="Move Caret to Previous End of Word"
+                description="Move Caret to Previous End of Word">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordEndWithSelectionAction"
+                id="MissingInActions.PreviousWordEndWithSelection"
+                text="Move Caret to Previous End of Word with Selection"
+                description="Move caret to end of previous word with selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordEndInDifferentHumpsModeAction"
+                id="MissingInActions.PreviousWordInDifferentHumpsModeEnd"
+                text='Move Caret to Previous End of Word in Different "CamelHumps" Mode'
+                description='"Move Caret to Previous End of Word in Different "CamelHumps" Mode'>
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordEndInDifferentHumpsModeWithSelectionAction"
+                id="MissingInActions.PreviousWordInDifferentHumpsModeEndWithSelection"
+                text='Move Caret to Previous End of Word in Different "CamelHumps" Mode with Selection'
+                description='Move Caret to Previous End of Word in Different "CamelHumps" Mode with Selection'>
+        </action>
+
+        <!-- Next Word Start Actions -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordStartAction"
+                id="MissingInActions.NextWordStart"
+                text="Move Caret to Next Start of Word"
+                description="Move Caret to Next Start of Word">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordStartWithSelectionAction"
+                id="MissingInActions.NextWordStartWithSelection"
+                text="Move Caret to Next Start of Word with Selection"
+                description="Move Caret to Next Start of Word with Selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordStartInDifferentHumpsModeAction"
+                id="MissingInActions.NextWordInDifferentHumpsModeStart"
+                text='Move Caret to Next Start of Word in Different "CamelHumps" Mode'
+                description='"Move Caret to Next Start of Word in Different "CamelHumps" Mode'>
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.NextWordStartInDifferentHumpsModeWithSelectionAction"
+                id="MissingInActions.NextWordInDifferentHumpsModeStartWithSelection"
+                text='Move Caret to Next Start of Word in Different "CamelHumps" Mode with Selection'
+                description='Move Caret to Next Start of Word in Different "CamelHumps" Mode with Selection'>
+        </action>
+
+        <!-- Previous Word Start Actions -->
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordStartAction"
+                id="MissingInActions.PreviousWordStart"
+                text="Move Caret to Previous Start of Word"
+                description="Move Caret to Previous Start of Word">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordStartWithSelectionAction"
+                id="MissingInActions.PreviousWordStartWithSelection"
+                text="Move Caret to Previous Start of Word with Selection"
+                description="Move caret to end of previous word with selection">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordStartInDifferentHumpsModeAction"
+                id="MissingInActions.PreviousWordInDifferentHumpsModeStart"
+                text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode'
+                description='"Move Caret to Previous Start of Word in Different "CamelHumps" Mode'>
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.wrappers.PreviousWordStartInDifferentHumpsModeWithSelectionAction"
+                id="MissingInActions.PreviousWordInDifferentHumpsModeStartWithSelection"
+                text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection'
+                description='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection'>
+        </action>
+
+    </actions>
+
+</idea-plugin>

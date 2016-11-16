@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MarkdownProjectSettings">
+    <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="0.75" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizeScrollPosition="false" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="true">
+      <PanelProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
+      </PanelProvider>
+    </PreviewSettings>
+    <ParserSettings>
+      <PegdownExtensions>
+        <option name="ABBREVIATIONS" value="false" />
+        <option name="ANCHORLINKS" value="false" />
+        <option name="ATXHEADERSPACE" value="true" />
+        <option name="AUTOLINKS" value="true" />
+        <option name="DEFINITIONS" value="false" />
+        <option name="FENCED_CODE_BLOCKS" value="true" />
+        <option name="FOOTNOTES" value="true" />
+        <option name="FORCELISTITEMPARA" value="false" />
+        <option name="HARDWRAPS" value="false" />
+        <option name="QUOTES" value="false" />
+        <option name="RELAXEDHRULES" value="true" />
+        <option name="SMARTS" value="false" />
+        <option name="STRIKETHROUGH" value="true" />
+        <option name="SUPPRESS_HTML_BLOCKS" value="false" />
+        <option name="SUPPRESS_INLINE_HTML" value="false" />
+        <option name="TABLES" value="true" />
+        <option name="TASKLISTITEMS" value="true" />
+        <option name="TOC" value="true" />
+        <option name="TRACE_PARSER" value="false" />
+        <option name="WIKILINKS" value="true" />
+      </PegdownExtensions>
+      <ParserOptions>
+        <option name="COMMONMARK_LISTS" value="false" />
+        <option name="DUMMY" value="false" />
+        <option name="EMOJI_SHORTCUTS" value="true" />
+        <option name="FLEXMARK_FRONT_MATTER" value="true" />
+        <option name="GFM_TABLE_RENDERING" value="true" />
+        <option name="GITBOOK_URL_ENCODING" value="true" />
+        <option name="GITHUB_EMOJI_URL" value="false" />
+        <option name="GITHUB_LISTS" value="false" />
+        <option name="GITHUB_WIKI_LINKS" value="true" />
+        <option name="JEKYLL_FRONT_MATTER" value="true" />
+        <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
+      </ParserOptions>
+    </ParserSettings>
+    <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" embedUrlContent="false" addPageHeader="true">
+      <GeneratorProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.generator" providerName="JavaFx HTML Generator" />
+      </GeneratorProvider>
+      <headerTop />
+      <headerBottom />
+      <bodyTop />
+      <bodyBottom />
+    </HtmlSettings>
+    <CssSettings previewScheme="UI_SCHEME" cssUri="" isCssUriEnabled="false" isCssTextEnabled="true" isDynamicPageWidth="true">
+      <StylesheetProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.css" providerName="Default JavaFx Stylesheet" />
+      </StylesheetProvider>
+      <ScriptProviders>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.prismjs.html.script" providerName="Prism.js Script" />
+      </ScriptProviders>
+      <cssText>#readme .markdown-body {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding: 49px 38px 45px 38px;
+    word-wrap: break-word;
+}
+
+var {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+code {
+    background-color: rgba(255, 0, 102, 0.06);
+    color: #b00042;
+}
+
+code {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+kbd {
+    border: solid 1px #ccc;
+    box-shadow: inset 0 -1px 0 #bbb;
+    color: rgba(19, 0, 68, 0.75);
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+kbd {
+    border-radius: 3px;
+    display: inline-block;
+    font: 14px Consolas, &quot;Liberation Mono&quot;, Menlo, Courier, monospace;
+    font-weight: 500;
+    line-height: 10px;
+    padding: 6px 4px 2px 4px;
+    vertical-align: middle;
+}</cssText>
+    </CssSettings>
+    <HtmlExportSettings updateOnSave="false" parentDir="$ProjectFileDir$" targetDir="$OutputPath$" cssDir="" scriptDir="" plainHtml="false" />
+  </component>
+</project>

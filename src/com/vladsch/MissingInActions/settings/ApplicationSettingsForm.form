@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.vladsch.MissingInActions.settings.ApplicationSettingsForm">
+  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="605" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="ec693" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.editor-keys.title"/>
+        <children>
+          <grid id="f6680" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.auto-line.section.title"/>
+            <children>
+              <component id="ee6de" class="com.intellij.ui.components.JBCheckBox" binding="myMouseLineSelection">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.mouse"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.mouse.description"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="463f5" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.virtual-space-aware.section.description"/>
+            </properties>
+            <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.virtual-space-aware.section.title"/>
+            <children>
+              <component id="b1708" class="com.intellij.ui.components.JBCheckBox" binding="myEditorUpDownKeys">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.up-down.label"/>
+                </properties>
+              </component>
+              <component id="25b73" class="com.intellij.ui.components.JBCheckBox" binding="myEditorLeftRightKeys">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.left-right.label"/>
+                </properties>
+              </component>
+              <component id="d30d8" class="com.intellij.ui.components.JBCheckBox" binding="myEditorBackspaceKey">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.backspace.label"/>
+                </properties>
+              </component>
+              <component id="87f4f" class="com.intellij.ui.components.JBCheckBox" binding="myEditorDeleteKey">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.delete.label"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <vspacer id="960be">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
+          <component id="25383" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.long-winded.description"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

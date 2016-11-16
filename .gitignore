@@ -1,0 +1,20 @@
+### Java template
+out/
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+
+# Created by .ignore support plugin (hsz.mobi)
+/MissingInActions.jar
+/libprep
+/MissingInActions.iws
+assets/ScreenShotSequence.psd
+assets/toolbar-icons.psd
+/BEDIT_README.md
+/update-plugin.sh
+/release.sh
+/MissingInActions.zip
+/lib/kotlin-runtime-sources.jar
+/.idea/workspace.xml
