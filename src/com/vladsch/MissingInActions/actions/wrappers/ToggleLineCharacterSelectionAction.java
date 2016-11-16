@@ -30,9 +30,10 @@
 package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actionSystem.EditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.ToLineOrCharacterSelectionTypeActionHandler;
 
-public class ToggleLineCharacterSelectionAction extends EditorAction {
+public class ToggleLineCharacterSelectionAction extends EditorAction  implements LineSelectionAware {
     public ToggleLineCharacterSelectionAction() {
         super(new ToLineOrCharacterSelectionTypeActionHandler(null));
     }

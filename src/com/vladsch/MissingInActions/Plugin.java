@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Plugin implements ApplicationComponent, EditorFactoryListener, AnActionListener, Disposable {
+public class Plugin implements ApplicationComponent, EditorFactoryListener, Disposable {
     final private HashMap<Editor, LineSelectionAdjuster> myAdjusterMap = new HashMap<>();
     private boolean caretInSelection = true;
 
@@ -102,46 +102,10 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, AnAc
     @Override
     public void initComponent() {
         EditorFactory.getInstance().addEditorFactoryListener(this, ApplicationManager.getApplication());
-        ActionManager.getInstance().addAnActionListener(this);
-    }
-
-    @Override
-    public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
-        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
-        if (editor != null) {
-            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
-            if (adjuster != null) {
-                adjuster.beforeActionPerformed(action, dataContext, event);
-            }
-        }
-    }
-
-    @Override
-    public void afterActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
-        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
-        if (editor != null) {
-            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
-            if (adjuster != null) {
-                adjuster.afterActionPerformed(action, dataContext, event);
-            }
-        }
-    }
-
-    @Override
-    public void beforeEditorTyping(char c, DataContext dataContext) {
-        Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
-        if (editor != null) {
-            LineSelectionAdjuster adjuster = myAdjusterMap.get(editor);
-            if (adjuster != null) {
-                adjuster.beforeEditorTyping(c, dataContext);
-            }
-        }
     }
 
     @Override
     public void disposeComponent() {
-        ActionManager.getInstance().removeAnActionListener(this);
-
         for (Map.Entry<Editor, LineSelectionAdjuster> pair : myAdjusterMap.entrySet()) {
             LineSelectionAdjuster adjuster = myAdjusterMap.remove(pair.getKey());
             if (adjuster != null) {

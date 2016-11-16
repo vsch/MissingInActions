@@ -42,6 +42,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myUpDownMovement = false;
     private boolean myLeftRightMovement = false;
     private boolean myUpDownSelection = false;
+    private boolean myGenericActions = false;
 
     public boolean isLineModeEnabled() {
         return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
@@ -51,6 +52,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                         //|| myUpDownMovement
                         //|| myLeftRightMovement
         );
+    }
+
+    public boolean isGenericActions() {
+        return myGenericActions;
+    }
+
+    public void setGenericActions(boolean genericActions) {
+        myGenericActions = genericActions;
     }
 
     public int getMouseModifier() {

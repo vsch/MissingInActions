@@ -30,9 +30,10 @@
 package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actions.TextComponentEditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NextOrPrevWordStartHandler;
 
-public class PreviousWordStartWithSelectionAction extends TextComponentEditorAction {
+public class PreviousWordStartWithSelectionAction extends TextComponentEditorAction  implements LineSelectionAware {
     public PreviousWordStartWithSelectionAction() {
         super(new NextOrPrevWordStartHandler(false, true, false));
     }

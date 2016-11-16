@@ -29,9 +29,10 @@
  */
 package com.vladsch.MissingInActions.actions.wrappers;
 
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.RemoveLineCaretsActionBase;
 
-public class RemoveBlankLineCaretsAction extends RemoveLineCaretsActionBase {
+public class RemoveBlankLineCaretsAction extends RemoveLineCaretsActionBase  implements LineSelectionAware {
     public RemoveBlankLineCaretsAction() {
         super(true);
     }

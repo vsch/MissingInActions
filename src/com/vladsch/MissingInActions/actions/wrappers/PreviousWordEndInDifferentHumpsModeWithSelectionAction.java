@@ -22,9 +22,10 @@
 package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actions.TextComponentEditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NextOrPrevWordEndHandler;
 
-public class PreviousWordEndInDifferentHumpsModeWithSelectionAction extends TextComponentEditorAction {
+public class PreviousWordEndInDifferentHumpsModeWithSelectionAction extends TextComponentEditorAction implements LineSelectionAware {
     public PreviousWordEndInDifferentHumpsModeWithSelectionAction() {
         super(new NextOrPrevWordEndHandler(false, true, true));
     }

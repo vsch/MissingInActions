@@ -13,7 +13,7 @@
 - Fix: toggle carets/selection would not work during indexing, was missing dumb aware flag.
 - Change: implementation to work with standard actions where possible and adjust their
   operation to work with line selections.
-- Add: config options to enable, disable and tweak options
+- Add: config options to enable, disable and tweak behaviour
 
 ### 0.5.1 - Bug Fix
 

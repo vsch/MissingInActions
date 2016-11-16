@@ -29,9 +29,10 @@
  */
 package com.vladsch.MissingInActions.actions.wrappers;
 
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.ToggleCaretsLineSelectionActionBase;
 
-public class ToggleCaretsLineSelectionAction extends ToggleCaretsLineSelectionActionBase {
+public class ToggleCaretsLineSelectionAction extends ToggleCaretsLineSelectionActionBase  implements LineSelectionAware {
     public ToggleCaretsLineSelectionAction() {
         super(true,true);
     }

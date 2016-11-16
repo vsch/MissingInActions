@@ -23,8 +23,9 @@ package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.vladsch.MissingInActions.actions.DeleteOrClearLineNotEolActionHandler;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class ClearToLineStartAction extends EditorAction {
+public class ClearToLineStartAction extends EditorAction implements LineSelectionAware {
     public ClearToLineStartAction() {
         super(new DeleteOrClearLineNotEolActionHandler(true,true));
     }

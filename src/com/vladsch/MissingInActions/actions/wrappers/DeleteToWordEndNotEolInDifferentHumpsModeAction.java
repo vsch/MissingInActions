@@ -23,8 +23,9 @@ package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actions.TextComponentEditorAction;
 import com.vladsch.MissingInActions.actions.DeleteToWordEndNotEolActionHandler;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class DeleteToWordEndNotEolInDifferentHumpsModeAction extends TextComponentEditorAction {
+public class DeleteToWordEndNotEolInDifferentHumpsModeAction extends TextComponentEditorAction implements LineSelectionAware {
     public DeleteToWordEndNotEolInDifferentHumpsModeAction() {
         super(new DeleteToWordEndNotEolActionHandler(true));
     }

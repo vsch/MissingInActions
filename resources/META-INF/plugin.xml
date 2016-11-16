@@ -36,26 +36,20 @@
         ]]>
     </description>
 
-    <version>0.5.1.1</version>
+    <version>0.6.0</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h2>Markdown Navigator</h2>
-            <div>
-                <h1>Version History</h1>
-                <ul>
-                    <li><a href="#052---bug-fix">0.5.2 - Bug Fix</a></li>
-                    <li><a href="#051---initial-release">0.5.1 - Bug Fix</a></li>
-                    <li><a href="#050---initial-release">0.5.0 - Initial Release</a></li>
-                </ul>
-            </div>
-            <h3>0.5.2 - Bug Fix</h3>
+            <h3>0.6.0 - Bug Fix and Features</h3>
             <ul>
                 <li>Fix: toggle carets/selection would not work during indexing, was missing dumb aware flag.</li>
+                <li>Change: implementation to work with standard actions where possible and adjust their
+                    operation to work with line selections.</li>
+                <li>Add: config options to enable, disable and tweak behaviour</li>
             </ul>
-            <h3>0.5.1 - Initial Release</h3>
+            <h3>0.5.1 - Bug Fix</h3>
             <ul>
                 <li>Fix: missing dependency in <code>plugin.xml</code></li>
             </ul>
@@ -105,21 +99,7 @@
     </extensions>
 
     <actions>
-        <!-- Line Based movement and selection -->
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineDownWithSelectionAction"
-                id="MissingInActions.MoveCaretLineDownWithSelection"
-                text="Move Caret Down with Line Selection"
-                description="Move Caret Down with Line Selection">
-        </action>
-
-        <action class="com.vladsch.MissingInActions.actions.wrappers.MoveCaretLineUpWithSelectionAction"
-                id="MissingInActions.MoveCaretLineUpWithSelection"
-                text="Move Caret Up with Line Selection"
-                description="Move Caret Up with Line Selection">
-        </action>
-
-        <!-- Line Selection Aware Selection Wrappers -->
+        <!-- Line Selection / Char Selection Switchers -->
 
         <action class="com.vladsch.MissingInActions.actions.wrappers.ToggleLineCharacterSelectionAction"
                 id="MissingInActions.ToggleLineCharacterSelection"

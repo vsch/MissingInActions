@@ -37,8 +37,9 @@ import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class StraightenCaretsAction extends AnAction {
+public class StraightenCaretsAction extends AnAction  implements LineSelectionAware {
     public StraightenCaretsAction() {
         setEnabledInModalContext(true);
     }

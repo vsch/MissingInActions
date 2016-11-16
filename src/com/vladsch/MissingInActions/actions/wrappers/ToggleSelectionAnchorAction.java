@@ -30,9 +30,10 @@
 package com.vladsch.MissingInActions.actions.wrappers;
 
 import com.intellij.openapi.editor.actionSystem.EditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.ToggleCaretSelectionAnchorActionHandler;
 
-public class ToggleSelectionAnchorAction extends EditorAction {
+public class ToggleSelectionAnchorAction extends EditorAction  implements LineSelectionAware {
     public ToggleSelectionAnchorAction() {
         super(new ToggleCaretSelectionAnchorActionHandler());
     }
