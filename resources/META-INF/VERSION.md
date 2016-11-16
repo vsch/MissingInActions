@@ -1,6 +1,19 @@
+## Markdown Navigator
+
+[TOC levels=3,6]: # "Version History"
+
+### Version History
+- [0.5.1 - Initial Release](#051---initial-release)
+- [0.5.0 - Initial Release](#050---initial-release)
+
+
+### 0.5.1 - Initial Release
+
+- Fix: missing dependency in `plugin.xml`
+
 ### 0.5.0 - Initial Release
 
-- Add: Next/Prev Word variations  
+- Add: Next/Prev Word variations
 - Add: Multiple caret friendly versions of editing actions that will not inadvertently move
   carets to other lines
 - Add: Line based selection mode that can be toggled between line/char mode
@@ -9,7 +22,7 @@
 - Add: Switch selection direction to move the caret to the other end of the selection
 - Add: caret straightening and toggle between selection and multiple carets to allow quick
   creation of multiple carets with line filtering:
-    - on all lines 
+    - on all lines
     - only on non-blank lines
     - only on blank lines
 
