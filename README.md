@@ -1,5 +1,7 @@
 # Missing in Actions
 
+<!--**You can download it on the [JetBrains plugin page].**-->
+
 [TOC]: #
 
 ### Table of Contents
@@ -143,4 +145,4 @@ when the mouse button is released.
 
 [Version Notes]: /resources/META-INF/VERSION.md
 
-
+[JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=7896
