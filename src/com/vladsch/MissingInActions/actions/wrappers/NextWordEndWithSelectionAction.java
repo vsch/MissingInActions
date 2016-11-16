@@ -29,11 +29,10 @@
  */
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.intellij.openapi.editor.actions.TextComponentEditorAction;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NextOrPrevWordEndHandler;
 
-public class NextWordEndWithSelectionAction extends TextComponentEditorAction  implements LineSelectionAware {
+public class NextWordEndWithSelectionAction extends DumbAwareTextComponentEditorAction  implements LineSelectionAware {
     public NextWordEndWithSelectionAction() {
         super(new NextOrPrevWordEndHandler(true, true, false));
     }

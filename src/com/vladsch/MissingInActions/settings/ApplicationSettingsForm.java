@@ -38,7 +38,6 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox myUpDownMovement;
     private JBCheckBox myLeftRightMovement;
     private JComboBox myMouseModifier;
-    private JBCheckBox myGenericActions;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -63,7 +62,6 @@ public class ApplicationSettingsForm implements Disposable {
                 || myUpDownMovement.isSelected() != mySettings.isUpDownMovement()
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
                 || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
-                || myGenericActions.isSelected() != mySettings.isGenericActions()
                 ;
     }
 
@@ -75,7 +73,6 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setUpDownMovement(myUpDownMovement.isSelected());
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
         mySettings.setUpDownSelection(myUpDownSelection.isSelected());
-        mySettings.setGenericActions(myGenericActions.isSelected());
     }
 
     public void reset() {
@@ -86,7 +83,6 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setSelected(mySettings.isUpDownMovement());
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
         myUpDownSelection.setSelected(mySettings.isUpDownSelection());
-        myGenericActions.setSelected(mySettings.isGenericActions());
         updateOptions(false);
     }
 
@@ -104,13 +100,11 @@ public class ApplicationSettingsForm implements Disposable {
         if (type == AutoLineSettingType.ENABLED) {
             enabled = false;
             selected = true;
-            myGenericActions.setSelected(false);
         } else if (type == AutoLineSettingType.EXPERT) {
             enabled = true;
             selected = true;
         } else {
             typeChanged = true;
-            myGenericActions.setSelected(false);
         }
         
         if (typeChanged) myMouseLineSelection.setSelected(selected);
@@ -127,7 +121,6 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
-        myGenericActions.setEnabled(enabled && modeEnabled);
     }
 
     private void createUIComponents() {

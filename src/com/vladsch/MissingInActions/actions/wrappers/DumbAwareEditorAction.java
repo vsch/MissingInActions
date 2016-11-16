@@ -21,11 +21,18 @@
 
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.vladsch.MissingInActions.actions.BackspaceToWordStartNotEolActionHandler;
+import com.intellij.openapi.editor.actionSystem.EditorAction;
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import org.jetbrains.annotations.NotNull;
 
-public class BackspaceToWordStartNotEolAction extends DumbAwareTextComponentEditorAction implements LineSelectionAware {
-    public BackspaceToWordStartNotEolAction() {
-        super(new BackspaceToWordStartNotEolActionHandler(false));
+abstract public class DumbAwareEditorAction extends EditorAction implements LineSelectionAware {
+    public DumbAwareEditorAction(@NotNull EditorActionHandler defaultHandler) {
+        super(defaultHandler);
+    }
+    
+    @Override
+    public boolean isDumbAware() {
+        return true;
     }
 }

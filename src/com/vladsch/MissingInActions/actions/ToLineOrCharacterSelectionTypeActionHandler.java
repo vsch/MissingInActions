@@ -39,10 +39,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
     final private @Nullable Boolean myMakeLine;
+    final private @Nullable Boolean myTrimmedLine;
 
-    public ToLineOrCharacterSelectionTypeActionHandler(@Nullable Boolean makeLine) {
+    public ToLineOrCharacterSelectionTypeActionHandler(@Nullable Boolean makeLine, boolean trimmedLine) {
         super(true);
         myMakeLine = makeLine;
+        myTrimmedLine = trimmedLine;
     }
 
     @Override
@@ -82,7 +84,7 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
             } else {
                 // make it line selection
                 if (wantLine()) {
-                    adjuster.adjustCharacterSelectionToLineSelection(caret, true);
+                    adjuster.adjustCharacterSelectionToLineSelection(caret, true, myTrimmedLine);
                 }
             }
         }

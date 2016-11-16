@@ -19,13 +19,21 @@
  * under the License.
  */
 
+/*
+ * Created by IntelliJ IDEA.
+ * User: max
+ * Date: May 14, 2002
+ * Time: 7:40:40 PM
+ * To change template for new class use
+ * Code Style | Class Templates options (Tools | IDE Options).
+ */
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.vladsch.MissingInActions.actions.BackspaceToWordStartNotEolActionHandler;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import com.vladsch.MissingInActions.actions.ToLineOrCharacterSelectionTypeActionHandler;
 
-public class BackspaceToWordStartNotEolAction extends DumbAwareTextComponentEditorAction implements LineSelectionAware {
-    public BackspaceToWordStartNotEolAction() {
-        super(new BackspaceToWordStartNotEolActionHandler(false));
+public class ToTrimmedLineSelectionAction extends DumbAwareEditorAction  implements LineSelectionAware {
+    public ToTrimmedLineSelectionAction() {
+        super(new ToLineOrCharacterSelectionTypeActionHandler(true, true));
     }
 }

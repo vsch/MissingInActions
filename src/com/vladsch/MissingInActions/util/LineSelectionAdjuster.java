@@ -35,7 +35,6 @@ import com.intellij.openapi.editor.actions.*;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.util.messages.MessageBusConnection;
 import com.vladsch.MissingInActions.Plugin;
-import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
@@ -49,6 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
+import static com.intellij.util.text.CharArrayUtil.isEmptyOrSpaces;
 import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
 
 /**
@@ -265,7 +265,7 @@ public class LineSelectionAdjuster implements CaretListener
                         myAfterActions.put(event, () -> {
                             for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                                 if (caret.hasSelection()) {
-                                    adjustCharacterSelectionToLineSelection(caret, false);
+                                    adjustCharacterSelectionToLineSelection(caret, false, false);
                                 }
 
                                 if (caretColumns.containsKey(caret)) {
@@ -342,20 +342,13 @@ public class LineSelectionAdjuster implements CaretListener
                             }
                         });
                     }
-                } else if (!(action instanceof LineSelectionAware)) {
-                    final boolean contains = MAKE_LINE_IF_LOOKS_IT_AFTER_ACTIONS.contains(action.getClass());
-
+                } else if (MAKE_LINE_IF_LOOKS_IT_AFTER_ACTIONS.contains(action.getClass())) {
                     // here we try our best and do not change anything except preserve caret column if after operation there is a selection 
                     // that is a line selection and the caret is at 0 and there was no selection before or it was a line selection
                     final HashMap<Caret, Integer> caretColumns = new HashMap<>();
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        LineSelectionState state = getSelectionState(caret);
-                        if (caret.hasSelection() && state.isLine() || contains) {
-                            if (settings.isGenericActions() || contains) {
-                                caretColumns.put(caret, caret.getLogicalPosition().column);
-                            }
-                            adjustLineSelectionToCharacterSelection(caret, false);
-                        }
+                        caretColumns.put(caret, caret.getLogicalPosition().column);
+                        adjustLineSelectionToCharacterSelection(caret, false);
                     }
 
                     myAfterActions.put(event, () -> {
@@ -372,10 +365,8 @@ public class LineSelectionAdjuster implements CaretListener
                                         }
                                     }
 
-                                    if (settings.isGenericActions() || contains) {
-                                        LineSelectionState state = getSelectionState(caret);
-                                        state.setLine(true);
-                                    }
+                                    LineSelectionState state = getSelectionState(caret);
+                                    state.setLine(true);
                                 }
                             }
                         }
@@ -496,18 +487,29 @@ public class LineSelectionAdjuster implements CaretListener
         });
     }
 
-    public void adjustCharacterSelectionToLineSelection(@NotNull Caret caret, boolean alwaysLine) {
+    public void adjustCharacterSelectionToLineSelection(@NotNull Caret caret, boolean alwaysLine, boolean trimmedLine) {
         if (caret.hasSelection()) {
             LineSelectionState state = getSelectionState(caret);
             if (!state.isLine()) {
-                final LogPos.Factory f = LogPos.factory(myEditor);
-                final LogPos start = f.fromOffset(caret.getSelectionStart());
-                final LogPos end = f.fromOffset(caret.getSelectionEnd());
-
                 myCaretGuard.guard(() -> {
+                    final LogPos.Factory f = LogPos.factory(myEditor);
+                    LogPos start = f.fromOffset(caret.getSelectionStart());
+                    LogPos end = f.fromOffset(caret.getSelectionEnd());
+
                     if (start.line == end.line && !alwaysLine) {
                         state.setLine(false);
                     } else {
+                        if (trimmedLine) {
+                            // if from start to end of line is all blanks, then move start to beginning of next line
+                            // and if from end to start of line is all blanks then move end to start of line
+                            if (isEmptyOrSpaces(myEditor.getDocument().getCharsSequence(), start.toOffset(), start.atEndOfLine().toOffset())) {
+                                start = start.atEndOfLine();
+                            }
+                            if (isEmptyOrSpaces(myEditor.getDocument().getCharsSequence(), end.atStartOfLine().toOffset(), end.toOffset())) {
+                                end = end.atStartOfLine();
+                            }
+                        }
+
                         LogPos pos = f.fromPos(caret.getLogicalPosition());
                         LogPos newStart = start;
                         LogPos newEnd = end;

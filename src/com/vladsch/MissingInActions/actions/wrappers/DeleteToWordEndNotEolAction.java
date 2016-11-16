@@ -21,11 +21,10 @@
 
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.intellij.openapi.editor.actions.TextComponentEditorAction;
 import com.vladsch.MissingInActions.actions.DeleteToWordEndNotEolActionHandler;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class DeleteToWordEndNotEolAction extends TextComponentEditorAction implements LineSelectionAware {
+public class DeleteToWordEndNotEolAction extends DumbAwareTextComponentEditorAction implements LineSelectionAware {
     public DeleteToWordEndNotEolAction() {
         super(new DeleteToWordEndNotEolActionHandler(false));
     }

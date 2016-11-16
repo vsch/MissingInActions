@@ -39,7 +39,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.util.text.CharArrayUtil;
 
-public class RemoveLineCaretsActionBase extends AnAction implements DumbAware {
+public class RemoveLineCaretsActionBase extends AnAction implements LineSelectionAware {
     private final boolean myRemoveBlank;
 
     public RemoveLineCaretsActionBase(boolean removeBlank) {
@@ -49,7 +49,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements DumbAware {
 
     @Override
     public boolean isDumbAware() {
-        return false;
+        return true;
     }
 
     @Override

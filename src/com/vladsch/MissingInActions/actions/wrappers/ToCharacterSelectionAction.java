@@ -29,12 +29,11 @@
  */
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.ToLineOrCharacterSelectionTypeActionHandler;
 
-public class ToCharacterSelectionAction extends EditorAction  implements LineSelectionAware {
+public class ToCharacterSelectionAction extends DumbAwareEditorAction  implements LineSelectionAware {
     public ToCharacterSelectionAction() {
-        super(new ToLineOrCharacterSelectionTypeActionHandler(false));
+        super(new ToLineOrCharacterSelectionTypeActionHandler(false, false));
     }
 }

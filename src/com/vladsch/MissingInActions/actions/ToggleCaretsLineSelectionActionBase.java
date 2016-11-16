@@ -38,7 +38,7 @@ import com.vladsch.MissingInActions.util.Range;
 
 import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
 
-abstract public class ToggleCaretsLineSelectionActionBase extends AnAction {
+abstract public class ToggleCaretsLineSelectionActionBase extends AnAction implements LineSelectionAware {
     final protected boolean myWantBlankLines;
     final protected boolean myWantNonBlankLines;
 
@@ -137,7 +137,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction {
                         if (!getCaretInSelection()) caretModel.removeCaret(primaryCaret);
                     }
                 } else {
-                    adjuster.adjustCharacterSelectionToLineSelection(primaryCaret, true);
+                    adjuster.adjustCharacterSelectionToLineSelection(primaryCaret, true, false);
                 }
             }
         });

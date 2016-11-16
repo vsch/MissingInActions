@@ -21,11 +21,10 @@
 
 package com.vladsch.MissingInActions.actions.wrappers;
 
-import com.intellij.openapi.editor.actions.TextComponentEditorAction;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NextOrPrevWordEndHandler;
 
-public class NextWordEndInDifferentHumpsModeWithSelectionAction extends TextComponentEditorAction implements LineSelectionAware {
+public class NextWordEndInDifferentHumpsModeWithSelectionAction extends DumbAwareTextComponentEditorAction implements LineSelectionAware {
     public NextWordEndInDifferentHumpsModeWithSelectionAction() {
         super(new NextOrPrevWordEndHandler(true, true, true));
     }
