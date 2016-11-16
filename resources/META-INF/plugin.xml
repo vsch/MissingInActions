@@ -50,9 +50,9 @@
                 <li>Add: <code>Change To Trimmed Line Selection</code> action, when converting to line selection, any
                     whitespace to end of line from the start of selection and any white space from end of
                     selection to start of line are left out of the line mark. Intended to go from this:
-                    <p><img src="../../assets/images/CharacterSelection.png" alt="Character Selection" /></p>
+                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/CharacterSelection.png" alt="Character Selection" /></p>
                     <p>To:</p>
-                    <p><img src="../../assets/images/TrimmedLineSelection.png" alt="Trimmed Line Selection" /></p>
+                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/TrimmedLineSelection.png" alt="Trimmed Line Selection" /></p>
                 </li>
             </ul>
             <h3>0.6.0 - Bug Fix and Features</h3>

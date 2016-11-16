@@ -18,11 +18,11 @@
   whitespace to end of line from the start of selection and any white space from end of
   selection to start of line are left out of the line mark. Intended to go from this:
 
-    ![Character Selection](../../assets/images/CharacterSelection.png)
+    ![Character Selection](https://github.com/vsch/MissingInActions/raw/master/assets/images/CharacterSelection.png)
 
     To:
 
-    ![Trimmed Line Selection](../../assets/images/TrimmedLineSelection.png)
+    ![Trimmed Line Selection](https://github.com/vsch/MissingInActions/raw/master/assets/images/TrimmedLineSelection.png)
 
 ### 0.6.0 - Bug Fix and Features
 
