@@ -20,3 +20,5 @@ assets/toolbar-icons.psd
 /.idea/workspace.xml
 /lib/kotlin-runtime.jar
 /lib/kotlin-reflect.jar
+/assets/images/EditActions@2x.png
+/assets/images/ToolsSettings@2x.png
