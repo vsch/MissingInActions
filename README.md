@@ -10,8 +10,8 @@
     - [Multi Caret Friendly Actions](#multi-caret-friendly-actions)
     - [Auto Line Selections](#auto-line-selections)
 
-A collection of useful missing text editing actions including navigation and selection of start
-and end of words!
+A collection of useful but missing text editing actions for JetBrains IDEs, including navigation
+and selection of start and end of words!
 
 * Next/Previous word Start/End variations based on what marks a word boundary:
     * IDEA version: identifier characters, spaces, lexeme boundaries
