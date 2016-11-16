@@ -5,7 +5,7 @@
 [TOC]: #
 
 ### Table of Contents
-- [Version 0.5 - Initial Release](#version-05---initial-release)
+- [Version 0.5.0 - Initial Release](#version-050---initial-release)
 - [Why the need](#why-the-need)
     - [Multi Caret Friendly Actions](#multi-caret-friendly-actions)
     - [Auto Line Selections](#auto-line-selections)
@@ -31,7 +31,7 @@ and selection of start and end of words!
 :warning: Auto Line Selections work best if virtual spaces are enabled allowing the caret
 position to not be affected by physical end of line.
 
-## Version 0.5 - Initial Release
+## Version 0.5.0 - Initial Release
 
 [Version Notes]
 
