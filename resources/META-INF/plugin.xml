@@ -21,7 +21,7 @@
 
 <idea-plugin version="2" url="http://github.com/vsch/MissingInActions" xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>com.vladsch.MissingInActions</id>
-    <name>Missing in Actions</name>
+    <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
     <description><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
@@ -39,7 +39,6 @@
     <version>0.5.0</version>
     <idea-version since-build="143.2370"/>
 
-    <!--<xi:include href="/META-INF/version-notes.xml" xpointer="xpointer(/idea-plugin/*)"/>-->
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
             <h3>0.5.0 - Initial Release</h3>

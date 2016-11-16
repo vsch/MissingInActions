@@ -1,6 +1,6 @@
 # Missing in Actions
 
-<!--**You can download it on the [JetBrains plugin page].**-->
+**You can download it on the [JetBrains plugin page].**
 
 [TOC]: #
 
@@ -145,4 +145,4 @@ when the mouse button is released.
 
 [Version Notes]: /resources/META-INF/VERSION.md
 
-[JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=7896
+[JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
