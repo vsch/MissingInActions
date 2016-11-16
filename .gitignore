@@ -18,3 +18,5 @@ assets/toolbar-icons.psd
 /MissingInActions.zip
 /lib/kotlin-runtime-sources.jar
 /.idea/workspace.xml
+/lib/kotlin-runtime.jar
+/lib/kotlin-reflect.jar
