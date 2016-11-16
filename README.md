@@ -31,9 +31,6 @@ and selection of start and end of words!
 :warning: Auto Line Selections work best if virtual spaces are enabled allowing the caret
 position to not be affected by physical end of line.
 
-:warning: Auto Line Selections work best if virtual spaces are enabled allowing the caret
-position to not be affected by physical end of line.
-
 ## Version 0.6.0 - Improved Implementation
 
 [Version Notes]
