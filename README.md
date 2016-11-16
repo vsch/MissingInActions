@@ -37,6 +37,10 @@ position to not be affected by physical end of line.
 
 ![Screen Shot sequence](assets/images/noload/MissingInActions.gif)
 
+![Edit Actions](assets/images/EditActions.png) 
+
+![Edit Actions](/assets/images/ToolsSettings.png) 
+
 ## Why the need
 
 IntelliJ development tools are the best of breed when it comes to language support, refactoring
