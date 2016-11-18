@@ -22,8 +22,6 @@
 package com.vladsch.MissingInActions;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
@@ -31,14 +29,14 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.util.Disposer;
-import com.vladsch.MissingInActions.util.LineSelectionAdjuster;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Plugin implements ApplicationComponent, EditorFactoryListener, Disposable {
-    final private HashMap<Editor, LineSelectionAdjuster> myAdjusterMap = new HashMap<>();
+    final private HashMap<Editor, LineSelectionManager> myAdjusterMap = new HashMap<>();
     private boolean caretInSelection = true;
 
     final public static int FEATURE_ENHANCED = 1;
@@ -75,8 +73,8 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     }
 
     @NotNull
-    public LineSelectionAdjuster getSelectionAdjuster(Editor editor) {
-        return myAdjusterMap.computeIfAbsent(editor, e -> new LineSelectionAdjuster(editor));
+    public LineSelectionManager getSelectionAdjuster(Editor editor) {
+        return myAdjusterMap.computeIfAbsent(editor, e -> new LineSelectionManager(editor));
     }
 
     @Override
@@ -86,14 +84,14 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     @Override
     public void editorCreated(@NotNull EditorFactoryEvent event) {
         if (!event.getEditor().isOneLineMode()) {
-            LineSelectionAdjuster adjuster = new LineSelectionAdjuster(event.getEditor());
+            LineSelectionManager adjuster = new LineSelectionManager(event.getEditor());
             myAdjusterMap.put(event.getEditor(), adjuster);
         }
     }
 
     @Override
     public void editorReleased(@NotNull EditorFactoryEvent event) {
-        LineSelectionAdjuster adjuster = myAdjusterMap.remove(event.getEditor());
+        LineSelectionManager adjuster = myAdjusterMap.remove(event.getEditor());
         if (adjuster != null) {
             Disposer.dispose(adjuster);
         }
@@ -106,8 +104,8 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
 
     @Override
     public void disposeComponent() {
-        for (Map.Entry<Editor, LineSelectionAdjuster> pair : myAdjusterMap.entrySet()) {
-            LineSelectionAdjuster adjuster = myAdjusterMap.remove(pair.getKey());
+        for (Map.Entry<Editor, LineSelectionManager> pair : myAdjusterMap.entrySet()) {
+            LineSelectionManager adjuster = myAdjusterMap.remove(pair.getKey());
             if (adjuster != null) {
                 Disposer.dispose(adjuster);
             }

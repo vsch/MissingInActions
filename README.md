@@ -1,6 +1,8 @@
 # Missing in Actions
 
-**You can download it on the [JetBrains plugin page].**
+**You can download it on the [JetBrains plugin page].** or
+[Download Latest 0.6.2 from this repo](dist/MissingInActions.0.6.2.zip)
+
 
 [TOC]: #
 
@@ -8,7 +10,9 @@
 - [Version 0.6.2 - Improved Implementation](#version-062---improved-implementation)
 - [Why the need](#why-the-need)
     - [Multi Caret Friendly Actions](#multi-caret-friendly-actions)
+    - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
     - [Auto Line Selections](#auto-line-selections)
+
 
 A collection of useful but missing text editing actions for JetBrains IDEs, including navigation
 and selection of start and end of words!
@@ -24,22 +28,25 @@ and selection of start and end of words!
   mode if selection spans more than one line.
     * Actions to switch from Auto Line selection to character based selection
     * Auto line selection mode for mouse selections
-    * Auto line selection multi-caret friendly actions that will not move carets to another line:
+    * Auto line selection multi-caret friendly actions that will not move carets to another
+      line:
         * Next/Prev word stops at beginning and end of line for the caret
-        * Delete to End of Line will not delete that line's EOL when , causing it to join two lines
+        * Delete to End of Line will not delete that line's EOL when , causing it to join two
+          lines
 
 :warning: Auto Line Selections work best if virtual spaces are enabled allowing the caret
 position to not be affected by physical end of line.
 
 ## Version 0.6.2 - Improved Implementation
 
-[Version Notes]
+[Version Notes]  
+[Download Latest: 0.6.2](dist/MissingInActions.0.6.2.zip) 
 
 ![Screen Shot sequence](assets/images/noload/MissingInActions.gif)
 
-![Edit Actions](assets/images/EditActions.png) 
+![Edit Actions](assets/images/EditActions.png)
 
-![Edit Actions](/assets/images/ToolsSettings.png) 
+![Edit Actions](/assets/images/ToolsSettings.png)
 
 ## Why the need
 
@@ -66,9 +73,9 @@ add to IntelliJ what it doesn't know it's missing.
 
 ### Multi Caret Friendly Actions
 
-Refactoring and code smarts are great but often a good multi-caret editing will be so much faster,
-and sometimes it will be the only way to get it done without having to do a lot of typing and
-editing.
+Refactoring and code smarts are great but often a good multi-caret editing will be so much
+faster, and sometimes it will be the only way to get it done without having to do a lot of
+typing and editing.
 
 All editing actions can be used in multi caret mode but to be really useful actions should not
 be too aggressive in their operation. What makes sense when you are editing with a single caret
@@ -86,6 +93,7 @@ This plugin adds multi caret aware actions:
     These come with variation on what they consider to be a word boundary:
 
     * Java identifier characters, whitespace and all the rest
+
     * Java identifier characters and the rest. Use these to jump to identifiers
 
 * Delete to End of Line that does not delete the EOL character, which the standard IDEA action
@@ -119,6 +127,14 @@ This plugin adds multi caret aware actions:
   selection. Switching direction will move the caret to the other end so you can proceed with
   the change.
 
+### Auto Indent Lines after Move Lines Up/Down
+
+Line Move up/down is great but Auto Indenting them is a PITA. I added an option to automatically
+indent the moved lines after a short delay. You can configure the delay so that the keyboard
+auto repeat on up/done kicks in before the delay runs out. When you pause or invoke another
+action the lines will be re-indented.
+
+![Screen Shot sequence](assets/images/noload/AutoIndentAfterMoveLines.gif)
 
 ### Auto Line Selections
 
@@ -126,15 +142,16 @@ When selecting text in source code, most of the time if it spans more than one l
 want full lines. Instead, all editors work like word processors and select characters forcing
 you to move the caret to column 1 to select full lines.
 
-Auto line selection actions selects full lines when using vertical movement selection keys:
-up, down, page up, page down. While horizontal keys will restore the selection to character
-mode, even if it spans more than one line.
+Auto line selection actions selects full lines when using vertical movement selection keys: up,
+down, page up, page down. While horizontal keys will restore the selection to character mode,
+even if it spans more than one line.
 
 The switching is done by the actions and once your expectations are adjusted you will not want
 to work without it.
 
 This works best if you have virtual spaces enabled. It will leave the caret column position
-unmolested throughout all line based operations regardless of the actual text length of the line.
+unmolested throughout all line based operations regardless of the actual text length of the
+line.
 
 * Switch/Toggle between auto line and normal character selections
 
@@ -143,10 +160,10 @@ unmolested throughout all line based operations regardless of the actual text le
 With auto line selections enabled for mouse selections you get full lines when a selection spans
 more than one line and character selections for selections within a line.
 
-Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl key pressed until
-after you release the mouse button, otherwise the selection will be changed to a line selection
-when the mouse button is released.
-
-[Version Notes]: /resources/META-INF/VERSION.md
+Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl key pressed
+until after you release the mouse button, otherwise the selection will be changed to a line
+selection when the mouse button is released.
 
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
+[Version Notes]: /resources/META-INF/VERSION.md
+

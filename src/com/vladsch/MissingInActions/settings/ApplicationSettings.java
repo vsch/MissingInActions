@@ -42,6 +42,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myUpDownMovement = false;
     private boolean myLeftRightMovement = false;
     private boolean myUpDownSelection = false;
+    private int myAutoIndentDelay = 300;
+    private boolean myAutoIndent = false;
 
     public boolean isLineModeEnabled() {
         return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
@@ -109,6 +111,22 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myLeftRightMovement = leftRightMovement;
     }
 
+    public int getAutoIndentDelay() {
+        return myAutoIndentDelay;
+    }
+
+    public void setAutoIndentDelay(int autoIndentDelay) {
+        myAutoIndentDelay = autoIndentDelay;
+    }
+
+    public boolean isAutoIndent() {
+        return myAutoIndent;
+    }
+
+    public void setAutoIndent(boolean autoIndent) {
+        myAutoIndent = autoIndent;
+    }
+
     @Nullable
     public ApplicationSettings getState() {
         return this;
@@ -137,4 +155,5 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public static ApplicationSettings getInstance() {
         return ApplicationManager.getApplication().getComponent(ApplicationSettings.class);
     }
+
 }

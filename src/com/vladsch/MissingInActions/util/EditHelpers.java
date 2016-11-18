@@ -25,8 +25,14 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
-import com.vladsch.MissingInActions.util.RepeatedCharSequence;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.manager.LineSelectionState;
+import com.vladsch.flexmark.util.sequence.Range;
+import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class EditHelpers {
     public static void moveCaretToNextWordStart(@NotNull Editor editor, boolean isWithSelection, boolean camel, boolean stopAtTrailingBlanks, boolean limitToLine, boolean strictIdentifier) {
@@ -367,7 +373,7 @@ public class EditHelpers {
 
     public static void deleteSelectedText(@NotNull Editor editor) {
         SelectionModel selectionModel = editor.getSelectionModel();
-        if(!selectionModel.hasSelection()) return;
+        if (!selectionModel.hasSelection()) return;
 
         int selectionStart = selectionModel.getSelectionStart();
         int selectionEnd = selectionModel.getSelectionEnd();
@@ -378,35 +384,34 @@ public class EditHelpers {
             selectionModel.removeSelection();
             editor.getDocument().deleteString(selectionStart, selectionEnd);
             EditorModificationUtil.scrollToCaret(editor);
-        }
-        else {
+        } else {
             // we handle line type selection deletes
             delete(editor, editor.getCaretModel().getPrimaryCaret(), selectionStart, selectionEnd, false);
         }
     }
-    
+
     public static void deleteSelectedText(@NotNull Editor editor, @NotNull Caret caret) {
         delete(editor, caret, caret.getSelectionStart(), caret.getSelectionEnd(), false);
     }
-    
+
     public static void deleteSelectedText(@NotNull Editor editor, @NotNull Caret caret, boolean clearOnly) {
         delete(editor, caret, caret.getSelectionStart(), caret.getSelectionEnd(), clearOnly);
     }
-    
+
     public static void delete(@NotNull Editor editor, @NotNull Caret caret, int start, int end, boolean clearOnly) {
         CopyPasteManager.getInstance().stopKillRings();
         if (clearOnly) {
             editor.getDocument().replaceString(start, end, new RepeatedCharSequence(' ', end - start));
         } else {
-            LineSelectionAdjuster adjuster = LineSelectionAdjuster.getInstance(editor);
+            LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
             LineSelectionState state = adjuster.getSelectionState(caret);
             if (state.isLine()) {
                 LogPos.Factory f = LogPos.factory(editor);
                 LogPos pos = f.fromPos(caret.getLogicalPosition());
-                LogPos selStart =  f.fromOffset(start);
-                
+                LogPos selStart = f.fromOffset(start);
+
                 editor.getDocument().deleteString(start, end);
-                
+
                 // in case the caret was in the virtual space, we force it to go back to the real offset
                 caret.moveToLogicalPosition(selStart.atColumn(pos.column));
             } else {
@@ -417,8 +422,73 @@ public class EditHelpers {
             EditorModificationUtil.scrollToCaret(editor);
         }
     }
-    
+
     public static void scrollToCaret(Editor editor) {
         EditorModificationUtil.scrollToCaret(editor);
+    }
+
+    public static void restoreState(@Nullable Caret newCaret, CaretState caretState, boolean alwaysSetSelection) {
+        if (newCaret != null) {
+            if (caretState.getCaretPosition() != null) {
+                newCaret.moveToLogicalPosition(caretState.getCaretPosition());
+            }
+
+            if (caretState.getSelectionStart() != null && caretState.getSelectionEnd() != null) {
+                newCaret.setSelection(newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionStart()), newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionEnd()));
+            } else if (alwaysSetSelection) {
+                newCaret.setSelection(newCaret.getOffset(), newCaret.getOffset());
+            }
+        }
+    }
+
+    public static Range getCaretRange(@NotNull Caret caret, boolean backwards, boolean lineMode, boolean singleLine) {
+        @NotNull Editor editor = caret.getEditor();
+        Range range;
+
+        if (caret.hasSelection()) {
+            range = new Range(caret.getSelectionEnd(), caret.getSelectionStart());
+        } else {
+            LogicalPosition caretPosition = caret.getLogicalPosition();
+            range = backwards ? new Range(0, caret.getOffset()) : new Range(caret.getOffset(), editor.getDocument().getTextLength());
+
+            if (caret.getCaretModel().getCaretCount() > 1) {
+                // here we need to figure things out
+                List<Caret> carets = caret.getCaretModel().getAllCarets();
+                for (Caret other : carets) {
+                    if (!backwards) {
+                        int span = caret.getOffset() - other.getOffset();
+                        if (range.getSpan() > span) {
+                            range = range.withEnd(other.getOffset());
+                            if (lineMode) {
+                                LogicalPosition otherPosition = other.getLogicalPosition();
+                                if (caretPosition.line != otherPosition.line) {
+                                    // chop off range where the other caret's line ends
+                                    range = range.withEnd(editor.getDocument().getLineSeparatorLength(otherPosition.line));
+                                }
+                            }
+                        }
+                    } else {
+
+                        int span = caret.getOffset() - other.getOffset();
+                        if (range.getSpan() > -span) {
+                            range = range.withStart(other.getOffset());
+
+                            if (lineMode) {
+                                LogicalPosition otherPosition = other.getLogicalPosition();
+                                if (caretPosition.line != otherPosition.line) {
+                                    // chop off range where the other caret's line ends
+                                    range = range.withStart(editor.getDocument().getLineEndOffset(otherPosition.line));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (singleLine) {
+                    // limit it to the caret line 
+                }
+            }
+        }
+        return range;
     }
 }

@@ -35,7 +35,7 @@ public class ApplicationConfigurable implements SearchableConfigurable {
     @Nullable
     private ApplicationSettingsForm myForm = null;
     @NotNull
-    private final ApplicationSettings myApplicationSettings;
+    final private ApplicationSettings myApplicationSettings;
 
     public ApplicationConfigurable(@NotNull ApplicationSettings applicationSettings) {
         myApplicationSettings = applicationSettings;

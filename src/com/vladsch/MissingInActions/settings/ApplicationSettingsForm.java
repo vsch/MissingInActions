@@ -38,12 +38,15 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox myUpDownMovement;
     private JBCheckBox myLeftRightMovement;
     private JComboBox myMouseModifier;
+    private JBCheckBox myAutoIndent;
+    private JSpinner myAutoIndentDelay;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
 
         myMouseLineSelection.addActionListener(e -> updateOptions(false));
         myUpDownSelection.addActionListener(e -> updateOptions(false));
+        myAutoIndent.addActionListener(e -> updateOptions(false));
         
         updateOptions(true);
     }
@@ -62,6 +65,8 @@ public class ApplicationSettingsForm implements Disposable {
                 || myUpDownMovement.isSelected() != mySettings.isUpDownMovement()
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
                 || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
+                || myAutoIndent.isSelected() != mySettings.isAutoIndent()
+                || (Integer)myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
                 ;
     }
 
@@ -73,6 +78,8 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setUpDownMovement(myUpDownMovement.isSelected());
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
         mySettings.setUpDownSelection(myUpDownSelection.isSelected());
+        mySettings.setAutoIndent(myAutoIndent.isSelected());
+        mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
     }
 
     public void reset() {
@@ -83,6 +90,8 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setSelected(mySettings.isUpDownMovement());
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
         myUpDownSelection.setSelected(mySettings.isUpDownSelection());
+        myAutoIndent.setSelected(mySettings.isAutoIndent());
+        myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
         updateOptions(false);
     }
 
@@ -121,6 +130,8 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
+        
+        myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
     }
 
     private void createUIComponents() {
@@ -129,5 +140,7 @@ public class ApplicationSettingsForm implements Disposable {
         myAutoLineMode.addActionListener(e -> updateOptions(true));
         myMouseModifier = new JComboBox();
         MouseModifierType.fillComboBox(myMouseModifier);
+        final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);
+        myAutoIndentDelay = new JSpinner(model);
     }
 }

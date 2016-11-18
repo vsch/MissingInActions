@@ -24,16 +24,17 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LogPos extends LogicalPosition {
-    private final Factory myFactory;
+    final private @NotNull Factory myFactory;
 
-    private LogPos(Factory factory, int line, int column) throws IllegalArgumentException {
+    private LogPos(@NotNull Factory factory, int line, int column) throws IllegalArgumentException {
         super(line, column);
         myFactory = factory;
     }
 
-    private LogPos(Factory factory, LogicalPosition other) throws IllegalArgumentException {
+    private LogPos(@NotNull Factory factory, @NotNull LogicalPosition other) throws IllegalArgumentException {
         this(factory, other.line, other.column);
     }
 
@@ -47,6 +48,14 @@ public class LogPos extends LogicalPosition {
 
     public LogPos atColumn(int column) {
         return with(line, column);
+    }
+
+    public LogPos atColumn(@Nullable LogicalPosition other) {
+        return other == null ? this : atColumn(other.column);
+    }
+
+    public LogPos onLine(@Nullable LogicalPosition other) {
+        return other == null ? this : onLine(other.line);
     }
 
     public LogPos atStartOfLine() {
@@ -95,15 +104,15 @@ public class LogPos extends LogicalPosition {
     }
 
     public static class Factory {
-        private final Editor myEditor;
+        final private Editor myEditor;
         private LogPos myEndPosition = null;
 
         private Factory(Editor editor) {
             myEditor = editor;
         }
 
-        public LogPos fromPos(LogicalPosition other) {
-            return new LogPos(this, other);
+        public LogPos fromPos(@Nullable LogicalPosition other) {
+            return other == null ? null : other instanceof LogPos ? (LogPos) other : new LogPos(this, other);
         }
 
         public LogPos fromLine(int line, int column) {

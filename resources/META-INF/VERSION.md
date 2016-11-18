@@ -3,11 +3,20 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
 - [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
 - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
+
+### 0.6.2 - Bug Fix and Features
+
+- Add: option to Auto Indent Lines after move lines up/down, with a configurable delay
+- Add: skeleton code for Patterned next/prev actions to be used with multi-carets to search for
+  text occurrence and place the caret at the start/end (for backwards) searches. Actions are
+  coming in the next release.
+- Change: refactor the code for cleaner layout now that the training wheels are coming off.
 
 ### 0.6.1 - Bug Fix and Features
 

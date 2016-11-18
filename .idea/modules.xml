@@ -213,6 +213,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MissingInActions.iml" filepath="$PROJECT_DIR$/MissingInActions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intelliJAPI/intelliJAPI.iml" filepath="$PROJECT_DIR$/intelliJAPI/intelliJAPI.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA jdk" project-jdk-type="IDEA JDK">
