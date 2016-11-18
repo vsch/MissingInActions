@@ -1,7 +1,7 @@
 # Missing in Actions
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.6.2 from this repo](dist/MissingInActions.0.6.2.zip)
+[Download Latest 0.6.2 from this repo]
 
 
 [TOC]: #
@@ -40,7 +40,7 @@ position to not be affected by physical end of line.
 ## Version 0.6.2 - Improved Implementation
 
 [Version Notes]  
-[Download Latest: 0.6.2](dist/MissingInActions.0.6.2.zip) 
+[Download Latest 0.6.2 from this repo] 
 
 ![Screen Shot sequence](assets/images/noload/MissingInActions.gif)
 
@@ -166,4 +166,5 @@ selection when the mouse button is released.
 
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Version Notes]: /resources/META-INF/VERSION.md
+[Download Latest 0.6.2 from this repo]: ../../raw/master/dist/MissingInActions.0.6.2.zip
 
