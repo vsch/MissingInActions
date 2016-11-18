@@ -1,4 +1,4 @@
-# Missing in Actions
+# Missing In Actions
 
 **You can download it on the [JetBrains plugin page].** or
 [Download Latest 0.6.2 from this repo]
