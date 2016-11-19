@@ -31,11 +31,10 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
-import java.util.Collections;
-
 public class NormalAdjustmentMap extends ActionAdjustmentMap {
     public static NormalAdjustmentMap getInstance() {
-        return ServiceManager.getService(NormalAdjustmentMap.class);
+        NormalAdjustmentMap service = ServiceManager.getService(NormalAdjustmentMap.class);
+        return service;
     }
 
     NormalAdjustmentMap() {
@@ -68,12 +67,47 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , TextStartWithSelectionAction.class
         );
 
+        addActionSet(ActionSetType.SELECTING_ACTION
+                , "com.intellij.codeInsight.editorActions.CodeBlockEndWithSelectionAction"
+                , "com.intellij.codeInsight.editorActions.CodeBlockStartWithSelectionAction"
+                , LineEndWithSelectionAction.class
+                , LineStartWithSelectionAction.class
+                , MoveCaretDownWithSelectionAction.class
+                , MoveCaretLeftWithSelectionAction.class
+                , MoveCaretRightWithSelectionAction.class
+                , MoveCaretUpWithSelectionAction.class
+                , MoveDownWithSelectionAndScrollAction.class
+                , MoveUpWithSelectionAndScrollAction.class
+                , NextWordInDifferentHumpsModeWithSelectionAction.class
+                , NextWordWithSelectionAction.class
+                , PageBottomWithSelectionAction.class
+                , PageDownWithSelectionAction.class
+                , PageTopWithSelectionAction.class
+                , PageUpWithSelectionAction.class
+                , PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , PreviousWordWithSelectionAction.class
+                , TextEndWithSelectionAction.class
+                , TextStartWithSelectionAction.class
+
+                , com.vladsch.MissingInActions.actions.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.word.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.line.ToLineSelectionAction.class
+                , com.vladsch.MissingInActions.actions.line.ToggleSelectionAnchorAction.class
+                , com.vladsch.MissingInActions.actions.line.ToCharacterSelectionAction.class
+                , com.vladsch.MissingInActions.actions.line.ToggleLineCharacterSelectionAction.class
+        );
+
         addActionAdjustment(AdjustmentType.TO_CHAR__TO_ALWAYS_LINE
         );
 
         addActionAdjustment(AdjustmentType.IF_LINE__FIX_CARET
                 , BackspaceAction.class
-                , CutAction.class
                 , DeleteAction.class
                 , DeleteToLineEndAction.class
                 , DeleteToWordEndAction.class
@@ -103,12 +137,40 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , SimplePasteAction.class
         );
 
+        addActionSet(ActionSetType.PASTING_ACTION
+                , com.intellij.ide.actions.PasteAction.class
+                , com.intellij.openapi.editor.actions.PasteAction.class
+                , MultiplePasteAction.class
+                , PasteFromX11Action.class
+                , SimplePasteAction.class
+        );
+
         addActionAdjustment(AdjustmentType.NOTHING__NOTHING
                 , UndoAction.class
                 , RedoAction.class
         );
 
+        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION
+                , ToggleCaseAction.class
+        );
+
+        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN
+                , com.intellij.ide.actions.CopyAction.class
+                , com.intellij.openapi.editor.actions.CopyAction.class
+        );
+
+        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
+                , DuplicateAction.class
+                , DuplicateLinesAction.class
+                , CutAction.class
+        );
+
         addTriggeredAction(new TriggeredAction(new AutoIndentLinesAction(), () -> ApplicationSettings.getInstance().getAutoIndentDelay(), () -> ApplicationSettings.getInstance().isAutoIndent())
+                , MoveLineDownAction.class
+                , MoveLineUpAction.class
+        );
+
+        addActionSet(ActionSetType.NON_LINE_AUTO_INDENT_TRIGGER
                 , MoveLineDownAction.class
                 , MoveLineUpAction.class
         );

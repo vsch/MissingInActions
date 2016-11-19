@@ -51,4 +51,12 @@ public enum AdjustmentType {
 
     // nothing before, change to line if it is full line selection
     NOTHING__TO_LINE_IF_LOOKS_IT,
+    
+    // if did not have selection before then remove it after, ToggleCase leaves its selection behind, but if
+    // there was no selection then no need to leave it selected, the next invocation will affect the same text range. Duh!
+    IF_NO_SELECTION__REMOVE_SELECTION,
+
+    IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN,
+    
+    IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN,
 }

@@ -44,6 +44,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myUpDownSelection = false;
     private int myAutoIndentDelay = 300;
     private boolean myAutoIndent = false;
+    private boolean mySelectPasted = false;
+    private boolean mySelectPastedLineOnly = true;
+    private boolean myUnselectToggleCase = false;
 
     public boolean isLineModeEnabled() {
         return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
@@ -53,6 +56,22 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                         //|| myUpDownMovement
                         //|| myLeftRightMovement
         );
+    }
+
+    public boolean isSelectPastedLineOnly() {
+        return mySelectPastedLineOnly;
+    }
+
+    public void setSelectPastedLineOnly(boolean selectPastedLineOnly) {
+        mySelectPastedLineOnly = selectPastedLineOnly;
+    }
+
+    public boolean isUnselectToggleCase() {
+        return myUnselectToggleCase;
+    }
+
+    public void setUnselectToggleCase(boolean unselectToggleCase) {
+        myUnselectToggleCase = unselectToggleCase;
     }
 
     public int getMouseModifier() {
@@ -125,6 +144,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setAutoIndent(boolean autoIndent) {
         myAutoIndent = autoIndent;
+    }
+
+    public boolean isSelectPasted() {
+        return mySelectPasted;
+    }
+
+    public void setSelectPasted(boolean selectPasted) {
+        mySelectPasted = selectPasted;
     }
 
     @Nullable

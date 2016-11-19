@@ -30,23 +30,35 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("WeakerAccess")
 public class EditorCaretState extends CaretState {
     final private @NotNull LogPos.Factory myFactory;
+    final private boolean myIsLine;
 
     public EditorCaretState(@NotNull LogPos.Factory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end) {
+        this(factory, position, start, end, false);
+    }
+
+    public EditorCaretState(@NotNull LogPos.Factory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end, boolean isLine) {
         super(position, start, end);
         myFactory = factory;
+        myIsLine = isLine;
+    }
+
+    public boolean isLine() {
+        return myIsLine;
     }
 
     public EditorCaretState(@NotNull LogPos.Factory factory, @NotNull Caret caret) {
-        super(caret.getLogicalPosition()
+        this(factory, caret.getLogicalPosition()
                 , caret.hasSelection() ? factory.fromOffset(caret.getSelectionStart()) : null
                 , caret.hasSelection() ? factory.fromOffset(caret.getSelectionEnd()) : null
         );
-        myFactory = factory;
     }
 
     public EditorCaretState(@NotNull LogPos.Factory factory, @NotNull CaretState other) {
-        super(other.getCaretPosition(), other.getSelectionStart(), other.getSelectionEnd());
-        myFactory = factory;
+        this(factory, other.getCaretPosition(), other.getSelectionStart(), other.getSelectionEnd());
+    }
+
+    public boolean hasSelection() {
+        return getSelectionStart() != null && getSelectionEnd() != null && getSelectionStart().toOffset() != getSelectionEnd().toOffset();
     }
 
     @Nullable
@@ -136,4 +148,5 @@ public class EditorCaretState extends CaretState {
     public static LogicalPosition onLine(@Nullable LogPos position, @Nullable LogicalPosition otherLine) {
         return position == null ? otherLine : otherLine == null ? position : position.onLine(otherLine.line);
     }
+
 }

@@ -26,23 +26,41 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class StringPatternSearchHandler extends AbstractStringPatternSearchHandler<String> {
-    final private @NotNull String myPattern;
+import java.util.regex.Pattern;
 
-    public StringPatternSearchHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch, @NotNull String pattern) {
+abstract public class StringPatternCaretSearchHandler extends RegExPatternCaretSearchHandler {
+    public StringPatternCaretSearchHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
         super(backwards, lineMode, singleLine, singleMatch);
-        myPattern = pattern;
     }
 
-    @Override
-    String prepareMatcher(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars) {
-        return myPattern;
+    protected static class StringPattern {
+        final String pattern;
+        final int flags;
+
+        public StringPattern(String pattern, int flags) {
+            this.pattern = pattern;
+            this.flags = flags;
+        }
     }
 
+    @Nullable
+    protected abstract StringPattern getString(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
+
     @Override
-    @NotNull
-    String getPattern(String pattern) {
+    @Nullable
+    final protected Pattern getPattern(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars) {
+        StringPattern stringPattern = getString(adjuster, caret, range, chars);
+        Pattern pattern = null;
+
+        if (stringPattern != null) {
+            try {
+                pattern = Pattern.compile(Pattern.quote(stringPattern.pattern), stringPattern.flags);
+            } catch (IllegalArgumentException e) {
+                pattern = null;
+            }
+        }
         return pattern;
     }
 }

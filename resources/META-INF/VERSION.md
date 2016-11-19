@@ -3,12 +3,29 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [0.6.3 - Enhancements](#063---enhancements)
 - [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
 - [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
 - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
+
+### 0.6.3 - Enhancements
+
+- Add: Fixes for actions in Auto Line Mode:
+    - Toggle Case: remove selection after if there was not one before
+    - Copy: if no selection before then leave the caret column unchanged
+    - Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
+      action, if selection was line selection before then restore caret column position after
+- Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
+  for bug in IDE action that does not adjust selection start if it is not at the left margin.
+- Add: Select pasted text option to keep the selection so it can be operated on with option to
+  only select if pasted text contains at least one line--contains end of line.
+- Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
+  the left margin.
+- Add option to remove selection created by toggle case. Will leave selection made before in
+  tact.
 
 ### 0.6.2 - Bug Fix and Features
 

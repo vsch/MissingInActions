@@ -39,6 +39,9 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox myLeftRightMovement;
     private JComboBox myMouseModifier;
     private JBCheckBox myAutoIndent;
+    private JBCheckBox mySelectPasted;
+    private JBCheckBox mySelectPastedLineOnly;
+    private JBCheckBox myUnselectToggleCase;
     private JSpinner myAutoIndentDelay;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
@@ -66,6 +69,9 @@ public class ApplicationSettingsForm implements Disposable {
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
                 || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
                 || myAutoIndent.isSelected() != mySettings.isAutoIndent()
+                || mySelectPasted.isSelected() != mySettings.isSelectPasted()
+                || mySelectPastedLineOnly.isSelected() != mySettings.isSelectPastedLineOnly()
+                || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
                 || (Integer)myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
                 ;
     }
@@ -79,6 +85,9 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
         mySettings.setUpDownSelection(myUpDownSelection.isSelected());
         mySettings.setAutoIndent(myAutoIndent.isSelected());
+        mySettings.setSelectPasted(mySelectPasted.isSelected());
+        mySettings.setSelectPastedLineOnly(mySelectPastedLineOnly.isSelected());
+        mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
         mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
     }
 
@@ -91,6 +100,9 @@ public class ApplicationSettingsForm implements Disposable {
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
         myUpDownSelection.setSelected(mySettings.isUpDownSelection());
         myAutoIndent.setSelected(mySettings.isAutoIndent());
+        mySelectPasted.setSelected(mySettings.isSelectPasted());
+        mySelectPastedLineOnly.setSelected(mySettings.isSelectPastedLineOnly());
+        myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
         updateOptions(false);
     }
@@ -123,6 +135,7 @@ public class ApplicationSettingsForm implements Disposable {
         if (typeChanged || !modeEnabled) myDeleteOperations.setSelected(selected && modeEnabled);
         if (typeChanged || !modeEnabled) myLeftRightMovement.setSelected(selected && modeEnabled);
         if (typeChanged || !modeEnabled) myUpDownMovement.setSelected(selected && modeEnabled);
+        if (!modeEnabled) mySelectPasted.setSelected(modeEnabled);
 
         myMouseLineSelection.setEnabled(selected);
         myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
@@ -130,6 +143,8 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
+        mySelectPasted.setEnabled(modeEnabled);
+        mySelectPastedLineOnly.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
     }

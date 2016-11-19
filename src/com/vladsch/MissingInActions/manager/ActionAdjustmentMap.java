@@ -22,11 +22,9 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.vladsch.MissingInActions.util.OneTimeRunnable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
@@ -36,6 +34,8 @@ public class ActionAdjustmentMap {
 
     final private HashMap<Class, AdjustmentType> myAdjustmentsMap = new HashMap<>();
     final private HashMap<Class, TriggeredAction> myTriggeredActionsMap = new HashMap<>();
+    final private HashMap<Class, HashSet<ActionSetType>> myActionSetMap = new HashMap<>();
+    final private HashMap<String, HashSet<ActionSetType>> myOptionalActionSetMap = new HashMap<>();
 
     ActionAdjustmentMap() {
         super();
@@ -53,6 +53,22 @@ public class ActionAdjustmentMap {
         return myTriggeredActionsMap.containsKey(action);
     }
 
+    public boolean isInSet(Class action, ActionSetType ... setNames) {
+        HashSet<ActionSetType> actionSet = myActionSetMap.get(action);
+        if (actionSet != null) {
+            for (ActionSetType setName : setNames) {
+                if (actionSet.contains(setName)) return true;
+            }
+        } 
+        actionSet = myOptionalActionSetMap.get(action.getName());
+        if (actionSet != null) {
+            for (ActionSetType setName : setNames) {
+                if (actionSet.contains(setName)) return true;
+            }
+        } 
+        return false;
+    }
+
     public void addActionAdjustment(AdjustmentType adjustments, Class... actions) {
         AdjustmentType adj;
         for (Class action : actions) {
@@ -63,6 +79,19 @@ public class ActionAdjustmentMap {
         }
     }
     
+    public void addActionSet(ActionSetType setName, Object... actions) {
+        for (Object action : actions) {
+            if (action instanceof String) {
+                HashSet<ActionSetType> actionSet = myOptionalActionSetMap.computeIfAbsent((String)action, aClass -> new HashSet<>());
+                actionSet.add(setName);
+
+            } else {
+                HashSet<ActionSetType> actionSet = myActionSetMap.computeIfAbsent((Class)action, aClass -> new HashSet<>());
+                actionSet.add(setName);
+            } 
+        }
+    }
+
     public void addTriggeredAction(TriggeredAction triggeredAction, Class... actions) {
         TriggeredAction adj;
         for (Class action : actions) {

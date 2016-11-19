@@ -85,15 +85,15 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                 // switch to line mode from top most caret to bottom most caret
                 Range selRange = Range.NULL;
                 for (Caret caret : caretModel.getAllCarets()) {
-                    int offset = caret.getOffset();
-                    selRange = selRange.include(offset);
+                    int line = caret.getLogicalPosition().line;
+                    selRange = selRange.include(line);
                 }
                 caretModel.removeSecondaryCarets();
                 editor.setColumnMode(false);
 
                 // create a line selection that includes minOffset/maxOffset
-                LogPos selStart = f.fromOffset(selRange.getStart()).atStartOfLine();
-                LogPos selEnd = f.fromOffset(selRange.getEnd()).atEndOfLine();
+                LogPos selStart = f.fromLine(selRange.getStart(), 0);
+                LogPos selEnd = f.fromLine(selRange.getEnd(), 0).atEndOfNextLine();
 
                 if (getCaretInSelection()) {
                     pos = selEnd.onLine(selEnd.line - 1).atColumn(pos.column);
@@ -109,7 +109,8 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                     LogPos selEnd = f.fromOffset(selectionModel.getSelectionEnd());
 
                     caretModel.removeSecondaryCarets();
-                    selectionModel.setSelection(primaryCaret.getOffset(), primaryCaret.getOffset());
+                    //selectionModel.setSelection(primaryCaret.getOffset(), primaryCaret.getOffset());
+                    selectionModel.removeSelection();
                     editor.setColumnMode(false);
 
                     if (selStart.line + 1 == selEnd.line) {
