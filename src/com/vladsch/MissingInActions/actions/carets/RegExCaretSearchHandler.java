@@ -19,12 +19,12 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.actions.pattern;
+package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.editor.Caret;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.IndexMapper;
-import com.vladsch.MissingInActions.util.LogPos;
 import com.vladsch.MissingInActions.util.ReversedCharSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -35,8 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-abstract public class RegExPatternCaretSearchHandler extends PatternCaretSearchHandler<RegExPatternCaretSearchHandler.MyMatcher> {
-    protected RegExPatternCaretSearchHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
+abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<RegExCaretSearchHandler.MyMatcher> {
+    protected RegExCaretSearchHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
         super(backwards, lineMode, singleLine, singleMatch);
         if (backwards) {
             throw new NotImplementedException("Backwards regex search not implemented");
@@ -44,7 +44,7 @@ abstract public class RegExPatternCaretSearchHandler extends PatternCaretSearchH
     }
 
     @Nullable
-    protected abstract Pattern getPattern(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
+    protected abstract Pattern getPattern(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
 
     protected static class MyMatcher {
         final Matcher matcher;
@@ -98,8 +98,8 @@ abstract public class RegExPatternCaretSearchHandler extends PatternCaretSearchH
 
     @Override
     @Nullable
-    final protected MyMatcher prepareMatcher(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars) {
-        Pattern pattern = getPattern(adjuster, caret, range, chars);
+    final protected MyMatcher prepareMatcher(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars) {
+        Pattern pattern = getPattern(manager, caret, range, chars);
         MyMatcher myMatcher = null;
         
         if (pattern != null) {
@@ -114,9 +114,9 @@ abstract public class RegExPatternCaretSearchHandler extends PatternCaretSearchH
             }
             // we extend the range to include the start of line at start offset and end of line+1 at end offset, however we start searching 
             // at range start and any match that ends >= range end is treated as a non-match
-            LogPos.Factory f = LogPos.factory(adjuster.getEditor());
-            int start = f.fromOffset(range.getStart()).atStartOfLine().toOffset();
-            int end = f.fromOffset(range.getEnd()).atEndOfLine().toOffset();
+            EditorPositionFactory f = manager.getPositionFactory();
+            int start = f.fromOffset(range.getStart()).atStartOfLine().getOffset();
+            int end = f.fromOffset(range.getEnd()).atEndOfLine().getOffset();
 
             myMatcher.region(start, end);
             myMatcher.useTransparentBounds(!mySingleLine);

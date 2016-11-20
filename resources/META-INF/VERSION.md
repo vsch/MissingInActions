@@ -24,8 +24,19 @@
   only select if pasted text contains at least one line--contains end of line.
 - Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
   the left margin.
-- Add option to remove selection created by toggle case. Will leave selection made before in
+- Add: option to remove selection created by toggle case. Will leave selection made before in
   tact.
+- Fix: delete to line end not eol was deleting one character less than end of line 
+- Add: Option to fix duplicate line or selection to duplicate before the selection if caret is
+  at the head of the selection (actually if the selection was started from the end). 
+
+    Allows fast duplication of a block of code up, instead of always down and having to move it
+    up over a copy of itself.
+- Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
+  full lines if the trimming or expansion affects whitespace chars only. 
+- Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
+  remembers if it was turned on from the panel and if line mode is disabled offers a link to
+  disable it.
 
 ### 0.6.2 - Bug Fix and Features
 

@@ -19,64 +19,67 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util;
+package com.vladsch.MissingInActions.manager;
 
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretState;
-import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.editor.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
 public class EditorCaretState extends CaretState {
-    final private @NotNull LogPos.Factory myFactory;
-    final private boolean myIsLine;
-
-    public EditorCaretState(@NotNull LogPos.Factory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end) {
-        this(factory, position, start, end, false);
-    }
-
-    public EditorCaretState(@NotNull LogPos.Factory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end, boolean isLine) {
+    final @NotNull EditorPositionFactory myFactory;
+    
+    public EditorCaretState(@NotNull EditorPositionFactory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end) {
         super(position, start, end);
         myFactory = factory;
-        myIsLine = isLine;
     }
 
-    public boolean isLine() {
-        return myIsLine;
+    @NotNull
+    public EditorPositionFactory getFactory() {
+        return myFactory;
     }
 
-    public EditorCaretState(@NotNull LogPos.Factory factory, @NotNull Caret caret) {
+    @NotNull
+    public Editor getEditor() {
+        return myFactory.getEditor();
+    }
+
+    @NotNull
+    public Document getDocument() {
+        return myFactory.getEditor().getDocument();
+    }
+
+    public EditorCaretState(@NotNull EditorPositionFactory factory, @NotNull Caret caret) {
         this(factory, caret.getLogicalPosition()
                 , caret.hasSelection() ? factory.fromOffset(caret.getSelectionStart()) : null
                 , caret.hasSelection() ? factory.fromOffset(caret.getSelectionEnd()) : null
         );
     }
 
-    public EditorCaretState(@NotNull LogPos.Factory factory, @NotNull CaretState other) {
+    public EditorCaretState(@NotNull EditorPositionFactory factory, @NotNull CaretState other) {
         this(factory, other.getCaretPosition(), other.getSelectionStart(), other.getSelectionEnd());
     }
 
     public boolean hasSelection() {
-        return getSelectionStart() != null && getSelectionEnd() != null && getSelectionStart().toOffset() != getSelectionEnd().toOffset();
+        return getSelectionStart() != null && getSelectionEnd() != null && getSelectionStart().getOffset() != getSelectionEnd().getOffset();
     }
 
     @Nullable
     @Override
-    public LogPos getCaretPosition() {
-        return myFactory.fromPos(super.getCaretPosition());
+    public EditorPosition getCaretPosition() {
+        return myFactory.fromPosition(super.getCaretPosition());
     }
 
     @Nullable
     @Override
-    public LogPos getSelectionStart() {
-        return myFactory.fromPos(super.getSelectionStart());
+    public EditorPosition getSelectionStart() {
+        return myFactory.fromPosition(super.getSelectionStart());
     }
 
     @Nullable
     @Override
-    public LogPos getSelectionEnd() {
-        return myFactory.fromPos(super.getSelectionEnd());
+    public EditorPosition getSelectionEnd() {
+        return myFactory.fromPosition(super.getSelectionEnd());
     }
 
     @NotNull
@@ -138,15 +141,14 @@ public class EditorCaretState extends CaretState {
                 , atColumn(getSelectionEnd(), endLine)
         );
     }
-    
+
     @Nullable
-    public static LogicalPosition atColumn(@Nullable LogPos position, @Nullable LogicalPosition otherColumn) {
+    public static LogicalPosition atColumn(@Nullable EditorPosition position, @Nullable LogicalPosition otherColumn) {
         return position == null ? otherColumn : otherColumn == null ? position : position.atColumn(otherColumn.column);
     }
 
     @Nullable
-    public static LogicalPosition onLine(@Nullable LogPos position, @Nullable LogicalPosition otherLine) {
+    public static LogicalPosition onLine(@Nullable EditorPosition position, @Nullable LogicalPosition otherLine) {
         return position == null ? otherLine : otherLine == null ? position : position.onLine(otherLine.line);
     }
-
 }

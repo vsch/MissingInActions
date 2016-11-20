@@ -19,13 +19,12 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.actions.pattern;
+package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
-import com.vladsch.MissingInActions.actions.RangeLimitedSpawningHandler;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -36,10 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 @SuppressWarnings("WeakerAccess")
-abstract public class PatternCaretSearchHandler<T> extends RangeLimitedSpawningHandler {
+abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpawningHandler {
     final private boolean mySingleMatch;
 
-    protected PatternCaretSearchHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
+    protected PatternSearchCaretHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
         super(backwards, lineMode, singleLine);
         mySingleMatch = singleMatch;
     }
@@ -69,14 +68,14 @@ abstract public class PatternCaretSearchHandler<T> extends RangeLimitedSpawningH
     protected abstract CaretMatch nextMatch(T matcher, BasedSequence chars, @NotNull Range range, @Nullable CaretMatch previousMatch);
 
     @Nullable
-    protected abstract T prepareMatcher(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
+    protected abstract T prepareMatcher(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
 
-    protected boolean perform(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets) {
+    protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets) {
         Editor editor = caret.getEditor();
         SubSequence chars = new SubSequence(editor.getDocument().getCharsSequence());
         boolean keepCaret = false;
 
-        T matcher = prepareMatcher(adjuster, caret, range, chars);
+        T matcher = prepareMatcher(manager, caret, range, chars);
         if (matcher != null) {
             // forward search withing range in document
             CaretMatch lastMatch = null;

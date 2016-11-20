@@ -36,19 +36,16 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
 import com.vladsch.MissingInActions.util.DelayedRunner;
-import com.vladsch.MissingInActions.util.LogPos;
 import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 import static com.intellij.util.text.CharArrayUtil.isEmptyOrSpaces;
-import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
 
 /**
  * Adjust a line selection to a normal selection when selection is adjusted by moving the caret
@@ -67,6 +64,7 @@ public class LineSelectionManager implements CaretListener
     final private MessageBusConnection myMessageBusConnection;
     final private @Nullable Key<CaretAttributes> myCustomAttributesKey;
     final private @NotNull ActionSelectionAdjuster myActionSelectionAdjuster;
+    final private @NotNull EditorPositionFactory myPositionFactory;
 
     final private LineSelectionState myPrimarySelectionState = new LineSelectionState();
     private int myMouseAnchor = -1;
@@ -85,6 +83,7 @@ public class LineSelectionManager implements CaretListener
 
     public LineSelectionManager(Editor editor) {
         myEditor = editor;
+        myPositionFactory = new EditorPositionFactory(this);
 
         Key<CaretAttributes> key = null;
         if (ourHaveCustomCaretAttributes) {
@@ -106,8 +105,29 @@ public class LineSelectionManager implements CaretListener
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
     }
 
+    @NotNull
+    public EditorPositionFactory getPositionFactory() {
+        return myPositionFactory;
+    }
+
+    @NotNull
+    public EditorCaret getEditorCaret(@NotNull Caret caret) {
+        return new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
+    public EditorCaret getEditorCaret(@NotNull Caret caret, @NotNull EditorCaret savedCaret) {
+        return new EditorCaret(myPositionFactory, caret, savedCaret.getAnchorOffset(), savedCaret.startIsAnchor(), savedCaret.isLine());
+    }
+
     public void updateCaretHighlights() {
         highlightCarets();
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public boolean getCaretInSelection() {
+        return Plugin.getCaretInSelection();
     }
 
     private void settingsChanged(@NotNull ApplicationSettings settings) {
@@ -191,15 +211,15 @@ public class LineSelectionManager implements CaretListener
         return Plugin.getInstance().getSelectionAdjuster(editor);
     }
 
-    public void setCaretLineSelection(Caret caret, LogPos newPos, LogPos newStart, LogPos newEnd, boolean startIsAnchor, LineSelectionState state) {
+    public void setCaretLineSelection(Caret caret, EditorPosition newPos, EditorPosition newStart, EditorPosition newEnd, boolean startIsAnchor, LineSelectionState state) {
         myCaretGuard.guard(() -> {
             if (newStart.equals(newEnd)) {
                 caret.moveToLogicalPosition(newPos);
-                int offset = newPos.toOffset();
+                int offset = newPos.getOffset();
                 caret.setSelection(offset, offset);
             } else {
-                int startOffset = newStart.toOffset();
-                int endOffset = newEnd.toOffset();
+                int startOffset = newStart.getOffset();
+                int endOffset = newEnd.getOffset();
                 //caret.moveToOffset(startIsAnchor ? endOffset : startOffset);
                 caret.setSelection(startOffset, endOffset);
                 caret.moveToLogicalPosition(newPos);
@@ -244,58 +264,10 @@ public class LineSelectionManager implements CaretListener
 
     public void adjustCharacterSelectionToLineSelection(@NotNull Caret caret, boolean alwaysLine, boolean trimmedLine) {
         if (caret.hasSelection()) {
-            LineSelectionState state = getSelectionState(caret);
-            if (!state.isLine()) {
-                myCaretGuard.guard(() -> {
-                    final LogPos.Factory f = LogPos.factory(myEditor);
-                    LogPos start = f.fromOffset(caret.getSelectionStart());
-                    LogPos end = f.fromOffset(caret.getSelectionEnd());
-
-                    if (start.line == end.line && !alwaysLine) {
-                        state.setLine(false);
-                    } else {
-                        if (trimmedLine) {
-                            // if from start to end of line is all blanks, then move start to beginning of next line
-                            // and if from end to start of line is all blanks then move end to start of line
-                            if (isEmptyOrSpaces(myEditor.getDocument().getCharsSequence(), start.toOffset(), start.atEndOfLine().toOffset())) {
-                                start = start.atEndOfLine();
-                            }
-                            if (isEmptyOrSpaces(myEditor.getDocument().getCharsSequence(), end.atStartOfLine().toOffset(), end.toOffset())) {
-                                end = end.atStartOfLine();
-                            }
-                        }
-
-                        LogPos pos = f.fromPos(caret.getLogicalPosition());
-                        LogPos newStart = start;
-                        LogPos newEnd = end;
-                        LogPos newPos = pos;
-
-                        newStart = start.atStartOfLine();
-                        newEnd = end.atEndOfLine();
-
-                        int anchorOffset = caret.getLeadSelectionOffset();
-                        boolean startIsAnchor = anchorOffset <= caret.getOffset();
-
-                        if (startIsAnchor) {
-                            // start is anchor move caret to end
-                            if (getCaretInSelection()) {
-                                newPos = pos.onLine(newEnd.line - 1);
-                            } else {
-                                newPos = pos.onLine(newEnd.line);
-                            }
-                        } else {
-                            // end is anchor move caret to start
-                            if (getCaretInSelection()) {
-                                newPos = pos.onLine(newStart.line);
-                            } else {
-                                newPos = pos.onLine(newStart.line > 0 ? newStart.line - 1 : newStart.line);
-                            }
-                        }
-
-                        setCaretLineSelection(caret, newPos, newStart, newEnd, startIsAnchor, state);
-                    }
-                });
-            }
+            EditorCaret editorCaret = getEditorCaret(caret);
+            EditorCaret fixedCaret = (trimmedLine ? editorCaret.toTrimmedOrExpandedFullLines().toLineSelection(alwaysLine) : editorCaret.toLineSelection(alwaysLine));
+            fixedCaret = fixedCaret.withNormalizedPosition();
+            fixedCaret.copyTo(caret);
         }
     }
 
@@ -407,16 +379,15 @@ public class LineSelectionManager implements CaretListener
 
         // mouse selection is between mouseAnchor and the caret offset
         // if they are on the same line then it is a char mark, else line mark
-        final LogPos.Factory f = LogPos.factory(myEditor);
         final int offset = caret.getOffset();
-        final LogPos pos = f.fromPos(caret.getLogicalPosition());
+        final EditorPosition pos = myPositionFactory.fromPosition(caret.getLogicalPosition());
 
         boolean startIsAnchor = caret.getLeadSelectionOffset() <= offset;
         int startOffset = startIsAnchor ? mouseAnchor : offset;
         int endOffset = startIsAnchor ? offset : mouseAnchor;
 
-        final LogPos start = f.fromOffset(startOffset);
-        final LogPos end = f.fromOffset(endOffset);
+        final EditorPosition start = myPositionFactory.fromOffset(startOffset);
+        final EditorPosition end = myPositionFactory.fromOffset(endOffset);
         LineSelectionState state = getSelectionState(caret);
 
         state.setAnchorOffset(mouseAnchor);
@@ -427,9 +398,9 @@ public class LineSelectionManager implements CaretListener
                 caret.moveToLogicalPosition(pos);
                 state.setLine(false);
             } else if (caret.hasSelection()) {
-                LogPos newStart = start.atStartOfLine();
-                LogPos newEnd = end.atStartOfLine();
-                LogPos newPos = pos;
+                EditorPosition newStart = start.atStartOfLine();
+                EditorPosition newEnd = end.atStartOfLine();
+                EditorPosition newPos = pos;
 
                 if (finalAdjustment) {
                     //println("final selection adjustment ctrl: " + alwaysChar + " startAnchor: " + startIsAnchor);
@@ -459,7 +430,7 @@ public class LineSelectionManager implements CaretListener
                 //} else {
                 //    println("selection adjustment newStart: " + newStart + " newEnd: " + newEnd);
                 //}
-                caret.setSelection(newStart.toOffset(), newEnd.toOffset());
+                caret.setSelection(newStart.getOffset(), newEnd.getOffset());
             }
         });
     }

@@ -22,7 +22,7 @@
 package com.vladsch.MissingInActions.manager;
 
 public enum ActionSetType {
-    PASTING_ACTION,
+    PASTE_ACTION,
     NON_LINE_AUTO_INDENT_TRIGGER,
-    SELECTING_ACTION,
+    SELECTING_ACTION, CUT_ACTION,
 }

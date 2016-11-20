@@ -31,8 +31,7 @@ import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
+import com.vladsch.MissingInActions.manager.*;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.sequence.Range;
 
@@ -71,16 +70,13 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
         final EditorEx editor = getEditor(e);
         final SelectionModel selectionModel = editor.getSelectionModel();
         final CaretModel caretModel = editor.getCaretModel();
-        final DocumentEx doc = editor.getDocument();
-        final LogPos.Factory f = LogPos.factory(editor);
-        LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
+        LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        final EditorPositionFactory f = manager.getPositionFactory();
 
         Caret primaryCaret = caretModel.getPrimaryCaret();
-        LineSelectionState state = adjuster.getSelectionState(primaryCaret);
+        EditorCaret editorCaret = manager.getEditorCaret(primaryCaret);
 
-        adjuster.guard(() -> {
-            LogPos pos = f.fromPos(primaryCaret.getLogicalPosition());
-
+        manager.guard(() -> {
             if (caretModel.getCaretCount() > 1) {
                 // switch to line mode from top most caret to bottom most caret
                 Range selRange = Range.NULL;
@@ -92,21 +88,20 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                 editor.setColumnMode(false);
 
                 // create a line selection that includes minOffset/maxOffset
-                LogPos selStart = f.fromLine(selRange.getStart(), 0);
-                LogPos selEnd = f.fromLine(selRange.getEnd(), 0).atEndOfNextLine();
-
-                if (getCaretInSelection()) {
-                    pos = selEnd.onLine(selEnd.line - 1).atColumn(pos.column);
-                } else {
-                    pos = selEnd.atColumn(pos.column);
-                }
-
-                adjuster.setCaretLineSelection(primaryCaret, pos, selStart, selEnd, true, state);
+                EditorPosition selStart = f.fromPosition(selRange.getStart(), 0);
+                EditorPosition selEnd = f.fromPosition(selRange.getEnd(), 0).atStartOfNextLine();
+                EditorCaret rangeCaret = editorCaret.withSelection(selStart, selEnd)
+                        .toTrimmedOrExpandedLineSelection()
+                        .withNormalizedPosition();
+                
+                rangeCaret.copyTo(primaryCaret);
             } else if (selectionModel.hasSelection() && (myWantBlankLines || myWantNonBlankLines)) {
                 // if not line selection then we convert it to line selection, next time to carets
-                if (state.isLine()) {
-                    LogPos selStart = f.fromOffset(selectionModel.getSelectionStart());
-                    LogPos selEnd = f.fromOffset(selectionModel.getSelectionEnd());
+                final DocumentEx doc = editor.getDocument();
+                EditorPosition pos = editorCaret.getCaretPosition();
+                if (editorCaret.isLine()) {
+                    EditorPosition selStart = f.fromOffset(selectionModel.getSelectionStart());
+                    EditorPosition selEnd = f.fromOffset(selectionModel.getSelectionEnd());
 
                     caretModel.removeSecondaryCarets();
                     //selectionModel.setSelection(primaryCaret.getOffset(), primaryCaret.getOffset());
@@ -128,10 +123,10 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
 
                             boolean isBlank = CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset);
                             if (isBlank && myWantBlankLines || !isBlank && myWantNonBlankLines) {
-                                LogPos logPos = pos.onLine(lineNumber);
-                                Caret caret = first ? caretModel.getPrimaryCaret() : caretModel.addCaret(logPos.toVisualPosition());
+                                EditorPosition editorPosition = pos.onLine(lineNumber);
+                                Caret caret = first ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
                                 if (caret != null) {
-                                    caret.moveToLogicalPosition(logPos);
+                                    caret.moveToLogicalPosition(editorPosition);
                                 }
                                 first = false;
                             }
@@ -139,7 +134,9 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                         EditHelpers.scrollToCaret(editor);
                     }
                 } else {
-                    adjuster.adjustCharacterSelectionToLineSelection(primaryCaret, true, true);
+                    editorCaret.toTrimmedOrExpandedLineSelection()
+                            .withNormalizedPosition()
+                            .copyTo(primaryCaret);
                 }
             }
         });

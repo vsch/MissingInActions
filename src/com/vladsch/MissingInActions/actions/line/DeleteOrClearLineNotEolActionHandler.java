@@ -79,11 +79,11 @@ public class DeleteOrClearLineNotEolActionHandler extends EditorWriteActionHandl
                 end++;
             }
 
-            if (end >= lineEndOffset) {
+            if (end > lineEndOffset) {
                 end = lineEndOffset - 1;
             }
 
-            if (end >= lineEndOffset || end <= start) {
+            if (end > lineEndOffset || end <= start) {
                 return;
             }
         }

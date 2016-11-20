@@ -47,7 +47,7 @@ public enum AdjustmentType {
     NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE,
     
     // move caret to start of selection before, restore caret column after if it is at column 0
-    MOVE_TO_START__RESTORE_IF0,
+    MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE,
 
     // nothing before, change to line if it is full line selection
     NOTHING__TO_LINE_IF_LOOKS_IT,
@@ -58,5 +58,5 @@ public enum AdjustmentType {
 
     IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN,
     
-    IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN,
+    IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN, AUTO_INDENT_LINES,
 }

@@ -24,47 +24,67 @@ package com.vladsch.MissingInActions.manager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
-import com.vladsch.MissingInActions.util.EditorCaretState;
-import com.vladsch.MissingInActions.util.LogPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SavedCaretManager implements Disposable {
-    private final ArrayList<SavedCaret> myCarets = new ArrayList<>();
+public class StashedCaretList implements Disposable {
+    private final ArrayList<StashedCaret> myCarets = new ArrayList<>();
     private final LineSelectionManager myManager;
-    private final Document myDocument;
-    private int mySaveLimit = 5;
+    private int myStashLimit;
 
-    public SavedCaretManager(LineSelectionManager manager) {
+    public StashedCaretList(LineSelectionManager manager) {
+        this(manager, Integer.MAX_VALUE);
+    }
+    
+    public StashedCaretList(LineSelectionManager manager, int stashLimit) {
         myManager = manager;
-        myDocument = manager.getEditor().getDocument();
+        myStashLimit = stashLimit;
     }
 
-    public int getSaveLimit() {
-        return mySaveLimit;
+    public ArrayList<StashedCaret> getCarets() {
+        return myCarets;
     }
 
-    public void setSaveLimit(int saveLimit) {
-        mySaveLimit = Math.max(0, saveLimit);
-        removeOverLimit();
+    public LineSelectionManager getManager() {
+        return myManager;
     }
 
-    public void removeOverLimit() {
-        while (myCarets.size() > mySaveLimit) {
+    public Editor getEditor() {
+        return myManager.getEditor();
+    }
+
+    public Document getDocument() {
+        return myManager.getEditor().getDocument();
+    }
+
+    public int getStashLimit() {
+        return myStashLimit;
+    }
+
+    public void setStashLimit(int stashLimit) {
+        myStashLimit = Math.max(0, stashLimit);
+        while (myCarets.size() > myStashLimit) {
             myCarets.remove(myCarets.size() - 1);
         }
     }
 
-    public void releaseUnused() {
-        removeOverLimit();
+    @NotNull
+    public EditorPositionFactory getLogPosFactory() {
+        return myManager.getPositionFactory();
+    }
 
+    public void releaseUnused() {
         int iMax = myCarets.size();
-        for (int i = 0; i < iMax; i++) {
-            SavedCaret caret = myCarets.get(i);
-            if (caret != null && !caret.myRangeMarker.isValid()) {
+        for (int i = iMax; i-- > 0; ) {
+            StashedCaret caret = myCarets.get(i);
+            if (i >= myStashLimit) {
+                myCarets.remove(i);
+                if (caret != null) caret.myRangeMarker.dispose();
+            } else if (caret != null && !caret.myRangeMarker.isValid()) {
                 caret.myRangeMarker.dispose();
                 myCarets.set(i, null);
             }
@@ -72,11 +92,15 @@ public class SavedCaretManager implements Disposable {
     }
 
     public int size() {
-        return Math.min(myCarets.size(), mySaveLimit);
+        return Math.min(myCarets.size(), myStashLimit);
+    }
+
+    public int actualSize() {
+        return myCarets.size();
     }
 
     public boolean isEmpty() {
-        return size() == 0;
+        return myCarets.isEmpty();
     }
 
     public boolean isValidAt(int index) {
@@ -84,9 +108,8 @@ public class SavedCaretManager implements Disposable {
     }
     
     public void releaseAt(int index) {
-        releaseUnused();
         if (isValidAt(index)) {
-            SavedCaret caret = myCarets.get(index);
+            StashedCaret caret = myCarets.get(index);
             if (caret != null) {
                 caret.myRangeMarker.dispose();
                 myCarets.set(index, null);
@@ -98,19 +121,19 @@ public class SavedCaretManager implements Disposable {
         add(myCarets.size(), caret);
     }
 
-    public void remove(int index) {
-        SavedCaret caret = myCarets.remove(index);
-
-        if (caret != null) {
-            caret.myRangeMarker.dispose();
-        }
-    }
-
     @Nullable
     public EditorCaretState pop() {
         releaseUnused();
         EditorCaretState caretState = getRaw(size()-1,true,true);
         return caretState;
+    }
+
+    public void remove(int index) {
+        StashedCaret caret = myCarets.remove(index);
+
+        if (caret != null) {
+            caret.myRangeMarker.dispose();
+        }
     }
 
     @Nullable
@@ -124,26 +147,26 @@ public class SavedCaretManager implements Disposable {
     private EditorCaretState getRaw(int index, boolean getIt, boolean removeIt) {
         EditorCaretState caretState = null;
         if (isValidAt(index)) {
-            SavedCaret savedCaret;
+            StashedCaret stashedCaret;
 
             if (removeIt) {
                 if (getIt) {
-                    savedCaret = myCarets.remove(index);
+                    stashedCaret = myCarets.remove(index);
                 } else {
                     myCarets.remove(index);
-                    savedCaret = null;
+                    stashedCaret = null;
                 }
             } else {
-                savedCaret = myCarets.get(index);
+                stashedCaret = myCarets.get(index);
             }
 
-            if (savedCaret != null) {
-                LogPos.Factory f = LogPos.factory(myManager.getEditor());
-                LogPos selStart = f.fromOffset(savedCaret.myRangeMarker.getStartOffset());
-                LogPos selEnd = f.fromOffset(savedCaret.myRangeMarker.getEndOffset());
-                LogPos pos = savedCaret.myStartIsAnchor ? selEnd : selStart;
+            if (stashedCaret != null) {
+                EditorPositionFactory f = getLogPosFactory();
+                EditorPosition selStart = f.fromOffset(stashedCaret.myRangeMarker.getStartOffset());
+                EditorPosition selEnd = f.fromOffset(stashedCaret.myRangeMarker.getEndOffset());
+                EditorPosition pos = stashedCaret.myStartIsAnchor ? selEnd : selStart;
 
-                caretState = new EditorCaretState(f, pos, selStart, selEnd, savedCaret.myIsLine);
+                caretState = new EditorCaretState(f, pos, selStart, selEnd);
             }
         }
         return caretState;
@@ -157,30 +180,30 @@ public class SavedCaretManager implements Disposable {
     public void add(int index, int start, int end, boolean startIsAnchor, boolean isLine) {
         releaseUnused();
 
-        if (index < 0 || index >= mySaveLimit) {
-            throw new IllegalArgumentException("index "+index+" out of range of [0, " + mySaveLimit + ")");
+        if (index < 0 || index >= myStashLimit) {
+            throw new IllegalArgumentException("index "+index+" out of range of [0, " + myStashLimit + ")");
         }
 
-        RangeMarker marker = myDocument.createRangeMarker(start, end);
-        SavedCaret savedCaret = new SavedCaret(marker, startIsAnchor, isLine);
-        myCarets.add(index, savedCaret);
+        RangeMarker marker = myManager.getEditor().getDocument().createRangeMarker(start, end);
+        StashedCaret stashedCaret = new StashedCaret(marker, startIsAnchor, isLine);
+        myCarets.add(index, stashedCaret);
     }
 
     @Override
     public void dispose() {
-        for (SavedCaret caret : myCarets) {
+        for (StashedCaret caret : myCarets) {
             if (caret != null) {
                 caret.myRangeMarker.dispose();
             }
         }
     }
 
-    private static class SavedCaret {
+    private static class StashedCaret {
         final RangeMarker myRangeMarker; // selection and position
         final boolean myStartIsAnchor; // meaning end of marker is also the caret pos
         final boolean myIsLine; // meaning end of marker is also the caret pos
 
-        public SavedCaret(RangeMarker rangeMarker, boolean startIsAnchor, boolean isLine) {
+        public StashedCaret(RangeMarker rangeMarker, boolean startIsAnchor, boolean isLine) {
             myRangeMarker = rangeMarker;
             myStartIsAnchor = startIsAnchor;
             myIsLine = isLine;

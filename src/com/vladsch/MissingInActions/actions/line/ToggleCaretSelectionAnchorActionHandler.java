@@ -33,9 +33,10 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.manager.LineSelectionState;
-import com.vladsch.MissingInActions.util.LogPos;
+import com.vladsch.MissingInActions.manager.EditorPosition;
 import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
@@ -47,31 +48,31 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
 
     @Override
     public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
-        final LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
-        adjuster.guard(() -> {
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        manager.guard(() -> {
             if (!editor.getCaretModel().supportsMultipleCarets()) {
-                perform(editor, adjuster, caret);
+                perform(editor, manager, caret);
             } else {
                 if (caret == null) {
-                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, adjuster, caret1));
+                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, manager, caret1));
                 } else {
-                    perform(editor, adjuster, caret);
+                    perform(editor, manager, caret);
                 }
             }
         });
     }
 
-    private void perform(Editor editor, LineSelectionManager adjuster, Caret caret) {
+    private void perform(Editor editor, LineSelectionManager manager, Caret caret) {
         assert caret != null;
 
         if (caret.hasSelection()) {
-            LineSelectionState state = adjuster.getSelectionState(caret);
+            LineSelectionState state = manager.getSelectionState(caret);
 
             if (state.isLine()) {
-                LogPos.Factory f = LogPos.factory(editor);
-                LogPos pos = f.fromPos(caret.getLogicalPosition());
-                LogPos start = f.fromOffset(caret.getSelectionStart());
-                LogPos end = f.fromOffset(caret.getSelectionEnd());
+                EditorPositionFactory f = manager.getPositionFactory();
+                EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
+                EditorPosition start = f.fromOffset(caret.getSelectionStart());
+                EditorPosition end = f.fromOffset(caret.getSelectionEnd());
 
                 if (start.line + 1 < end.line) {
                     boolean startIsAnchor = true;

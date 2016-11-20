@@ -25,10 +25,11 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.manager.LineSelectionState;
+import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.flexmark.util.sequence.Range;
-import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -403,12 +404,12 @@ public class EditHelpers {
         if (clearOnly) {
             editor.getDocument().replaceString(start, end, new RepeatedCharSequence(' ', end - start));
         } else {
-            LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
-            LineSelectionState state = adjuster.getSelectionState(caret);
+            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            LineSelectionState state = manager.getSelectionState(caret);
             if (state.isLine()) {
-                LogPos.Factory f = LogPos.factory(editor);
-                LogPos pos = f.fromPos(caret.getLogicalPosition());
-                LogPos selStart = f.fromOffset(start);
+                EditorPositionFactory f = manager.getPositionFactory();
+                EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
+                EditorPosition selStart = f.fromOffset(start);
 
                 editor.getDocument().deleteString(start, end);
 

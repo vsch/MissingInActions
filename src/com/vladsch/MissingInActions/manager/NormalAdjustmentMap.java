@@ -29,6 +29,7 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
+import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class NormalAdjustmentMap extends ActionAdjustmentMap {
@@ -104,6 +105,9 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
         );
 
         addActionAdjustment(AdjustmentType.TO_CHAR__TO_ALWAYS_LINE
+                , IndentLineOrSelectionAction.class
+                , UnindentSelectionAction.class
+                , IndentSelectionAction.class
         );
 
         addActionAdjustment(AdjustmentType.IF_LINE__FIX_CARET
@@ -129,22 +133,6 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , ReformatCodeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.MOVE_TO_START__RESTORE_IF0
-                , com.intellij.ide.actions.PasteAction.class
-                , com.intellij.openapi.editor.actions.PasteAction.class
-                , MultiplePasteAction.class
-                , PasteFromX11Action.class
-                , SimplePasteAction.class
-        );
-
-        addActionSet(ActionSetType.PASTING_ACTION
-                , com.intellij.ide.actions.PasteAction.class
-                , com.intellij.openapi.editor.actions.PasteAction.class
-                , MultiplePasteAction.class
-                , PasteFromX11Action.class
-                , SimplePasteAction.class
-        );
-
         addActionAdjustment(AdjustmentType.NOTHING__NOTHING
                 , UndoAction.class
                 , RedoAction.class
@@ -159,9 +147,34 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.intellij.openapi.editor.actions.CopyAction.class
         );
 
+        addActionAdjustment(AdjustmentType.MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE
+                , com.intellij.ide.actions.PasteAction.class
+                , com.intellij.openapi.editor.actions.PasteAction.class
+                , MultiplePasteAction.class
+                , PasteFromX11Action.class
+                , SimplePasteAction.class
+        );
+
+        addActionSet(ActionSetType.PASTE_ACTION
+                , com.intellij.ide.actions.PasteAction.class
+                , com.intellij.openapi.editor.actions.PasteAction.class
+                , MultiplePasteAction.class
+                , PasteFromX11Action.class
+                , SimplePasteAction.class
+        );
+
+        addActionAdjustment(AdjustmentType.AUTO_INDENT_LINES
+                , AutoIndentLinesAction.class
+        );
+
         addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , DuplicateAction.class
+                , DuplicateBeforeAfterAction.class
                 , DuplicateLinesAction.class
+                , CutAction.class
+        );
+
+        addActionSet(ActionSetType.CUT_ACTION
                 , CutAction.class
         );
 

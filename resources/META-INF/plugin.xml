@@ -36,7 +36,7 @@
         ]]>
     </description>
 
-    <version>0.6.2</version>
+    <version>0.6.2.1</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
@@ -58,9 +58,9 @@
                 <li>Add: <code>Change To Trimmed Line Selection</code> action, when converting to line selection, any
                     whitespace to end of line from the start of selection and any white space from end of
                     selection to start of line are left out of the line mark. Intended to go from this:
-                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/CharacterSelection.png" alt="Character Selection" /></p>
+                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/CharacterSelection.png" alt="Character Selection"/></p>
                     <p>To:</p>
-                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/TrimmedLineSelection.png" alt="Trimmed Line Selection" /></p>
+                    <p><img src="https://github.com/vsch/MissingInActions/raw/master/assets/images/TrimmedLineSelection.png" alt="Trimmed Line Selection"/></p>
                 </li>
             </ul>
         </div>
@@ -88,9 +88,12 @@
                                  key="plugin.name"
                                  instance="com.vladsch.MissingInActions.settings.ApplicationConfigurable">
         </applicationConfigurable>
-        
+
         <applicationService serviceInterface="com.vladsch.MissingInActions.manager.NormalAdjustmentMap" serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
         <applicationService serviceInterface="com.vladsch.MissingInActions.util.CancelableJobScheduler" serviceImplementation="com.vladsch.MissingInActions.util.CancelableJobScheduler"/>
+
+        <!-- This is the only way to override standard editor shortcuts that are used by others -->
+        <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->
     </extensions>
 
     <actions>
@@ -279,13 +282,13 @@
                     text="Toggle Between Blank Line Carets and Line Selection"
                     description="Toggle Between Blank Line Carets and Line Selection">
             </action>
-            
+
             <action class="com.vladsch.MissingInActions.actions.carets.PrimaryCaretToNextAction"
                     id="MissingInActions.PrimaryCaretToNext"
                     text="Make Next Caret Primary"
                     description="Make Next Caret Primary">
             </action>
-            
+
             <action class="com.vladsch.MissingInActions.actions.carets.PrimaryCaretToPrevAction"
                     id="MissingInActions.PrimaryCaretToPrev"
                     text="Make Previous Caret Primary"
@@ -324,6 +327,11 @@
                     description="Toggle Direction of Selection">
             </action>
         </group>
-    </actions>
 
+        <action class="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction"
+                id="MissingInActions.DuplicateBeforeAfter"
+                text="Duplicate line or selection (before/after)"
+                description="Duplicate line or selection (before/after)">
+        </action>
+    </actions>
 </idea-plugin>

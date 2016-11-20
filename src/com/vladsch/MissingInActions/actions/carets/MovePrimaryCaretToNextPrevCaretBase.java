@@ -68,9 +68,9 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
         final EditorEx editor = getEditor(e);
         final CaretModel caretModel = editor.getCaretModel();
         if (caretModel.getCaretCount() > 1) {
-            LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
+            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
-            adjuster.guard(() -> {
+            manager.guard(() -> {
                 Caret primaryCaret = caretModel.getPrimaryCaret();
                 List<CaretState> caretStates = caretModel.getCaretsAndSelections();
                 caretStates.sort(Comparator.comparing(CaretState::getCaretPosition));
@@ -105,7 +105,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                         }
                     }
                     
-                    adjuster.updateCaretHighlights();
+                    manager.updateCaretHighlights();
                 }
 
                 EditHelpers.scrollToCaret(editor);

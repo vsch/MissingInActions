@@ -47,6 +47,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean mySelectPasted = false;
     private boolean mySelectPastedLineOnly = true;
     private boolean myUnselectToggleCase = false;
+    private boolean myWeSetVirtualSpace = true;
+    private boolean myDuplicateAtStartOrEnd = false;
+    private boolean myDuplicateAtStartOrEndLineOnly = true;
 
     public boolean isLineModeEnabled() {
         return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
@@ -56,6 +59,30 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                         //|| myUpDownMovement
                         //|| myLeftRightMovement
         );
+    }
+
+    public boolean isDuplicateAtStartOrEndLineOnly() {
+        return myDuplicateAtStartOrEndLineOnly;
+    }
+
+    public void setDuplicateAtStartOrEndLineOnly(boolean duplicateAtStartOrEndLineOnly) {
+        myDuplicateAtStartOrEndLineOnly = duplicateAtStartOrEndLineOnly;
+    }
+
+    public boolean isDuplicateAtStartOrEnd() {
+        return myDuplicateAtStartOrEnd;
+    }
+
+    public void setDuplicateAtStartOrEnd(boolean duplicateAtStartOrEnd) {
+        myDuplicateAtStartOrEnd = duplicateAtStartOrEnd;
+    }
+
+    public boolean isWeSetVirtualSpace() {
+        return myWeSetVirtualSpace;
+    }
+
+    public void setWeSetVirtualSpace(boolean weSetVirtualSpace) {
+        myWeSetVirtualSpace = weSetVirtualSpace;
     }
 
     public boolean isSelectPastedLineOnly() {

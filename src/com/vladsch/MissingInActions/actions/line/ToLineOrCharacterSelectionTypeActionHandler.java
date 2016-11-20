@@ -39,8 +39,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
     final private @Nullable Boolean myMakeLine;
-    final private @Nullable Boolean myTrimmedLine;
+    final private boolean myTrimmedLine;
 
+    @SuppressWarnings("WeakerAccess")
     public ToLineOrCharacterSelectionTypeActionHandler(@Nullable Boolean makeLine, boolean trimmedLine) {
         super(true);
         myMakeLine = makeLine;
@@ -49,15 +50,15 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
 
     @Override
     public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
-        final LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
-        adjuster.guard(() -> {
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        manager.guard(() -> {
             if (!editor.getCaretModel().supportsMultipleCarets()) {
-                perform(editor, adjuster, caret);
+                perform(editor, manager, caret);
             } else {
                 if (caret == null) {
-                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, adjuster, caret1));
+                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, manager, caret1));
                 } else {
-                    perform(editor, adjuster, caret);
+                    perform(editor, manager, caret);
                 }
             }
         });
@@ -71,20 +72,20 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
         return myMakeLine == null || !myMakeLine;
     }
 
-    private void perform(Editor editor, LineSelectionManager adjuster, Caret caret) {
+    private void perform(Editor editor, LineSelectionManager manager, Caret caret) {
         assert caret != null;
 
         if (caret.hasSelection()) {
-            LineSelectionState state = adjuster.getSelectionState(caret);
+            LineSelectionState state = manager.getSelectionState(caret);
 
             if (state.isLine()) {
                 if (wantCharacter()) {
-                    adjuster.adjustLineSelectionToCharacterSelection(caret, false);
+                    manager.adjustLineSelectionToCharacterSelection(caret, false);
                 }
             } else {
                 // make it line selection
                 if (wantLine()) {
-                    adjuster.adjustCharacterSelectionToLineSelection(caret, true, myTrimmedLine);
+                    manager.adjustCharacterSelectionToLineSelection(caret, true, myTrimmedLine);
                 }
             }
         }

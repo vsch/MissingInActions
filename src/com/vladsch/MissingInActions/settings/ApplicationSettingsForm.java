@@ -22,15 +22,22 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
+import com.vladsch.MissingInActions.Bundle;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettingsForm implements Disposable {
     private JPanel myMainPanel;
     final private ApplicationSettings mySettings;
 
+    private HyperlinkLabel mySetVirtualSpace;
+    private HyperlinkLabel myPreambleLabel;
     private JComboBox myAutoLineMode;
     private JBCheckBox myMouseLineSelection;
     private JBCheckBox myUpDownSelection;
@@ -43,6 +50,8 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox mySelectPastedLineOnly;
     private JBCheckBox myUnselectToggleCase;
     private JSpinner myAutoIndentDelay;
+    private JBCheckBox myDuplicateAtStartOrEnd;
+    private JBCheckBox myDuplicateAtStartOrEndLineOnly;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -50,7 +59,9 @@ public class ApplicationSettingsForm implements Disposable {
         myMouseLineSelection.addActionListener(e -> updateOptions(false));
         myUpDownSelection.addActionListener(e -> updateOptions(false));
         myAutoIndent.addActionListener(e -> updateOptions(false));
-        
+        mySelectPasted.addActionListener(e -> updateOptions(false));
+        myDuplicateAtStartOrEnd.addActionListener(e -> updateOptions(false));
+
         updateOptions(true);
     }
 
@@ -72,7 +83,9 @@ public class ApplicationSettingsForm implements Disposable {
                 || mySelectPasted.isSelected() != mySettings.isSelectPasted()
                 || mySelectPastedLineOnly.isSelected() != mySettings.isSelectPastedLineOnly()
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
-                || (Integer)myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
+                || myDuplicateAtStartOrEnd.isSelected() != mySettings.isDuplicateAtStartOrEnd()
+                || myDuplicateAtStartOrEndLineOnly.isSelected() != mySettings.isDuplicateAtStartOrEndLineOnly()
+                || (Integer) myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
                 ;
     }
 
@@ -88,6 +101,8 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setSelectPasted(mySelectPasted.isSelected());
         mySettings.setSelectPastedLineOnly(mySelectPastedLineOnly.isSelected());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
+        mySettings.setDuplicateAtStartOrEnd(myDuplicateAtStartOrEnd.isSelected());
+        mySettings.setDuplicateAtStartOrEndLineOnly(myDuplicateAtStartOrEndLineOnly.isSelected());
         mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
     }
 
@@ -103,6 +118,8 @@ public class ApplicationSettingsForm implements Disposable {
         mySelectPasted.setSelected(mySettings.isSelectPasted());
         mySelectPastedLineOnly.setSelected(mySettings.isSelectPastedLineOnly());
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
+        myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
+        myDuplicateAtStartOrEndLineOnly.setSelected(mySettings.isDuplicateAtStartOrEndLineOnly());
         myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
         updateOptions(false);
     }
@@ -117,7 +134,7 @@ public class ApplicationSettingsForm implements Disposable {
         boolean enabled = false;
         boolean selected = false;
         boolean untestedSelected = false;
-        
+
         if (type == AutoLineSettingType.ENABLED) {
             enabled = false;
             selected = true;
@@ -127,7 +144,7 @@ public class ApplicationSettingsForm implements Disposable {
         } else {
             typeChanged = true;
         }
-        
+
         if (typeChanged) myMouseLineSelection.setSelected(selected);
         if (typeChanged) myUpDownSelection.setSelected(selected);
 
@@ -135,7 +152,6 @@ public class ApplicationSettingsForm implements Disposable {
         if (typeChanged || !modeEnabled) myDeleteOperations.setSelected(selected && modeEnabled);
         if (typeChanged || !modeEnabled) myLeftRightMovement.setSelected(selected && modeEnabled);
         if (typeChanged || !modeEnabled) myUpDownMovement.setSelected(selected && modeEnabled);
-        if (!modeEnabled) mySelectPasted.setSelected(modeEnabled);
 
         myMouseLineSelection.setEnabled(selected);
         myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
@@ -143,10 +159,42 @@ public class ApplicationSettingsForm implements Disposable {
         myUpDownMovement.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
-        mySelectPasted.setEnabled(modeEnabled);
         mySelectPastedLineOnly.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         
+        myDuplicateAtStartOrEndLineOnly.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
+
+        boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
+        boolean makeVisible;
+        if (modeEnabled) {
+            makeVisible = !isVirtualSpace;
+        } else {
+            makeVisible = isVirtualSpace && mySettings.isWeSetVirtualSpace();
+        }
+
+        if (mySetVirtualSpace.isVisible() != makeVisible || typeChanged) {
+            mySetVirtualSpace.setVisible(makeVisible);
+            myPreambleLabel.setVisible(makeVisible);
+            if (makeVisible) {
+                if (!isVirtualSpace) {
+                    myPreambleLabel.setText(Bundle.message("settings.enable-virtual-space.preamble.description"));
+                    mySetVirtualSpace.setHtmlText("<html>"
+                            + Bundle.message("settings.enable-virtual-space.before.description")
+                            + " <a href=\"=\">" + Bundle.message("settings.enable-virtual-spaces-link") + "</a>"
+                            + " " + Bundle.message("settings.enable-virtual-space.after.description")
+                            + "</html>"
+                    );
+                } else {
+                    myPreambleLabel.setText(Bundle.message("settings.disable-virtual-space.preamble.description"));
+                    mySetVirtualSpace.setHtmlText("<html>"
+                            + Bundle.message("settings.disable-virtual-space.before.description")
+                            + " <a href=\"=\">" + Bundle.message("settings.disable-virtual-spaces-link") + "</a>"
+                            + " " + Bundle.message("settings.disable-virtual-space.after.description")
+                            + "</html>"
+                    );
+                }
+            }
+        }
     }
 
     private void createUIComponents() {
@@ -157,5 +205,25 @@ public class ApplicationSettingsForm implements Disposable {
         MouseModifierType.fillComboBox(myMouseModifier);
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);
         myAutoIndentDelay = new JSpinner(model);
+
+        mySetVirtualSpace = new HyperlinkLabel();
+        mySetVirtualSpace.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(final HyperlinkEvent e) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
+                    EditorSettingsExternalizable.getInstance().setVirtualSpace(!isVirtualSpace);
+                    mySettings.setWeSetVirtualSpace(!isVirtualSpace);
+                    updateOptions(false);
+                    //DataContext context = DataManager.getInstance().getDataContextFromFocus().getResult();
+                    //if (context != null) {
+                    //    Settings settings = Settings.KEY.getData(context);
+                    //    if (settings != null) {
+                    //        Configurable configurable = settings.find(EditorOptions.ID);
+                    //        settings.select(configurable);
+                    //    }
+                    //}
+                }
+            }
+        });
     }
 }

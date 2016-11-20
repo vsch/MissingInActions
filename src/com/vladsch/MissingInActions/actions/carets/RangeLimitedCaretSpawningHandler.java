@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.actions;
+package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.*;
@@ -39,12 +39,12 @@ import java.util.List;
  * These limit their range of effect withing their own selection, start/end of line, or the next/prev caret location
  */
 
-abstract public class RangeLimitedSpawningHandler extends EditorActionHandler {
+abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandler {
     protected final boolean myBackwards;
     protected final boolean myLineMode;
     protected final boolean mySingleLine;
 
-    public RangeLimitedSpawningHandler(boolean backwards, boolean lineMode, boolean singleLine) {
+    public RangeLimitedCaretSpawningHandler(boolean backwards, boolean lineMode, boolean singleLine) {
         super(false);
         myBackwards = backwards;
         myLineMode = lineMode;
@@ -52,13 +52,13 @@ abstract public class RangeLimitedSpawningHandler extends EditorActionHandler {
     }
 
     // execute pattern match 
-    abstract protected boolean perform(@NotNull LineSelectionManager adjuster, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets);
+    abstract protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets);
 
     @Override
     public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
-        final LineSelectionManager adjuster = LineSelectionManager.getInstance(editor);
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
-        adjuster.guard(() -> {
+        manager.guard(() -> {
             Caret useCaret = caret;
             ArrayList<CaretState> createList = new ArrayList<>();
             HashSet<Caret> keptCarets = new HashSet<>();
@@ -66,7 +66,7 @@ abstract public class RangeLimitedSpawningHandler extends EditorActionHandler {
 
             if (!caretModel.supportsMultipleCarets()) {
                 if (useCaret == null) useCaret = caretModel.getCurrentCaret();
-                perform(adjuster, useCaret, EditHelpers.getCaretRange(useCaret, myBackwards, myLineMode, mySingleLine), createList);
+                perform(manager, useCaret, EditHelpers.getCaretRange(useCaret, myBackwards, myLineMode, mySingleLine), createList);
             } else {
                 List<Caret> caretList;
                 boolean removePrimary;
@@ -78,7 +78,7 @@ abstract public class RangeLimitedSpawningHandler extends EditorActionHandler {
                     primaryCaret = caretModel.getPrimaryCaret();
 
                     for (Caret caret1 : caretList) {
-                        if (perform(adjuster, caret1, EditHelpers.getCaretRange(caret1, myBackwards, myLineMode, mySingleLine), createList)) {
+                        if (perform(manager, caret1, EditHelpers.getCaretRange(caret1, myBackwards, myLineMode, mySingleLine), createList)) {
                             keptCarets.add(caret1);
                         }
                     }
@@ -87,7 +87,7 @@ abstract public class RangeLimitedSpawningHandler extends EditorActionHandler {
                     caretList = Collections.singletonList(useCaret);
                     primaryCaret = useCaret;
                     removePrimary = true;
-                    if (perform(adjuster, useCaret, EditHelpers.getCaretRange(useCaret, myBackwards, myLineMode, mySingleLine), createList)) {
+                    if (perform(manager, useCaret, EditHelpers.getCaretRange(useCaret, myBackwards, myLineMode, mySingleLine), createList)) {
                         removePrimary = false;
                         keptCarets.add(useCaret);
                     }

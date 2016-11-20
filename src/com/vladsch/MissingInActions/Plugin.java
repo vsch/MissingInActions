@@ -84,16 +84,16 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     @Override
     public void editorCreated(@NotNull EditorFactoryEvent event) {
         if (!event.getEditor().isOneLineMode()) {
-            LineSelectionManager adjuster = new LineSelectionManager(event.getEditor());
-            myAdjusterMap.put(event.getEditor(), adjuster);
+            LineSelectionManager manager = new LineSelectionManager(event.getEditor());
+            myAdjusterMap.put(event.getEditor(), manager);
         }
     }
 
     @Override
     public void editorReleased(@NotNull EditorFactoryEvent event) {
-        LineSelectionManager adjuster = myAdjusterMap.remove(event.getEditor());
-        if (adjuster != null) {
-            Disposer.dispose(adjuster);
+        LineSelectionManager manager = myAdjusterMap.remove(event.getEditor());
+        if (manager != null) {
+            Disposer.dispose(manager);
         }
     }
 
@@ -105,9 +105,9 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     @Override
     public void disposeComponent() {
         for (Map.Entry<Editor, LineSelectionManager> pair : myAdjusterMap.entrySet()) {
-            LineSelectionManager adjuster = myAdjusterMap.remove(pair.getKey());
-            if (adjuster != null) {
-                Disposer.dispose(adjuster);
+            LineSelectionManager manager = myAdjusterMap.remove(pair.getKey());
+            if (manager != null) {
+                Disposer.dispose(manager);
             }
         }
     }
