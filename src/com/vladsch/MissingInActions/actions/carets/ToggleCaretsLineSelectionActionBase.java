@@ -127,6 +127,9 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                                 Caret caret = first ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
                                 if (caret != null) {
                                     caret.moveToLogicalPosition(editorPosition);
+                                    int offset = editorPosition.getOffset();
+                                    caret.setSelection(offset, offset);
+                                    manager.resetSelectionState(caret);
                                 }
                                 first = false;
                             }

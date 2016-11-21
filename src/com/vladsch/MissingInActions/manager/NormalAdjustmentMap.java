@@ -29,6 +29,11 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
+import com.vladsch.MissingInActions.actions.character.word.*;
+import com.vladsch.MissingInActions.actions.character.word.NextWordInDifferentHumpsModeWithSelectionAction;
+import com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction;
+import com.vladsch.MissingInActions.actions.character.word.PreviousWordInDifferentHumpsModeWithSelectionAction;
+import com.vladsch.MissingInActions.actions.character.word.PreviousWordWithSelectionAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
@@ -90,14 +95,14 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , TextEndWithSelectionAction.class
                 , TextStartWithSelectionAction.class
 
-                , com.vladsch.MissingInActions.actions.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.NextWordEndWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.NextWordStartInDifferentHumpsModeWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.NextWordStartWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.PreviousWordEndWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
-                , com.vladsch.MissingInActions.actions.word.PreviousWordStartWithSelectionAction.class
+                , NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , NextWordEndWithSelectionAction.class
+                , NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , NextWordStartWithSelectionAction.class
+                , PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , PreviousWordEndWithSelectionAction.class
+                , PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , PreviousWordStartWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToLineSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToggleSelectionAnchorAction.class
                 , com.vladsch.MissingInActions.actions.line.ToCharacterSelectionAction.class
@@ -120,7 +125,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , DeleteToWordStartInDifferentHumpsModeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.REMOVE_LINE__RESTORE_COLUMN
                 , PageBottomAction.class
                 , PageDownAction.class
                 , PageTopAction.class
@@ -178,14 +183,23 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , CutAction.class
         );
 
+        addActionAdjustment(AdjustmentType.NOTHING__NORMALIZE_CARET_POSITION
+                , JoinLinesAction.class
+                , MoveLineDownAction.class
+                , MoveLineUpAction.class
+        );
+
         addTriggeredAction(new TriggeredAction(new AutoIndentLinesAction(), () -> ApplicationSettings.getInstance().getAutoIndentDelay(), () -> ApplicationSettings.getInstance().isAutoIndent())
                 , MoveLineDownAction.class
                 , MoveLineUpAction.class
         );
 
-        addActionSet(ActionSetType.NON_LINE_AUTO_INDENT_TRIGGER
-                , MoveLineDownAction.class
+        addActionSet(ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER
                 , MoveLineUpAction.class
+        );
+        
+        addActionSet(ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER
+                , MoveLineDownAction.class
         );
     }
 }

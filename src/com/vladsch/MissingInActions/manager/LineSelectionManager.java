@@ -45,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
-import static com.intellij.util.text.CharArrayUtil.isEmptyOrSpaces;
 
 /**
  * Adjust a line selection to a normal selection when selection is adjusted by moving the caret
@@ -112,13 +111,35 @@ public class LineSelectionManager implements CaretListener
 
     @NotNull
     public EditorCaret getEditorCaret(@NotNull Caret caret) {
-        return new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
+        return getEditorCaret(caret, false);
     }
 
-    @SuppressWarnings("WeakerAccess")
     @NotNull
+    @SuppressWarnings("WeakerAccess")
+    public EditorCaret getEditorCaret(@NotNull Caret caret, boolean resetState) {
+        LineSelectionState state = getSelectionState(caret);
+        if (resetState) {
+            state.reset();
+        }
+        return new EditorCaret(myPositionFactory, caret, state);
+    }
+
+    public void resetSelectionState(Caret caret) {
+        LineSelectionState state = getSelectionState(caret);
+        state.reset();
+    }
+    
+    @NotNull
+    @SuppressWarnings("WeakerAccess")
     public EditorCaret getEditorCaret(@NotNull Caret caret, @NotNull EditorCaret savedCaret) {
-        return new EditorCaret(myPositionFactory, caret, savedCaret.getAnchorOffset(), savedCaret.startIsAnchor(), savedCaret.isLine());
+        return new EditorCaret(myPositionFactory, caret, savedCaret.startIsAnchor() ? caret.getSelectionStart() : caret.getSelectionEnd(), savedCaret.startIsAnchor(), savedCaret.isLine());
+    }
+
+    @NotNull
+    @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
+    public EditorCaret getEditorCaret(@NotNull Caret caret, boolean startIsAnchor, @Nullable Boolean isLine) {
+        if (isLine == null) isLine = getSelectionState(caret).isLine(); 
+        return new EditorCaret(myPositionFactory, caret, startIsAnchor ? caret.getSelectionStart() : caret.getSelectionEnd(), startIsAnchor, isLine);
     }
 
     public void updateCaretHighlights() {
@@ -244,12 +265,12 @@ public class LineSelectionManager implements CaretListener
             LineSelectionState state = getSelectionState(caret);
             int offset = caret.getOffset();
 
-            if (isMoveOnly) {
+            if (isMoveOnly || !caret.hasSelection()) {
                 // reset it
                 caret.setSelection(offset, offset);
-                state.setAnchorOffset(offset);
+                state.reset();
             } else if (state.isLine()) {
-                int anchorOffset = state.getAnchorOffset();
+                int anchorOffset = state.getAnchorOffset(caret.getLeadSelectionOffset());
                 boolean startIsAnchor = anchorOffset <= offset;
 
                 if (startIsAnchor) {
@@ -268,6 +289,9 @@ public class LineSelectionManager implements CaretListener
             EditorCaret fixedCaret = (trimmedLine ? editorCaret.toTrimmedOrExpandedFullLines().toLineSelection(alwaysLine) : editorCaret.toLineSelection(alwaysLine));
             fixedCaret = fixedCaret.withNormalizedPosition();
             fixedCaret.copyTo(caret);
+        } else {
+            LineSelectionState state = getSelectionState(caret);
+            state.reset();
         }
     }
 
@@ -390,7 +414,7 @@ public class LineSelectionManager implements CaretListener
         final EditorPosition end = myPositionFactory.fromOffset(endOffset);
         LineSelectionState state = getSelectionState(caret);
 
-        state.setAnchorOffset(mouseAnchor);
+        state.setAnchorOffsets(mouseAnchor);
 
         myCaretGuard.guard(() -> {
             if (start.line == end.line || alwaysChar) {
@@ -439,27 +463,24 @@ public class LineSelectionManager implements CaretListener
     public void caretPositionChanged(CaretEvent e) {
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
-            myCaretGuard.ifUnguarded(() -> {
-                // reset to char if we can
-                adjustLineSelectionToCharacterSelection(caret, !caret.hasSelection());
-            });
-
-            highlightCarets();
+            myCaretGuard.ifUnguarded(this::highlightCarets);
         }
     }
 
     @Override
     public void caretAdded(CaretEvent e) {
         //println("caretAdded " + e.getCaret());
-        highlightCarets();
+        myCaretGuard.ifUnguarded(this::highlightCarets);
     }
 
     @Override
     public void caretRemoved(CaretEvent e) {
         //println("caretRemoved " + e.toString());
         mySelectionStates.remove(e.getCaret());
-        removeCaretHighlight();
-        highlightCarets();
+        myCaretGuard.ifUnguarded(() -> {
+            removeCaretHighlight();
+            highlightCarets();
+        });
     }
 
     public Editor getEditor() {

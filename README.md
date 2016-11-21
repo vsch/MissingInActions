@@ -1,13 +1,13 @@
 # Missing In Actions
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.6.2 from this repo]
+[Download Latest 0.7.0 from this repo]
 
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 0.6.2 - Improved Implementation](#version-062---improved-implementation)
+- [Version 0.7.0 - Much Improved and Enhanced](#version-070---much-improved-and-enhanced)
 - [Why the need](#why-the-need)
     - [Multi Caret Friendly Actions](#multi-caret-friendly-actions)
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
@@ -20,9 +20,12 @@ and selection of start and end of words!
 * Next/Previous word Start/End variations based on what marks a word boundary:
     * IDEA version: identifier characters, spaces, lexeme boundaries
     * Words Only: identifier characters, spaces, all the rest
+    * Identifiers Only: identifier characters, all the rest
+    * Customized: select your combinations for start/end/start and end of word and more.
 
-* Action to delete to line indent, to clear to line indent (replace all chars from caret to line
-  indent with spaces.
+* Actions to delete to line indent, to clear to line indent (replace all chars from caret to
+  line indent with spaces, delete and backspace spaces only. Useful to pull jagged text straight
+  with multi-carets.
 
 * Auto Line Selection mode and supporting actions to automatically switch selection to full line
   mode if selection spans more than one line.
@@ -34,17 +37,29 @@ and selection of start and end of words!
         * Delete to End of Line will not delete that line's EOL when , causing it to join two
           lines
 
-:warning: Auto Line Selections work best if virtual spaces are enabled allowing the caret
-position to not be affected by physical end of line.
+* Multi-caret and selection manipulation functions: 
+    * Toggle from selection to carets and back
+    * Remove carets from blank lines or non-blank lines
+    * Straighten carets 
+    * Switch selection direction to change the other end of the selection
 
-## Version 0.6.2 - Improved Implementation
+* Many optional improvements to built in functions:
+    * Remove selection created by toggle case action
+    * Keep Selection of pasted text so you can edit it by switching to multi-carets with the
+      selection to carets toggle action.
+    * Allow Duplicate Selection to duplicate above selected text if the selection was made
+      bottom up.
+    * Auto Indent Lines after moving lines up or down, with a settable delay so it won't slow
+      you down.
+    * Toggle CamelHumps mode
+
+
+## Version 0.7.0 - Much Improved and Enhanced
 
 [Version Notes]  
-[Download Latest 0.6.2 from this repo] 
+[Download Latest 0.7.0 from this repo] 
 
 ![Screen Shot sequence](assets/images/noload/MissingInActions.gif)
-
-![Edit Actions](assets/images/EditActions.png)
 
 ![Edit Actions](/assets/images/ToolsSettings.png)
 
@@ -53,11 +68,6 @@ position to not be affected by physical end of line.
 IntelliJ development tools are the best of breed when it comes to language support, refactoring
 and the rest of intelligent language features but I find they suffer in their text editing
 capabilities, especially when it comes multiple caret editing.
-
-I know, many of you would say why use a mouse when the keyboard is so much faster. Not really. I
-am a touch typist, 40-45 words a minute, and sometimes find double click or select and drag/drop
-would be faster. Especially when the source and destination are not immediately next to each
-other.
 
 I wrote and maintained my own editor for over two decades, on the Amiga, then PC DOS then
 Windows (3.1 to Vista), only because I could not find the functionality I needed elsewhere. When
@@ -86,15 +96,15 @@ before your multiple carets are turned into a jumbled mess.
 
 This plugin adds multi caret aware actions:
 
-* Next/Prev word start/end actions will not cross line boundaries. They will stop at column one
-  or the end of line. This ensures that you always know where your carets are, on the line where
-  you put them.
+* Next/Prev word start/end actions will not cross line boundaries in multi-caret mode. They will
+  stop at column one or the end of line. This ensures that you always know where your carets
+  are, on the line where you put them.
 
     These come with variation on what they consider to be a word boundary:
 
     * Java identifier characters, whitespace and all the rest
-
     * Java identifier characters and the rest. Use these to jump to identifiers
+    * Custom version which you can tweak for what they will consider a boundary on which to stop.
 
 * Delete to End of Line that does not delete the EOL character, which the standard IDEA action
   does, causing the lines where the caret is located at the end of line, or after it, to be
@@ -166,5 +176,5 @@ selection when the mouse button is released.
 
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Version Notes]: /resources/META-INF/VERSION.md
-[Download Latest 0.6.2 from this repo]: ../../raw/master/dist/MissingInActions.0.6.2.zip
+[Download Latest 0.7.0 from this repo]: ../../raw/master/dist/MissingInActions.0.7.0.zip
 

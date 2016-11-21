@@ -78,29 +78,39 @@ public class EditorCaret {
     }
 
     public EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, @NotNull LineSelectionState state) {
-        this(factory, caret, state.getAnchorOffset(), state.getAnchorOffset() <= caret.getOffset(), state.isLine());
+        this(factory, caret, state.getAnchorOffset(0), state.getAnchorOffset(0) <= caret.getOffset(), state.isLine());
     }
-    
+
     public EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, int anchorOffset, boolean startIsAnchor, boolean isLine) {
         myFactory = factory;
         myCaretPosition = myFactory.fromPosition(caret.getLogicalPosition());
 
-        if (isLine) {
-            if (startIsAnchor) {
-                mySelectionStart = myFactory.fromOffset(anchorOffset);
-                mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
-                myStartIsAnchor = true;
+        if (!caret.hasSelection()) {
+            myIsLine = false;
+            myStartIsAnchor = true;
+            mySelectionStart = myCaretPosition;
+            mySelectionEnd = myCaretPosition;
+            LineSelectionState state = myFactory.getManager().getSelectionState(caret);
+            state.reset();
+            caret.setSelection(caret.getOffset(), caret.getOffset());
+        } else {
+            if (isLine) {
+                if (startIsAnchor) {
+                    mySelectionStart = myFactory.fromOffset(anchorOffset);
+                    mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
+                    myStartIsAnchor = true;
+                } else {
+                    mySelectionStart = myFactory.fromOffset(caret.getSelectionStart());
+                    mySelectionEnd = myFactory.fromOffset(anchorOffset);
+                    myStartIsAnchor = false;
+                }
+                myIsLine = true;
             } else {
                 mySelectionStart = myFactory.fromOffset(caret.getSelectionStart());
-                mySelectionEnd = myFactory.fromOffset(anchorOffset);
-                myStartIsAnchor = false;
+                mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
+                myStartIsAnchor = caret.getSelectionStart() == caret.getLeadSelectionOffset();
+                myIsLine = false;
             }
-            myIsLine = true;
-        } else {
-            mySelectionStart = myFactory.fromOffset(caret.getSelectionStart());
-            mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
-            myStartIsAnchor = caret.getSelectionStart() == caret.getLeadSelectionOffset();
-            myIsLine = false;
         }
     }
 
@@ -132,10 +142,19 @@ public class EditorCaret {
                 caret.setSelection(startOffset, endOffset);
             }
 
-            LineSelectionState state = myFactory.getManager().getSelectionState(caret);
-            state.setLine(myIsLine);
-            state.setAnchorOffset(myStartIsAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset());
+            saveSelectionStateFor(caret);
         });
+    }
+
+    public void saveSelectionStateFor(@NotNull Caret caret) {
+        LineSelectionState state = myFactory.getManager().getSelectionState(caret);
+        if (hasSelection()) {
+            state.setLine(myIsLine);
+            state.setAnchorOffsets(myStartIsAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset());
+        } else {
+            state.reset();
+            caret.setSelection(caret.getOffset(), caret.getOffset());
+        } 
     }
 
     public void copyTo(@NotNull Caret caret) {
@@ -154,7 +173,7 @@ public class EditorCaret {
     }
 
     public boolean hasSelection() {
-        return mySelectionStart.getOffset() != mySelectionEnd.getOffset();
+        return !mySelectionStart.equals(mySelectionEnd);
     }
 
     @NotNull
@@ -198,6 +217,17 @@ public class EditorCaret {
     public EditorCaret atColumn(@Nullable LogicalPosition otherColumn) {
         return otherColumn == null ? this : new EditorCaret(myFactory
                 , atColumn(myCaretPosition, otherColumn)
+                , mySelectionStart
+                , mySelectionEnd
+                , myStartIsAnchor
+                , myIsLine
+        );
+    }
+
+    @NotNull
+    public EditorCaret atColumn(int otherColumn) {
+        return new EditorCaret(myFactory
+                , myCaretPosition.atColumn(otherColumn)
                 , mySelectionStart
                 , mySelectionEnd
                 , myStartIsAnchor
@@ -328,7 +358,7 @@ public class EditorCaret {
     @SuppressWarnings("SameParameterValue")
     public EditorCaret toLineSelection(boolean alwaysLine, boolean trimOrExpandToFullLines) {
         EditorCaret result = this;
-        
+
         if (trimOrExpandToFullLines) {
             result = result.toTrimmedOrExpandedFullLines();
         }
@@ -429,5 +459,10 @@ public class EditorCaret {
 
     public int getAnchorOffset() {
         return myStartIsAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset();
+    }
+
+    @NotNull
+    public EditorCaret withCaretPosition(int offset) {
+        return withCaretPosition(myFactory.fromOffset(offset));
     }
 }

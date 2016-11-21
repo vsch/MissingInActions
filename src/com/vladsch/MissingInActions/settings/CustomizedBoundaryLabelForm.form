@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.vladsch.MissingInActions.settings.CustomizedBoundaryLabelForm">
+  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="true" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="567" height="297"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="85bfe" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="97f8d" layout-manager="GridLayoutManager" row-count="9" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="694ab" class="javax.swing.JLabel" binding="myLabelStartOfLine">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.start-of-line.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="bd418" class="javax.swing.JLabel" binding="myLabelLeadingBlanks">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.leading-blanks.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="85a15" class="javax.swing.JLabel" binding="myLabelTrailingSpaces">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.trailing-blanks.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="c3872" class="javax.swing.JLabel" binding="myLabelEndOfLine">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.end-of-line.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="a4acd" class="javax.swing.JLabel" binding="myLabelIdentifier">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="77975" class="javax.swing.JLabel" binding="myLabelSingleLine">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.single-line.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.single-line.description"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="b85be" class="javax.swing.JLabel" binding="myLabelMultiCaretSingleLine">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.mult-caret-single-line.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.multi-caret-single-line.description"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="962f2" class="javax.swing.JLabel" binding="myLabelEndOfWord">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.end-of-word.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="3b30a" class="javax.swing.JLabel" binding="myLabelStartOfWord">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.start-of-word.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

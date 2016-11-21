@@ -35,14 +35,58 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings({ "SameParameterValue", "WeakerAccess" })
 public class EditHelpers {
-    public static void moveCaretToNextWordStart(@NotNull Editor editor, boolean isWithSelection, boolean camel, boolean stopAtTrailingBlanks, boolean limitToLine, boolean strictIdentifier) {
+    public static int START_OF_WORD = 1;
+    public static int END_OF_WORD = 2;
+    public static int START_OF_TRAILING_BLANKS = 4;
+    public static int END_OF_LEADING_BLANKS = 8;
+    public static int START_OF_LINE = 16;
+    public static int END_OF_LINE = 32;
+    public static int IDENTIFIER = 64;
+    public static int START_OF_FOLDING_REGION = 128;
+    public static int END_OF_FOLDING_REGION = 256;
+    public static int SINGLE_LINE = 512;
+    public static int MULTI_CARET_SINGLE_LINE = 1024;
+
+    @SuppressWarnings("PointlessBitwiseExpression")
+    public static int BOUNDARY_FLAGS = 0
+            | START_OF_WORD
+            | END_OF_WORD
+            | START_OF_TRAILING_BLANKS
+            | END_OF_LEADING_BLANKS
+            | START_OF_LINE
+            | END_OF_LINE
+            | IDENTIFIER
+            | START_OF_FOLDING_REGION
+            | END_OF_FOLDING_REGION
+            | SINGLE_LINE
+            ;
+
+    public static boolean isSet(int options, int flag) {
+        return (options & flag) != 0;
+    }
+
+    public static void moveCaretToNextWordStartOrEnd(@NotNull Editor editor, boolean isWithSelection, boolean camel, int flags) {
+        if (!isSet(flags, BOUNDARY_FLAGS)) return;
+
         Document document = editor.getDocument();
         SelectionModel selectionModel = editor.getSelectionModel();
         int selectionStart = selectionModel.getLeadSelectionOffset();
         CaretModel caretModel = editor.getCaretModel();
-        LogicalPosition position = caretModel.getLogicalPosition();
         LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
+        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
+
+        boolean stopAtTrailingBlanks = isSet(flags, START_OF_TRAILING_BLANKS);
+        boolean stopAtLeadingBlanks = isSet(flags, END_OF_LEADING_BLANKS);
+        boolean stopAtStartOfLine = isSet(flags, START_OF_LINE);
+        boolean stopAtStartOfWord = isSet(flags, START_OF_WORD);
+        boolean stopAtEndOfWord = isSet(flags, END_OF_WORD);
+        boolean stopAtStartOfFolding = isSet(flags, START_OF_FOLDING_REGION);
+        boolean stopAtEndOfFolding = isSet(flags, END_OF_FOLDING_REGION);
+        boolean stopAtEndOfLine = isSet(flags, END_OF_LINE);
+        boolean strictIdentifier = isSet(flags, IDENTIFIER);
+        boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
         int offset = caretModel.getOffset();
         if (offset == document.getTextLength()) {
@@ -51,37 +95,58 @@ public class EditHelpers {
 
         int lineNumber = caretModel.getLogicalPosition().line;
         if (lineNumber >= document.getLineCount()) return;
-        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
 
         int stopAtLastNonBlank = 0;
 
-        // have to stop at start of word if caret is not at or before first non-blank
+        // have to stop at start of character if caret is not at or before first non-blank
+        // only applies to start boundary condition
         int lineStartOffset = document.getLineStartOffset(lineNumber);
-        if (stopAtTrailingBlanks || strictIdentifier) {
+        if (stopAtTrailingBlanks || stopAtEndOfLine) {
             int lineEndOffset = document.getLineEndOffset(lineNumber);
             int trailingBlanks = countWhiteSpaceReversed(document.getCharsSequence(), lineStartOffset, lineEndOffset);
-            if (caretModel.getOffset() < lineEndOffset - trailingBlanks) {
+            if (stopAtTrailingBlanks && caretModel.getOffset() < lineEndOffset - trailingBlanks) {
                 stopAtLastNonBlank = lineEndOffset - trailingBlanks;
+            } else if (stopAtEndOfLine && (caretModel.getOffset() < lineEndOffset || singleLine)) {
+                stopAtLastNonBlank = lineEndOffset;
             }
         }
 
-        int maxLineNumber = haveMultiCarets || stopAtLastNonBlank > 0 || lineNumber + 1 > document.getLineCount() ? lineNumber : lineNumber + 1;
-        int maxOffset = stopAtLastNonBlank > 0 ? stopAtLastNonBlank : document.getLineEndOffset(maxLineNumber);
+        int maxLineNumber = stopAtLastNonBlank > 0 || lineNumber + 1 > document.getLineCount() ? lineNumber : lineNumber + 1;
+        int maxOffset = stopAtLastNonBlank > 0 ? stopAtLastNonBlank :
+                (stopAtStartOfLine && lineNumber < maxLineNumber ? document.getLineStartOffset(maxLineNumber) : document.getLineEndOffset(maxLineNumber));
 
         int newOffset = offset + 1;
         if (newOffset > maxOffset) return;
 
+        boolean done = false;
         FoldRegion currentFoldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(offset);
         if (currentFoldRegion != null) {
             newOffset = currentFoldRegion.getEndOffset();
+            if (stopAtEndOfFolding) done = true;
         }
 
-        for (; newOffset < maxOffset; newOffset++) {
-            if (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel)) break;
-        }
-        FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
-        if (foldRegion != null) {
-            newOffset = foldRegion.getStartOffset();
+        while (!done) {
+            for (; newOffset < maxOffset; newOffset++) {
+                if (stopAtStartOfWord && (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel))) {
+                    done = true;
+                    break;
+                }
+                if (stopAtEndOfWord && (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel))) {
+                    done = true;
+                    break;
+                }
+            }
+            if (newOffset >= maxOffset) break;
+
+            FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
+            if (foldRegion != null) {
+                if (stopAtStartOfFolding) {
+                    newOffset = foldRegion.getStartOffset();
+                    break;
+                }
+                newOffset = foldRegion.getEndOffset();
+                if (stopAtEndOfFolding) break;
+            }
         }
 
         if (editor instanceof EditorImpl) {
@@ -92,142 +157,93 @@ public class EditHelpers {
         }
         caretModel.moveToOffset(newOffset);
         EditorModificationUtil.scrollToCaret(editor);
-
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
     }
 
-    public static void moveCaretToPreviousWordStart(@NotNull Editor editor, boolean isWithSelection, boolean camel, boolean limitToLIne, boolean strictIdentifier) {
+    public static void moveCaretToPreviousWordStartOrEnd(@NotNull Editor editor, boolean isWithSelection, boolean camel, int flags) {
+        if (!isSet(flags, BOUNDARY_FLAGS)) return;
+
         Document document = editor.getDocument();
         SelectionModel selectionModel = editor.getSelectionModel();
         int selectionStart = selectionModel.getLeadSelectionOffset();
         CaretModel caretModel = editor.getCaretModel();
         LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
+        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
 
         int offset = editor.getCaretModel().getOffset();
         if (offset == 0) return;
 
-        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
-        int lineNumber = editor.getCaretModel().getLogicalPosition().line;
-        int minLineNumber = haveMultiCarets || lineNumber == 0 ? lineNumber : lineNumber - 1;
-        int minOffset = document.getLineStartOffset(minLineNumber);
+        boolean stopAtTrailingBlanks = isSet(flags, START_OF_TRAILING_BLANKS);
+        boolean stopAtLeadingBlanks = isSet(flags, END_OF_LEADING_BLANKS);
+        boolean stopAtStartOfLine = isSet(flags, START_OF_LINE);
+        boolean stopAtStartOfWord = isSet(flags, START_OF_WORD);
+        boolean stopAtEndOfWord = isSet(flags, END_OF_WORD);
+        boolean stopAtEndOfLine = isSet(flags, END_OF_LINE);
+        boolean stopAtStartOfFolding = isSet(flags, START_OF_FOLDING_REGION);
+        boolean stopAtEndOfFolding = isSet(flags, END_OF_FOLDING_REGION);
+        boolean strictIdentifier = isSet(flags, IDENTIFIER);
+        boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
-        int newOffset = offset - 1;
-        if (newOffset < minOffset) return;
-
-        FoldRegion currentFoldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset - 1);
-        if (currentFoldRegion != null) {
-            newOffset = currentFoldRegion.getStartOffset();
-        }
-        for (; newOffset > minOffset; newOffset--) {
-            if (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel)) break;
-        }
-        FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
-        if (foldRegion != null && newOffset > foldRegion.getEndOffset()) {
-            newOffset = foldRegion.getEndOffset();
-        }
-
-        if (editor instanceof EditorImpl && ((EditorImpl) editor).myUseNewRendering) {
-            int boundaryOffset = ((EditorImpl) editor).findNearestDirectionBoundary(offset, false);
-            if (boundaryOffset >= 0) {
-                newOffset = Math.max(boundaryOffset, newOffset);
-            }
-            caretModel.moveToLogicalPosition(editor.offsetToLogicalPosition(newOffset).leanForward(true));
-        } else {
-            editor.getCaretModel().moveToOffset(newOffset);
-        }
-        EditorModificationUtil.scrollToCaret(editor);
-
-        setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
-    }
-
-    public static void moveCaretToNextWordEnd(@NotNull Editor editor, boolean isWithSelection, boolean camel, boolean limitToLine, boolean strictIdentifier) {
-        Document document = editor.getDocument();
-        SelectionModel selectionModel = editor.getSelectionModel();
-        int selectionStart = selectionModel.getLeadSelectionOffset();
-        CaretModel caretModel = editor.getCaretModel();
-        LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
-
-        int offset = caretModel.getOffset();
-        if (offset == document.getTextLength()) {
-            return;
-        }
-
-        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
-        int lineNumber = caretModel.getLogicalPosition().line;
-        if (lineNumber >= document.getLineCount()) return;
-        int maxLineNumber = haveMultiCarets || lineNumber + 1 > document.getLineCount() ? lineNumber : lineNumber + 1;
-        int maxOffset = document.getLineEndOffset(maxLineNumber);
-
-        int newOffset = offset + 1;
-        if (newOffset > maxOffset) return;
-
-        FoldRegion currentFoldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(offset);
-        if (currentFoldRegion != null) {
-            newOffset = currentFoldRegion.getEndOffset();
-            // move to word end
-        }
-        for (; newOffset < maxOffset; newOffset++) {
-            if (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel)) break;
-        }
-        FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
-        if (foldRegion != null) {
-            newOffset = foldRegion.getStartOffset();
-        }
-
-        if (editor instanceof EditorImpl) {
-            int boundaryOffset = ((EditorImpl) editor).findNearestDirectionBoundary(offset, true);
-            if (boundaryOffset >= 0) {
-                newOffset = Math.min(boundaryOffset, newOffset);
-            }
-        }
-        caretModel.moveToOffset(newOffset);
-        EditorModificationUtil.scrollToCaret(editor);
-
-        setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
-    }
-
-    public static void moveCaretToPreviousWordEnd(@NotNull Editor editor, boolean isWithSelection, boolean camel, boolean stopAtTrailingBlanks, boolean limitToLine, boolean strictIdentifier) {
-        Document document = editor.getDocument();
-        SelectionModel selectionModel = editor.getSelectionModel();
-        int selectionStart = selectionModel.getLeadSelectionOffset();
-        CaretModel caretModel = editor.getCaretModel();
-        LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
-
-        int offset = editor.getCaretModel().getOffset();
-        if (offset == 0) return;
-
-        boolean haveMultiCarets = caretModel.getCaretCount() > 1;
         LogicalPosition position = editor.getCaretModel().getLogicalPosition();
         int lineNumber = position.line;
         int stopAtIndent = 0;
 
-        // have to stop at start of word if caret is not at or before first non-blank
+        // have to stop at start of character if caret is not at or before first non-blank
         int lineStartOffset = document.getLineStartOffset(lineNumber);
+
         if (stopAtTrailingBlanks) {
+            int lineEndOffset = document.getLineEndOffset(lineNumber);
+            int trailingBlanks = countWhiteSpaceReversed(document.getCharsSequence(), lineStartOffset, lineEndOffset);
+            if (caretModel.getOffset() > lineEndOffset - trailingBlanks) {
+                stopAtIndent = lineEndOffset - trailingBlanks;
+            }
+        }
+        if (stopAtIndent == 0 && (stopAtLeadingBlanks || stopAtStartOfLine)) {
             int firstNonBlank = countWhiteSpace(document.getCharsSequence(), lineStartOffset, document.getLineEndOffset(lineNumber));
-            if (position.column > firstNonBlank) {
+            if (stopAtLeadingBlanks && position.column > firstNonBlank) {
                 stopAtIndent = lineStartOffset + firstNonBlank;
+            } else if (stopAtStartOfLine && (position.column != 0 || singleLine)) {
+                stopAtIndent = lineStartOffset;
             }
         }
 
-        int minLineNumber = haveMultiCarets || lineNumber == 0 || stopAtIndent > 0 ? lineNumber : lineNumber - 1;
-        int minOffset = stopAtIndent > 0 ? stopAtIndent : document.getLineStartOffset(minLineNumber);
+        int minLineNumber = lineNumber == 0 || stopAtIndent > 0 ? lineNumber : lineNumber - 1;
+        int minOffset = stopAtIndent > 0 ? stopAtIndent :
+                (stopAtEndOfLine && lineNumber > minLineNumber ? document.getLineEndOffset(minLineNumber) : document.getLineStartOffset(minLineNumber));
 
         // if virtual spaces are enabled the caret can be after the end so we should pretend it is on the next char after the end
         int newOffset = blockSelectionStart.column > offset - lineStartOffset ? offset : offset - 1;
         if (newOffset < minOffset) return;
 
+        boolean done = false;
         FoldRegion currentFoldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(offset - 1);
         if (currentFoldRegion != null) {
             newOffset = currentFoldRegion.getStartOffset();
-            // move to end of previous word
+            if (stopAtStartOfFolding) done = true;
         }
-        for (; newOffset > minOffset; newOffset--) {
-            if (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel)) break;
-        }
-        FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
-        if (foldRegion != null && newOffset > foldRegion.getStartOffset()) {
-            newOffset = foldRegion.getEndOffset();
+
+        while (!done) {
+            for (; newOffset > minOffset; newOffset--) {
+                if (stopAtStartOfWord && (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel))) {
+                    done = true;
+                    break;
+                }
+                if (stopAtEndOfWord && (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel))) {
+                    done = true;
+                    break;
+                }
+            }
+            if (newOffset <= minOffset) break;
+
+            FoldRegion foldRegion = editor.getFoldingModel().getCollapsedRegionAtOffset(newOffset);
+            if (foldRegion != null) {
+                if (stopAtEndOfFolding) {
+                    newOffset = foldRegion.getEndOffset();
+                    break;
+                }
+                newOffset = foldRegion.getStartOffset();
+                if (stopAtStartOfFolding) break;
+            }
         }
 
         if (editor instanceof EditorImpl && ((EditorImpl) editor).myUseNewRendering) {
@@ -240,28 +256,27 @@ public class EditHelpers {
             editor.getCaretModel().moveToOffset(newOffset);
         }
         EditorModificationUtil.scrollToCaret(editor);
-
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
     }
 
     public static boolean isWordStart(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
-        return EditorActionUtil.isWordStart(chars, offset, isCamel);
+        return isWordStart(chars, offset, isCamel);
     }
 
     public static boolean isWordEnd(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
-        return EditorActionUtil.isWordEnd(chars, offset, isCamel);
+        return isWordEnd(chars, offset, isCamel);
     }
 
     public static boolean isIdentifierStart(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
-        return EditorActionUtil.isWordStart(chars, offset, isCamel);
+        return isIdentifierStart(chars, offset, isCamel);
     }
 
     public static boolean isIdentifierEnd(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
-        return EditorActionUtil.isWordEnd(chars, offset, isCamel);
+        return isIdentifierEnd(chars, offset, isCamel);
     }
 
     private static void setupSelection(@NotNull Editor editor,
@@ -307,6 +322,48 @@ public class EditHelpers {
         return end - pos - 1;
     }
 
+    public static boolean isWordStart(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = text.charAt(offset);
+
+        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        if (!firstIsIdentifierPart && secondIsIdentifierPart) {
+            return true;
+        }
+
+        if (isCamel && firstIsIdentifierPart && secondIsIdentifierPart && isHumpBoundWord(text, offset, true)) {
+            return true;
+        }
+
+        return (Character.isWhitespace(prev) || firstIsIdentifierPart) &&
+                !Character.isWhitespace(current) && !secondIsIdentifierPart;
+    }
+
+    public static boolean isWordEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = text.charAt(offset);
+        char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
+
+        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        if (firstIsIdentifierPart && !secondIsIdentifierPart) {
+            return true;
+        }
+
+        if (isCamel) {
+            if (firstIsIdentifierPart
+                    && (Character.isLowerCase(prev) && Character.isUpperCase(current)
+                    || prev != '_' && current == '_'
+                    || Character.isUpperCase(prev) && Character.isUpperCase(current) && Character.isLowerCase(next))) {
+                return true;
+            }
+        }
+
+        return !Character.isWhitespace(prev) && !firstIsIdentifierPart &&
+                (Character.isWhitespace(current) || secondIsIdentifierPart);
+    }
+
     public static boolean isIdentifierStart(@NotNull CharSequence text, int offset, boolean isCamel) {
         char prev = offset > 0 ? text.charAt(offset - 1) : 0;
         char current = text.charAt(offset);
@@ -317,7 +374,7 @@ public class EditHelpers {
         //noinspection SimplifiableIfStatement
         if (!prevIsIdentifierPart && currentIsIdentifierPart) return true;
 
-        return isCamel && prevIsIdentifierPart && currentIsIdentifierPart && isHumpBoundStart(text, offset);
+        return isCamel && prevIsIdentifierPart && currentIsIdentifierPart && isHumpBoundIdentifier(text, offset, true);
     }
 
     public static boolean isIdentifierEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
@@ -337,15 +394,31 @@ public class EditHelpers {
                 || Character.isUpperCase(prev) && Character.isUpperCase(current) && Character.isLowerCase(next));
     }
 
+/*
     public static boolean isHumpBoundStart(@NotNull CharSequence editorText, int offset) {
-        return isHumpBoundWord(editorText, offset, true);
+        return isHumpBoundIdentifier(editorText, offset, true);
     }
 
     public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset) {
-        return isHumpBoundWord(editorText, offset, false);
+        return isHumpBoundIdentifier(editorText, offset, false);
     }
+*/
 
     public static boolean isHumpBoundWord(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0 || offset >= editorText.length()) return false;
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
+
+        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
+                start && prevChar == '_' && curChar != '_' ||
+                !start && prevChar != '_' && curChar == '_' ||
+                start && prevChar == '$' && Character.isLetterOrDigit(curChar) ||
+                !start && Character.isLetterOrDigit(prevChar) && curChar == '$' ||
+                Character.isUpperCase(prevChar) && Character.isUpperCase(curChar) && Character.isLowerCase(nextChar);
+    }
+
+    public static boolean isHumpBoundIdentifier(@NotNull CharSequence editorText, int offset, boolean start) {
         if (offset <= 0 || offset >= editorText.length()) return false;
         final char prevChar = editorText.charAt(offset - 1);
         final char curChar = editorText.charAt(offset);
@@ -357,6 +430,7 @@ public class EditHelpers {
                 !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
     }
 
+/*
     public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
         if (offset <= 0 || offset >= editorText.length()) return false;
         final char prevChar = editorText.charAt(offset - 1);
@@ -367,6 +441,7 @@ public class EditHelpers {
                 !start && prevChar != '_' && curChar == '_' ||
                 !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
     }
+*/
 
     private static boolean isLowerCaseOrDigit(char c) {
         return Character.isLowerCase(c) || Character.isDigit(c);

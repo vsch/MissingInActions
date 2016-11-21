@@ -27,6 +27,10 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.vladsch.MissingInActions.util.EditHelpers.*;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGION;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REGION;
+
 @State(
         name = "MissingInAction",
         storages = {
@@ -50,15 +54,92 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myWeSetVirtualSpace = true;
     private boolean myDuplicateAtStartOrEnd = false;
     private boolean myDuplicateAtStartOrEndLineOnly = true;
+    private boolean myMouseCamelHumpsFollow = false;
+
+    // customized word flags
+    @SuppressWarnings("ConstantConditionalExpression")
+    final private static int CUSTOMIZED_DEFAULTS = (true ? START_OF_LINE : 0)
+            | (true ? END_OF_LINE : 0)
+            | (true ? START_OF_TRAILING_BLANKS | END_OF_LEADING_BLANKS : 0)
+            | (true ? IDENTIFIER : 0)
+            | (false ? START_OF_WORD : 0)
+            | (false ? END_OF_WORD : 0)
+            | (false ? START_OF_FOLDING_REGION : 0)
+            | (false ? END_OF_FOLDING_REGION : 0)
+            | (false ? SINGLE_LINE : 0)
+            | (true ? MULTI_CARET_SINGLE_LINE : 0);
+
+    private int myCustomizedNextWordBounds = CUSTOMIZED_DEFAULTS | START_OF_WORD | END_OF_WORD;
+    private int myCustomizedPrevWordBounds = CUSTOMIZED_DEFAULTS | START_OF_WORD | END_OF_WORD;
+    private int myCustomizedNextWordStartBounds = CUSTOMIZED_DEFAULTS | START_OF_WORD;
+    private int myCustomizedPrevWordStartBounds = CUSTOMIZED_DEFAULTS | START_OF_WORD;
+    private int myCustomizedNextWordEndBounds = CUSTOMIZED_DEFAULTS | END_OF_WORD;
+    private int myCustomizedPrevWordEndBounds = CUSTOMIZED_DEFAULTS | END_OF_WORD;
 
     public boolean isLineModeEnabled() {
         return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
                 myMouseLineSelection
                         || myUpDownSelection
-                        //|| myDeleteOperations
-                        //|| myUpDownMovement
-                        //|| myLeftRightMovement
+                //|| myDeleteOperations
+                //|| myUpDownMovement
+                //|| myLeftRightMovement
         );
+    }
+
+    public boolean isMouseCamelHumpsFollow() {
+        return myMouseCamelHumpsFollow;
+    }
+
+    public void setMouseCamelHumpsFollow(boolean mouseCamelHumpsFollow) {
+        myMouseCamelHumpsFollow = mouseCamelHumpsFollow;
+    }
+
+    public int getCustomizedNextWordBounds() {
+        return myCustomizedNextWordBounds | START_OF_WORD | END_OF_WORD;
+    }
+
+    public void setCustomizedNextWordBounds(int customizedNextWordBounds) {
+        myCustomizedNextWordBounds = customizedNextWordBounds | START_OF_WORD | END_OF_WORD;
+    }
+
+    public int getCustomizedPrevWordBounds() {
+        return myCustomizedPrevWordBounds | START_OF_WORD | END_OF_WORD;
+    }
+
+    public void setCustomizedPrevWordBounds(int customizedPrevWordBounds) {
+        myCustomizedPrevWordBounds = customizedPrevWordBounds | START_OF_WORD | END_OF_WORD;
+    }
+
+    public int getCustomizedNextWordStartBounds() {
+        return myCustomizedNextWordStartBounds | START_OF_WORD;
+    }
+
+    public void setCustomizedNextWordStartBounds(int customizedNextWordStartBounds) {
+        myCustomizedNextWordStartBounds = customizedNextWordStartBounds | START_OF_WORD;
+    }
+
+    public int getCustomizedPrevWordStartBounds() {
+        return myCustomizedPrevWordStartBounds | START_OF_WORD;
+    }
+
+    public void setCustomizedPrevWordStartBounds(int customizedPrevWordStartBounds) {
+        myCustomizedPrevWordStartBounds = customizedPrevWordStartBounds | START_OF_WORD;
+    }
+
+    public int getCustomizedNextWordEndBounds() {
+        return myCustomizedNextWordEndBounds | END_OF_WORD;
+    }
+
+    public void setCustomizedNextWordEndBounds(int customizedNextWordEndBounds) {
+        myCustomizedNextWordEndBounds = customizedNextWordEndBounds | END_OF_WORD;
+    }
+
+    public int getCustomizedPrevWordEndBounds() {
+        return myCustomizedPrevWordEndBounds | END_OF_WORD;
+    }
+
+    public void setCustomizedPrevWordEndBounds(int customizedPrevWordEndBounds) {
+        myCustomizedPrevWordEndBounds = customizedPrevWordEndBounds | END_OF_WORD;
     }
 
     public boolean isDuplicateAtStartOrEndLineOnly() {
@@ -209,5 +290,4 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public static ApplicationSettings getInstance() {
         return ApplicationManager.getApplication().getComponent(ApplicationSettings.class);
     }
-
 }

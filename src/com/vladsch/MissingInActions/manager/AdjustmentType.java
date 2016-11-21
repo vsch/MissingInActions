@@ -41,7 +41,7 @@ public enum AdjustmentType {
     IF_LINE__FIX_CARET,
     
     // nothing before, always restore caret column after
-    NOTHING__RESTORE_COLUMN,
+    REMOVE_LINE__RESTORE_COLUMN,
     
     // nothing before, restore caret column after to position relative to end of line
     NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE,
@@ -58,5 +58,8 @@ public enum AdjustmentType {
 
     IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN,
     
-    IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN, AUTO_INDENT_LINES,
+    IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN,
+    NOTHING__NORMALIZE_CARET_POSITION, 
+    
+    AUTO_INDENT_LINES,
 }

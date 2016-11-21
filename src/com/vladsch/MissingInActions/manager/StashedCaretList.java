@@ -174,7 +174,7 @@ public class StashedCaretList implements Disposable {
 
     public void add(int index, @NotNull Caret caret) {
         LineSelectionState state = myManager.getSelectionState(caret);
-        add(index, caret.getSelectionStart(), caret.getSelectionEnd(), state.getAnchorOffset() == caret.getLeadSelectionOffset(), state.isLine());
+        add(index, caret.getSelectionStart(), caret.getSelectionEnd(), state.getAnchorOffset(caret.getSelectionStart()) == caret.getLeadSelectionOffset(), state.isLine());
     }
     
     public void add(int index, int start, int end, boolean startIsAnchor, boolean isLine) {

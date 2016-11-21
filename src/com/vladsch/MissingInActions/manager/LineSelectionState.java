@@ -21,15 +21,22 @@
 
 package com.vladsch.MissingInActions.manager;
 
-public class LineSelectionState {
-    private int myAnchorOffset = 0;
-    private boolean myIsLine = false;
+import org.jetbrains.annotations.Nullable;
 
-    public int getAnchorOffset() {
-        return myAnchorOffset;
+public class LineSelectionState {
+    private @Nullable Integer myAnchorOffset = null;
+    private boolean myIsLine = false;
+    
+    void reset() {
+        myIsLine = false;
+        myAnchorOffset = null;
     }
 
-    public void setAnchorOffset(int anchorOffset) {
+    public int getAnchorOffset(int anchorOffset) {
+        return myAnchorOffset == null ? anchorOffset : myAnchorOffset;
+    }
+
+    public void setAnchorOffsets(int anchorOffset) {
         myAnchorOffset = anchorOffset;
     }
 

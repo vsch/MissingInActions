@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.util.EditHelpers;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -52,6 +53,14 @@ public class ApplicationSettingsForm implements Disposable {
     private JSpinner myAutoIndentDelay;
     private JBCheckBox myDuplicateAtStartOrEnd;
     private JBCheckBox myDuplicateAtStartOrEndLineOnly;
+    private JBCheckBox myMouseCamelHumpsFollow;
+    private CustomizedBoundaryForm myCustomizedNextWordBounds;
+    private CustomizedBoundaryForm myCustomizedNextWordStartBounds;
+    private CustomizedBoundaryForm myCustomizedNextWordEndBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
+    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm1;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -61,6 +70,9 @@ public class ApplicationSettingsForm implements Disposable {
         myAutoIndent.addActionListener(e -> updateOptions(false));
         mySelectPasted.addActionListener(e -> updateOptions(false));
         myDuplicateAtStartOrEnd.addActionListener(e -> updateOptions(false));
+        myMouseCamelHumpsFollow.addActionListener(e -> updateOptions(false));
+        
+        
 
         updateOptions(true);
     }
@@ -70,6 +82,7 @@ public class ApplicationSettingsForm implements Disposable {
     }
 
     public boolean isModified() {
+        int wordMask = EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD;
         //noinspection PointlessBooleanExpression
         return false
                 || AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue() != mySettings.getAutoLineMode()
@@ -85,7 +98,14 @@ public class ApplicationSettingsForm implements Disposable {
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
                 || myDuplicateAtStartOrEnd.isSelected() != mySettings.isDuplicateAtStartOrEnd()
                 || myDuplicateAtStartOrEndLineOnly.isSelected() != mySettings.isDuplicateAtStartOrEndLineOnly()
+                || myMouseCamelHumpsFollow.isSelected() != mySettings.isMouseCamelHumpsFollow()
                 || (Integer) myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
+                || (myCustomizedNextWordBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordBounds() & ~wordMask)
+                || (myCustomizedPrevWordBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
+                || (myCustomizedNextWordStartBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordStartBounds() & ~wordMask)
+                || (myCustomizedPrevWordStartBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
+                || (myCustomizedNextWordEndBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordEndBounds() & ~wordMask)
+                || (myCustomizedPrevWordEndBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
                 ;
     }
 
@@ -103,7 +123,19 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
         mySettings.setDuplicateAtStartOrEnd(myDuplicateAtStartOrEnd.isSelected());
         mySettings.setDuplicateAtStartOrEndLineOnly(myDuplicateAtStartOrEndLineOnly.isSelected());
+        mySettings.setMouseCamelHumpsFollow(myMouseCamelHumpsFollow.isSelected());
         mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
+        mySettings.setCustomizedNextWordBounds(myCustomizedNextWordBounds.getValue());
+        mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
+        mySettings.setCustomizedNextWordStartBounds(myCustomizedNextWordStartBounds.getValue());
+        mySettings.setCustomizedPrevWordStartBounds(myCustomizedPrevWordStartBounds.getValue());
+        mySettings.setCustomizedNextWordEndBounds(myCustomizedNextWordEndBounds.getValue());
+        mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
+
+        if (mySettings.isMouseCamelHumpsFollow()) {
+            EditorSettingsExternalizable settings = EditorSettingsExternalizable.getInstance();
+            settings.setMouseClickSelectionHonorsCamelWords(settings.isCamelWords());
+        }
     }
 
     public void reset() {
@@ -120,7 +152,14 @@ public class ApplicationSettingsForm implements Disposable {
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
         myDuplicateAtStartOrEndLineOnly.setSelected(mySettings.isDuplicateAtStartOrEndLineOnly());
+        myMouseCamelHumpsFollow.setSelected(mySettings.isMouseCamelHumpsFollow());
         myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
+        myCustomizedNextWordBounds.setValue(mySettings.getCustomizedNextWordBounds());
+        myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
+        myCustomizedNextWordStartBounds.setValue(mySettings.getCustomizedNextWordStartBounds());
+        myCustomizedPrevWordStartBounds.setValue(mySettings.getCustomizedPrevWordStartBounds());
+        myCustomizedNextWordEndBounds.setValue(mySettings.getCustomizedNextWordEndBounds());
+        myCustomizedPrevWordEndBounds.setValue(mySettings.getCustomizedPrevWordEndBounds());
         updateOptions(false);
     }
 
@@ -160,7 +199,7 @@ public class ApplicationSettingsForm implements Disposable {
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
         mySelectPastedLineOnly.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
-        
+
         myDuplicateAtStartOrEndLineOnly.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
 
