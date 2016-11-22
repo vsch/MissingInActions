@@ -121,6 +121,12 @@ public class LineSelectionManager implements CaretListener
     @NotNull
     public LineSelectionState getSelectionState(@NotNull Caret caret) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
+        // here we make sure that only one end of the selection has changed, otherwise the state will be reset
+        if (caret.hasSelection()) {
+            if (caret.getLeadSelectionOffset() != state.myAnchorOffset && caret.getSelectionStart() != state.myAntiAnchorOffset && caret.getSelectionEnd() != state.myAntiAnchorOffset) {
+                state.resetToDefault();
+            }
+        }
         return new LineSelectionState(state.myAnchorOffset, state.myIsStartAnchor, state.myIsLine);
     }
 
@@ -148,6 +154,7 @@ public class LineSelectionManager implements CaretListener
         state.myAnchorOffset = anchorOffset;
         state.myIsStartAnchor = isStartAnchor;
         state.myIsLine = true;
+        state.myAntiAnchorOffset = isStartAnchor ? caret.getSelectionEnd() : caret.getSelectionStart();
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -462,6 +469,7 @@ public class LineSelectionManager implements CaretListener
 
     private static class StoredLineSelectionState {
         int myAnchorOffset = 0;
+        int myAntiAnchorOffset = 0;
         boolean myIsStartAnchor = true;
         boolean myIsLine = false;
 
