@@ -111,7 +111,9 @@ public class EditorPosition extends LogicalPosition {
     }
 
     public EditorPosition addLine(int i) {
-        return (i > 0 && line + i <= myFactory.getDocumentLineCount()) || (i < 0 && line >= i) ? onLine(line + i) : this;
+        int lineCount = myFactory.getDocumentLineCount();
+        int useLine = line + i > lineCount ? lineCount : line + i < 0 ? 0 : line + i;
+        return line != useLine ? onLine(useLine) : this;
     }
 
     public EditorPosition addColumn(int i) {
@@ -151,5 +153,9 @@ public class EditorPosition extends LogicalPosition {
     @NotNull
     public EditorPosition atTrimmedEnd() {
         return column != 0 && column <= getIndentColumn() ? atStartOfLine() : this;
+    }
+
+    public EditorPosition atOffset(int offset) {
+        return myFactory.fromOffset(offset);
     }
 }

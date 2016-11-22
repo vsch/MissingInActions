@@ -36,433 +36,394 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("WeakerAccess")
 public class EditorCaret {
     final private EditorPositionFactory myFactory;
-    final private @NotNull EditorPosition myCaretPosition;
-    final private @NotNull EditorPosition mySelectionStart;
-    final private @NotNull EditorPosition mySelectionEnd;
-    final private boolean myStartIsAnchor;
-    final private boolean myIsLine;
-
-    // @formatter:off
-    public EditorCaret withCaretPosition(@NotNull EditorPosition myCaretPosition) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    public EditorCaret withSelectionStart(@NotNull EditorPosition mySelectionStart) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    public EditorCaret withSelectionEnd(@NotNull EditorPosition mySelectionEnd) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    public EditorCaret withStartIsAnchor(boolean myStartIsAnchor) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    public EditorCaret withIsLine(boolean myIsLine) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    
-    public EditorCaret withSelection(@NotNull EditorPosition mySelectionStart, @NotNull EditorPosition mySelectionEnd) { return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine); }
-    // @formatter:on
+    final private Caret myCaret;
+    private @NotNull EditorPosition myCaretPosition;
+    private @NotNull EditorPosition mySelectionStart;
+    private @NotNull EditorPosition mySelectionEnd;
+    private boolean myIsStartAnchor;
+    private boolean myIsLine;
 
     /**
-     * @param factory        editor caret factory
-     * @param caretPosition  caret position
-     * @param selectionStart non-line selection start
-     * @param selectionEnd   non-line selection end
-     * @param startIsAnchor  true if lead offset is at start of selection
-     * @param isLine         this selection is as a line selection (start/end will be converted to their line mode values)
+     * @param factory editor caret factory
+     * @param caret   caret
      */
-    public EditorCaret(@NotNull EditorPositionFactory factory, @NotNull LogicalPosition caretPosition, @NotNull LogicalPosition selectionStart, @NotNull LogicalPosition selectionEnd, boolean startIsAnchor, boolean isLine) {
+    EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, LineSelectionState state) {
         myFactory = factory;
-        myCaretPosition = myFactory.fromPosition(caretPosition);
-        mySelectionStart = myFactory.fromPosition(selectionStart);
-        mySelectionEnd = myFactory.fromPosition(selectionEnd);
-        myStartIsAnchor = startIsAnchor;
-        myIsLine = isLine;
-    }
-
-    public EditorCaret(@NotNull LineSelectionManager manager, @NotNull LogicalPosition caretPosition, @NotNull LogicalPosition selectionStart, @NotNull LogicalPosition selectionEnd, boolean startIsAnchor, boolean isLine) {
-        this(manager.getPositionFactory(), caretPosition, selectionStart, selectionEnd, startIsAnchor, isLine);
-    }
-
-    public EditorCaret(@NotNull LineSelectionManager manager, @NotNull Caret caret) {
-        this(manager.getPositionFactory(), caret, manager.getSelectionState(caret));
-    }
-
-    public EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, @NotNull LineSelectionState state) {
-        this(factory, caret, state.getAnchorOffset(0), state.getAnchorOffset(0) <= caret.getOffset(), state.isLine());
-    }
-
-    public EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, int anchorOffset, boolean startIsAnchor, boolean isLine) {
-        myFactory = factory;
+        myCaret = caret;
         myCaretPosition = myFactory.fromPosition(caret.getLogicalPosition());
 
-        if (!caret.hasSelection()) {
+        if (!caret.hasSelection() && state.isLine()) {
             myIsLine = false;
-            myStartIsAnchor = true;
+            myIsStartAnchor = true;
             mySelectionStart = myCaretPosition;
             mySelectionEnd = myCaretPosition;
-            LineSelectionState state = myFactory.getManager().getSelectionState(caret);
-            state.reset();
-            caret.setSelection(caret.getOffset(), caret.getOffset());
+            factory.getManager().resetSelectionState(myCaret);
         } else {
-            if (isLine) {
-                if (startIsAnchor) {
-                    mySelectionStart = myFactory.fromOffset(anchorOffset);
-                    mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
-                    myStartIsAnchor = true;
+            if (state.isLine()) {
+                if (state.isStartAnchor()) {
+                    mySelectionStart = myFactory.fromOffset(state.getAnchorOffset());
+                    mySelectionEnd = myCaretPosition;
+                    myIsStartAnchor = true;
                 } else {
-                    mySelectionStart = myFactory.fromOffset(caret.getSelectionStart());
-                    mySelectionEnd = myFactory.fromOffset(anchorOffset);
-                    myStartIsAnchor = false;
+                    mySelectionStart = myCaretPosition;
+                    mySelectionEnd = myFactory.fromOffset(state.getAnchorOffset());
+                    myIsStartAnchor = false;
                 }
                 myIsLine = true;
             } else {
                 mySelectionStart = myFactory.fromOffset(caret.getSelectionStart());
                 mySelectionEnd = myFactory.fromOffset(caret.getSelectionEnd());
-                myStartIsAnchor = caret.getSelectionStart() == caret.getLeadSelectionOffset();
+                myIsStartAnchor = caret.getSelectionStart() == caret.getLeadSelectionOffset();
                 myIsLine = false;
             }
         }
     }
 
-    public EditorPositionFactory getFactory() {
-        return myFactory;
+    public void commitPosition() {
+        commit(true, false);
     }
 
-    public boolean isStartIsAnchor() {
-        return myStartIsAnchor;
+    public void commitSelection() {
+        commit(false, true);
     }
 
-    public void copyPositionTo(@NotNull Caret caret) {
-        if (!myCaretPosition.equals(caret.getLogicalPosition())) {
-            myFactory.getManager().guard(() -> {
-                caret.moveToLogicalPosition(myCaretPosition);
-                EditHelpers.scrollToCaret(myFactory.getEditor());
-            });
-        }
-    }
-
-    public void copySelectionTo(@NotNull Caret caret) {
-        myFactory.getManager().guard(() -> {
-            boolean hasSelection = hasSelection();
-            int offset = caret.getOffset();
-            int startOffset = hasSelection ? getSelectionStart().getOffset() : offset;
-            int endOffset = hasSelection ? getSelectionEnd().getOffset() : offset;
-
-            if (caret.getSelectionStart() != startOffset || caret.getSelectionEnd() != endOffset) {
-                caret.setSelection(startOffset, endOffset);
-            }
-
-            saveSelectionStateFor(caret);
-        });
-    }
-
-    public void saveSelectionStateFor(@NotNull Caret caret) {
-        LineSelectionState state = myFactory.getManager().getSelectionState(caret);
-        if (hasSelection()) {
-            state.setLine(myIsLine);
-            state.setAnchorOffsets(myStartIsAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset());
+    private void commitState() {
+        if (hasSelection() && isLine()) {
+            LineSelectionState state = myFactory.getManager().getSelectionState(myCaret);
+            myFactory.getManager().setLineSelectionState(myCaret, myIsStartAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset(), myIsStartAnchor);
         } else {
-            state.reset();
-            caret.setSelection(caret.getOffset(), caret.getOffset());
-        } 
+            myFactory.getManager().resetSelectionState(myCaret);
+        }
     }
 
-    public void copyTo(@NotNull Caret caret) {
+    public void commit() {
+        commit(true, true);
+    }
+
+    private void commit(boolean position, boolean selection) {
         myFactory.getManager().guard(() -> {
-            copyPositionTo(caret);
-            copySelectionTo(caret);
+            if (position) {
+                if (!myCaretPosition.equals(myCaret.getLogicalPosition())) {
+                    myCaret.moveToLogicalPosition(myCaretPosition);
+                    EditHelpers.scrollToCaret(myFactory.getEditor());
+                }
+            }
+
+            if (selection) {
+                boolean hasSelection = hasSelection();
+                int offset = myCaret.getOffset();
+                int startOffset = hasSelection ? getSelectionStart().getOffset() : offset;
+                int endOffset = hasSelection ? getSelectionEnd().getOffset() : offset;
+
+                myCaret.setSelection(startOffset, endOffset);
+            }
+
+            commitState();
         });
     }
 
-    public boolean startIsAnchor() {
-        return myStartIsAnchor;
-    }
-
-    public boolean isLine() {
-        return myIsLine;
-    }
-
-    public boolean hasSelection() {
-        return !mySelectionStart.equals(mySelectionEnd);
+    @NotNull
+    public EditorCaret removeSelection() {
+        mySelectionStart = myCaretPosition;
+        mySelectionEnd = myCaretPosition;
+        myIsLine = false;
+        myIsStartAnchor = true;
+        commitState();
+        return this;
     }
 
     @NotNull
-    public EditorPosition getCaretPosition() {
-        return myCaretPosition;
+    public EditorCaret atColumn(@Nullable LogicalPosition other) {
+        if (other != null) {
+            myCaretPosition = myCaretPosition.atColumn(other.column);
+        }
+        return this;
     }
 
     @NotNull
-    public EditorPosition getCharSelectionStart() {
-        return mySelectionStart;
+    public EditorCaret atColumn(int other) {
+        myCaretPosition = myCaretPosition.atColumn(other);
+        return this;
     }
 
     @NotNull
-    public EditorPosition getSelectionStart() {
-        return myIsLine ? mySelectionStart.atStartOfLine() : mySelectionStart;
+    public EditorCaret onLine(@Nullable LogicalPosition other) {
+        if (other != null) {
+            myCaretPosition = myCaretPosition.onLine(other.line);
+        }
+        return this;
     }
 
     @NotNull
-    public EditorPosition getCharSelectionEnd() {
-        return mySelectionEnd;
+    public EditorCaret onLine(int other) {
+        myCaretPosition = myCaretPosition.onLine(other);
+        return this;
     }
 
     @NotNull
-    public EditorPosition getSelectionEnd() {
-        return myIsLine ? mySelectionEnd.atEndOfLine() : mySelectionEnd;
+    public EditorPosition caretPositionToLineSelectionStart(@NotNull EditorPosition position) {
+        if (myFactory.getManager().isSelectionExtendsPastCaret()) {
+            return position.atStartOfLine();
+        } else {
+            return position.column == 0 ? position : position.atStartOfNextLine();
+        }
     }
 
     @NotNull
-    public EditorCaret atColumns(@Nullable CaretState otherColumns) {
-        return otherColumns == null ? this
-                : new EditorCaret(myFactory
-                , atColumn(getCaretPosition(), otherColumns.getCaretPosition())
-                , atColumn(getCharSelectionStart(), otherColumns.getSelectionStart())
-                , atColumn(getCharSelectionEnd(), otherColumns.getSelectionEnd())
-                , myStartIsAnchor
-                , myIsLine
-        );
+    public EditorPosition caretPositionToLineSelectionEnd(@NotNull EditorPosition position) {
+        if (myFactory.getManager().isSelectionExtendsPastCaret()) {
+            return position.atStartOfNextLine();
+        } else {
+            return position.atStartOfLine();
+        }
     }
 
     @NotNull
-    public EditorCaret atColumn(@Nullable LogicalPosition otherColumn) {
-        return otherColumn == null ? this : new EditorCaret(myFactory
-                , atColumn(myCaretPosition, otherColumn)
-                , mySelectionStart
-                , mySelectionEnd
-                , myStartIsAnchor
-                , myIsLine
-        );
+    public EditorCaret setIsStartAnchor(boolean isStartAnchor) {
+        if (myIsStartAnchor != isStartAnchor && hasSelection()) {
+            // flipping anchors, reset the anchor offset
+            // also need to move the other end of selection one line up
+            if (isStartAnchor) {
+                mySelectionStart = mySelectionEnd;
+                mySelectionEnd = myCaretPosition;
+            } else {
+                mySelectionEnd = mySelectionStart;
+                mySelectionStart = myCaretPosition;
+            }
+        }
+        myIsStartAnchor = isStartAnchor;
+        return this;
     }
 
     @NotNull
-    public EditorCaret atColumn(int otherColumn) {
-        return new EditorCaret(myFactory
-                , myCaretPosition.atColumn(otherColumn)
-                , mySelectionStart
-                , mySelectionEnd
-                , myStartIsAnchor
-                , myIsLine
-        );
-    }
-
-    @NotNull
-    public EditorCaret atColumns(@Nullable LogicalPosition otherColumn
-            , @Nullable LogicalPosition startColumn
-            , @Nullable LogicalPosition endColumn) {
-        return otherColumn == null && startColumn == null && endColumn == null
-                ? this : new EditorCaret(myFactory
-                , atColumn(myCaretPosition, otherColumn)
-                , atColumn(mySelectionStart, startColumn)
-                , atColumn(mySelectionEnd, endColumn)
-                , myStartIsAnchor
-                , myIsLine
-        );
-    }
-
-    @NotNull
-    public EditorCaret onLines(@Nullable CaretState otherLine) {
-        return otherLine == null ? this : new EditorCaret(myFactory
-                , onLine(myCaretPosition, otherLine.getCaretPosition())
-                , onLine(mySelectionStart, otherLine.getSelectionStart())
-                , onLine(mySelectionEnd, otherLine.getSelectionEnd())
-                , myStartIsAnchor
-                , myIsLine
-        );
-    }
-
-    @NotNull
-    public EditorCaret onLine(@Nullable LogicalPosition otherLine) {
-        return otherLine == null ? this : new EditorCaret(myFactory
-                , onLine(myCaretPosition, otherLine)
-                , mySelectionStart
-                , mySelectionEnd
-                , myStartIsAnchor
-                , myIsLine
-        );
-    }
-
-    @NotNull
-    public EditorCaret onLines(@Nullable LogicalPosition otherLine
-            , @Nullable LogicalPosition startLine
-            , @Nullable LogicalPosition endLine) {
-        return otherLine == null && startLine == null && endLine == null
-                ? this : new EditorCaret(myFactory
-                , atColumn(myCaretPosition, otherLine)
-                , atColumn(mySelectionStart, startLine)
-                , atColumn(mySelectionEnd, endLine)
-                , myStartIsAnchor
-                , myIsLine
-        );
-    }
-
-    @NotNull
-    public EditorCaret withNormalizedCharSelectionPosition() {
+    public EditorCaret normalizeCaretPosition() {
         if (hasSelection()) {
-            EditorPosition newPos;
-
             if (myIsLine) {
-                newPos = myStartIsAnchor ? mySelectionEnd : mySelectionStart;
-            } else {
-                newPos = myStartIsAnchor ? getSelectionEnd() : getSelectionStart();
-            }
-
-            if (!newPos.equals(myCaretPosition)) {
-                return new EditorCaret(myFactory, newPos, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine);
-            }
-        }
-        return this;
-    }
-
-    @NotNull
-    public EditorCaret withNormalizedPosition() {
-        if (myIsLine) {
-            EditorPosition start = getSelectionStart();
-            EditorPosition end = getSelectionEnd();
-            EditorPosition newPos;
-
-            if (myStartIsAnchor) {
-                // mySelectionStart is anchor move caret to mySelectionEnd
-                if (myFactory.getManager().getCaretInSelection()) {
-                    newPos = myCaretPosition.onLine(end.line - 1);
+                if (myIsStartAnchor) {
+                    myCaretPosition = mySelectionEnd.atColumn(myCaretPosition);
                 } else {
-                    newPos = myCaretPosition.onLine(end.line);
+                    myCaretPosition = mySelectionStart.atColumn(myCaretPosition);
                 }
             } else {
-                // mySelectionEnd is anchor move caret to mySelectionStart
-                if (myFactory.getManager().getCaretInSelection()) {
-                    newPos = myCaretPosition.onLine(start.line);
+                if (myIsStartAnchor) {
+                    myCaretPosition = mySelectionEnd;
                 } else {
-                    newPos = myCaretPosition.onLine(start.line > 0 ? start.line - 1 : start.line);
-                }
-            }
-
-            if (!newPos.equals(myCaretPosition)) {
-                return new EditorCaret(myFactory, newPos, mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine);
-            }
-        }
-        return this;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    public EditorCaret toLineSelection() {
-        return toLineSelection(true);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    public EditorCaret toLineSelection(boolean alwaysLine) {
-        EditorCaret result = this;
-
-        if (hasSelection() && !isLine()) {
-            if (mySelectionStart.line != mySelectionEnd.line || alwaysLine) {
-                result = new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, true);
-            }
-        }
-        return result;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    public EditorCaret toTrimmedOrExpandedLineSelection() {
-        return toLineSelection(true, true);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    public EditorCaret toLineSelection(boolean alwaysLine, boolean trimOrExpandToFullLines) {
-        EditorCaret result = this;
-
-        if (trimOrExpandToFullLines) {
-            result = result.toTrimmedOrExpandedFullLines();
-        }
-        result = result.toLineSelection(alwaysLine);
-        return result;
-    }
-
-    @NotNull
-    public EditorCaret toTrimmedOrExpandedFullLines() {
-        EditorCaret result = this;
-
-        if (hasSelection() && mySelectionStart.line != mySelectionEnd.line) {
-            if (mySelectionStart.column != 0 || mySelectionEnd.column != 0) {
-                EditorPosition newStart = mySelectionStart.toTrimmedOrExpandedFullLine();
-                EditorPosition newEnd = mySelectionEnd.toTrimmedOrExpandedFullLine();
-
-                if (!mySelectionStart.equals(newStart) || !mySelectionEnd.equals(newEnd)) {
-                    result = new EditorCaret(myFactory, myCaretPosition, newStart, newEnd, myStartIsAnchor, myIsLine);
+                    myCaretPosition = mySelectionStart;
                 }
             }
         }
-        return result;
-    }
-
-    public EditorCaret toCharSelection() {
-        EditorCaret result = this;
-
-        if (myIsLine) {
-            result = new EditorCaret(myFactory, myCaretPosition, mySelectionStart, mySelectionEnd, myStartIsAnchor, false);
-        }
-        return result;
-    }
-
-    public EditorCaret withSelectionPosition(int line, int column) {
-        if (myCaretPosition.line != line || myCaretPosition.column != column) {
-            return new EditorCaret(myFactory, myFactory.fromPosition(line, column), mySelectionStart, mySelectionEnd, myStartIsAnchor, myIsLine);
-        }
         return this;
-    }
-
-    public EditorCaret withSelectionStart(int line, int column) {
-        if (mySelectionStart.line != line || mySelectionStart.column != column) {
-            return new EditorCaret(myFactory, myCaretPosition, myFactory.fromPosition(line, column), mySelectionEnd, myStartIsAnchor, myIsLine);
-        }
-        return this;
-    }
-
-    public EditorCaret withSelectionEnd(int line, int column) {
-        if (mySelectionEnd.line != line || mySelectionEnd.column != column) {
-            return new EditorCaret(myFactory, myCaretPosition, mySelectionStart, myFactory.fromPosition(line, column), myStartIsAnchor, myIsLine);
-        }
-        return this;
-    }
-
-    public EditorCaret withSelectionStart(int startOffset) {
-        return withSelection(startOffset, mySelectionEnd.getOffset());
-    }
-
-    public EditorCaret withSelectionEnd(int endOffset) {
-        return withSelection(mySelectionStart.getOffset(), endOffset);
-    }
-
-    public EditorCaret withSelection(int startOffset, int endOffset) {
-        EditorCaret result = this;
-
-        if (startOffset != mySelectionStart.getOffset() || endOffset != mySelectionEnd.getOffset()) {
-            result = new EditorCaret(myFactory, myCaretPosition, myFactory.fromOffset(startOffset), myFactory.fromOffset(endOffset), myStartIsAnchor, false);
-        }
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "EditorCaret{" +
-                "myCaretPosition=" + myCaretPosition +
-                ", mySelectionStart=" + mySelectionStart +
-                ", mySelectionEnd=" + mySelectionEnd +
-                ", getSelectionStart=" + getSelectionStart() +
-                ", getSelectionEnd=" + getSelectionEnd() +
-                ", myIsLine=" + myIsLine +
-                ", myStartIsAnchor=" + myStartIsAnchor +
-                '}';
     }
 
     @NotNull
-    public static EditorPosition atColumn(@NotNull EditorPosition position, @Nullable LogicalPosition otherColumn) {
-        return otherColumn == null ? position : position.atColumn(otherColumn.column);
+    public EditorPosition anchorPositionToLineSelectionStart(@NotNull EditorPosition position) {
+        return position.atStartOfLine();
     }
 
     @NotNull
-    public static LogicalPosition onLine(@NotNull EditorPosition position, @Nullable LogicalPosition otherLine) {
-        return otherLine == null ? position : position.onLine(otherLine.line);
-    }
-
-    public boolean hasLines() {
-        return mySelectionStart.line < mySelectionEnd.line;
+    public EditorPosition anchorPositionToLineSelectionEnd(@NotNull EditorPosition position) {
+        return position.atStartOfNextLine();
     }
 
     public int getAnchorOffset() {
-        return myStartIsAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset();
+        return myIsStartAnchor ? mySelectionStart.getOffset() : mySelectionEnd.getOffset();
+    }
+
+    public EditorPosition getAnchorPosition() {
+        return myIsStartAnchor ? mySelectionStart : mySelectionEnd;
+    }
+
+    public EditorPosition getAntiAnchorPosition() {
+        return !myIsStartAnchor ? mySelectionStart : mySelectionEnd;
     }
 
     @NotNull
-    public EditorCaret withCaretPosition(int offset) {
-        return withCaretPosition(myFactory.fromOffset(offset));
+    public EditorPosition getCharSelectionStart() { return mySelectionStart; }
+
+    @NotNull
+    public EditorPosition getSelectionStart() {
+        if (myIsLine) {
+            if (mySelectionEnd.getOffset() == mySelectionStart.getOffset() || myIsStartAnchor) {
+                // one line with no selection always anchor, or anchor
+                return anchorPositionToLineSelectionStart(mySelectionStart);
+            } else {
+                // it is not anchored, adjust as if it was caret position
+                return caretPositionToLineSelectionStart(mySelectionStart);
+            }
+        } else {
+            return mySelectionStart;
+        }
+    }
+
+    @NotNull
+    public EditorPosition getCharSelectionEnd() { return mySelectionEnd; }
+
+    @NotNull
+    public EditorPosition getSelectionEnd() {
+        if (myIsLine) {
+            if (mySelectionEnd.getOffset() == mySelectionStart.getOffset() || !myIsStartAnchor) {
+                // one line with no selection always anchor, or anchor
+                return anchorPositionToLineSelectionEnd(mySelectionEnd);
+            } else {
+                // it is not anchored, adjust as if it was caret position
+                return caretPositionToLineSelectionEnd(mySelectionEnd);
+            }
+        } else {
+            return mySelectionEnd;
+        }
+    }
+
+    public EditorCaret setLineSelectionIfHasLines() {
+        if (!myIsLine && mySelectionStart.line != mySelectionEnd.line) {
+            setLineSelection();
+        }
+        return this;
+    }
+
+    public EditorCaret setCharSelection() {
+        if (myIsLine) {
+            myIsLine = false;
+        }
+        return this;
+    }
+
+    public EditorCaret setLineSelection() {
+        myIsLine = true;
+        return this;
+    }
+
+    public EditorCaret trimOrExpandToLineSelection() {
+        return trimOrExpandToFullLines().setLineSelection();
+    }
+
+    public boolean canTrimOrExpandToFullLineSelection() {
+        if (hasSelection()) {
+            if (isLine()) {
+                return true;
+            } else {
+                if (mySelectionStart.line != mySelectionEnd.line) {
+                    if (mySelectionStart.column != 0 || mySelectionEnd.column != 0) {
+                        EditorPosition selectionStart = mySelectionStart.toTrimmedOrExpandedFullLine();
+                        EditorPosition selectionEnd = mySelectionEnd.toTrimmedOrExpandedFullLine();
+                        return selectionStart.column == 0 && selectionEnd.column == 0;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @NotNull
+    public EditorCaret trimOrExpandToFullLines() {
+        if (hasSelection() && mySelectionStart.line != mySelectionEnd.line) {
+            if (mySelectionStart.column != 0 || mySelectionEnd.column != 0) {
+                mySelectionStart = mySelectionStart.toTrimmedOrExpandedFullLine();
+                mySelectionEnd = mySelectionEnd.toTrimmedOrExpandedFullLine();
+            }
+        }
+        return this;
+    }
+
+    public EditorCaret setCaretPosition(int line, int column) {
+        myCaretPosition = myCaretPosition.atPosition(line, column);
+        return this;
+    }
+
+    public EditorCaret setCaretPosition(int offset) {
+        myCaretPosition = myCaretPosition.atOffset(offset);
+        return this;
+    }
+
+    public EditorCaret setCaretPosition(@Nullable EditorPosition position) {
+        if (position != null) {
+            myCaretPosition = position;
+        }
+        return this;
+    }
+
+    public EditorCaret setSelectionStart(int line, int column) {
+        mySelectionStart = mySelectionStart.atPosition(line, column);
+        return this;
+    }
+
+    public EditorCaret setSelectionStart(int offset) {
+        mySelectionStart = mySelectionStart.atOffset(offset);
+        return this;
+    }
+
+    public EditorCaret setSelectionStart(@Nullable EditorPosition position) {
+        if (position != null) {
+            mySelectionStart = position;
+        }
+        return this;
+    }
+
+    public EditorCaret setSelectionEnd(int line, int column) {
+        mySelectionEnd = mySelectionEnd.atPosition(line, column);
+        return this;
+    }
+
+    public EditorCaret setSelectionEnd(int offset) {
+        mySelectionEnd = mySelectionEnd.atOffset(offset);
+        return this;
+    }
+
+    public EditorCaret setSelectionEnd(@Nullable EditorPosition position) {
+        if (position != null) {
+            mySelectionEnd = position;
+        }
+        return this;
+    }
+
+    public EditorCaret setSelection(int startOffset, int endOffset) {
+        mySelectionStart = mySelectionStart.atOffset(startOffset);
+        mySelectionEnd = mySelectionEnd.atOffset(endOffset);
+        return this;
+    }
+
+    public EditorCaret setSelection(EditorPosition startOffset, EditorPosition endOffset) {
+        mySelectionStart = startOffset;
+        mySelectionEnd = endOffset;
+        return this;
+    }
+
+    public EditorPositionFactory getFactory() { return myFactory; }
+
+    public boolean isStartAnchor() { return myIsStartAnchor; }
+
+    @NotNull
+    public EditorPosition getCaretPosition() { return myCaretPosition; }
+
+    public boolean isLine() { return myIsLine; }
+
+    public boolean hasSelection() { return myIsLine || mySelectionStart.getOffset() != mySelectionEnd.getOffset(); }
+
+    public boolean hasLines() { return mySelectionStart.line != mySelectionEnd.line; }
+
+    public int getSelectionLineCount() {
+        int lineCount = mySelectionEnd.line - mySelectionStart.line;
+
+        if (isLine()) {
+            if (lineCount == 0) {
+                lineCount++;
+            }
+        } else if (hasSelection()) {
+            if (lineCount > 0 && mySelectionEnd.column > 0) {
+                lineCount++;
+            }
+        }
+        return lineCount;
+    }
+
+    public String toString() {
+        return "EditorCaret{" +
+                ", myCaretPosition=" + myCaretPosition +
+                ", mySelectionStart=" + mySelectionStart +
+                ", mySelectionEnd=" + mySelectionEnd +
+                ", myIsStartAnchor=" + myIsStartAnchor +
+                ", myIsLine=" + myIsLine +
+                '}';
     }
 }

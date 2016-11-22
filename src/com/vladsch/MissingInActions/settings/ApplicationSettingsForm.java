@@ -61,6 +61,7 @@ public class ApplicationSettingsForm implements Disposable {
     private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
     private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm1;
+    private JBCheckBox mySelectionExtendsPastCaret;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -88,6 +89,7 @@ public class ApplicationSettingsForm implements Disposable {
                 || AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue() != mySettings.getAutoLineMode()
                 || MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue() != mySettings.getMouseModifier()
                 || myMouseLineSelection.isSelected() != mySettings.isMouseLineSelection()
+                || mySelectionExtendsPastCaret.isSelected() != mySettings.isSelectionExtendsPastCaret()
                 || myDeleteOperations.isSelected() != mySettings.isDeleteOperations()
                 || myUpDownMovement.isSelected() != mySettings.isUpDownMovement()
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
@@ -113,6 +115,7 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setAutoLineMode(AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue());
         mySettings.setMouseModifier(MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue());
         mySettings.setMouseLineSelection(myMouseLineSelection.isSelected());
+        mySettings.setSelectionExtendsPastCaret(mySelectionExtendsPastCaret.isSelected());
         mySettings.setDeleteOperations(myDeleteOperations.isSelected());
         mySettings.setUpDownMovement(myUpDownMovement.isSelected());
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
@@ -142,6 +145,7 @@ public class ApplicationSettingsForm implements Disposable {
         myAutoLineMode.setSelectedItem(AutoLineSettingType.ADAPTER.findEnum(mySettings.getAutoLineMode()).getDisplayName());
         myMouseModifier.setSelectedItem(MouseModifierType.ADAPTER.findEnum(mySettings.getMouseModifier()).getDisplayName());
         myMouseLineSelection.setSelected(mySettings.isMouseLineSelection());
+        mySelectionExtendsPastCaret.setSelected(mySettings.isSelectionExtendsPastCaret());
         myDeleteOperations.setSelected(mySettings.isDeleteOperations());
         myUpDownMovement.setSelected(mySettings.isUpDownMovement());
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
@@ -185,7 +189,7 @@ public class ApplicationSettingsForm implements Disposable {
         }
 
         if (typeChanged) myMouseLineSelection.setSelected(selected);
-        if (typeChanged) myUpDownSelection.setSelected(selected);
+        if (typeChanged) mySelectionExtendsPastCaret.setSelected(selected);
 
         boolean modeEnabled = myMouseLineSelection.isSelected() || myUpDownSelection.isSelected();
         if (typeChanged || !modeEnabled) myDeleteOperations.setSelected(selected && modeEnabled);
@@ -193,6 +197,7 @@ public class ApplicationSettingsForm implements Disposable {
         if (typeChanged || !modeEnabled) myUpDownMovement.setSelected(selected && modeEnabled);
 
         myMouseLineSelection.setEnabled(selected);
+        mySelectionExtendsPastCaret.setEnabled(selected);
         myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
         myUpDownSelection.setEnabled(enabled);
         myUpDownMovement.setEnabled(enabled && modeEnabled);

@@ -21,31 +21,34 @@
 
 package com.vladsch.MissingInActions.manager;
 
-import org.jetbrains.annotations.Nullable;
-
+@SuppressWarnings("WeakerAccess")
 public class LineSelectionState {
-    private @Nullable Integer myAnchorOffset = null;
-    private boolean myIsLine = false;
-    
-    void reset() {
-        myIsLine = false;
-        myAnchorOffset = null;
-    }
+    final int myAnchorOffset;
+    final boolean myIsStartAnchor;
+    final boolean myIsLine;
 
-    public int getAnchorOffset(int anchorOffset) {
-        return myAnchorOffset == null ? anchorOffset : myAnchorOffset;
-    }
-
-    public void setAnchorOffsets(int anchorOffset) {
+    LineSelectionState(int anchorOffset, boolean isStartAnchor, boolean isLine) {
         myAnchorOffset = anchorOffset;
+        myIsStartAnchor = isStartAnchor;
+        myIsLine = isLine;
+    }
+
+    LineSelectionState(LineSelectionState other) {
+        myAnchorOffset = other.myAnchorOffset;
+        myIsStartAnchor = other.myIsStartAnchor;
+        myIsLine = other.myIsLine;
+    }
+
+    public int getAnchorOffset() {
+        return myAnchorOffset;
+    }
+
+    public boolean isStartAnchor() {
+        return myIsStartAnchor;
     }
 
     public boolean isLine() {
         return myIsLine;
-    }
-
-    public void setLine(boolean line) {
-        myIsLine = line;
     }
 
     @Override
@@ -53,11 +56,7 @@ public class LineSelectionState {
         return "LineSelectionState{" +
                 "myAnchorOffset=" + myAnchorOffset +
                 ", myIsLine=" + myIsLine +
+                ", myIsStartAnchor=" + myIsStartAnchor +
                 '}';
-    }
-
-    public void copyFrom(LineSelectionState other) {
-        myAnchorOffset = other.myAnchorOffset;
-        myIsLine = other.myIsLine;
     }
 }

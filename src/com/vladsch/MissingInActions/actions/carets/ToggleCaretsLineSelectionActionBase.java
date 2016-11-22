@@ -35,8 +35,6 @@ import com.vladsch.MissingInActions.manager.*;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.sequence.Range;
 
-import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
-
 abstract public class ToggleCaretsLineSelectionActionBase extends AnAction implements LineSelectionAware {
     final protected boolean myWantBlankLines;
     final protected boolean myWantNonBlankLines;
@@ -90,29 +88,32 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                 // create a line selection that includes minOffset/maxOffset
                 EditorPosition selStart = f.fromPosition(selRange.getStart(), 0);
                 EditorPosition selEnd = f.fromPosition(selRange.getEnd(), 0).atStartOfNextLine();
-                EditorCaret rangeCaret = editorCaret.withSelection(selStart, selEnd)
-                        .toTrimmedOrExpandedLineSelection()
-                        .withNormalizedPosition();
-                
-                rangeCaret.copyTo(primaryCaret);
+                editorCaret.setSelection(selStart, selEnd)
+                        .trimOrExpandToLineSelection()
+                        .normalizeCaretPosition()
+                        .commit();
             } else if (selectionModel.hasSelection() && (myWantBlankLines || myWantNonBlankLines)) {
                 // if not line selection then we convert it to line selection, next time to carets
                 final DocumentEx doc = editor.getDocument();
                 EditorPosition pos = editorCaret.getCaretPosition();
+                
                 if (editorCaret.isLine()) {
                     EditorPosition selStart = f.fromOffset(selectionModel.getSelectionStart());
                     EditorPosition selEnd = f.fromOffset(selectionModel.getSelectionEnd());
 
                     caretModel.removeSecondaryCarets();
-                    //selectionModel.setSelection(primaryCaret.getOffset(), primaryCaret.getOffset());
+                    
                     selectionModel.removeSelection();
                     editor.setColumnMode(false);
 
-                    if (selStart.line + 1 == selEnd.line) {
+                    int selectionLineCount = editorCaret.getSelectionLineCount();
+                    if (selectionLineCount == 1) {
                         // one liner, we restore char selection
-                        LineSelectionManager.adjustLineSelectionToCharacterSelection(editor, primaryCaret, false);
+                        editorCaret.setCharSelection()
+                                .commit();
                     } else {
-                        int endLine = selEnd.line + (!getCaretInSelection() ? 1 : 0);
+                        int endLine = selStart.line + selectionLineCount;
+                        editorCaret.removeSelection();
 
                         // build the list of carets
                         boolean first = true;
@@ -137,9 +138,9 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                         EditHelpers.scrollToCaret(editor);
                     }
                 } else {
-                    editorCaret.toTrimmedOrExpandedLineSelection()
-                            .withNormalizedPosition()
-                            .copyTo(primaryCaret);
+                    editorCaret.trimOrExpandToLineSelection()
+                            .normalizeCaretPosition()
+                            .commit();
                 }
             }
         });

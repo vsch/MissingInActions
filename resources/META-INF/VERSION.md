@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [0.7.0.1 - Refactoring](#0701---refactoring)
 - [0.7.0 - Enhancements](#070---enhancements)
 - [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
 - [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
@@ -10,6 +11,10 @@
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
+
+### 0.7.0.1 - Refactoring
+
+- Change: switch all code to use `EditorCaret` for manipulating selections
 
 ### 0.7.0 - Enhancements
 

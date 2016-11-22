@@ -26,7 +26,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretAttributes;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.util.Key;
 import com.intellij.ui.JBColor;
@@ -58,19 +57,20 @@ public class LineSelectionManager implements CaretListener
 
     final private Editor myEditor;
     final private ReEntryGuard myCaretGuard = new ReEntryGuard();
-    final private HashMap<Caret, LineSelectionState> mySelectionStates = new HashMap<>();
+    final private HashMap<Caret, StoredLineSelectionState> mySelectionStates = new HashMap<>();
     final private @NotNull DelayedRunner myDelayedRunner = new DelayedRunner();
     final private MessageBusConnection myMessageBusConnection;
     final private @Nullable Key<CaretAttributes> myCustomAttributesKey;
     final private @NotNull ActionSelectionAdjuster myActionSelectionAdjuster;
     final private @NotNull EditorPositionFactory myPositionFactory;
 
-    final private LineSelectionState myPrimarySelectionState = new LineSelectionState();
+    final private StoredLineSelectionState myPrimarySelectionState = new StoredLineSelectionState();
     private int myMouseAnchor = -1;
     @Nullable private Caret myPrimaryCaret = null;
     @Nullable private Caret mySecondaryCaret = null;
     private @Nullable CaretAttributes myPrimaryAttributes = null;
     private @Nullable CaretAttributes mySecondaryAttributes = null;
+    private boolean mySelectionExtendsPastCaret;
 
     @Override
     public void dispose() {
@@ -109,37 +109,66 @@ public class LineSelectionManager implements CaretListener
         return myPositionFactory;
     }
 
-    @NotNull
-    public EditorCaret getEditorCaret(@NotNull Caret caret) {
-        return getEditorCaret(caret, false);
+    public Editor getEditor() {
+        return myEditor;
     }
 
     @NotNull
-    @SuppressWarnings("WeakerAccess")
-    public EditorCaret getEditorCaret(@NotNull Caret caret, boolean resetState) {
-        LineSelectionState state = getSelectionState(caret);
-        if (resetState) {
-            state.reset();
-        }
-        return new EditorCaret(myPositionFactory, caret, state);
+    public EditorCaret getEditorCaret(@NotNull Caret caret) {
+        return new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
     }
 
     public void resetSelectionState(Caret caret) {
-        LineSelectionState state = getSelectionState(caret);
-        state.reset();
-    }
-    
-    @NotNull
-    @SuppressWarnings("WeakerAccess")
-    public EditorCaret getEditorCaret(@NotNull Caret caret, @NotNull EditorCaret savedCaret) {
-        return new EditorCaret(myPositionFactory, caret, savedCaret.startIsAnchor() ? caret.getSelectionStart() : caret.getSelectionEnd(), savedCaret.startIsAnchor(), savedCaret.isLine());
+        if (caret == caret.getCaretModel().getPrimaryCaret()) {
+            System.out.println("Commit reset on primary");
+            myPrimarySelectionState.resetToDefault();
+        } else {
+            System.out.println("Commit reset on secondary");
+            mySelectionStates.remove(caret);
+        }
     }
 
     @NotNull
-    @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
-    public EditorCaret getEditorCaret(@NotNull Caret caret, boolean startIsAnchor, @Nullable Boolean isLine) {
-        if (isLine == null) isLine = getSelectionState(caret).isLine(); 
-        return new EditorCaret(myPositionFactory, caret, startIsAnchor ? caret.getSelectionStart() : caret.getSelectionEnd(), startIsAnchor, isLine);
+    public LineSelectionState getSelectionState(@NotNull Caret caret) {
+        StoredLineSelectionState state = getStoredSelectionState(caret);
+        return new LineSelectionState(state.myAnchorOffset, state.myIsStartAnchor, state.myIsLine);
+    }
+
+    @NotNull
+    private StoredLineSelectionState getStoredSelectionState(@NotNull Caret caret) {
+        if (caret == caret.getCaretModel().getPrimaryCaret()) {
+            return myPrimarySelectionState;
+        } else {
+            return mySelectionStates.computeIfAbsent(caret, k -> new StoredLineSelectionState());
+        }
+    }
+
+    @Nullable
+    private StoredLineSelectionState getStoredSelectionStateIfExists(@NotNull Caret caret) {
+        if (caret == caret.getCaretModel().getPrimaryCaret()) {
+            return myPrimarySelectionState;
+        } else {
+            return mySelectionStates.get(caret);
+        }
+    }
+
+    void setLineSelectionState(@NotNull Caret caret, int anchorOffset, boolean isStartAnchor) {
+        StoredLineSelectionState state = getStoredSelectionState(caret);
+        System.out.println("Commit Line: " + isStartAnchor + " anchorOffset: " + anchorOffset);
+        state.myAnchorOffset = anchorOffset;
+        state.myIsStartAnchor = isStartAnchor;
+        state.myIsLine = true;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public boolean hasLineSelection(@NotNull Caret caret) {
+        if (caret.hasSelection()) {
+            StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
+            return state != null && state.myIsLine;
+        } else {
+            resetSelectionState(caret);
+            return false;
+        }
     }
 
     public void updateCaretHighlights() {
@@ -147,12 +176,28 @@ public class LineSelectionManager implements CaretListener
     }
 
     @SuppressWarnings("WeakerAccess")
-    public boolean getCaretInSelection() {
-        return Plugin.getCaretInSelection();
+    public boolean isSelectionExtendsPastCaret() {
+        return mySelectionExtendsPastCaret;
     }
 
     private void settingsChanged(@NotNull ApplicationSettings settings) {
+        // unhook all the stuff for settings registration
+        HashMap<Caret, Boolean> lineCarets = new HashMap<>();
+        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+            EditorCaret editorCaret = getEditorCaret(caret);
+            if (editorCaret.isLine()) {
+                lineCarets.put(caret, true);
+                editorCaret.setCharSelection()
+                        .normalizeCaretPosition()
+                        .commit();
+            }
+        }
+
         myDelayedRunner.runAll();
+        
+        // change our mode
+        mySelectionExtendsPastCaret = ApplicationSettings.getInstance().isSelectionExtendsPastCaret();
+        
         hookListeners(settings);
         removeCaretHighlight();
         highlightCarets();
@@ -160,6 +205,14 @@ public class LineSelectionManager implements CaretListener
         if (myCustomAttributesKey != null) {
             myPrimaryAttributes = new CaretAttributes(null, CaretAttributes.Weight.HEAVY);
             mySecondaryAttributes = new CaretAttributes(JBColor.RED, CaretAttributes.Weight.THIN);
+        }
+        
+        // change all selections that were lines back to lines
+        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+            if (lineCarets.containsKey(caret)) {
+                EditorCaret editorCaret = getEditorCaret(caret);
+                editorCaret.setLineSelection().normalizeCaretPosition().commit();
+            }
         }
     }
 
@@ -198,7 +251,7 @@ public class LineSelectionManager implements CaretListener
 
     private void hookListeners(ApplicationSettings settings) {
         // wire ourselves in
-        if (isAdjustmentSupported()) {
+        if (isLineSelectionSupported()) {
             myEditor.getCaretModel().addCaretListener(this);
             myDelayedRunner.addRunnable("CaretListener", () -> {
                 myEditor.getCaretModel().removeCaretListener(this);
@@ -219,7 +272,11 @@ public class LineSelectionManager implements CaretListener
         return ApplicationSettings.getInstance();
     }
 
-    public boolean isAdjustmentSupported() {
+    public boolean isLineSelectionSupported() {
+        return myEditor.getProject() != null && !myEditor.isOneLineMode();
+    }
+
+    public boolean isMultiCaretSupported() {
         return myEditor.getProject() != null && !myEditor.isOneLineMode() && myEditor.getCaretModel().supportsMultipleCarets();
     }
 
@@ -230,92 +287,6 @@ public class LineSelectionManager implements CaretListener
     @NotNull
     public static LineSelectionManager getInstance(@NotNull Editor editor) {
         return Plugin.getInstance().getSelectionAdjuster(editor);
-    }
-
-    public void setCaretLineSelection(Caret caret, EditorPosition newPos, EditorPosition newStart, EditorPosition newEnd, boolean startIsAnchor, LineSelectionState state) {
-        myCaretGuard.guard(() -> {
-            if (newStart.equals(newEnd)) {
-                caret.moveToLogicalPosition(newPos);
-                int offset = newPos.getOffset();
-                caret.setSelection(offset, offset);
-            } else {
-                int startOffset = newStart.getOffset();
-                int endOffset = newEnd.getOffset();
-                //caret.moveToOffset(startIsAnchor ? endOffset : startOffset);
-                caret.setSelection(startOffset, endOffset);
-                caret.moveToLogicalPosition(newPos);
-            }
-            myEditor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-            state.setLine(true);
-
-            LineSelectionState caretState = getSelectionState(caret);
-            // copy values, do not replace so no state is split
-            caretState.copyFrom(state);
-        });
-    }
-
-    // use to remove or adjust selection, if it is a move then it will be cleared. If it has a line selection then the selection will be moved to the 
-    // caret position
-    public static void adjustLineSelectionToCharacterSelection(@NotNull Editor editor, @NotNull Caret caret, boolean isMoveOnly) {
-        LineSelectionManager.getInstance(editor).adjustLineSelectionToCharacterSelection(caret, isMoveOnly);
-    }
-
-    public void adjustLineSelectionToCharacterSelection(@NotNull Caret caret, boolean isMoveOnly) {
-        myCaretGuard.guard(() -> {
-            LineSelectionState state = getSelectionState(caret);
-            int offset = caret.getOffset();
-
-            if (isMoveOnly || !caret.hasSelection()) {
-                // reset it
-                caret.setSelection(offset, offset);
-                state.reset();
-            } else if (state.isLine()) {
-                int anchorOffset = state.getAnchorOffset(caret.getLeadSelectionOffset());
-                boolean startIsAnchor = anchorOffset <= offset;
-
-                if (startIsAnchor) {
-                    caret.setSelection(anchorOffset, offset);
-                } else {
-                    caret.setSelection(offset, anchorOffset);
-                }
-            }
-            state.setLine(false);
-        });
-    }
-
-    public void adjustCharacterSelectionToLineSelection(@NotNull Caret caret, boolean alwaysLine, boolean trimmedLine) {
-        if (caret.hasSelection()) {
-            EditorCaret editorCaret = getEditorCaret(caret);
-            EditorCaret fixedCaret = (trimmedLine ? editorCaret.toTrimmedOrExpandedFullLines().toLineSelection(alwaysLine) : editorCaret.toLineSelection(alwaysLine));
-            fixedCaret = fixedCaret.withNormalizedPosition();
-            fixedCaret.copyTo(caret);
-        } else {
-            LineSelectionState state = getSelectionState(caret);
-            state.reset();
-        }
-    }
-
-    @NotNull
-    public static LineSelectionState getSelectionState(@NotNull Editor editor, @NotNull Caret caret) {
-        return Plugin.getInstance().getSelectionAdjuster(editor).getSelectionState(caret);
-    }
-
-    @NotNull
-    public LineSelectionState getSelectionState(@NotNull Caret caret) {
-        if (caret == caret.getCaretModel().getPrimaryCaret()) {
-            return myPrimarySelectionState;
-        } else {
-            return mySelectionStates.computeIfAbsent(caret, k -> new LineSelectionState());
-        }
-    }
-
-    @Nullable
-    public LineSelectionState getSelectionStateIfExists(@NotNull Caret caret) {
-        if (caret == caret.getCaretModel().getPrimaryCaret()) {
-            return myPrimarySelectionState;
-        } else {
-            return mySelectionStates.get(caret);
-        }
     }
 
     private void println(String message) {
@@ -404,57 +375,63 @@ public class LineSelectionManager implements CaretListener
         // mouse selection is between mouseAnchor and the caret offset
         // if they are on the same line then it is a char mark, else line mark
         final int offset = caret.getOffset();
-        final EditorPosition pos = myPositionFactory.fromPosition(caret.getLogicalPosition());
 
-        boolean startIsAnchor = caret.getLeadSelectionOffset() <= offset;
-        int startOffset = startIsAnchor ? mouseAnchor : offset;
-        int endOffset = startIsAnchor ? offset : mouseAnchor;
+        boolean isStartAnchor = mouseAnchor <= offset;
+        int startOffset = isStartAnchor ? mouseAnchor : offset;
+        int endOffset = isStartAnchor ? offset : mouseAnchor;
+
+        StoredLineSelectionState state = getStoredSelectionState(caret);
+        state.myAnchorOffset = mouseAnchor;
+        state.myIsStartAnchor = isStartAnchor;
+        state.myIsLine = false;
 
         final EditorPosition start = myPositionFactory.fromOffset(startOffset);
         final EditorPosition end = myPositionFactory.fromOffset(endOffset);
-        LineSelectionState state = getSelectionState(caret);
-
-        state.setAnchorOffsets(mouseAnchor);
 
         myCaretGuard.guard(() -> {
             if (start.line == end.line || alwaysChar) {
+                final EditorPosition pos = myPositionFactory.fromPosition(caret.getLogicalPosition());
                 caret.setSelection(startOffset, endOffset);
                 caret.moveToLogicalPosition(pos);
-                state.setLine(false);
-            } else if (caret.hasSelection()) {
-                EditorPosition newStart = start.atStartOfLine();
-                EditorPosition newEnd = end.atStartOfLine();
-                EditorPosition newPos = pos;
+                state.myIsLine = false;
 
+                if (finalAdjustment && state != myPrimarySelectionState) {
+                    mySelectionStates.remove(caret);
+                }
+            } else if (!caret.hasSelection()) {
+                if (finalAdjustment && state != myPrimarySelectionState) {
+                    mySelectionStates.remove(caret);
+                } else {
+                    state.resetToDefault();
+                }
+            } else {
                 if (finalAdjustment) {
-                    //println("final selection adjustment ctrl: " + alwaysChar + " startAnchor: " + startIsAnchor);
-                    if (startIsAnchor) {
-                        // start is anchor move caret to end
-                        if (getCaretInSelection()) {
-                            newPos = pos.onLine(end.line - 1);
+                    // need to adjust final caret position for inside or outside the selection
+                    if (mySelectionExtendsPastCaret) {
+                        if (isStartAnchor) {
+                            caret.moveToLogicalPosition(end.addLine(-1));
                         } else {
-                            newPos = pos.onLine(end.line);
+                            caret.moveToLogicalPosition(start.atEndOfLine());
                         }
                     } else {
-                        // end is anchor move caret to start
-                        if (getCaretInSelection()) {
-                            newPos = pos.onLine(start.line);
+                        if (isStartAnchor) {
+                            caret.moveToLogicalPosition(end);
                         } else {
-                            newPos = pos.onLine(start.line > 0 ? start.line - 1 : start.line);
+                            caret.moveToLogicalPosition(start);
                         }
-                    }
-
-                    //println("final selection adjustment pos " + newPos);
-                    caret.moveToLogicalPosition(newPos);
-                    state.setLine(true);
+                    } 
+                    caret.setSelection(isStartAnchor ? startOffset : caret.getOffset(), isStartAnchor ? caret.getOffset() : endOffset);
+                    EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, new LineSelectionState(state.myAnchorOffset, state.myIsStartAnchor, state.myIsLine));
+                    editorCaret.setLineSelection()
+                            .normalizeCaretPosition()
+                            .commit();
+                } else {
+                    if (isStartAnchor) {
+                        caret.setSelection(start.atStartOfLine().getOffset(), end.atStartOfLine().getOffset());
+                    } else {
+                        caret.setSelection(start.atEndOfLine().getOffset(), end.atEndOfLine().getOffset());
+                    } 
                 }
-
-                //if (finalAdjustment) {
-                //    println("final selection adjustment newStart: " + newStart + " newEnd: " + newEnd);
-                //} else {
-                //    println("selection adjustment newStart: " + newStart + " newEnd: " + newEnd);
-                //}
-                caret.setSelection(newStart.getOffset(), newEnd.getOffset());
             }
         });
     }
@@ -483,7 +460,24 @@ public class LineSelectionManager implements CaretListener
         });
     }
 
-    public Editor getEditor() {
-        return myEditor;
+    private static class StoredLineSelectionState {
+        int myAnchorOffset = 0;
+        boolean myIsStartAnchor = true;
+        boolean myIsLine = false;
+
+        void resetToDefault() {
+            myAnchorOffset = 0;
+            myIsStartAnchor = true;
+            myIsLine = false;
+        }
+
+        @Override
+        public String toString() {
+            return "LineSelectionState{" +
+                    "myAnchorOffset=" + myAnchorOffset +
+                    ", myIsLine=" + myIsLine +
+                    ", myIsStartAnchor=" + myIsStartAnchor +
+                    '}';
+        }
     }
 }

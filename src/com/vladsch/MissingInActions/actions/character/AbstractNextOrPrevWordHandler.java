@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
+import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +52,11 @@ abstract public class AbstractNextOrPrevWordHandler extends EditorActionHandler 
             caret.moveToOffset(isNext() ? editor.getDocument().getTextLength() : 0);
             if (isWithSelection()) caret.setSelection(selectionStartOffset, caret.getOffset());
         } else {
-            LineSelectionManager.adjustLineSelectionToCharacterSelection(editor, caret, !isWithSelection());
+            EditorCaret editorCaret = LineSelectionManager.getInstance(editor).getEditorCaret(caret);
+            editorCaret.setCharSelection()
+                    .normalizeCaretPosition()
+                    .commit();
+            
             VisualPosition currentPosition = caret.getVisualPosition();
             if (caret.isAtBidiRunBoundary() && (isNext() ^ currentPosition.leansRight)) {
                 int selectionStartOffset = caret.getLeadSelectionOffset();

@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class StashedCaretList implements Disposable {
-    private final ArrayList<StashedCaret> myCarets = new ArrayList<>();
+    private final ArrayList<StashedSelection> myCarets = new ArrayList<>();
     private final LineSelectionManager myManager;
     private int myStashLimit;
 
@@ -45,7 +45,7 @@ public class StashedCaretList implements Disposable {
         myStashLimit = stashLimit;
     }
 
-    public ArrayList<StashedCaret> getCarets() {
+    public ArrayList<StashedSelection> getCarets() {
         return myCarets;
     }
 
@@ -80,7 +80,7 @@ public class StashedCaretList implements Disposable {
     public void releaseUnused() {
         int iMax = myCarets.size();
         for (int i = iMax; i-- > 0; ) {
-            StashedCaret caret = myCarets.get(i);
+            StashedSelection caret = myCarets.get(i);
             if (i >= myStashLimit) {
                 myCarets.remove(i);
                 if (caret != null) caret.myRangeMarker.dispose();
@@ -109,7 +109,7 @@ public class StashedCaretList implements Disposable {
     
     public void releaseAt(int index) {
         if (isValidAt(index)) {
-            StashedCaret caret = myCarets.get(index);
+            StashedSelection caret = myCarets.get(index);
             if (caret != null) {
                 caret.myRangeMarker.dispose();
                 myCarets.set(index, null);
@@ -129,7 +129,7 @@ public class StashedCaretList implements Disposable {
     }
 
     public void remove(int index) {
-        StashedCaret caret = myCarets.remove(index);
+        StashedSelection caret = myCarets.remove(index);
 
         if (caret != null) {
             caret.myRangeMarker.dispose();
@@ -147,24 +147,24 @@ public class StashedCaretList implements Disposable {
     private EditorCaretState getRaw(int index, boolean getIt, boolean removeIt) {
         EditorCaretState caretState = null;
         if (isValidAt(index)) {
-            StashedCaret stashedCaret;
+            StashedSelection stashedSelection;
 
             if (removeIt) {
                 if (getIt) {
-                    stashedCaret = myCarets.remove(index);
+                    stashedSelection = myCarets.remove(index);
                 } else {
                     myCarets.remove(index);
-                    stashedCaret = null;
+                    stashedSelection = null;
                 }
             } else {
-                stashedCaret = myCarets.get(index);
+                stashedSelection = myCarets.get(index);
             }
 
-            if (stashedCaret != null) {
+            if (stashedSelection != null) {
                 EditorPositionFactory f = getLogPosFactory();
-                EditorPosition selStart = f.fromOffset(stashedCaret.myRangeMarker.getStartOffset());
-                EditorPosition selEnd = f.fromOffset(stashedCaret.myRangeMarker.getEndOffset());
-                EditorPosition pos = stashedCaret.myStartIsAnchor ? selEnd : selStart;
+                EditorPosition selStart = f.fromOffset(stashedSelection.myRangeMarker.getStartOffset());
+                EditorPosition selEnd = f.fromOffset(stashedSelection.myRangeMarker.getEndOffset());
+                EditorPosition pos = stashedSelection.myIsStartAnchor ? selEnd : selStart;
 
                 caretState = new EditorCaretState(f, pos, selStart, selEnd);
             }
@@ -173,11 +173,11 @@ public class StashedCaretList implements Disposable {
     }
 
     public void add(int index, @NotNull Caret caret) {
-        LineSelectionState state = myManager.getSelectionState(caret);
-        add(index, caret.getSelectionStart(), caret.getSelectionEnd(), state.getAnchorOffset(caret.getSelectionStart()) == caret.getLeadSelectionOffset(), state.isLine());
+        EditorCaret editorCaret = myManager.getEditorCaret(caret);
+        add(index, caret.getSelectionStart(), caret.getSelectionEnd(), editorCaret.isStartAnchor(), editorCaret.isLine());
     }
     
-    public void add(int index, int start, int end, boolean startIsAnchor, boolean isLine) {
+    public void add(int index, int start, int end, boolean isStartAnchor, boolean isLine) {
         releaseUnused();
 
         if (index < 0 || index >= myStashLimit) {
@@ -185,27 +185,27 @@ public class StashedCaretList implements Disposable {
         }
 
         RangeMarker marker = myManager.getEditor().getDocument().createRangeMarker(start, end);
-        StashedCaret stashedCaret = new StashedCaret(marker, startIsAnchor, isLine);
-        myCarets.add(index, stashedCaret);
+        StashedSelection stashedSelection = new StashedSelection(marker, isStartAnchor, isLine);
+        myCarets.add(index, stashedSelection);
     }
 
     @Override
     public void dispose() {
-        for (StashedCaret caret : myCarets) {
+        for (StashedSelection caret : myCarets) {
             if (caret != null) {
                 caret.myRangeMarker.dispose();
             }
         }
     }
 
-    private static class StashedCaret {
+    private static class StashedSelection {
         final RangeMarker myRangeMarker; // selection and position
-        final boolean myStartIsAnchor; // meaning end of marker is also the caret pos
+        final boolean myIsStartAnchor; // meaning end of marker is also the caret pos
         final boolean myIsLine; // meaning end of marker is also the caret pos
 
-        public StashedCaret(RangeMarker rangeMarker, boolean startIsAnchor, boolean isLine) {
+        public StashedSelection(RangeMarker rangeMarker, boolean isStartAnchor, boolean isLine) {
             myRangeMarker = rangeMarker;
-            myStartIsAnchor = startIsAnchor;
+            myIsStartAnchor = isStartAnchor;
             myIsLine = isLine;
         }
     }

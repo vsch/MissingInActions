@@ -33,13 +33,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.vladsch.MissingInActions.manager.EditorPositionFactory;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
-import com.vladsch.MissingInActions.manager.EditorPosition;
+import com.vladsch.MissingInActions.manager.*;
 import org.jetbrains.annotations.Nullable;
-
-import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
 
 public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler {
     public ToggleCaretSelectionAnchorActionHandler() {
@@ -66,40 +61,10 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
         assert caret != null;
 
         if (caret.hasSelection()) {
-            LineSelectionState state = manager.getSelectionState(caret);
-
-            if (state.isLine()) {
-                EditorPositionFactory f = manager.getPositionFactory();
-                EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
-                EditorPosition start = f.fromOffset(caret.getSelectionStart());
-                EditorPosition end = f.fromOffset(caret.getSelectionEnd());
-
-                if (start.line + 1 < end.line) {
-                    boolean startIsAnchor = true;
-                    if (getCaretInSelection()) {
-                        startIsAnchor = !(pos.line + 1 == end.line);
-                        if (startIsAnchor) {
-                            caret.moveToLogicalPosition(pos.onLine(end.line - 1));
-                        } else {
-                            caret.moveToLogicalPosition(pos.onLine(start.line));
-                        }
-                    } else {
-                        startIsAnchor = pos.line != end.line;
-                        if (startIsAnchor) {
-                            caret.moveToLogicalPosition(pos.onLine(end.line));
-                        } else {
-                            caret.moveToLogicalPosition(pos.onLine(start.line - (start.line > 0 ? 1 : 0)));
-                        }
-                    }
-                }
-            } else {
-                // character selection, just move to other side
-                int anchorOffset = caret.getLeadSelectionOffset();
-                if (anchorOffset == caret.getSelectionEnd()) {
-                    caret.moveToOffset(caret.getSelectionEnd());
-                } else {
-                    caret.moveToOffset(caret.getSelectionStart());
-                }
+            EditorCaret editorCaret = manager.getEditorCaret(caret);
+            if (editorCaret.getSelectionLineCount() > 1) {
+                editorCaret.setIsStartAnchor(!editorCaret.isStartAnchor())
+                        .commit();
             }
         }
     }

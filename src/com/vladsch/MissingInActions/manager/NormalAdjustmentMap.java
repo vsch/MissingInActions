@@ -44,12 +44,12 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
     }
 
     NormalAdjustmentMap() {
-        addActionAdjustment(AdjustmentType.REMOVE_LINE__NOTHING
+        addActionAdjustment(AdjustmentType.MOVE_CARET_LEFT_RIGHT___REMOVE_LINE__NOTHING
                 , MoveCaretLeftAction.class
                 , MoveCaretRightAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__TO_LINE
+        addActionAdjustment(AdjustmentType.MOVE_CARET_UP_DOWN_W_SELECTION___TO_CHAR__TO_LINE
                 , MoveCaretDownWithSelectionAction.class
                 , MoveCaretUpWithSelectionAction.class
                 , MoveDownWithSelectionAndScrollAction.class
@@ -60,7 +60,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , PageUpWithSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__NOTHING
+        addActionAdjustment(AdjustmentType.MOVE_CARET_LEFT_RIGHT_W_SELECTION___TO_CHAR__NOTHING
                 , LineEndWithSelectionAction.class
                 , LineStartWithSelectionAction.class
                 , MoveCaretLeftWithSelectionAction.class
@@ -109,13 +109,13 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.line.ToggleLineCharacterSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__TO_ALWAYS_LINE
+        addActionAdjustment(AdjustmentType.INDENT_UNINDENT___TO_CHAR__IF_HAS_LINES_TO_LINE_RESTORE_COLUMN
                 , IndentLineOrSelectionAction.class
                 , UnindentSelectionAction.class
                 , IndentSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_LINE__FIX_CARET
+        addActionAdjustment(AdjustmentType.DELETE_LINE_SELECTION___IF_LINE__RESTORE_COLUMN
                 , BackspaceAction.class
                 , DeleteAction.class
                 , DeleteToLineEndAction.class
@@ -125,7 +125,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , DeleteToWordStartInDifferentHumpsModeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.REMOVE_LINE__RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.MOVE_CARET_UP_DOWN___REMOVE_LINE__RESTORE_COLUMN
                 , PageBottomAction.class
                 , PageDownAction.class
                 , PageTopAction.class
@@ -134,25 +134,25 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MoveCaretUpAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE
+        addActionAdjustment(AdjustmentType.REFORMAT_CODE___NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE
                 , ReformatCodeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__NOTHING
+        addActionAdjustment(AdjustmentType.UNDOE_REDO___NOTHING__NOTHING
                 , UndoAction.class
                 , RedoAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION
+        addActionAdjustment(AdjustmentType.TOGGLE_CASE___IF_NO_SELECTION__REMOVE_SELECTION
                 , ToggleCaseAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.COPY___IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN
                 , com.intellij.ide.actions.CopyAction.class
                 , com.intellij.openapi.editor.actions.CopyAction.class
         );
 
-        addActionAdjustment(AdjustmentType.MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE
+        addActionAdjustment(AdjustmentType.PASTE___MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE
                 , com.intellij.ide.actions.PasteAction.class
                 , com.intellij.openapi.editor.actions.PasteAction.class
                 , MultiplePasteAction.class
@@ -172,18 +172,24 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , AutoIndentLinesAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , DuplicateAction.class
                 , DuplicateBeforeAfterAction.class
                 , DuplicateLinesAction.class
                 , CutAction.class
         );
 
+        addActionSet(ActionSetType.DUPLICATE_ACTION
+                , DuplicateAction.class
+                , DuplicateBeforeAfterAction.class
+                , DuplicateLinesAction.class
+        );
+
         addActionSet(ActionSetType.CUT_ACTION
                 , CutAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__NORMALIZE_CARET_POSITION
+        addActionAdjustment(AdjustmentType.JOIN__MOVE_LINES_UP_DOWN___NOTHING__NORMALIZE_CARET_POSITION
                 , JoinLinesAction.class
                 , MoveLineDownAction.class
                 , MoveLineUpAction.class

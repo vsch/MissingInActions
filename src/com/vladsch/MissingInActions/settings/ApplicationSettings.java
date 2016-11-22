@@ -55,6 +55,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myDuplicateAtStartOrEnd = false;
     private boolean myDuplicateAtStartOrEndLineOnly = true;
     private boolean myMouseCamelHumpsFollow = false;
+    private boolean mySelectionExtendsPastCaret = false;
 
     // customized word flags
     @SuppressWarnings("ConstantConditionalExpression")
@@ -84,6 +85,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myUpDownMovement
                 //|| myLeftRightMovement
         );
+    }
+
+    public boolean isSelectionExtendsPastCaret() {
+        return mySelectionExtendsPastCaret;
+    }
+
+    public void setSelectionExtendsPastCaret(boolean selectionExtendsPastCaret) {
+        mySelectionExtendsPastCaret = selectionExtendsPastCaret;
     }
 
     public boolean isMouseCamelHumpsFollow() {
