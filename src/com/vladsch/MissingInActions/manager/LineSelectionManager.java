@@ -118,16 +118,6 @@ public class LineSelectionManager implements CaretListener
         return new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
     }
 
-    public void resetSelectionState(Caret caret) {
-        if (caret == caret.getCaretModel().getPrimaryCaret()) {
-            System.out.println("Commit reset on primary");
-            myPrimarySelectionState.resetToDefault();
-        } else {
-            System.out.println("Commit reset on secondary");
-            mySelectionStates.remove(caret);
-        }
-    }
-
     @NotNull
     public LineSelectionState getSelectionState(@NotNull Caret caret) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
@@ -154,7 +144,7 @@ public class LineSelectionManager implements CaretListener
 
     void setLineSelectionState(@NotNull Caret caret, int anchorOffset, boolean isStartAnchor) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        System.out.println("Commit Line: " + isStartAnchor + " anchorOffset: " + anchorOffset);
+        //System.out.println("Commit Line: " + isStartAnchor + " anchorOffset: " + anchorOffset);
         state.myAnchorOffset = anchorOffset;
         state.myIsStartAnchor = isStartAnchor;
         state.myIsLine = true;
@@ -168,6 +158,16 @@ public class LineSelectionManager implements CaretListener
         } else {
             resetSelectionState(caret);
             return false;
+        }
+    }
+
+    public void resetSelectionState(Caret caret) {
+        if (caret == caret.getCaretModel().getPrimaryCaret()) {
+            //System.out.println("Commit reset on primary");
+            myPrimarySelectionState.resetToDefault();
+        } else {
+            //System.out.println("Commit reset on secondary");
+            mySelectionStates.remove(caret);
         }
     }
 

@@ -46,6 +46,9 @@ public class EditorPosition extends LogicalPosition {
 
     @SuppressWarnings("WeakerAccess")
     public EditorPosition atPosition(int line, int column) {
+        if (column < 0) column = 0;
+        if (line < 0) line = 0;
+        else line = Math.min(line, myFactory.getDocumentLineCount());
         return this.line == line && this.column == column ? this : new EditorPosition(myFactory, line, column);
     }
 
@@ -130,7 +133,7 @@ public class EditorPosition extends LogicalPosition {
     }
 
     public int getIndentColumn() {
-        return EditHelpers.countWhiteSpace(myFactory.getEditor().getDocument().getCharsSequence(), atStartOfLine().getOffset(), atEndOfLine().getOffset());
+        return EditHelpers.countWhiteSpace(myFactory.getEditor().getDocument().getCharsSequence(), atStartOfLine().getOffset(), atStartOfNextLine().getOffset());
     }
 
     public int getTrimmedEndColumn() {
