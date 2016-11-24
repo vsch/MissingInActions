@@ -30,6 +30,7 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.util.Disposer;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -37,7 +38,6 @@ import java.util.Map;
 
 public class Plugin implements ApplicationComponent, EditorFactoryListener, Disposable {
     final private HashMap<Editor, LineSelectionManager> myAdjusterMap = new HashMap<>();
-    private boolean caretInSelection = true;
 
     final public static int FEATURE_ENHANCED = 1;
     final public static int FEATURE_DEVELOPMENT = 2;
@@ -68,8 +68,8 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
 
     }
 
-    public static boolean getCaretInSelection() {
-        return getInstance().caretInSelection;
+    public static boolean isSelectionExtendsPastCaret() {
+        return ApplicationSettings.getInstance().isSelectionEndExtended();
     }
 
     @NotNull

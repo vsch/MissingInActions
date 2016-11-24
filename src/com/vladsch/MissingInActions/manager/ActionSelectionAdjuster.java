@@ -27,11 +27,12 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
-import com.intellij.openapi.editor.actions.MoveCaretUpWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.settings.SelectionPredicateType;
 import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,12 +40,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.vladsch.MissingInActions.Plugin.getCaretInSelection;
+import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
+import static com.vladsch.MissingInActions.manager.PreserveColumn.*;
 
 public class ActionSelectionAdjuster implements AnActionListener, Disposable {
+    private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
+
     final private @NotNull AfterActionList myAfterActions = new AfterActionList();
     final private @NotNull LineSelectionManager myManager;
     final private @NotNull Editor myEditor;
@@ -61,7 +65,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     // this one is indexed by the class for which the runnable should be canceled since the action is running again
     final private HashMap<Class, HashSet<OneTimeRunnable>> myCancelActionsMap = new HashMap<>();
 
-    public ActionSelectionAdjuster(@NotNull LineSelectionManager manager, @NotNull ActionAdjustmentMap normalAdjustmentMap) {
+    ActionSelectionAdjuster(@NotNull LineSelectionManager manager, @NotNull ActionAdjustmentMap normalAdjustmentMap) {
         myManager = manager;
         myEditor = manager.getEditor();
         myAdjustmentsMap = normalAdjustmentMap;
@@ -119,10 +123,14 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
         if (nesting == 1 && canSaveAsLastSelection()) {
             // top level, can tentatively save the current selection
-            myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
+            try {
+                myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
+            } catch (UnsupportedOperationException e) {
+                myTentativeSelectionMarker = null;
+            }
         }
 
-        if (myManager.isAdjustmentSupported() && CommonDataKeys.EDITOR.getData(dataContext) == myEditor) {
+        if (myManager.isLineSelectionSupported() && CommonDataKeys.EDITOR.getData(dataContext) == myEditor) {
             if (!myEditor.isColumnMode()) {
                 if (debug) System.out.println("Before " + action + ", nesting: " + myNestingLevel.get());
                 cancelTriggeredAction(action.getClass());
@@ -131,8 +139,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 }
 
                 AdjustmentType adjustments = myAdjustmentsMap.getAdjustment(action.getClass());
-                if (adjustments != null && adjustments != NOTHING__NOTHING) {
-
+                if (adjustments != null && adjustments != UNDOE_REDO___NOTHING__NOTHING) {
                     //if (debug) System.out.println("running Before " + action);
                     guard(() -> {
                         ApplicationSettings settings = getSettings();
@@ -186,18 +193,28 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             myTentativeSelectionMarker = null;
         }
 
-        if (nesting == 0 && myTentativeSelectionMarker != null) {
-            if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
-            myLastSelectionMarker = myTentativeSelectionMarker;
-            myTentativeSelectionMarker = null;
+        if (nesting == 0) {
+            // here we clear all position flags and caret information
+            myManager.clearPreservedColumnStates();
+            
+            if (myTentativeSelectionMarker != null) {
+                if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
+                myLastSelectionMarker = myTentativeSelectionMarker;
+                myTentativeSelectionMarker = null;
+            }
         }
     }
 
     @Override
     public void beforeEditorTyping(char c, DataContext dataContext) {
         runBeforeTriggeredActions();
-        if (myEditor.getSelectionModel().hasSelection() && myManager.getSelectionState(myEditor.getCaretModel().getPrimaryCaret()).isLine() && myEditor.getCaretModel().getCaretCount() == 1) {
-            // typing does not delete the selection
+
+        ApplicationSettings settings = ApplicationSettings.getInstance();
+
+        // DONE: add option for typing not deleting a line selection
+        if (!settings.isTypingDeletesLineSelection()
+                && myEditor.getSelectionModel().hasSelection()
+                && myManager.getSelectionState(myEditor.getCaretModel().getPrimaryCaret()).isLine) {
             myEditor.getSelectionModel().removeSelection();
         }
     }
@@ -296,15 +313,28 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         boolean isLineModeEnabled = settings.isLineModeEnabled();
 
         if (isLineModeEnabled) {
-            if (adjustments == REMOVE_LINE__NOTHING) {
+            // DONE: all selection models
+            if (adjustments == UNDOE_REDO___NOTHING__NOTHING) {
+                // need to clear state after for all carets
+                runAfterAction(event, () -> {
+                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                        myManager.resetSelectionState(caret, false);
+                    }
+                });
+                return;
+            }
+
+            if (adjustments == MOVE_CARET_LEFT_RIGHT___REMOVE_LINE__NOTHING) {
+                // DONE: all selection models
                 // if it is a line selection, then remove it 
                 if (settings.isLeftRightMovement()) {
                     if (myEditor.getSelectionModel().hasSelection()) {
                         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                            LineSelectionState state = myManager.getSelectionStateIfExists(caret);
-                            if (state != null && state.isLine()) {
-                                // remove the caret's selection 
-                                caret.setSelection(caret.getOffset(), caret.getOffset());
+                            EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                            if (editorCaret.isLine()) {
+                                editorCaret
+                                        .removeSelection()
+                                        .commit();
                             }
                         }
                     }
@@ -312,112 +342,68 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 return;
             }
 
-            if (adjustments == TO_CHAR__TO_LINE) {
-                if (settings.isUpDownSelection()) {
-                    final EditorPositionFactory f = myManager.getPositionFactory();
-                    final HashMap<Caret, UpDownParams> caretColumns = new HashMap<>();
-
-                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
-                        EditorPosition start = f.fromOffset(caret.getSelectionStart());
-                        EditorPosition end = f.fromOffset(caret.getSelectionEnd());
-                        UpDownParams params = new UpDownParams(pos, start, end, caret.getLeadSelectionOffset(), myManager.getSelectionState(caret));
-
-                        caretColumns.put(caret, params);
-                        if (caret.hasSelection()) {
-                            LineSelectionState state = myManager.getSelectionStateIfExists(caret);
-                            if (state != null && state.isLine()) {
-                                myManager.adjustLineSelectionToCharacterSelection(caret, false);
-                            }
-                        }
-                    }
-
-                    runAfterAction(event, () -> {
-                        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                            UpDownParams params = caretColumns.get(caret);
-                            if (params != null) {
-                                EditorPosition newPos = f.fromPosition(caret.getLogicalPosition());
-                                myManager.getSelectionState(caret).copyFrom(params.state);
-
-                                adjustUpDownWithSelectionAfter(myEditor,
-                                        myManager, caret,
-                                        params.pos, params.start, params.end, newPos,
-                                        action instanceof MoveCaretUpWithSelectionAction,
-                                        params.leadSelectionOffset);
-                            }
-                        }
-                    });
-                }
+            if (adjustments == MOVE_CARET_UP_DOWN_W_SELECTION___TO_CHAR__TO_LINE) {
+                // DONE: all selection models
+                adjustMoveCaretUpDownWithSelection(settings, action, event);
                 return;
             }
 
-            if (adjustments == TO_CHAR__NOTHING) {
+            if (adjustments == MOVE_CARET_LEFT_RIGHT_W_SELECTION___TO_CHAR__NOTHING) {
+                // DONE: all selection models
                 if (myEditor.getSelectionModel().hasSelection()) {
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        LineSelectionState state = myManager.getSelectionStateIfExists(caret);
-                        if (state != null && state.isLine()) {
-                            // remove the caret's selection 
-                            myManager.adjustLineSelectionToCharacterSelection(caret, false);
+                        if (myManager.hasLineSelection(caret)) {
+                            EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                            editorCaret
+                                    .toCharSelectionForCaretPositionBasedLineSelection()
+                                    .normalizeCaretPosition()
+                                    .commit();
                         }
                     }
                 }
                 return;
             }
 
-            if (adjustments == TO_CHAR__TO_ALWAYS_LINE) {
-                //throw new IllegalStateException("Uncomment code before adding these types");
-                // these are indent/unindent
-                if (settings.isUpDownSelection()) {
-                    final HashMap<Caret, Integer> caretColumns = new HashMap<>();
+            if (adjustments == INDENT_UNINDENT___TO_CHAR__IF_HAS_LINES_TO_LINE_RESTORE_COLUMN) {
+                // DONE: all selection models
+                // DONE: may want to create a separate setting for indent/unindent
+                if (settings.isIndentUnindent()) {
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        caretColumns.put(caret, caret.getLogicalPosition().column);
-                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
-
-                        if (editorCaret.isLine() && caret.hasSelection()) {
-                            editorCaret = editorCaret.toTrimmedOrExpandedFullLines().withNormalizedCharSelectionPosition();
-                            caret.moveToOffset(editorCaret.getCaretPosition().getOffset());
-                            caret.setSelection(editorCaret.getSelectionStart().getOffset(), editorCaret.getSelectionEnd().getOffset());
-                            //} else {
-                            //    if (caret.hasSelection()) {
-                            //        state.setAnchorOffset(caret.getLeadSelectionOffset());
-                            //    } else {
-                            //        state.setAnchorOffset(caret.getOffset());
-                            //    }
-                            //    state.setLine(false);
+                        if (caret.hasSelection()) {
+                            EditorCaret editorCaret = myManager.getEditorCaret(caret, INDENT_RELATIVE, WITH_LINE_SELECTION, WITH_LINES);
+                            if (editorCaret.isLine() || editorCaret.hasLines()) {
+                                editorCaret
+                                        .toLineEquivalentCharSelection()
+                                        .normalizeCaretPosition()
+                                        .commit();
+                            }
                         }
                     }
 
                     runAfterAction(event, () -> {
                         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                             EditorCaret editorCaret = myManager.getEditorCaret(caret);
-                            EditorCaret finalCaret = editorCaret;
-
-                            if (caret.hasSelection()) {
-                                finalCaret = editorCaret.toTrimmedOrExpandedLineSelection().withNormalizedPosition();
+                            if (editorCaret.hasLines()) {
+                                editorCaret
+                                        .toLineSelection()
+                                        .normalizeCaretPosition()
+                                        .commit();
                             }
-
-                            if (caretColumns.containsKey(caret)) {
-                                finalCaret = finalCaret.withCaretPosition(finalCaret.getCaretPosition().onLine(caret.getLogicalPosition().line).atColumn(caretColumns.get(caret)));
-                                //LogicalPosition pos = new LogicalPosition(caret.getLogicalPosition().line, caretColumns.get(caret));
-                                //caret.moveToLogicalPosition(pos);
-                            }
-
-                            finalCaret.copyTo(caret);
                         }
                     });
                 }
                 return;
             }
 
-            if (adjustments == IF_LINE__FIX_CARET) {
+            if (adjustments == DELETE_LINE_SELECTION___IF_LINE__RESTORE_COLUMN) {
+                // DONE: with both selection models
+                // delete line selection action
                 if (settings.isDeleteOperations()) {
                     final HashMap<Caret, Integer> caretColumns = new HashMap<>();
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        if (caret.hasSelection()) {
-                            LineSelectionState state = myManager.getSelectionStateIfExists(caret);
-                            if (state != null && state.isLine()) {
-                                caretColumns.put(caret, caret.getLogicalPosition().column);
-                            }
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                        if (editorCaret.hasSelection() && editorCaret.isLine()) {
+                            caretColumns.put(caret, caret.getLogicalPosition().column);
                         }
                     }
 
@@ -435,83 +421,36 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 return;
             }
 
-            if (adjustments == REMOVE_LINE__RESTORE_COLUMN) {
+            if (adjustments == MOVE_CARET_UP_DOWN___REMOVE_LINE__RESTORE_COLUMN) {
+                // DONE: all selection models
                 if (settings.isUpDownMovement()) {
-                    final HashMap<Caret, Integer> caretColumns = new HashMap<>();
-                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        caretColumns.put(caret, caret.getLogicalPosition().column);
-                        myManager.resetSelectionState(caret);
-                    }
-
-                    if (!caretColumns.isEmpty()) {
-                        runAfterAction(event, () -> {
-                            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                                if (caretColumns.containsKey(caret)) {
-                                    LogicalPosition pos = new LogicalPosition(caret.getLogicalPosition().line, caretColumns.get(caret));
-                                    caret.moveToLogicalPosition(pos);
-                                }
-                            }
-                        });
-                    }
+                    beforeAfterRestoreColumn(event, true, false, false, true);
                 }
                 return;
             }
 
-            if (adjustments == NOTHING__TO_LINE_IF_LOOKS_IT) {
-                // here we try our best and do not change anything except preserve caret column if after operation there is a selection 
-                // that is a line selection and the caret is at 0 and there was no selection before or it was a line selection
-                final HashMap<Caret, Integer> caretColumns = new HashMap<>();
-                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                    caretColumns.put(caret, caret.getLogicalPosition().column);
-                    myManager.adjustLineSelectionToCharacterSelection(caret, false);
-                }
-
-                runAfterAction(event, () -> {
-                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        // if it looks like a line then it is a line selection
-                        if (caret.hasSelection()) {
-                            if (myEditor.offsetToLogicalPosition(caret.getSelectionStart()).column == 0
-                                    && myEditor.offsetToLogicalPosition(caret.getSelectionEnd()).column == 0) {
-                                if (caretColumns.containsKey(caret)) {
-                                    LogicalPosition position = caret.getLogicalPosition();
-                                    if (position.column == 0) {
-                                        LogicalPosition pos = new LogicalPosition(position.line, caretColumns.get(caret));
-                                        caret.moveToLogicalPosition(pos);
-                                    }
-                                }
-
-                                LineSelectionState state = myManager.getSelectionState(caret);
-                                state.setLine(true);
-                            }
-                        }
-                    }
-                });
-                return;
-            }
-
-            if (adjustments == IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN) {
-                final HashMap<Caret, Integer> caretsToFix = new HashMap<>();
+            if (adjustments == COPY___IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN) {
+                // DONE: all selection models
                 for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                     if (!caret.hasSelection()) {
-                        caretsToFix.put(caret, caret.getLogicalPosition().column);
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN);
+                        editorCaret.commitState();
                     }
                 }
 
                 runAfterAction(event, () -> {
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        if (caretsToFix.containsKey(caret)) {
-                            if (myEditor.offsetToLogicalPosition(caret.getSelectionStart()).column == 0
-                                    && myEditor.offsetToLogicalPosition(caret.getSelectionEnd()).column == 0) {
-                                if (caretsToFix.containsKey(caret)) {
-                                    LogicalPosition position = caret.getLogicalPosition();
-                                    LogicalPosition pos = new LogicalPosition(position.line, caretsToFix.get(caret));
-                                    caret.moveToLogicalPosition(pos);
-                                }
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
 
-                                LineSelectionState state = myManager.getSelectionState(caret);
-                                state.setLine(true);
-                            }
+                        if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                            editorCaret
+                                    .trimOrExpandToLineSelection()
+                                    .toLineSelection();
                         }
+
+                        editorCaret
+                                .normalizeCaretPosition()
+                                .commit();
                     }
                 });
 
@@ -519,84 +458,14 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             }
         }
 
-        if (adjustments == IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN) {
-            // duplicate lines and cut action
-            // TODO: add setting to control this
-            class DuplicateCutParams {
-                boolean removeCaret = true;
-                int fixColumn;
-                boolean moveToStart;
-                int selStart;
-                int selEnd;
-            }
-
-            final HashMap<Caret, DuplicateCutParams> caretsParams = new HashMap<>();
-            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                if (!caret.hasSelection()) {
-                    caretsParams.put(caret, new DuplicateCutParams());
-                } else {
-                    DuplicateCutParams params = new DuplicateCutParams();
-                    params.removeCaret = false;
-                    caretsParams.put(caret, params);
-
-                    if (settings.isDuplicateAtStartOrEnd() && !myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.CUT_ACTION)) {
-                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
-                        if (editorCaret.hasLines() || !settings.isDuplicateAtStartOrEndLineOnly()) {
-                            if (editorCaret.isLine()) {
-                                params.fixColumn = caret.getLogicalPosition().column;
-                                int anchorOffset = myManager.getSelectionState(caret).getAnchorOffset(caret.getLeadSelectionOffset());
-                                boolean startIsAnchor = anchorOffset <= caret.getOffset();
-
-                                if (!startIsAnchor) {
-                                    params.moveToStart = true;
-                                    params.selStart = caret.getSelectionStart();
-                                    params.selEnd = caret.getSelectionEnd();
-                                }
-                            } else {
-                                // move to start if not startIsAnchor so duplicate will duplicate up if at the top 
-                                if (caret.getSelectionStart() != caret.getLeadSelectionOffset()) {
-                                    params.moveToStart = true;
-                                    params.selStart = caret.getSelectionStart();
-                                    params.selEnd = caret.getSelectionEnd();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            runAfterAction(event, () -> {
-                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                    DuplicateCutParams params = caretsParams.get(caret);
-                    if ((params == null || params.removeCaret) && !caret.hasSelection()) {
-                        caret.removeSelection();
-                        continue;
-                    }
-
-                    if (params != null && caret.hasSelection()) {
-                        EditorCaret editorCaret = myManager.getEditorCaret(caret, true);
-
-                        editorCaret = editorCaret.withStartIsAnchor(!params.moveToStart);
-                        editorCaret.saveSelectionStateFor(caret);
-
-                        if (params.moveToStart && params.selStart < params.selEnd) {
-                            editorCaret = editorCaret.withSelection(params.selStart, params.selEnd);
-                            editorCaret = editorCaret.withCaretPosition(params.selStart);
-                        }
-
-                        if (editorCaret.getSelectionStart().column == 0 && editorCaret.getSelectionEnd().column == 0) {
-                            editorCaret = editorCaret.withIsLine(true).withNormalizedPosition();
-                            editorCaret = editorCaret.atColumn(editorCaret.getCaretPosition().atColumn(params.fixColumn));
-                            editorCaret.copyTo(caret);
-                            EditorModificationUtil.scrollToCaret(myEditor);
-                        }
-                    }
-                }
-            });
+        if (adjustments == DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN) {
+            // DONE: all selection models
+            adjustCutAndDuplicateAction(settings, action, event);
             return;
         }
 
-        if (adjustments == IF_NO_SELECTION__REMOVE_SELECTION) {
+        if (adjustments == TOGGLE_CASE___IF_NO_SELECTION__REMOVE_SELECTION) {
+            // DONE: all selection models
             // toggle case adjustment
             if (settings.isUnselectToggleCase()) {
                 final HashMap<Caret, Integer> caretColumns = new HashMap<>();
@@ -610,6 +479,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                         if (caretColumns.containsKey(caret) && caret.hasSelection()) {
                             caret.removeSelection();
+                            myManager.resetSelectionState(caret, false);
                         }
                     }
                 });
@@ -617,337 +487,398 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             return;
         }
 
-        if (adjustments == NOTHING__NORMALIZE_CARET_POSITION) {
-            // toggle case adjustment
-            //if (settings.isUnselectToggleCase()) {
-            final HashMap<Caret, Boolean> caretColumns = new HashMap<>();
+        if (adjustments == JOIN__MOVE_LINES_UP_DOWN___NOTHING__NORMALIZE_CARET_POSITION) {
+            // DONE: all selection models
             for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                 if (caret.hasSelection()) {
-                    caretColumns.put(caret, caret.getLeadSelectionOffset() == caret.getSelectionStart());
+                    EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN, WITH_LINE_SELECTION);
+                    if (editorCaret.isLine()) {
+                        editorCaret
+                                .toLineEquivalentCharSelection()
+                                .normalizeCaretPosition()
+                                .commit();
+                    }
                 }
             }
 
             runAfterAction(event, () -> {
                 for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                    if (caretColumns.containsKey(caret) && caret.hasSelection()) {
-                        EditorCaret editorCaret = myManager.getEditorCaret(caret, caretColumns.get(caret), null);
-                        if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER)) {
-                            // move caret to start of selection
-                            editorCaret = editorCaret.withStartIsAnchor(false);
-                        } else if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
-                            // move caret to end of selection
-                            editorCaret = editorCaret.withStartIsAnchor(true);
+                    if (caret.hasSelection()) {
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
+
+                        if (editorCaret.isLine()) {
+                            if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER)) {
+                                // move caret to start of selection
+                                editorCaret.setIsStartAnchor(false);
+                            } else if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
+                                // move caret to end of selection
+                                editorCaret.setIsStartAnchor(true);
+                            }
                         }
-                        editorCaret.withNormalizedPosition().copyTo(caret);
+
+                        editorCaret
+                                .normalizeCaretPosition()
+                                .commit();
                     }
                 }
             });
-            //}
             return;
         }
 
-        if (adjustments == MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE) {
-            // these can replace selections, need to move to start, after if pasted was lines, then we should restore caret pos
-            final HashMap<Caret, Integer> caretColumns = new HashMap<>();
-            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                caretColumns.put(caret, caret.getLogicalPosition().column);
-                if (caret.hasSelection()) {
-                    LineSelectionState state = myManager.getSelectionStateIfExists(caret);
-                    if (state != null && state.isLine()) {
-                        if (state.getAnchorOffset(caret.getLeadSelectionOffset()) >= caret.getOffset()) {
-                            caret.moveToOffset(caret.getSelectionStart());
-                        } else {
-                            caret.moveToOffset(caret.getSelectionEnd());
-                        }
-                    }
-                }
-            }
-
-            if (!caretColumns.isEmpty()) {
-                runAfterAction(event, () -> {
-                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        if (caretColumns.containsKey(caret)) {
-                            LogicalPosition position = caret.getLogicalPosition();
-                            if (position.column == 0) {
-                                LogicalPosition pos = new LogicalPosition(position.line, caretColumns.get(caret));
-                                caret.moveToLogicalPosition(pos);
-                            }
-
-                            // if leave selected is enabled
-                            if (settings.isSelectPasted() && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION)) {
-                                TextRange range = myEditor.getUserData(EditorEx.LAST_PASTED_REGION);
-                                if (range != null) {
-                                    //myEditor.getCaretModel().moveToOffset(range.getStartOffset());
-                                    EditorCaret editorCaret = myManager.getEditorCaret(myEditor.getCaretModel().getPrimaryCaret());
-                                    EditorCaret rangeCaret = editorCaret.withSelection(range.getStartOffset(), range.getEndOffset());
-
-                                    if (rangeCaret.hasLines() || !settings.isSelectPastedLineOnly()) {
-                                        if (rangeCaret.hasLines()) {
-                                            rangeCaret = rangeCaret.toTrimmedOrExpandedLineSelection().withNormalizedPosition();
-                                        } else {
-                                            rangeCaret = rangeCaret.toTrimmedOrExpandedFullLines().withNormalizedPosition();
-                                        }
-                                        rangeCaret.copyTo(myEditor.getCaretModel().getPrimaryCaret());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+        if (adjustments == PASTE___MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE) {
+            // DONE: all selection models
+            adjustPasteAction(settings, action, event);
             return;
         }
 
         if (adjustments == AUTO_INDENT_LINES) {
-            Boolean AUTO_TRIGGERED_ACTIONData = AUTO_TRIGGERED_ACTION.getData(event.getDataContext());
-            boolean autoTriggered = AUTO_TRIGGERED_ACTIONData != null && AUTO_TRIGGERED_ACTIONData;
-
-            // only process this if auto-triggered, not manual
-            if (autoTriggered) {
-                class Params {
-                    private EditorCaret savedCaret;
-                    private int savedIndent;
-                    private boolean moveLineUp;
-
-                    private Params(EditorCaret savedCaret, int savedIndent, boolean moveLineUp) {
-                        this.savedCaret = savedCaret;
-                        this.savedIndent = savedIndent;
-                        this.moveLineUp = moveLineUp;
-                    }
-                }
-
-                final List<Caret> carets = myEditor.getCaretModel().getAllCarets();
-                HashMap<Caret, Params> paramList = new HashMap<>();
-                EditorPositionFactory f = myManager.getPositionFactory();
-                carets.forEach(caret -> {
-                    EditorCaret editorCaret = myManager.getEditorCaret(caret);
-                    paramList.put(caret, new Params(editorCaret, editorCaret.getCaretPosition().getIndentColumn(), autoTriggered));
-                });
-
-                if (!paramList.isEmpty()) {
-                    runAfterAction(event, () -> {
-                        // we now restore only caret line not column
-                        // and convert selection to line if it was line
-                        List<Caret> caretList = myEditor.getCaretModel().getAllCarets();
-                        ArrayList<CaretState> caretStates = new ArrayList<>();
-                        caretList.forEach(caret -> {
-                            Params params = paramList.get(caret);
-                            EditorCaret savedCaret = params == null ? null : params.savedCaret;
-                            EditorPosition savedPos = savedCaret == null ? null : savedCaret.getCaretPosition();
-                            Integer savedIndent = params == null ? null : params.savedIndent;
-
-                            if (savedIndent != null && savedCaret != null) {
-                                // we need to load it with our saved params, the state was probably destroyed by the action
-                                EditorCaret editorCaret = myManager.getEditorCaret(caret, savedCaret);
-                                int indent = savedPos.getIndentColumn();
-
-                                //editorCaret = editorCaret.withStartIsAnchor(savedCaret.startIsAnchor()).withNormalizedPosition();
-
-                                // copy line state
-                                if (!savedCaret.hasSelection()) {
-                                    // need to fix column position for indentation change
-                                    EditorPosition position = editorCaret.getCaretPosition();
-                                    if (position.column > 0) {
-                                        editorCaret = editorCaret.atColumn(Math.max(0, indent + (savedPos.column - savedIndent)));
-                                    }
-
-                                    if (params.moveLineUp && editorCaret.getCaretPosition().line > 0) {
-                                        editorCaret = editorCaret.withCaretPosition(editorCaret.getCaretPosition().addLine(-1));
-                                    }
-                                } else {
-                                    // fix for IDEA-164143
-                                    //LogPos selStart = caretState.getSelectionStart();
-                                    //LogPos savedStart = caretState.getSelectionStart();
-                                    //if (selStart != null && selStart.column > 0 && savedStart != null) {
-                                    //    int indent = EditHelpers.countWhiteSpace(myEditor.getDocument().getCharsSequence(), savedPos.atColumn(0).toOffset(), savedPos.with(savedPos.line + 1, 0).toOffset());
-                                    //    caretState = new EditorCaretState(f, caretState.getCaretPosition(), savedStart.atColumn(Math.max(0, indent + (savedStart.column - savedIndent))), caretState.getSelectionEnd());
-                                    //}
-
-                                    EditorPosition selStart = editorCaret.getSelectionStart();
-                                    if (selStart.column > 0) {
-                                        editorCaret = editorCaret.withSelectionStart(selStart.atColumn(Math.max(0, indent + (selStart.column - savedIndent))));
-                                    } else if (editorCaret.getCharSelectionEnd().column == 0) {
-                                        editorCaret = editorCaret.withIsLine(true);
-                                    }
-                                }
-
-                                EditorCaret finalCaret = editorCaret.withNormalizedPosition();
-                                finalCaret.copyTo(caret);
-                            }
-                        });
-                    });
-                }
-            }
+            // DONE: all selection models
+            autoIndentLines(settings, action, event);
             return;
         }
     }
 
-    public static void adjustUpDownWithSelectionAfter(Editor editor, LineSelectionManager manager, Caret caret, EditorPosition pos, EditorPosition start, EditorPosition end, EditorPosition newPos, boolean movedUp, int leadSelectionOffset) {
-        EditorPosition newStart = start;
-        EditorPosition newEnd = end;
-        LineSelectionState state = manager.getSelectionState(caret);
-
-        boolean handled = false;
-        boolean startIsAnchor = true;
-        int lineCount = editor.getDocument().getLineCount();
-
-        boolean hadSelection = !start.equals(end);
-
-        if (!hadSelection) {
-            state.reset();
-        } else {
-            if (!state.isLine()) {
-                state.setAnchorOffsets(leadSelectionOffset);
-            }
+    private void adjustCutAndDuplicateAction(ApplicationSettings settings, AnAction action, AnActionEvent event) {
+        // duplicate lines and cut action
+        class DuplicateCutParams {
+            boolean removeSelection = true;
+            boolean selectAndMoveCaretToStart;
+            int selStart; // need this to restore selection when duplicate lines before is desired
+            int selEnd;
         }
 
-        if (getCaretInSelection()) {
-            if (hadSelection) {
-                // need to figure out whether start or end of selection is the anchor
-                boolean atStart = pos.line == start.line;
-                boolean atEnd = newPos.line == end.atEndOfLine().line;
-
-                if (atStart && atEnd) {
-                    startIsAnchor = !movedUp;
-                } else {
-                    startIsAnchor = !atStart;
-                }
-
-                if (movedUp) {
-                    if (startIsAnchor) {
-                        // moving up shortening bottom
-                        newStart = start.atStartOfLine();
-                        newEnd = newPos.atStartOfNextLine();
-                    } else {
-                        // was on start, keep end and move start
-                        newStart = newPos.atStartOfLine();
-                        newEnd = newEnd.atEndOfLine();
-                    }
-                } else {
-                    if (startIsAnchor) {
-                        // moving up shortening bottom
-                        newStart = newStart.atStartOfLine();
-                        newEnd = newEnd.atStartOfNextLine();
-                    } else {
-                        // was on start, keep end and move start
-                        newStart = newPos.atStartOfLine();
-                        newEnd = newEnd.atEndOfLine();
-                    }
-                }
+        final HashMap<Caret, DuplicateCutParams> caretsParams = new HashMap<>();
+        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+            if (!caret.hasSelection()) {
+                EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN);
+                caretsParams.put(caret, new DuplicateCutParams());
             } else {
-                // start a new selection and keep cursor on the same line
-                if (movedUp) {
-                    startIsAnchor = true;
-                    newStart = pos.atStartOfLine();
-                    newEnd = pos.atStartOfNextLine();
-                } else {
-                    startIsAnchor = false; // it will be inverted on text step in same direction
-                    newStart = pos.atStartOfLine();
-                    newEnd = pos.atStartOfNextLine();
-                }
-                newPos = pos;
-            }
-        } else {
-            if (pos.line == 0) {
-                // line selection at top and going up: do nothing 
-                // line selection at top and going down: stay on top, move selection one line down 
-                // no line selection at top and going down, normal handling 
-                // no line selection at top and going up, make top line selection
+                DuplicateCutParams params = new DuplicateCutParams();
+                params.removeSelection = false;
+                caretsParams.put(caret, params);
 
-                if (state.isLine() && EditorPosition.haveTopLineSelection(start, end)) {
-                    if (movedUp) {
-                        // line selection at top and going up: do nothing 
-                        newStart = start;
-                        newEnd = end;
-                        newPos = pos;
-                        handled = true;
-                    } else {
-                        // line selection at top and going down: stay on top, move selection one line down 
-                        newStart = pos.atStartOfNextLine();
-                        newEnd = end.atEndOfLine();
-                        newPos = pos;
-                        handled = true;
-                    }
-                } else {
-                    if (movedUp) {
-                        // no line selection at top and going up, make top line selection
-                        newStart = pos.atStartOfLine();
-                        newEnd = end.line == pos.line ? pos.atStartOfNextLine() : end.atEndOfLine();
-                        handled = true;
-                    } else {
-                        // no line selection at top and going down, normal handling 
-                        handled = false;
-                    }
-                }
-            }
+                if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.DUPLICATE_ACTION)) {
+                    EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN, WITH_LINE_SELECTION);
 
-            if (!handled) {
-                if (newPos.equals(pos)) {
-                    if (pos.line == lineCount) {
-                        // we are at bottommost line and tried to move down
-                        newStart = start.atStartOfLine();
-                        newEnd = end.atEndOfLine();
-                    } else {
-                        if (movedUp) {
-                            newStart = newPos.atStartOfNextLine();
-                            newEnd = end.atEndOfLine();
-                        } else {
-                            newStart = start.atStartOfLine();
-                            newEnd = newPos.atStartOfLine();
-                        }
-                    }
-                } else {
-                    if (start.line == end.line) {
-                        if (movedUp) {
-                            newStart = newPos.atStartOfNextLine();
-                            newEnd = pos.atStartOfNextLine();
-                        } else {
-                            newStart = pos.atStartOfLine();
-                            newEnd = newPos.atStartOfLine();
-                        }
-                    } else {
-                        if (movedUp) {
-                            // we are going up, if start is lead then it is below pos
-                            startIsAnchor = !(pos.line < start.line);
-                        } else {
-                            // we are going down, if end is leading then it is the same as pos
-                            startIsAnchor = (pos.line >= end.line && pos.column >= end.column);
-                        }
+                    if (settings.isDuplicateAtStartOrEnd()) {
 
-                        if (!startIsAnchor) {
-                            newStart = newPos.atStartOfNextLine();
-                            newEnd = end.atEndOfLine();
-                        } else {
-                            newStart = start.atStartOfLine();
-                            newEnd = newPos.atStartOfNextLine();
+                        if (SelectionPredicateType.ADAPTER.findEnum(settings.getDuplicateAtStartOrEndPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
+                            if (!editorCaret.isStartAnchor()) {
+                                params.selectAndMoveCaretToStart = true;
+                                params.selStart = editorCaret.getSelectionStart().getOffset();
+                                params.selEnd = editorCaret.getSelectionEnd().getOffset();
+                            }
                         }
                     }
                 }
             }
         }
 
-        manager.setCaretLineSelection(caret, newPos, newStart, newEnd, startIsAnchor, state);
+        runAfterAction(event, () -> {
+            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                DuplicateCutParams params = caretsParams.get(caret);
+
+                if (params == null || params.removeSelection) {
+                    // just to recall column
+                    EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                    // commit caret position
+                    editorCaret.commit();
+                    caret.removeSelection();
+                } else {
+                    if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.DUPLICATE_ACTION)) {
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                        if (settings.isDuplicateAtStartOrEnd()) {
+                            if (editorCaret.hasSelection()) {
+                                int column = editorCaret.getCaretPosition().column;
+
+                                if (params.selectAndMoveCaretToStart && params.selStart < params.selEnd) {
+                                    editorCaret
+                                            .setCaretPosition(editorCaret.getCaretPosition().atOffset(params.selStart))
+                                            .setSelectionEnd(params.selEnd)
+                                            .setSelectionStart(editorCaret.getCaretPosition())
+                                            .setIsStartAnchor(false)
+                                            .setSavedAnchor(editorCaret.getSelectionEnd())
+                                    ;
+                                }
+
+                                if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                                    // can safely be changed to a line selection
+                                    editorCaret.trimOrExpandToLineSelection();
+                                }
+
+                                if (editorCaret.isLine() || (column > editorCaret.getCaretPosition().column
+                                        && editorCaret.getCaretPosition().column < editorCaret.getCaretPosition().getIndentColumn())) {
+                                    editorCaret.setCaretPosition(editorCaret.getCaretPosition().atColumn(column));
+                                }
+
+                                editorCaret
+                                        .normalizeCaretPosition()
+                                        .commit();
+                            }
+                        } else {
+                            // just to restore column
+                            editorCaret.commit();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void adjustPasteAction(ApplicationSettings settings, AnAction action, AnActionEvent event) {
+        // these can replace selections, need to move to start, after if pasted was lines, then we should restore caret pos
+        final HashMap<Caret, Long> caretColumns = new HashMap<>();
+        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+            EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN);
+
+            // now we store the doc mod
+            long stamp = myEditor.getDocument().getModificationStamp();
+            caretColumns.put(caret, stamp);
+
+            if (myManager.hasLineSelection(caret)) {
+                if (!editorCaret.isStartAnchor()) {
+                    caret.moveToOffset(caret.getSelectionStart());
+                } else {
+                    caret.moveToOffset(caret.getSelectionEnd());
+                }
+            }
+        }
+
+        if (!caretColumns.isEmpty()) {
+            runAfterAction(event, () -> {
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    LineSelectionState state = myManager.getSelectionState(caret);
+
+                    int column = state.preservedColumn;
+                    myManager.clearPreservedColumnState(caret);
+
+                    EditorCaret editorCaret = myManager.getEditorCaret(myEditor.getCaretModel().getPrimaryCaret());
+
+                    if (editorCaret.getCaretPosition().column == 0) {
+                        editorCaret.atColumn(column);
+                    }
+
+                    // if leave selected is enabled
+                    if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION) && settings.isSelectPasted()) {
+                        long stamp = caretColumns.containsKey(caret) ? caretColumns.get(caret) : -1;
+
+                        if (stamp < myEditor.getDocument().getModificationStamp()) {
+                            TextRange range = myEditor.getUserData(EditorEx.LAST_PASTED_REGION);
+                            if (range != null) {
+                                //myEditor.getCaretModel().moveToOffset(range.getStartOffset());
+
+                                editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
+
+                                if (SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
+                                    if (editorCaret.hasLines()) {
+                                        editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
+                                    } else {
+                                        editorCaret.normalizeCaretPosition();
+                                    }
+                                    editorCaret.commit();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void autoIndentLines(ApplicationSettings settings, AnAction action, AnActionEvent event) {
+        Boolean AUTO_TRIGGERED_ACTIONData = AUTO_TRIGGERED_ACTION.getData(event.getDataContext());
+        boolean autoTriggered = AUTO_TRIGGERED_ACTIONData != null && AUTO_TRIGGERED_ACTIONData;
+
+        // only process this if auto-triggered, not manual
+        if (autoTriggered) {
+            class Params {
+                private EditorPosition savedPosition;
+                private int savedIndent;
+                private boolean hadSelection;
+
+                private Params(EditorPosition savedPosition, boolean hadSelection) {
+                    this.savedPosition = savedPosition;
+                    this.savedIndent = savedPosition.getIndentColumn();
+                    this.hadSelection = hadSelection;
+                }
+            }
+
+            final List<Caret> carets = myEditor.getCaretModel().getAllCarets();
+            HashMap<Caret, Params> paramList = new HashMap<>();
+            EditorPositionFactory f = myManager.getPositionFactory();
+            carets.forEach(caret -> {
+                EditorCaret editorCaret = myManager.getEditorCaret(caret);
+
+                paramList.put(caret, new Params(editorCaret.getCaretPosition(), editorCaret.hasSelection()));
+
+                // need to write out the state
+                editorCaret.commit();
+            });
+
+            if (!paramList.isEmpty()) {
+                runAfterAction(event, () -> {
+                    // we now restore only caret line not column
+                    // and convert selection to line if it was line
+                    List<Caret> caretList = myEditor.getCaretModel().getAllCarets();
+                    ArrayList<CaretState> caretStates = new ArrayList<>();
+                    caretList.forEach(caret -> {
+                        Params params = paramList.get(caret);
+
+                        LineSelectionState state = myManager.getSelectionState(caret);
+                        EditorCaret editorCaret = myManager.getEditorCaret(caret);
+
+                        // copy line state
+                        if (!editorCaret.hadSelection() && !editorCaret.hasSelection()) {
+                            // need to fix column position for indentation change
+                            EditorPosition position = editorCaret.getCaretPosition();
+                            if (position.column > 0) {
+                                int indent = params.savedPosition.getIndentColumn();
+                                editorCaret.atColumn(Math.max(0, indent + (params.savedPosition.column - params.savedIndent)));
+                            }
+
+                            if (editorCaret.getCaretPosition().line > 0) {
+                                editorCaret.setCaretPosition(editorCaret.getCaretPosition().addLine(-1));
+                            }
+                        } else {
+                            // fix for IDEA-164143
+                            EditorPosition selStart = editorCaret.getSelectionStart();
+                            if (selStart.column > 0 && params != null) {
+                                editorCaret.setSelectionStart(selStart.atColumn(selStart.getIndentColumn() + Math.max(0, selStart.column - params.savedIndent)));
+                            } else if (editorCaret.getSelectionEnd().column == 0) {
+                                editorCaret.toLineSelection();
+                            }
+                        }
+
+                        if (editorCaret.hasSelection()) editorCaret.normalizeCaretPosition();
+
+                        editorCaret.commit();
+                    });
+                });
+            }
+        }
+        return;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void beforeAfterRestoreColumn(AnActionEvent event, boolean restoreColumn, boolean indentRelative, boolean expandOrContractToLine, boolean removeLineState) {
+        boolean hadLine = false;
+
+        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+            if (removeLineState) {
+                myManager.resetSelectionState(caret, true);
+            }
+
+            PreserveColumn[] options;
+            if (restoreColumn && indentRelative) options = new PreserveColumn[] { PRESERVE_COLUMN, INDENT_RELATIVE };
+            else options = new PreserveColumn[] { PRESERVE_COLUMN };
+
+            EditorCaret editorCaret = myManager.getEditorCaret(caret, options);
+            if (restoreColumn || (expandOrContractToLine && editorCaret.canSafelyTrimOrExpandToFullLineSelection())) {
+                hadLine = true;
+            }
+        }
+
+        if (hadLine) {
+            runAfterAction(event, () -> {
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                    if (expandOrContractToLine && editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                        editorCaret.trimOrExpandToLineSelection();
+                    }
+
+                    editorCaret.commit();
+                }
+            });
+        }
+    }
+
+    private void adjustMoveCaretUpDownWithSelection(ApplicationSettings settings, AnAction action, AnActionEvent event) {
+        if (settings.isUpDownSelection()) {
+            HashMap<Caret, Integer> caretSelectionLines = new HashMap<>();
+            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                EditorCaret editorCaret = myManager.getEditorCaret(caret, PRESERVE_COLUMN);
+                caretSelectionLines.put(caret, editorCaret.getSelectionLineCount());
+
+                //logger.debug("\nbefore line select editorCaret in: " + editorCaret);
+
+                editorCaret
+                        .toCharSelectionForCaretPositionBasedLineSelection()
+                        .normalizeCaretPosition()
+                        .resetAnchorState()
+                        .commit();
+
+                //logger.debug("before line select editorCaret out: " + editorCaret);
+            }
+
+            runAfterAction(event, () -> {
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+
+                    EditorCaret editorCaret = myManager.getEditorCaret(caret);
+                    int deltaLines = caretSelectionLines.containsKey(caret) ? editorCaret.getSelectionLineCount() - caretSelectionLines.get(caret) : 0;
+
+                    //logger.debug("after line select deltaLines: " + deltaLines + "editorCaret in: " + editorCaret);
+
+                    // since all are coming in as non-line, we will have to make the adjustments ourselves
+                    boolean oneLine = false;
+                    if (!editorCaret.hadLineSelection()) {
+                        // pause on line only if just created a line selection
+                        boolean pauseOnLine = editorCaret.getSelectionLineCount() == 2;
+
+                        if (editorCaret.isStartAnchor() && myManager.isSelectionEndExtended() && editorCaret.getCaretPosition().column != 0) {
+                            if (!editorCaret.hadSelection() || pauseOnLine && deltaLines > 0) {
+                                // need to keep caret on same line, freshly minted line selection
+                                editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(-1));
+                                oneLine = !editorCaret.hadSelection();
+                            }
+                        } else if (!editorCaret.isStartAnchor() && myManager.isSelectionStartExtended() && editorCaret.getCaretPosition().column != 0) {
+                            if (!editorCaret.hadSelection() || pauseOnLine && deltaLines > 0) {
+                                // need to keep caret on same line, freshly minted line selection
+                                editorCaret.setSelectionStart(editorCaret.getSelectionStart().addLine(1));
+                                oneLine = !editorCaret.hadSelection();
+                            }
+                        }
+                    }
+
+                    //logger.debug("after line select deltaLines: " + deltaLines + "editorCaret after adjust: " + editorCaret);
+
+                    if (oneLine) {
+                        EditorPosition anchor = editorCaret.getAnchorPosition();
+                        editorCaret.setSavedAnchor(anchor)
+                                .setSelectionStart(anchor.atStartOfLine())
+                                .setSelectionEnd(anchor.atStartOfNextLine())
+                                .toLineSelection()
+                                .normalizeCaretPosition()
+                                .commit();
+
+                        //logger.debug("after line select one liner editorCaret: " + editorCaret);
+                    } else {
+                        int column = editorCaret.getCaretPosition().column;
+                        
+                        if (editorCaret.getSelectionLineCount() == 0 && editorCaret.getCaretPosition().line == editorCaret.getSelectionStart().line) {
+                            // see if it would make a character mark
+                            editorCaret.normalizeCaretPosition();
+
+                            //logger.debug("after line select editorCaret out: " + editorCaret);
+                        } else {
+                            //logger.debug("after line select before toCaretPosBased editorCaret: " + editorCaret);
+                            editorCaret.toCaretPositionBasedLineSelection()
+                                    .normalizeCaretPosition();
+
+                            //logger.debug("after line select editorCaret out: " + editorCaret);
+                        }
+
+                        editorCaret
+                                .setCaretPosition(editorCaret.getCaretPosition().atColumn(column))
+                                .commit();
+                    }
+                }
+            });
+        }
+        return;
     }
 
     protected static ApplicationSettings getSettings() {
         return ApplicationSettings.getInstance();
-    }
-
-    public static class UpDownParams {
-        final EditorPosition pos;
-        final EditorPosition start;
-        final EditorPosition end;
-        final int leadSelectionOffset;
-        final LineSelectionState state;
-
-        UpDownParams(EditorPosition pos, EditorPosition start, EditorPosition end, int leadSelectionOffset, LineSelectionState state) {
-            this.pos = pos;
-            this.start = start;
-            this.end = end;
-            this.leadSelectionOffset = leadSelectionOffset;
-            this.state = new LineSelectionState();
-            this.state.copyFrom(state);
-        }
     }
 
     public static class AfterActionList {

@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [0.7.1 - Refactoring and Code Cleanup](#071---refactoring-and-code-cleanup)
 - [0.7.0 - Enhancements](#070---enhancements)
 - [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
 - [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
@@ -10,6 +11,16 @@
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
+
+### 0.7.1 - Refactoring and Code Cleanup
+
+- Change: switch all code to use `EditorCaret` for manipulating selections
+- Change: completely rewritten the abstraction layer. Now much better and easier to maintain.
+- Add: Selection extends at start/end, 4 combinations
+- Add: Typing deletes line selection option
+- Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or more
+  lines
+- Add: indent/unindent to preserve caret column position
 
 ### 0.7.0 - Enhancements
 
@@ -43,13 +54,13 @@
     - start of line/end of line
     - indent/trailing blanks on a line
     - identifier camel humps or word camel humps rules
-    - normal, stay on same line and stay on same line in multi-caret mode 
+    - normal, stay on same line and stay on same line in multi-caret mode
 - Add: action to toggle camel humps mode, with option to make mouse setting follow camel humps
   setting.
 - Add: action to toggle identifier/word mode for customized word actions, customized next word
   is taken as the value to toggle with the rest following.
 - Add: Delete and Backspace white space only, used to pull jagged edge alignment into a straight
-  line. 
+  line.
 - Add: settings UI for custom next/prev word end/start, start of word and end of word variations
 
 ### 0.6.2 - Bug Fix and Features

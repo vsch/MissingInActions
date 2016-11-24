@@ -33,8 +33,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
 import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
@@ -75,18 +75,19 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
     private void perform(Editor editor, LineSelectionManager manager, Caret caret) {
         assert caret != null;
 
-        if (caret.hasSelection()) {
-            LineSelectionState state = manager.getSelectionState(caret);
-
-            if (state.isLine()) {
+        EditorCaret editorCaret = manager.getEditorCaret(caret);
+        
+        if (editorCaret.hasSelection()) {
+            if (editorCaret.isLine()) {
                 if (wantCharacter()) {
-                    manager.adjustLineSelectionToCharacterSelection(caret, false);
+                    editorCaret.toCharSelection()
+                            .normalizeCaretPosition()
+                            .commit();
                 }
-            } else {
-                // make it line selection
-                if (wantLine()) {
-                    manager.adjustCharacterSelectionToLineSelection(caret, true, myTrimmedLine);
-                }
+            } else if (wantLine()) {
+                editorCaret.toLineSelection()
+                        .normalizeCaretPosition()
+                        .commit();
             }
         }
     }

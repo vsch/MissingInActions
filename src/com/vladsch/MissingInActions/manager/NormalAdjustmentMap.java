@@ -29,11 +29,6 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
-import com.vladsch.MissingInActions.actions.character.word.*;
-import com.vladsch.MissingInActions.actions.character.word.NextWordInDifferentHumpsModeWithSelectionAction;
-import com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction;
-import com.vladsch.MissingInActions.actions.character.word.PreviousWordInDifferentHumpsModeWithSelectionAction;
-import com.vladsch.MissingInActions.actions.character.word.PreviousWordWithSelectionAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
@@ -44,12 +39,12 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
     }
 
     NormalAdjustmentMap() {
-        addActionAdjustment(AdjustmentType.REMOVE_LINE__NOTHING
+        addActionAdjustment(AdjustmentType.MOVE_CARET_LEFT_RIGHT___REMOVE_LINE__NOTHING
                 , MoveCaretLeftAction.class
                 , MoveCaretRightAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__TO_LINE
+        addActionAdjustment(AdjustmentType.MOVE_CARET_UP_DOWN_W_SELECTION___TO_CHAR__TO_LINE
                 , MoveCaretDownWithSelectionAction.class
                 , MoveCaretUpWithSelectionAction.class
                 , MoveDownWithSelectionAndScrollAction.class
@@ -60,7 +55,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , PageUpWithSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__NOTHING
+        addActionAdjustment(AdjustmentType.MOVE_CARET_LEFT_RIGHT_W_SELECTION___TO_CHAR__NOTHING
                 , LineEndWithSelectionAction.class
                 , LineStartWithSelectionAction.class
                 , MoveCaretLeftWithSelectionAction.class
@@ -95,27 +90,59 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , TextEndWithSelectionAction.class
                 , TextStartWithSelectionAction.class
 
-                , NextWordEndInDifferentHumpsModeWithSelectionAction.class
-                , NextWordEndWithSelectionAction.class
-                , NextWordStartInDifferentHumpsModeWithSelectionAction.class
-                , NextWordStartWithSelectionAction.class
-                , PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
-                , PreviousWordEndWithSelectionAction.class
-                , PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
-                , PreviousWordStartWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToLineSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToggleSelectionAnchorAction.class
                 , com.vladsch.MissingInActions.actions.line.ToCharacterSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToggleLineCharacterSelectionAction.class
+
+                , com.vladsch.MissingInActions.actions.character.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordWithSelectionAction.class
+                
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordWithSelectionAction.class
+                
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordWithSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.TO_CHAR__TO_ALWAYS_LINE
+        addActionAdjustment(AdjustmentType.INDENT_UNINDENT___TO_CHAR__IF_HAS_LINES_TO_LINE_RESTORE_COLUMN
+                , LangIndentSelectionAction.class
                 , IndentLineOrSelectionAction.class
                 , UnindentSelectionAction.class
                 , IndentSelectionAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_LINE__FIX_CARET
+        addActionAdjustment(AdjustmentType.DELETE_LINE_SELECTION___IF_LINE__RESTORE_COLUMN
                 , BackspaceAction.class
                 , DeleteAction.class
                 , DeleteToLineEndAction.class
@@ -125,7 +152,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , DeleteToWordStartInDifferentHumpsModeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.REMOVE_LINE__RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.MOVE_CARET_UP_DOWN___REMOVE_LINE__RESTORE_COLUMN
                 , PageBottomAction.class
                 , PageDownAction.class
                 , PageTopAction.class
@@ -134,25 +161,25 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MoveCaretUpAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE
+        addActionAdjustment(AdjustmentType.REFORMAT_CODE___NOTHING__RESTORE_COLUMN_LINE_END_RELATIVE
                 , ReformatCodeAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__NOTHING
+        addActionAdjustment(AdjustmentType.UNDOE_REDO___NOTHING__NOTHING
                 , UndoAction.class
                 , RedoAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION
+        addActionAdjustment(AdjustmentType.TOGGLE_CASE___IF_NO_SELECTION__REMOVE_SELECTION
                 , ToggleCaseAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.COPY___IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN
                 , com.intellij.ide.actions.CopyAction.class
                 , com.intellij.openapi.editor.actions.CopyAction.class
         );
 
-        addActionAdjustment(AdjustmentType.MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE
+        addActionAdjustment(AdjustmentType.PASTE___MOVE_TO_START__RESTORE_IF0_OR_BLANK_BEFORE
                 , com.intellij.ide.actions.PasteAction.class
                 , com.intellij.openapi.editor.actions.PasteAction.class
                 , MultiplePasteAction.class
@@ -172,18 +199,24 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , AutoIndentLinesAction.class
         );
 
-        addActionAdjustment(AdjustmentType.IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , DuplicateAction.class
                 , DuplicateBeforeAfterAction.class
                 , DuplicateLinesAction.class
                 , CutAction.class
         );
 
+        addActionSet(ActionSetType.DUPLICATE_ACTION
+                , DuplicateAction.class
+                , DuplicateBeforeAfterAction.class
+                , DuplicateLinesAction.class
+        );
+
         addActionSet(ActionSetType.CUT_ACTION
                 , CutAction.class
         );
 
-        addActionAdjustment(AdjustmentType.NOTHING__NORMALIZE_CARET_POSITION
+        addActionAdjustment(AdjustmentType.JOIN__MOVE_LINES_UP_DOWN___NOTHING__NORMALIZE_CARET_POSITION
                 , JoinLinesAction.class
                 , MoveLineDownAction.class
                 , MoveLineUpAction.class

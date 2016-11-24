@@ -36,12 +36,22 @@
         ]]>
     </description>
 
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>0.7.1 - Refactoring and Code Cleanup</h3>
+            <ul>
+                <li>Change: switch all code to use <code>EditorCaret</code> for manipulating selections</li>
+                <li>Change: completely rewritten the abstraction layer. Now much better and easier to maintain.</li>
+                <li>Add: Selection extends at start/end, 4 combinations</li>
+                <li>Add: Typing deletes line selection option</li>
+                <li>Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or more
+                    lines</li>
+                <li>Add: indent/unindent to preserve caret column position</li>
+            </ul>
             <h3>0.7.0 - Enhancements</h3>
             <ul>
                 <li>Add: Fixes for actions in Auto Line Mode:
@@ -249,14 +259,14 @@
 
             <action class="com.vladsch.MissingInActions.actions.character.BackspaceToWordStartNotEolAction"
                     id="MissingInActions.BackspaceToWordStartNotEol"
-                    text="Backspace to Word Start not EOL"
-                    description="Backspace to Word Start not EOL">
+                    text="Backspace to Word Start"
+                    description="Backspace to Word Start">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.character.BackspaceToWordStartNotEolInDifferentHumpsModeAction"
                     id="MissingInActions.BackspaceToWordStartNotEolInDifferentHumpsMode"
-                    text='Backspace to Word End in Different "CamelHumps" Mode not EOL'
-                    description='Backspace to Word Start in Different "CamelHumps" Mode not EOL'>
+                    text='Backspace to Word Start in Different "CamelHumps"'
+                    description='Backspace to Word Start in Different "CamelHumps"'>
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.character.DeleteToWordEndNotEolAction"

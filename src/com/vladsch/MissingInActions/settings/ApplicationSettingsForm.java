@@ -48,11 +48,11 @@ public class ApplicationSettingsForm implements Disposable {
     private JComboBox myMouseModifier;
     private JBCheckBox myAutoIndent;
     private JBCheckBox mySelectPasted;
-    private JBCheckBox mySelectPastedLineOnly;
+    private JComboBox mySelectPastedPredicate;
     private JBCheckBox myUnselectToggleCase;
     private JSpinner myAutoIndentDelay;
     private JBCheckBox myDuplicateAtStartOrEnd;
-    private JBCheckBox myDuplicateAtStartOrEndLineOnly;
+    private JComboBox myDuplicateAtStartOrEndPredicate;
     private JBCheckBox myMouseCamelHumpsFollow;
     private CustomizedBoundaryForm myCustomizedNextWordBounds;
     private CustomizedBoundaryForm myCustomizedNextWordStartBounds;
@@ -61,6 +61,10 @@ public class ApplicationSettingsForm implements Disposable {
     private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
     private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm1;
+    private JBCheckBox myIsSelectionEndExtendedPastCaret;
+    private JBCheckBox myIsSelectionStartExtendedBeforeCaret;
+    private JBCheckBox myTypingDeletesLineSelection;
+    private JBCheckBox myIndentUnindent;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -71,8 +75,6 @@ public class ApplicationSettingsForm implements Disposable {
         mySelectPasted.addActionListener(e -> updateOptions(false));
         myDuplicateAtStartOrEnd.addActionListener(e -> updateOptions(false));
         myMouseCamelHumpsFollow.addActionListener(e -> updateOptions(false));
-        
-        
 
         updateOptions(true);
     }
@@ -88,24 +90,29 @@ public class ApplicationSettingsForm implements Disposable {
                 || AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue() != mySettings.getAutoLineMode()
                 || MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue() != mySettings.getMouseModifier()
                 || myMouseLineSelection.isSelected() != mySettings.isMouseLineSelection()
+                || myIsSelectionEndExtendedPastCaret.isSelected() != mySettings.isSelectionEndExtended()
+                || myIsSelectionStartExtendedBeforeCaret.isSelected() != mySettings.isSelectionStartExtended()
                 || myDeleteOperations.isSelected() != mySettings.isDeleteOperations()
                 || myUpDownMovement.isSelected() != mySettings.isUpDownMovement()
+                || myIndentUnindent.isSelected() != mySettings.isIndentUnindent()
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
                 || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
                 || myAutoIndent.isSelected() != mySettings.isAutoIndent()
                 || mySelectPasted.isSelected() != mySettings.isSelectPasted()
-                || mySelectPastedLineOnly.isSelected() != mySettings.isSelectPastedLineOnly()
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
                 || myDuplicateAtStartOrEnd.isSelected() != mySettings.isDuplicateAtStartOrEnd()
-                || myDuplicateAtStartOrEndLineOnly.isSelected() != mySettings.isDuplicateAtStartOrEndLineOnly()
-                || myMouseCamelHumpsFollow.isSelected() != mySettings.isMouseCamelHumpsFollow()
                 || (Integer) myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
-                || (myCustomizedNextWordBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordBounds() & ~wordMask)
-                || (myCustomizedPrevWordBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
-                || (myCustomizedNextWordStartBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordStartBounds() & ~wordMask)
-                || (myCustomizedPrevWordStartBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
-                || (myCustomizedNextWordEndBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedNextWordEndBounds() & ~wordMask)
-                || (myCustomizedPrevWordEndBounds.getValue()  & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
+                || (myCustomizedNextWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordBounds() & ~wordMask)
+                || myMouseCamelHumpsFollow.isSelected() != mySettings.isMouseCamelHumpsFollow()
+                || myTypingDeletesLineSelection.isSelected() != mySettings.isTypingDeletesLineSelection()
+                || (myCustomizedPrevWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
+                || (myCustomizedNextWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordStartBounds() & ~wordMask)
+                || (myCustomizedPrevWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
+                || (myCustomizedNextWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordEndBounds() & ~wordMask)
+                || (myCustomizedPrevWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
+
+                || SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue != mySettings.getSelectPastedPredicate()
+                || SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue != mySettings.getDuplicateAtStartOrEndPredicate()
                 ;
     }
 
@@ -113,17 +120,19 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setAutoLineMode(AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue());
         mySettings.setMouseModifier(MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue());
         mySettings.setMouseLineSelection(myMouseLineSelection.isSelected());
+        mySettings.setSelectionEndExtended(myIsSelectionEndExtendedPastCaret.isSelected());
+        mySettings.setSelectionStartExtended(myIsSelectionStartExtendedBeforeCaret.isSelected());
         mySettings.setDeleteOperations(myDeleteOperations.isSelected());
         mySettings.setUpDownMovement(myUpDownMovement.isSelected());
+        mySettings.setIndentUnindent(myIndentUnindent.isSelected());
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
         mySettings.setUpDownSelection(myUpDownSelection.isSelected());
         mySettings.setAutoIndent(myAutoIndent.isSelected());
         mySettings.setSelectPasted(mySelectPasted.isSelected());
-        mySettings.setSelectPastedLineOnly(mySelectPastedLineOnly.isSelected());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
         mySettings.setDuplicateAtStartOrEnd(myDuplicateAtStartOrEnd.isSelected());
-        mySettings.setDuplicateAtStartOrEndLineOnly(myDuplicateAtStartOrEndLineOnly.isSelected());
         mySettings.setMouseCamelHumpsFollow(myMouseCamelHumpsFollow.isSelected());
+        mySettings.setTypingDeletesLineSelection(myTypingDeletesLineSelection.isSelected());
         mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
         mySettings.setCustomizedNextWordBounds(myCustomizedNextWordBounds.getValue());
         mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
@@ -131,6 +140,9 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setCustomizedPrevWordStartBounds(myCustomizedPrevWordStartBounds.getValue());
         mySettings.setCustomizedNextWordEndBounds(myCustomizedNextWordEndBounds.getValue());
         mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
+
+        mySettings.setSelectPastedPredicate(SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue);
+        mySettings.setDuplicateAtStartOrEndPredicate(SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue);
 
         if (mySettings.isMouseCamelHumpsFollow()) {
             EditorSettingsExternalizable settings = EditorSettingsExternalizable.getInstance();
@@ -142,17 +154,23 @@ public class ApplicationSettingsForm implements Disposable {
         myAutoLineMode.setSelectedItem(AutoLineSettingType.ADAPTER.findEnum(mySettings.getAutoLineMode()).getDisplayName());
         myMouseModifier.setSelectedItem(MouseModifierType.ADAPTER.findEnum(mySettings.getMouseModifier()).getDisplayName());
         myMouseLineSelection.setSelected(mySettings.isMouseLineSelection());
+        myIsSelectionEndExtendedPastCaret.setSelected(mySettings.isSelectionEndExtended());
+        myIsSelectionStartExtendedBeforeCaret.setSelected(mySettings.isSelectionStartExtended());
         myDeleteOperations.setSelected(mySettings.isDeleteOperations());
         myUpDownMovement.setSelected(mySettings.isUpDownMovement());
+        myIndentUnindent.setSelected(mySettings.isIndentUnindent());
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
         myUpDownSelection.setSelected(mySettings.isUpDownSelection());
         myAutoIndent.setSelected(mySettings.isAutoIndent());
         mySelectPasted.setSelected(mySettings.isSelectPasted());
-        mySelectPastedLineOnly.setSelected(mySettings.isSelectPastedLineOnly());
+
+        mySelectPastedPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getSelectPastedPredicate()).displayName);
+        myDuplicateAtStartOrEndPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getDuplicateAtStartOrEndPredicate()).displayName);
+
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
-        myDuplicateAtStartOrEndLineOnly.setSelected(mySettings.isDuplicateAtStartOrEndLineOnly());
         myMouseCamelHumpsFollow.setSelected(mySettings.isMouseCamelHumpsFollow());
+        myTypingDeletesLineSelection.setSelected(mySettings.isTypingDeletesLineSelection());
         myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
         myCustomizedNextWordBounds.setValue(mySettings.getCustomizedNextWordBounds());
         myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
@@ -168,11 +186,13 @@ public class ApplicationSettingsForm implements Disposable {
 
     }
 
+    @SuppressWarnings("ConstantConditions")
     void updateOptions(boolean typeChanged) {
         AutoLineSettingType type = AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem());
         boolean enabled = false;
         boolean selected = false;
         boolean untestedSelected = false;
+        boolean forced = false;
 
         if (type == AutoLineSettingType.ENABLED) {
             enabled = false;
@@ -180,6 +200,7 @@ public class ApplicationSettingsForm implements Disposable {
         } else if (type == AutoLineSettingType.EXPERT) {
             enabled = true;
             selected = true;
+            forced = true;
         } else {
             typeChanged = true;
         }
@@ -187,20 +208,24 @@ public class ApplicationSettingsForm implements Disposable {
         if (typeChanged) myMouseLineSelection.setSelected(selected);
         if (typeChanged) myUpDownSelection.setSelected(selected);
 
-        boolean modeEnabled = myMouseLineSelection.isSelected() || myUpDownSelection.isSelected();
-        if (typeChanged || !modeEnabled) myDeleteOperations.setSelected(selected && modeEnabled);
-        if (typeChanged || !modeEnabled) myLeftRightMovement.setSelected(selected && modeEnabled);
-        if (typeChanged || !modeEnabled) myUpDownMovement.setSelected(selected && modeEnabled);
+        boolean modeEnabled = true;// || myMouseLineSelection.isSelected() || myUpDownSelection.isSelected();
+        if (typeChanged && !forced) myDeleteOperations.setSelected(selected && modeEnabled);
+        if (typeChanged && !forced && !modeEnabled) myLeftRightMovement.setSelected(false);
+        if (typeChanged && !forced) myUpDownMovement.setSelected(selected && modeEnabled);
+        if (typeChanged && !forced) myIndentUnindent.setSelected(selected && modeEnabled);
 
         myMouseLineSelection.setEnabled(selected);
+        myIsSelectionEndExtendedPastCaret.setEnabled(selected || forced);
+        myIsSelectionStartExtendedBeforeCaret.setEnabled(selected || forced);
         myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
         myUpDownSelection.setEnabled(enabled);
         myUpDownMovement.setEnabled(enabled && modeEnabled);
+        myIndentUnindent.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
-        mySelectPastedLineOnly.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
+        mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
 
-        myDuplicateAtStartOrEndLineOnly.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
+        myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
 
         boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
@@ -240,6 +265,13 @@ public class ApplicationSettingsForm implements Disposable {
         myAutoLineMode = new JComboBox();
         AutoLineSettingType.fillComboBox(myAutoLineMode);
         myAutoLineMode.addActionListener(e -> updateOptions(true));
+
+        mySelectPastedPredicate = new JComboBox();
+        SelectionPredicateType.fillComboBox(mySelectPastedPredicate);
+
+        myDuplicateAtStartOrEndPredicate = new JComboBox();
+        SelectionPredicateType.fillComboBox(myDuplicateAtStartOrEndPredicate);
+
         myMouseModifier = new JComboBox();
         MouseModifierType.fillComboBox(myMouseModifier);
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);

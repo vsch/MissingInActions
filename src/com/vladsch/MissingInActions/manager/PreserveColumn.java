@@ -21,9 +21,28 @@
 
 package com.vladsch.MissingInActions.manager;
 
-public enum ActionSetType {
-    PASTE_ACTION,
-    MOVE_LINE_UP_AUTO_INDENT_TRIGGER,
-    MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER,
-    SELECTING_ACTION, CUT_ACTION, DUPLICATE_ACTION,
+public enum PreserveColumn {
+    PRESERVE_COLUMN(1),
+    INDENT_RELATIVE(2),
+    WITH_SELECTION(4),
+    WITH_LINES(8),
+    WITH_LINE_SELECTION(16);
+
+    final int flags;
+    
+    public static boolean has(int flags, PreserveColumn option) {
+        return (flags & option.flags) != 0;
+    }
+
+    public static int getFlags(PreserveColumn...options) {
+        int flags = 0;
+        for (PreserveColumn option : options) {
+            flags |= option.flags;
+        }
+        return flags;
+    }
+
+    PreserveColumn(int flags) {
+        this.flags = flags;
+    }
 }

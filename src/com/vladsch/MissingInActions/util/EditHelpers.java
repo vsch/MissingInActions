@@ -27,8 +27,8 @@ import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
 import com.vladsch.MissingInActions.manager.EditorPosition;
+import com.vladsch.MissingInActions.manager.LineSelectionState;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -155,6 +155,7 @@ public class EditHelpers {
                 newOffset = Math.min(boundaryOffset, newOffset);
             }
         }
+        
         caretModel.moveToOffset(newOffset);
         EditorModificationUtil.scrollToCaret(editor);
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
@@ -170,7 +171,7 @@ public class EditHelpers {
         LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
         boolean haveMultiCarets = caretModel.getCaretCount() > 1;
 
-        int offset = editor.getCaretModel().getOffset();
+        int offset = caretModel.getOffset();
         if (offset == 0) return;
 
         boolean stopAtTrailingBlanks = isSet(flags, START_OF_TRAILING_BLANKS);
@@ -184,7 +185,7 @@ public class EditHelpers {
         boolean strictIdentifier = isSet(flags, IDENTIFIER);
         boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
-        LogicalPosition position = editor.getCaretModel().getLogicalPosition();
+        LogicalPosition position = caretModel.getLogicalPosition();
         int lineNumber = position.line;
         int stopAtIndent = 0;
 
@@ -194,7 +195,7 @@ public class EditHelpers {
         if (stopAtTrailingBlanks) {
             int lineEndOffset = document.getLineEndOffset(lineNumber);
             int trailingBlanks = countWhiteSpaceReversed(document.getCharsSequence(), lineStartOffset, lineEndOffset);
-            if (caretModel.getOffset() > lineEndOffset - trailingBlanks) {
+            if (offset > lineEndOffset - trailingBlanks) {
                 stopAtIndent = lineEndOffset - trailingBlanks;
             }
         }
@@ -255,6 +256,7 @@ public class EditHelpers {
         } else {
             editor.getCaretModel().moveToOffset(newOffset);
         }
+        
         EditorModificationUtil.scrollToCaret(editor);
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
     }
@@ -279,10 +281,7 @@ public class EditHelpers {
         return isIdentifierEnd(chars, offset, isCamel);
     }
 
-    private static void setupSelection(@NotNull Editor editor,
-            boolean isWithSelection,
-            int selectionStart,
-            @NotNull LogicalPosition blockSelectionStart) {
+    private static void setupSelection(@NotNull Editor editor, boolean isWithSelection, int selectionStart, @NotNull LogicalPosition blockSelectionStart) {
         SelectionModel selectionModel = editor.getSelectionModel();
         CaretModel caretModel = editor.getCaretModel();
         if (isWithSelection) {
@@ -481,7 +480,7 @@ public class EditHelpers {
         } else {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             LineSelectionState state = manager.getSelectionState(caret);
-            if (state.isLine()) {
+            if (state.isLine) {
                 EditorPositionFactory f = manager.getPositionFactory();
                 EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
                 EditorPosition selStart = f.fromOffset(start);
