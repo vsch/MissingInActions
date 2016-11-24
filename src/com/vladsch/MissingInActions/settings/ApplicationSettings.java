@@ -44,18 +44,21 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myMouseLineSelection = false;
     private boolean myDeleteOperations = false;
     private boolean myUpDownMovement = false;
+    private boolean myIndentUnindent = false;
     private boolean myLeftRightMovement = false;
     private boolean myUpDownSelection = false;
     private int myAutoIndentDelay = 300;
     private boolean myAutoIndent = false;
     private boolean mySelectPasted = false;
-    private boolean mySelectPastedLineOnly = true;
+    private int mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
     private boolean myUnselectToggleCase = false;
     private boolean myWeSetVirtualSpace = true;
     private boolean myDuplicateAtStartOrEnd = false;
-    private boolean myDuplicateAtStartOrEndLineOnly = true;
+    private int myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private boolean myMouseCamelHumpsFollow = false;
-    private boolean mySelectionExtendsPastCaret = false;
+    private boolean myIsSelectionEndExtended = false;
+    private boolean myIsSelectionStartExtended = true;
+    private boolean myTypingDeletesLineSelection = false;
 
     // customized word flags
     @SuppressWarnings("ConstantConditionalExpression")
@@ -87,12 +90,36 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         );
     }
 
-    public boolean isSelectionExtendsPastCaret() {
-        return mySelectionExtendsPastCaret;
+    public boolean isIndentUnindent() {
+        return myIndentUnindent;
     }
 
-    public void setSelectionExtendsPastCaret(boolean selectionExtendsPastCaret) {
-        mySelectionExtendsPastCaret = selectionExtendsPastCaret;
+    public void setIndentUnindent(boolean indentUnindent) {
+        myIndentUnindent = indentUnindent;
+    }
+
+    public boolean isTypingDeletesLineSelection() {
+        return myTypingDeletesLineSelection;
+    }
+
+    public void setTypingDeletesLineSelection(boolean typingDeletesLineSelection) {
+        myTypingDeletesLineSelection = typingDeletesLineSelection;
+    }
+
+    public boolean isSelectionStartExtended() {
+        return myIsSelectionStartExtended;
+    }
+
+    public void setSelectionStartExtended(boolean selectionStartExtended) {
+        myIsSelectionStartExtended = selectionStartExtended;
+    }
+
+    public boolean isSelectionEndExtended() {
+        return myIsSelectionEndExtended;
+    }
+
+    public void setSelectionEndExtended(boolean selectionEndExtended) {
+        myIsSelectionEndExtended = selectionEndExtended;
     }
 
     public boolean isMouseCamelHumpsFollow() {
@@ -151,12 +178,12 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myCustomizedPrevWordEndBounds = customizedPrevWordEndBounds | END_OF_WORD;
     }
 
-    public boolean isDuplicateAtStartOrEndLineOnly() {
-        return myDuplicateAtStartOrEndLineOnly;
+    public int getDuplicateAtStartOrEndPredicate() {
+        return myDuplicateAtStartOrEndPredicate;
     }
 
-    public void setDuplicateAtStartOrEndLineOnly(boolean duplicateAtStartOrEndLineOnly) {
-        myDuplicateAtStartOrEndLineOnly = duplicateAtStartOrEndLineOnly;
+    public void setDuplicateAtStartOrEndPredicate(int duplicateAtStartOrEndPredicate) {
+        myDuplicateAtStartOrEndPredicate = duplicateAtStartOrEndPredicate;
     }
 
     public boolean isDuplicateAtStartOrEnd() {
@@ -175,12 +202,12 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myWeSetVirtualSpace = weSetVirtualSpace;
     }
 
-    public boolean isSelectPastedLineOnly() {
-        return mySelectPastedLineOnly;
+    public int getSelectPastedPredicate() {
+        return mySelectPastedPredicate;
     }
 
-    public void setSelectPastedLineOnly(boolean selectPastedLineOnly) {
-        mySelectPastedLineOnly = selectPastedLineOnly;
+    public void setSelectPastedPredicate(int selectPastedPredicate) {
+        mySelectPastedPredicate = selectPastedPredicate;
     }
 
     public boolean isUnselectToggleCase() {

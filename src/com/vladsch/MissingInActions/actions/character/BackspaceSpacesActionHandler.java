@@ -29,6 +29,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.vladsch.MissingInActions.manager.EditorPosition;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 
 public class BackspaceSpacesActionHandler extends EditorWriteActionHandler {
@@ -51,11 +53,17 @@ public class BackspaceSpacesActionHandler extends EditorWriteActionHandler {
 
     static void deleteSpaces(Editor editor) {
         int endOffset = editor.getCaretModel().getOffset();
+        EditorPosition pos = LineSelectionManager.getInstance(editor).getPositionFactory().fromOffset(endOffset);
+        int trailingSpacesCol = pos.getTrimmedEndColumn();
+        if (endOffset == pos.atStartOfNextLine().getOffset()) {
+            endOffset--;
+        }               
         int startOffset = getSpacesEndOffset(editor, endOffset);
         if (endOffset > startOffset) {
             Document document = editor.getDocument();
             document.deleteString(startOffset, endOffset);
         }
+        editor.getCaretModel().moveToOffset(startOffset);
     }
 
     private static int getSpacesEndOffset(Editor editor, int offset) {
@@ -65,11 +73,11 @@ public class BackspaceSpacesActionHandler extends EditorWriteActionHandler {
         if (offset == 0)
             return offset;
 
-        int newOffset = offset - 1;
+        int newOffset = offset;
         int lineNumber = editor.getCaretModel().getLogicalPosition().line;
         int minOffset = document.getLineStartOffset(lineNumber);
 
-        if (newOffset < minOffset) {
+        if (newOffset-1 < minOffset) {
             return offset;
         }
 

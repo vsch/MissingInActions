@@ -21,42 +21,59 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import org.jetbrains.annotations.Nullable;
+
 @SuppressWarnings("WeakerAccess")
 public class LineSelectionState {
-    final int myAnchorOffset;
-    final boolean myIsStartAnchor;
-    final boolean myIsLine;
+    final public @Nullable EditorPosition anchorPosition;
+    final public boolean isStartAnchor;
+    final public boolean isLine;
+    final public boolean hadSelection;
+    final public boolean hadLineSelection;
+    final public int preservedColumn; 
+    final public int preservedIndent; 
 
-    LineSelectionState(int anchorOffset, boolean isStartAnchor, boolean isLine) {
-        myAnchorOffset = anchorOffset;
-        myIsStartAnchor = isStartAnchor;
-        myIsLine = isLine;
+    LineSelectionState(@Nullable EditorPosition anchorPosition, boolean isStartAnchor, boolean isLine, boolean hadSelection, boolean hadLineSelection, int preservedColumn, int preservedIndent) {
+        this.anchorPosition = anchorPosition;
+        this.isStartAnchor = isStartAnchor;
+        this.isLine = isLine;
+        this.hadSelection = hadSelection;
+        this.hadLineSelection = hadLineSelection;
+        this.preservedColumn = preservedColumn;
+        this.preservedIndent = preservedIndent;
     }
 
     LineSelectionState(LineSelectionState other) {
-        myAnchorOffset = other.myAnchorOffset;
-        myIsStartAnchor = other.myIsStartAnchor;
-        myIsLine = other.myIsLine;
+        this.anchorPosition = other.anchorPosition;
+        this.isStartAnchor = other.isStartAnchor;
+        this.isLine = other.isLine;
+        this.hadSelection = other.hadSelection;
+        this.hadLineSelection = other.hadLineSelection;
+        this.preservedColumn = other.preservedColumn;
+        this.preservedIndent = other.preservedIndent;
     }
 
-    public int getAnchorOffset() {
-        return myAnchorOffset;
-    }
+    public LineSelectionState(int preservedColumn, int preservedIndent) {
+        this.anchorPosition = null;
+        this.isStartAnchor = false;
+        this.isLine = false;
+        this.hadSelection = false;
+        this.hadLineSelection = false;
 
-    public boolean isStartAnchor() {
-        return myIsStartAnchor;
-    }
-
-    public boolean isLine() {
-        return myIsLine;
+        this.preservedColumn = preservedColumn;
+        this.preservedIndent = preservedIndent;
     }
 
     @Override
     public String toString() {
         return "LineSelectionState{" +
-                "myAnchorOffset=" + myAnchorOffset +
-                ", myIsLine=" + myIsLine +
-                ", myIsStartAnchor=" + myIsStartAnchor +
+                "anchorPosition=" + anchorPosition +
+                ", isLine=" + isLine +
+                ", hadSelection=" + hadSelection +
+                ", hadLineSelection=" + hadLineSelection +
+                ", isStartAnchor=" + isStartAnchor +
+                ", preservedColumn=" + preservedColumn +
+                ", preservedIndent=" + preservedIndent +
                 '}';
     }
 }

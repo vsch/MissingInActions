@@ -69,7 +69,7 @@ public class Plugin implements ApplicationComponent, EditorFactoryListener, Disp
     }
 
     public static boolean isSelectionExtendsPastCaret() {
-        return ApplicationSettings.getInstance().isSelectionExtendsPastCaret();
+        return ApplicationSettings.getInstance().isSelectionEndExtended();
     }
 
     @NotNull

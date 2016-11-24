@@ -96,20 +96,20 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                 // if not line selection then we convert it to line selection, next time to carets
                 final DocumentEx doc = editor.getDocument();
                 EditorPosition pos = editorCaret.getCaretPosition();
-                
+
                 if (editorCaret.isLine()) {
                     EditorPosition selStart = f.fromOffset(selectionModel.getSelectionStart());
                     EditorPosition selEnd = f.fromOffset(selectionModel.getSelectionEnd());
 
                     caretModel.removeSecondaryCarets();
-                    
+
                     selectionModel.removeSelection();
                     editor.setColumnMode(false);
 
                     int selectionLineCount = editorCaret.getSelectionLineCount();
                     if (selectionLineCount == 1) {
                         // one liner, we restore char selection
-                        editorCaret.setCharSelection()
+                        editorCaret.toCharSelection()
                                 .commit();
                     } else {
                         int endLine = selStart.line + selectionLineCount;
@@ -130,7 +130,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                                     caret.moveToLogicalPosition(editorPosition);
                                     int offset = editorPosition.getOffset();
                                     caret.setSelection(offset, offset);
-                                    manager.resetSelectionState(caret);
+                                    manager.resetSelectionState(caret, false);
                                 }
                                 first = false;
                             }

@@ -47,29 +47,29 @@ abstract public class AbstractNextOrPrevWordHandler extends EditorActionHandler 
     protected void doExecute(Editor editor, @Nullable Caret caret, DataContext dataContext) {
         assert caret != null;
 
+        boolean withSelection = isWithSelection();
+        boolean isNext = isNext();
+        boolean differentHumpsMode = isInDifferentHumpsMode();
+        int boundaryFlags = getBoundaryFlags();
+        
         if (EditorUtil.isPasswordEditor(editor)) {
             int selectionStartOffset = caret.getLeadSelectionOffset();
-            caret.moveToOffset(isNext() ? editor.getDocument().getTextLength() : 0);
-            if (isWithSelection()) caret.setSelection(selectionStartOffset, caret.getOffset());
+            caret.moveToOffset(isNext ? editor.getDocument().getTextLength() : 0);
+            if (withSelection) caret.setSelection(selectionStartOffset, caret.getOffset());
         } else {
-            EditorCaret editorCaret = LineSelectionManager.getInstance(editor).getEditorCaret(caret);
-            editorCaret.setCharSelection()
-                    .normalizeCaretPosition()
-                    .commit();
-            
             VisualPosition currentPosition = caret.getVisualPosition();
-            if (caret.isAtBidiRunBoundary() && (isNext() ^ currentPosition.leansRight)) {
+            if (caret.isAtBidiRunBoundary() && (isNext ^ currentPosition.leansRight)) {
                 int selectionStartOffset = caret.getLeadSelectionOffset();
                 VisualPosition selectionStartPosition = caret.getLeadSelectionPosition();
                 caret.moveToVisualPosition(currentPosition.leanRight(!currentPosition.leansRight));
-                if (isWithSelection()) {
+                if (withSelection) {
                     caret.setSelection(selectionStartPosition, selectionStartOffset, caret.getVisualPosition(), caret.getOffset());
                 }
             } else {
-                if (isNext() ^ caret.isAtRtlLocation()) {
-                    EditHelpers.moveCaretToNextWordStartOrEnd(editor, isWithSelection(), isInDifferentHumpsMode() ^ editor.getSettings().isCamelWords(), getBoundaryFlags());
+                if (isNext ^ caret.isAtRtlLocation()) {
+                    EditHelpers.moveCaretToNextWordStartOrEnd(editor, withSelection, differentHumpsMode ^ editor.getSettings().isCamelWords(), boundaryFlags);
                 } else {
-                    EditHelpers.moveCaretToPreviousWordStartOrEnd(editor, isWithSelection(), isInDifferentHumpsMode() ^ editor.getSettings().isCamelWords(), getBoundaryFlags());
+                    EditHelpers.moveCaretToPreviousWordStartOrEnd(editor, withSelection, differentHumpsMode ^ editor.getSettings().isCamelWords(), boundaryFlags);
                 }
             }
         }

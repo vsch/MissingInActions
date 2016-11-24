@@ -35,7 +35,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
 import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
@@ -81,12 +80,12 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
         if (editorCaret.hasSelection()) {
             if (editorCaret.isLine()) {
                 if (wantCharacter()) {
-                    editorCaret.setCharSelection()
+                    editorCaret.toCharSelection()
                             .normalizeCaretPosition()
                             .commit();
                 }
             } else if (wantLine()) {
-                editorCaret.setLineSelection()
+                editorCaret.toLineSelection()
                         .normalizeCaretPosition()
                         .commit();
             }

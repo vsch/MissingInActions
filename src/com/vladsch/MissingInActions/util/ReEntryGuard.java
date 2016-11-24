@@ -22,10 +22,14 @@
 package com.vladsch.MissingInActions.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReEntryGuard extends AtomicInteger {
+    private @Nullable HashSet<Runnable> myOnExitRunnables = null;
+
     public ReEntryGuard(int initialValue) {
         super(initialValue);
     }
@@ -33,9 +37,34 @@ public class ReEntryGuard extends AtomicInteger {
     public ReEntryGuard() {
     }
 
+    private void decrementAndCheckExit() {
+        int exited = decrementAndGet();
+
+        if (exited == 0 && myOnExitRunnables != null && !myOnExitRunnables.isEmpty()) {
+            for (Runnable runnable : myOnExitRunnables) {
+                runnable.run();
+            }
+
+            myOnExitRunnables.clear();
+        }
+    }
+
     public void ifUnguarded(@NotNull Runnable runnable) {
+        ifUnguarded(runnable, null);
+    }
+
+    public void ifUnguarded(@NotNull Runnable runnable, boolean ifGuardedRunOnExit) {
+        ifUnguarded(runnable, ifGuardedRunOnExit ? runnable : null);
+    }
+
+    public void ifUnguarded(@NotNull Runnable runnable, @Nullable Runnable runOnGuardExit) {
         if (getAndIncrement() == 0) {
             runnable.run();
+        } else if (runOnGuardExit != null) {
+            synchronized (this) {
+                if (myOnExitRunnables == null) myOnExitRunnables = new HashSet<>();
+                myOnExitRunnables.add(runOnGuardExit);
+            }
         }
         decrementAndGet();
     }
@@ -43,15 +72,7 @@ public class ReEntryGuard extends AtomicInteger {
     public void guard(@NotNull Runnable runnable) {
         incrementAndGet();
         runnable.run();
-        decrementAndGet();
-    }
-
-    public void guard(boolean predicate, @NotNull Runnable runnable) {
-        if (predicate) {
-            incrementAndGet();
-            runnable.run();
-            decrementAndGet();
-        }
+        decrementAndCheckExit();
     }
 
     public boolean unguarded() {

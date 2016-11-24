@@ -40,7 +40,7 @@ public class CancelableJobScheduler {
 
     final private SortedArrayList<MyRunnable> myRunnables = new SortedArrayList<>(Comparator.comparingLong(o -> o.myScheduledTickTime));
     private AtomicLong myTickTime;
-    final private int myResolution = 50;
+    final private int myResolution = 25;
     final private TimeUnit myTimeUnit = TimeUnit.MILLISECONDS;
 
     public CancelableJobScheduler() {

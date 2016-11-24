@@ -65,11 +65,11 @@ public class DeleteSpacesActionHandler extends EditorWriteActionHandler {
         if (offset >= document.getTextLength() - 1)
             return offset;
 
-        int newOffset = offset + 1;
+        int newOffset = offset;
         int lineNumber = editor.getCaretModel().getLogicalPosition().line;
         int maxOffset = document.getLineEndOffset(lineNumber);
 
-        if (newOffset > maxOffset) {
+        if (newOffset + 1 > maxOffset) {
             return offset;
         }
 

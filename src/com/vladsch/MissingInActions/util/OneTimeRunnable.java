@@ -21,13 +21,9 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.concurrency.JobScheduler;
 import com.intellij.openapi.application.ApplicationManager;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javax.swing.SwingUtilities.isEventDispatchThread;
@@ -40,19 +36,16 @@ import static javax.swing.SwingUtilities.isEventDispatchThread;
  * <p>
  * Useful for triggering actions after a delay that may need to be run before the delay triggers
  */
-public class OneTimeRunnable implements CancellableRunnable {
-    final private Runnable myCommand;
+public class OneTimeRunnable extends AwtRunnable implements CancellableRunnable {
     final private AtomicBoolean myHasRun;
-    final private boolean myAwtThread;
 
     public OneTimeRunnable(Runnable command) {
         this(false, command);
     }
 
     public OneTimeRunnable(boolean awtThread, Runnable command) {
-        myCommand = command;
+        super(awtThread, command);
         myHasRun = new AtomicBoolean(false);
-        myAwtThread = awtThread;
     }
 
     /**
@@ -66,11 +59,11 @@ public class OneTimeRunnable implements CancellableRunnable {
 
     @Override
     public void run() {
-        if (myAwtThread && !isEventDispatchThread()) {
+        if (isAwtThread() && !isEventDispatchThread()) {
             ApplicationManager.getApplication().invokeLater(this);
         } else {
             if (!myHasRun.getAndSet(true)) {
-                myCommand.run();
+                super.run();
             }
         }
     }

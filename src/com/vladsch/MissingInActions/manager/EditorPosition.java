@@ -22,10 +22,14 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.editor.ScrollType;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
+@SuppressWarnings("WeakerAccess")
 public class EditorPosition extends LogicalPosition {
     final private @NotNull EditorPositionFactory myFactory;
     private int myIndentColumn;
@@ -45,6 +49,7 @@ public class EditorPosition extends LogicalPosition {
     }
 
     @SuppressWarnings("WeakerAccess")
+    @NotNull
     public EditorPosition atPosition(int line, int column) {
         if (column < 0) column = 0;
         if (line < 0) line = 0;
@@ -52,22 +57,27 @@ public class EditorPosition extends LogicalPosition {
         return this.line == line && this.column == column ? this : new EditorPosition(myFactory, line, column);
     }
 
+    @NotNull
     public EditorPosition onLine(int line) {
         return atPosition(line, column);
     }
 
+    @NotNull
     public EditorPosition atColumn(int column) {
         return atPosition(line, column);
     }
 
+    @NotNull
     public EditorPosition atColumn(@Nullable LogicalPosition other) {
         return other == null ? this : atColumn(other.column);
     }
 
+    @NotNull
     public EditorPosition onLine(@Nullable LogicalPosition other) {
         return other == null ? this : onLine(other.line);
     }
 
+    @NotNull
     public EditorPosition atStartOfLine() {
         return atPosition(line, 0);
     }
@@ -76,6 +86,7 @@ public class EditorPosition extends LogicalPosition {
         return myFactory.getOffset(this);
     }
 
+    @NotNull
     public EditorPosition atEndOfLine() {
         if (line < myFactory.getDocumentLineCount()) {
             int lineOffset = column > 0 ? 1 : 0;
@@ -85,6 +96,7 @@ public class EditorPosition extends LogicalPosition {
         }
     }
 
+    @NotNull
     public EditorPosition atStartOfNextLine() {
         if (line < myFactory.getDocumentLineCount()) {
             return atPosition(line + 1, 0);
@@ -109,18 +121,54 @@ public class EditorPosition extends LogicalPosition {
         return result;
     }
 
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
+    public EditorPosition toExpandedOrTrimmedFullLine() {
+        EditorPosition result = this;
+        if (column != 0) {
+            if (column >= getTrimmedEndColumn()) {
+                // all after start and before end is blank, we can safely convert it to by trimming out the empty first and last line of the selection
+                result = atEndOfLine();
+            } else if (column <= getIndentColumn()) {
+                // all before start and after end is blank, we can safely convert it by expanding to full lines
+                result = atStartOfLine();
+            }
+        }
+        return result;
+    }
+
+    public void scrollTo(ScrollType scrollType) {
+        myFactory.getEditor().getScrollingModel().scrollTo(this, scrollType);
+    }
+
     public boolean equals(EditorPosition other) {
         return line == other.line && column == other.column;
     }
 
+    @NotNull
     public EditorPosition addLine(int i) {
         int lineCount = myFactory.getDocumentLineCount();
         int useLine = line + i > lineCount ? lineCount : line + i < 0 ? 0 : line + i;
         return line != useLine ? onLine(useLine) : this;
     }
 
+    @NotNull
     public EditorPosition addColumn(int i) {
         return (i > 0) || (i < 0 && column >= i) ? atColumn(column + i) : this;
+    }
+
+    @NotNull
+    public EditorPosition addLine(int i, @NotNull Function<EditorPosition, EditorPosition> onSame) {
+        EditorPosition position = addLine(i);
+        if (position == this) return onSame.apply(position);
+        else return position;
+    }
+
+    @NotNull
+    public EditorPosition addColumn(int i, @NotNull Function<EditorPosition, EditorPosition> onSame) {
+        EditorPosition position = addColumn(i);
+        if (position == this) return onSame.apply(position);
+        else return position;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -158,7 +206,8 @@ public class EditorPosition extends LogicalPosition {
         return column != 0 && column <= getIndentColumn() ? atStartOfLine() : this;
     }
 
+    @NotNull
     public EditorPosition atOffset(int offset) {
-        return myFactory.fromOffset(offset);
+        return offset == getOffset() ? this : myFactory.fromOffset(offset);
     }
 }
