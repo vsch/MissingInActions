@@ -52,7 +52,7 @@ import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_ARE
  */
 public class LineSelectionManager implements
         CaretListener
-        , SelectionListener
+        //, SelectionListener
         , EditorMouseListener
         , EditorMouseMotionListener
         , Disposable
@@ -77,7 +77,7 @@ public class LineSelectionManager implements
     private boolean myIsSelectionEndExtended;
     private boolean myIsSelectionStartExtended;
 
-    private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
+    //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private AwtRunnable myHighlightCaretsRunnable = new AwtRunnable(true, this::highlightCarets);
 
     @Override
@@ -86,6 +86,11 @@ public class LineSelectionManager implements
         myDelayedRunner.runAll();
         myActionSelectionAdjuster.dispose();
         myMessageBusConnection.disconnect();
+    }
+
+    @NotNull
+    public static LineSelectionManager getInstance(@NotNull Editor editor) {
+        return Plugin.getInstance().getSelectionAdjuster(editor);
     }
 
     public LineSelectionManager(Editor editor) {
@@ -122,63 +127,8 @@ public class LineSelectionManager implements
     }
 
     @NotNull
-    public EditorCaret getEditorCaret(@NotNull Caret caret, PreserveColumn... options) {
-        boolean doPreserveColumn = false;
-        boolean indentRelative = false;
-        StoredLineSelectionState state = getStoredSelectionState(caret);
-
-        if (options.length > 0) {
-            int flags = PreserveColumn.getFlags(options);
-            boolean preserveColumn = PreserveColumn.has(flags, PreserveColumn.PRESERVE_COLUMN);
-            indentRelative = PreserveColumn.has(flags, PreserveColumn.INDENT_RELATIVE);
-            boolean selectionOnly = PreserveColumn.has(flags, PreserveColumn.WITH_SELECTION);
-            boolean withLinesOnly = PreserveColumn.has(flags, PreserveColumn.WITH_LINES);
-            boolean lineOnly = PreserveColumn.has(flags, PreserveColumn.WITH_LINE_SELECTION);
-
-            preserveColumn |= indentRelative;
-            selectionOnly |= withLinesOnly;
-
-            if (preserveColumn) {
-                    if (selectionOnly) {
-                        if (caret.hasSelection()) {
-
-                            if (withLinesOnly || lineOnly) {
-                                EditorPosition start = myPositionFactory.fromOffset(caret.getSelectionStart());
-                                EditorPosition end = myPositionFactory.fromOffset(caret.getSelectionEnd());
-
-                                if (start.line < end.line) {
-                                    if (lineOnly) {
-                                        if (start.column == 0 && end.column == 0) {
-                                            doPreserveColumn = true;
-                                        }
-                                    }
-                                } else if (withLinesOnly) {
-                                    doPreserveColumn = true;
-                                }
-                            } else {
-                                doPreserveColumn = true;
-                            }
-                        }
-                    } else {
-                        doPreserveColumn = true;
-                    }
-                }
-        }
-
-        if (doPreserveColumn) {
-            state.resetPreservedColumns();
-        }
-        
-        EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
-
-        if (doPreserveColumn) {
-            editorCaret.preserveColumn(indentRelative);
-            // we'll commit these now
-            state.preservedIndent = editorCaret.getPreservedIndent();
-            state.preservedColumn = editorCaret.getPreservedColumn();
-        }
-
-        return editorCaret;
+    public EditorCaret getEditorCaret(@NotNull Caret caret) {
+        return new EditorCaret(myPositionFactory, caret, getSelectionState(caret));
     }
 
     @NotNull
@@ -202,77 +152,22 @@ public class LineSelectionManager implements
     @NotNull
     public LineSelectionState getSelectionState(@NotNull Caret caret) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        return new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor, state.isLine, state.hadSelection, state.hadLineSelection, state.preservedColumn, state.preservedIndent);
+        return new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor);
     }
 
-    @SuppressWarnings("WeakerAccess")
-    @Nullable
-    public LineSelectionState getSelectionStateIfExists(@NotNull Caret caret) {
-        StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
-
-        if (state != null) {
-            return new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor, state.isLine, state.hadSelection, state.hadLineSelection, state.preservedIndent, state.preservedIndent);
-        }
-        return null;
-    }
-
-    void setLineSelectionState(@NotNull Caret caret, LineSelectionState state) {
-        setLineSelectionState(caret, state.anchorPosition, state.isStartAnchor, state.preservedColumn, state.preservedColumn, state.isLine, state.hadSelection, state.hadLineSelection);
-    }
-
-    void setLineSelectionState(@NotNull Caret caret, @Nullable LogicalPosition anchorPosition, boolean isStartAnchor, int preservedColumn, int indentColumn, boolean isLine, boolean hadSelection, boolean hadLineSelection) {
+    void setLineSelectionState(@NotNull Caret caret, @Nullable LogicalPosition anchorPosition, boolean isStartAnchor) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        //System.out.println("Commit Line: " + isStartAnchor + " anchorOffset: " + anchorOffset);
         state.anchorPosition = anchorPosition;
         state.isStartAnchor = isStartAnchor;
-        state.isLine = isLine;
-        state.hadSelection = hadSelection;
-        state.hadLineSelection = hadLineSelection;
-        state.preservedColumn = preservedColumn;
-        state.preservedIndent = indentColumn;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public boolean hasLineSelection(@NotNull Caret caret) {
-        if (caret.hasSelection()) {
-            StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
-            return state != null && state.isLine;
-        } else {
-            return false;
-        }
-    }
-
-    public void resetSelectionState(Caret caret, boolean keepRestoreColumn) {
+    public void resetSelectionState(Caret caret) {
         if (caret == caret.getCaretModel().getPrimaryCaret()) {
-            if (keepRestoreColumn) {
-                myPrimarySelectionState.resetToDefaultExceptPreservedColumns();
-            } else {
-                myPrimarySelectionState.resetToDefault();
-            }
+            myPrimarySelectionState.resetToDefault();
         } else {
             StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
             if (state != null) {
-                if (state.hasColumn() && keepRestoreColumn) {
-                    state.resetToDefaultExceptPreservedColumns();
-                } else {
-                    mySelectionStates.remove(caret);
-                }
-            }
-        }
-    }
-
-    public void clearPreservedColumnState(Caret caret) {
-        StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
-        if (state != null) {
-            state.resetPreservedColumns();
-        }
-    }
-
-    public void clearPreservedColumnStates() {
-        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-            StoredLineSelectionState state = getStoredSelectionStateIfExists(caret);
-            if (state != null) {
-                state.resetPreservedColumns();
+                mySelectionStates.remove(caret);
             }
         }
     }
@@ -376,10 +271,10 @@ public class LineSelectionManager implements
                 myEditor.getCaretModel().removeCaretListener(this);
             });
 
-            myEditor.getSelectionModel().addSelectionListener(this);
-            myDelayedRunner.addRunnable("CaretListener", () -> {
-                myEditor.getSelectionModel().removeSelectionListener(this);
-            });
+            //myEditor.getSelectionModel().addSelectionListener(this);
+            //myDelayedRunner.addRunnable("CaretListener", () -> {
+            //    myEditor.getSelectionModel().removeSelectionListener(this);
+            //});
 
             if (settings.isMouseLineSelection()) {
                 myEditor.addEditorMouseMotionListener(this);
@@ -392,25 +287,13 @@ public class LineSelectionManager implements
         }
     }
 
-    private static ApplicationSettings getSettings() {
-        return ApplicationSettings.getInstance();
-    }
-
+    @SuppressWarnings("WeakerAccess")
     public boolean isLineSelectionSupported() {
         return myEditor.getProject() != null && !myEditor.isOneLineMode();
     }
 
-    public boolean isMultiCaretSupported() {
-        return myEditor.getProject() != null && !myEditor.isOneLineMode() && myEditor.getCaretModel().supportsMultipleCarets();
-    }
-
     public void guard(Runnable runnable) {
         myCaretGuard.guard(runnable);
-    }
-
-    @NotNull
-    public static LineSelectionManager getInstance(@NotNull Editor editor) {
-        return Plugin.getInstance().getSelectionAdjuster(editor);
     }
 
     private void println(String message) {
@@ -508,7 +391,6 @@ public class LineSelectionManager implements
         StoredLineSelectionState state = getStoredSelectionState(caret);
         state.anchorPosition = myPositionFactory.fromOffset(mouseAnchor);
         state.isStartAnchor = isStartAnchor;
-        state.isLine = false;
 
         final EditorPosition start = myPositionFactory.fromOffset(startOffset);
         final EditorPosition end = myPositionFactory.fromOffset(endOffset);
@@ -518,7 +400,6 @@ public class LineSelectionManager implements
                 final EditorPosition pos = myPositionFactory.fromPosition(caret.getLogicalPosition());
                 caret.setSelection(startOffset, endOffset);
                 caret.moveToLogicalPosition(pos);
-                state.isLine = false;
 
                 if (finalAdjustment && state != myPrimarySelectionState) {
                     mySelectionStates.remove(caret);
@@ -546,20 +427,15 @@ public class LineSelectionManager implements
                         }
                     }
                     state.isStartAnchor = isStartAnchor;
-                    state.isLine = false;
                     caret.setSelection(isStartAnchor ? startOffset : caret.getOffset(), isStartAnchor ? caret.getOffset() : endOffset);
-                    EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor, state.isLine, state.hadSelection, state.hadLineSelection, caret.getLogicalPosition().column, -1));
+                    EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor));
                     editorCaret
                             .toCaretPositionBasedLineSelection(true, false)
                             .toCharSelectionForCaretPositionBasedLineSelection(isSelectionStartExtended(), isSelectionEndExtended())
                             .toCaretPositionBasedLineSelection(isSelectionStartExtended(), isSelectionEndExtended())
-                            //.toLineSelection()
-                            //.preserveColumn(caret.getLogicalPosition().column, false)
                             .normalizeCaretPosition()
                             .commit();
                 } else {
-                    state.isLine = true;
-
                     if (isStartAnchor) {
                         caret.setSelection(start.atStartOfLine().getOffset(), end.atStartOfLine().getOffset());
                     } else {
@@ -584,27 +460,22 @@ public class LineSelectionManager implements
         // clear any states for carets that don't have selection to eliminate using a stale state
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
             StoredLineSelectionState state = mySelectionStates.get(caret);
-            if (state != null && !state.hadSelection && !caret.hasSelection()) {
-                if (state.preservedColumn != -1) {
-                    if (state == myPrimarySelectionState) {
-                        state.resetToDefaultExceptPreservedColumns();
-                    } else {
-                        mySelectionStates.remove(caret);
-                    }
+            if (state != null) {
+                if (state == myPrimarySelectionState) {
+                    state.resetToDefault();
                 } else {
-                    // need the column so reset line state
-                    state.isLine = false;
+                    mySelectionStates.remove(caret);
                 }
             }
         }
     }
 
-    @Override
-    public void selectionChanged(SelectionEvent e) {
-        //if (e.getEditor() == myEditor) {
-        //    myCaretGuard.ifUnguarded(myInvalidateStoredLineStateRunnable, false);
-        //}
-    }
+    //@Override
+    //public void selectionChanged(SelectionEvent e) {
+    //    //if (e.getEditor() == myEditor) {
+    //    //    myCaretGuard.ifUnguarded(myInvalidateStoredLineStateRunnable, false);
+    //    //}
+    //}
 
     @Override
     public void caretAdded(CaretEvent e) {
@@ -616,7 +487,6 @@ public class LineSelectionManager implements
 
     @Override
     public void caretRemoved(CaretEvent e) {
-        //println("caretRemoved " + e.toString());
         mySelectionStates.remove(e.getCaret());
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
@@ -627,28 +497,10 @@ public class LineSelectionManager implements
     private static class StoredLineSelectionState {
         @Nullable LogicalPosition anchorPosition = null;
         boolean isStartAnchor = true;
-        boolean isLine = false;
-        boolean hadSelection = false;
-        boolean hadLineSelection = false;
-        int preservedColumn = -1;
-        int preservedIndent = -1;
 
         void resetToDefault() {
-            resetPreservedColumns();
-            resetToDefaultExceptPreservedColumns();
-        }
-
-        void resetToDefaultExceptPreservedColumns() {
             anchorPosition = null;
             isStartAnchor = true;
-            isLine = false;
-            hadSelection = false;
-            hadLineSelection = false;
-        }
-
-        void resetPreservedColumns() {
-            preservedColumn = -1;
-            preservedIndent = -1;
         }
 
         @Override
@@ -656,21 +508,7 @@ public class LineSelectionManager implements
             return "StoredLineSelectionState{" +
                     "anchorPosition=" + anchorPosition +
                     ", isStartAnchor=" + isStartAnchor +
-                    ", isLine=" + isLine +
-                    ", hadSelection=" + hadSelection +
-                    ", hadLineSelection=" + hadLineSelection +
-                    ", preservedColumn=" + preservedColumn +
-                    ", preservedIndent=" + preservedIndent +
                     '}';
-        }
-
-        boolean hasColumn() {
-            return preservedColumn != -1;
-        }
-
-        void clearPreservedColumn() {
-            //preservedColumn = -1;
-            //preservedIndent = -1;
         }
     }
 }

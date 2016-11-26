@@ -25,10 +25,7 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
-import com.vladsch.MissingInActions.manager.EditorPositionFactory;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.manager.EditorPosition;
-import com.vladsch.MissingInActions.manager.LineSelectionState;
+import com.vladsch.MissingInActions.manager.*;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,8 +57,7 @@ public class EditHelpers {
             | IDENTIFIER
             | START_OF_FOLDING_REGION
             | END_OF_FOLDING_REGION
-            | SINGLE_LINE
-            ;
+            | SINGLE_LINE;
 
     public static boolean isSet(int options, int flag) {
         return (options & flag) != 0;
@@ -155,7 +151,7 @@ public class EditHelpers {
                 newOffset = Math.min(boundaryOffset, newOffset);
             }
         }
-        
+
         caretModel.moveToOffset(newOffset);
         EditorModificationUtil.scrollToCaret(editor);
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
@@ -256,7 +252,7 @@ public class EditHelpers {
         } else {
             editor.getCaretModel().moveToOffset(newOffset);
         }
-        
+
         EditorModificationUtil.scrollToCaret(editor);
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
     }
@@ -479,22 +475,24 @@ public class EditHelpers {
             editor.getDocument().replaceString(start, end, new RepeatedCharSequence(' ', end - start));
         } else {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            LineSelectionState state = manager.getSelectionState(caret);
-            if (state.isLine) {
-                EditorPositionFactory f = manager.getPositionFactory();
-                EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
-                EditorPosition selStart = f.fromOffset(start);
+            manager.guard(() -> {
+                EditorCaret editorCaret = manager.getEditorCaret(caret);
+                if (editorCaret.isLine()) {
+                    EditorPositionFactory f = manager.getPositionFactory();
+                    EditorPosition pos = f.fromPosition(caret.getLogicalPosition());
+                    EditorPosition selStart = f.fromOffset(start);
 
-                editor.getDocument().deleteString(start, end);
+                    editor.getDocument().deleteString(start, end);
 
-                // in case the caret was in the virtual space, we force it to go back to the real offset
-                caret.moveToLogicalPosition(selStart.atColumn(pos.column));
-            } else {
-                editor.getDocument().deleteString(start, end);
-                // in case the caret was in the virtual space, we force it to go back to the real offset
-                caret.moveToOffset(start);
-            }
-            EditorModificationUtil.scrollToCaret(editor);
+                    // in case the caret was in the virtual space, we force it to go back to the real offset
+                    caret.moveToLogicalPosition(selStart.atColumn(pos.column));
+                } else {
+                    editor.getDocument().deleteString(start, end);
+                    // in case the caret was in the virtual space, we force it to go back to the real offset
+                    caret.moveToOffset(start);
+                }
+                EditorModificationUtil.scrollToCaret(editor);
+            });
         }
     }
 

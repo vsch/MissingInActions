@@ -31,8 +31,8 @@ import java.util.function.Function;
 
 @SuppressWarnings("WeakerAccess")
 public class EditorPosition extends LogicalPosition {
+    final public static  EditorPosition NULL = new EditorPosition(EditorPositionFactory.NULL, 0, 0);
     final private @NotNull EditorPositionFactory myFactory;
-    private int myIndentColumn;
 
     EditorPosition(@NotNull EditorPositionFactory factory, int line, int column) throws IllegalArgumentException {
         super(line, column);

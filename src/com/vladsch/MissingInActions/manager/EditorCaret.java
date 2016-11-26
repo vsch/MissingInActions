@@ -26,6 +26,8 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
+import com.vladsch.MissingInActions.util.CaretSnapshot;
+import com.vladsch.MissingInActions.util.EditorCaretSnapshot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,24 +40,106 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
  * anchored (leadOffset) is stored as offset.
  */
 @SuppressWarnings("WeakerAccess")
-public class EditorCaret {
+public class EditorCaret implements EditorCaretSnapshot {
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
-
+    
     final private EditorPositionFactory myFactory;
     final private Caret myCaret;
-    private boolean myHadSelection;
-    private boolean myHadLineSelection;
-    private boolean myNextHadSelection;
-    private boolean myNextHadLineSelection;
     private @NotNull EditorPosition myCaretPosition;
     private @NotNull EditorPosition mySelectionStart;
     private @NotNull EditorPosition mySelectionEnd;
     private @NotNull EditorPosition myAnchorPosition;
     private boolean myIsStartAnchor;
     private boolean myIsLine;
-    private int myPreservedColumn;
-    private int myPreservedIndent;
     private boolean myAnchorReset;
+    
+    // *
+    // * EditorCaretSnapshot
+    // *
+    @Override
+    public boolean isStartAnchor() { return myIsStartAnchor; }
+
+    @Override
+    @NotNull
+    public EditorPosition getCaretPosition() { return myCaretPosition; }
+
+    @Override
+    public boolean isLine() { return myIsLine; }
+
+    @Override
+    public boolean hasSelection() {
+        return mySelectionStart.line != mySelectionEnd.line
+                || mySelectionStart.getOffset() != mySelectionEnd.getOffset();
+    }
+    
+    
+
+    @Override
+    public boolean hasLines() {
+        return getSelectionLineCount() > 0;
+    }
+
+    @Override
+    @NotNull
+    public EditorPosition getSelectionStart() {
+        return mySelectionStart;
+    }
+
+    @Override
+    @NotNull
+    public EditorPosition getSelectionEnd() {
+        return mySelectionEnd;
+    }
+
+    @Override
+    public int getSelectionLineCount() {
+        int lineCount = mySelectionEnd.line - mySelectionStart.line;
+
+        if (!myIsLine && lineCount > 0 && hasSelection() && mySelectionEnd.column > 0) {
+            lineCount++;
+        }
+        return lineCount;
+    }
+
+    @Override
+    @NotNull
+    public EditorPosition getLineSelectionStart() {
+        return mySelectionStart.atStartOfLine();
+    }
+
+    @Override
+    @NotNull
+    public EditorPosition getLineSelectionEnd() {
+        return mySelectionEnd.atEndOfLine();
+    }
+
+
+    @Override
+    @NotNull
+    public EditorPosition getAnchorPosition() {
+        return myIsStartAnchor ? mySelectionStart : mySelectionEnd;
+    }
+
+    @Override
+    @NotNull
+    public EditorPosition getAntiAnchorPosition() {
+        return !myIsStartAnchor ? mySelectionStart : mySelectionEnd;
+    }
+
+    @Override
+    public int getColumn() {
+        return myCaretPosition.column;
+    }
+
+    @Override
+    public int getIndent() {
+        return myCaretPosition.getIndentColumn();
+    }
+
+    @NotNull
+    public Caret getCaret() {
+        return myCaret;
+    }
 
     /**
      * @param factory editor caret factory
@@ -64,8 +148,6 @@ public class EditorCaret {
     EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, @NotNull LineSelectionState state) {
         myFactory = factory;
         myCaret = caret;
-        myHadSelection = state.hadSelection;
-        myHadLineSelection = state.hadLineSelection;
         myAnchorReset = false;
 
         // first, get caret's view of the world
@@ -85,8 +167,6 @@ public class EditorCaret {
         }
 
         myIsLine = hasSelection && mySelectionStart.column == 0 && mySelectionEnd.column == 0;
-        myNextHadSelection = hasSelection;
-        myNextHadLineSelection = myIsLine;
 
         if (myCaretPosition.atStartOfLine().getOffset() + 1 == myCaretPosition.atStartOfNextLine().getOffset()) {
             if (!myIsLine && (myIsStartAnchor || !hasSelection)) {
@@ -111,96 +191,42 @@ public class EditorCaret {
                 }
             }
         }
-
-        myPreservedColumn = -1;
-        myPreservedIndent = -1;
-
-        if (state.preservedColumn != -1) {
-            // can restore column
-            int desiredColumn;
-
-            if (state.preservedIndent != -1) {
+    }
+    
+    @NotNull
+    public EditorCaret restoreColumn(int preservedColumn) {
+        return isUseSoftWraps() ? this : restoreColumn(preservedColumn, -1);
+    }
+    
+    @NotNull 
+    public EditorCaret restoreColumn(@NotNull CaretSnapshot snapshot) {
+        return isUseSoftWraps() ? this : restoreColumn(snapshot.getColumn(), -1);
+    }
+    
+    @NotNull 
+    public EditorCaret restoreColumn(@NotNull CaretSnapshot snapshot, boolean indentRelative) {
+        return isUseSoftWraps() ? this : restoreColumn(snapshot.getColumn(), indentRelative ? snapshot.getIndent() : -1);
+    }
+    
+    @NotNull
+    public EditorCaret restoreColumn(int preservedColumn, int preservedIndent) {
+        if (isUseSoftWraps()) return  this; 
+        
+        if (preservedColumn != -1) {
+            if (preservedIndent != -1) {
                 // restore indent relative
-                if (hasSelection) {
+                if (hasSelection()) {
                     int indentColumn = getAntiAnchorSelectedLineCaretPosition().getIndentColumn();
-                    desiredColumn = indentColumn + (state.preservedColumn - state.preservedIndent);
-                    myCaretPosition = myCaretPosition.atColumn(desiredColumn);
+                    myCaretPosition = myCaretPosition.atColumn(indentColumn + (preservedColumn - preservedIndent));
                 } else {
                     int indentColumn = myCaretPosition.getIndentColumn();
-                    desiredColumn = indentColumn + (state.preservedColumn - state.preservedIndent);
-                    myCaretPosition = myCaretPosition.atColumn(desiredColumn);
+                    myCaretPosition = myCaretPosition.atColumn(indentColumn + (preservedColumn - preservedIndent));
                 }
             } else {
-                myCaretPosition = myCaretPosition.atColumn(state.preservedColumn);
-                desiredColumn = state.preservedColumn;
+                myCaretPosition = myCaretPosition.atColumn(preservedColumn);
             }
-
-            if (myIsLine) {
-                // may need to adjust column in order to preserve selection based on extension type
-                // if we cannot do it, then save the column for next time
-                EditorPosition caretPos = myCaretPosition;
-
-                normalizeCaretPosition();
-                if (myCaretPosition.column != desiredColumn && desiredColumn != 0) {
-                    myPreservedColumn = state.preservedColumn;
-                    myPreservedIndent = state.preservedIndent;
-                }
-
-                myCaretPosition = caretPos;
-            }
-        }
-    }
-
-    /**
-     * Preserve column when re-creating this caret.
-     *
-     * @param indentRelative true if restored column should be relative to the indent of the anti-anchor selected line
-     * @return this
-     */
-    @SuppressWarnings("SameParameterValue")
-    @NotNull
-    public EditorCaret preserveColumn(boolean indentRelative) {
-        return preserveColumn(myCaretPosition.column, indentRelative);
-    }
-
-    /**
-     * Preserve caret column when re-creating this caret.
-     *
-     * @return this
-     */
-    @NotNull
-    public EditorCaret preserveColumn() {
-        return preserveColumn(myCaretPosition.column, false);
-    }
-
-    /**
-     * Preserve column when re-creating this caret.
-     *
-     * @param preservedColumn the column to restore
-     * @param indentRelative  true if restored column should be relative to the indent of the anti-anchor selected line
-     * @return this
-     */
-    @NotNull
-    public EditorCaret preserveColumn(int preservedColumn, boolean indentRelative) {
-        myPreservedColumn = preservedColumn;
-        if (indentRelative) {
-            if (hasSelection()) {
-                myPreservedIndent = getAntiAnchorSelectedLineCaretPosition().getIndentColumn();
-            } else {
-                myPreservedIndent = myCaretPosition.getIndentColumn();
-            }
-        } else {
-            myPreservedIndent = -1;
         }
         return this;
-    }
-
-    public int getPreservedColumn() {
-        return myPreservedColumn;
-    }
-
-    public int getPreservedIndent() {
-        return myPreservedIndent;
     }
 
     @NotNull
@@ -226,11 +252,6 @@ public class EditorCaret {
         myFactory.getManager().setLineSelectionState(myCaret
                 , myAnchorReset ? null : myAnchorPosition
                 , myIsStartAnchor
-                , myPreservedColumn
-                , myPreservedIndent
-                , myIsLine
-                , myNextHadSelection
-                , myNextHadLineSelection
         );
     }
 
@@ -289,14 +310,13 @@ public class EditorCaret {
      *
      * @return this
      */
+    @Override
     @NotNull
     public EditorCaret removeSelection() {
         mySelectionStart = myCaretPosition;
         mySelectionEnd = myCaretPosition;
         myIsLine = false;
         myIsStartAnchor = true;
-        myPreservedColumn = -1;
-        myPreservedIndent = -1;
         return this;
     }
 
@@ -332,16 +352,6 @@ public class EditorCaret {
             myIsLine = false;
         }
         return this;
-    }
-
-    @NotNull
-    public EditorPosition getLineSelectionStart() {
-        return mySelectionStart.atStartOfLine();
-    }
-
-    @NotNull
-    public EditorPosition getLineSelectionEnd() {
-        return mySelectionEnd.atEndOfLine();
     }
 
     /**
@@ -601,16 +611,6 @@ public class EditorCaret {
     //*
 
     @NotNull
-    public EditorPosition getAnchorPosition() {
-        return myIsStartAnchor ? mySelectionStart : mySelectionEnd;
-    }
-
-    @NotNull
-    public EditorPosition getAntiAnchorPosition() {
-        return !myIsStartAnchor ? mySelectionStart : mySelectionEnd;
-    }
-
-    @NotNull
     public EditorCaret setAnchorPosition(@Nullable EditorPosition other) {
         if (other != null) {
             if (myIsStartAnchor) {
@@ -632,16 +632,6 @@ public class EditorCaret {
             }
         }
         return this;
-    }
-
-    @NotNull
-    public EditorPosition getSelectionStart() {
-        return mySelectionStart;
-    }
-
-    @NotNull
-    public EditorPosition getSelectionEnd() {
-        return mySelectionEnd;
     }
 
     @NotNull
@@ -750,15 +740,6 @@ public class EditorCaret {
         return this;
     }
 
-    public int getSelectionLineCount() {
-        int lineCount = mySelectionEnd.line - mySelectionStart.line;
-
-        if (!myIsLine && lineCount > 0 && hasSelection() && mySelectionEnd.column > 0) {
-            lineCount++;
-        }
-        return lineCount;
-    }
-
     //*
     //*  Simple Getters/Setters
     //*
@@ -768,33 +749,13 @@ public class EditorCaret {
         myIsStartAnchor = isStartAnchor;
         return this;
     }
+    
+    public boolean isUseSoftWraps() {
+        return myFactory.getEditor().getSettings().isUseSoftWraps();
+    }
 
     @Nullable
     public EditorPositionFactory getFactory() { return myFactory; }
-
-    public boolean isStartAnchor() { return myIsStartAnchor; }
-
-    @NotNull
-    public EditorPosition getCaretPosition() { return myCaretPosition; }
-
-    public boolean isLine() { return myIsLine; }
-
-    public boolean hasSelection() {
-        return mySelectionStart.line != mySelectionEnd.line
-                || mySelectionStart.getOffset() != mySelectionEnd.getOffset();
-    }
-
-    public boolean hadSelection() {
-        return myHadSelection;
-    }
-
-    public boolean hadLineSelection() {
-        return myHadLineSelection;
-    }
-
-    public boolean hasLines() {
-        return getSelectionLineCount() > 0;
-    }
 
     public EditorPosition adjustIndentRelative(EditorPosition position, int preservedColumn, int preservedIndent) {
         return adjustIndentRelative(position, position.getIndentColumn(), preservedColumn, preservedIndent);
@@ -803,13 +764,11 @@ public class EditorCaret {
     public EditorPosition adjustIndentRelative(EditorPosition position, int ourIndent, int preservedColumn, int preservedIndent) {
         return position.atColumn(ourIndent + (preservedColumn - preservedIndent));
     }
-
+    
     public String toString() {
         return "EditorCaret{" +
                 ", anchorPosition=" + myAnchorPosition +
                 ", isLine=" + myIsLine +
-                ", hadSelection=" + myHadSelection +
-                ", hadLineSelection=" + myHadLineSelection +
                 ", caretPosition=" + myCaretPosition +
                 ", selectionStart=" + mySelectionStart +
                 ", selectionEnd=" + mySelectionEnd +

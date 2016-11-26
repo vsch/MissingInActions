@@ -22,5 +22,17 @@
 package com.vladsch.MissingInActions.util;
 
 public interface CancellableRunnable extends Runnable {
+    CancellableRunnable NULL = new CancellableRunnable() {
+        @Override
+        public boolean cancel() {
+            return false;
+        }
+
+        @Override
+        public void run() {
+
+        }
+    };
+
     boolean cancel();
 }

@@ -3,7 +3,8 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.7.1 - Refactoring and Code Cleanup](#071---refactoring-and-code-cleanup)
+- [To Do](#to-do)
+- [0.7.2 - Refactoring and Code Cleanup](#072---refactoring-and-code-cleanup)
 - [0.7.0 - Enhancements](#070---enhancements)
 - [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
 - [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
@@ -12,42 +13,80 @@
 - [0.5.0 - Initial Release](#050---initial-release)
 
 
-### 0.7.1 - Refactoring and Code Cleanup
+### To Do
+
+- [ ] Fix: check if editor has pop-up and do nothing for up/down/left/right keys. Test that
+      left/right is needed.
+- [ ] Fix: only move caret to top/bottom of selections if they are less than full screen.
+- [ ] Fix: move lines up/down looses caret column
+- [ ] Fix: copy in multi-caret mode with selections moves the first caret to end of
+      selection. Disable caret movement for copy in multi-caret mode.
+- [ ] Fix: selecting lines down, then flipping anchor selecting up, won't go down after a blank
+      line is selected. Works fine selecting up over a blank line without flipping anchor.
+- [ ] Add: sort lines options pop-up panel for selecting sorting by StringManipulation in
+      multi-caret mode.
+- [ ] Add: insert sequence in multi-caret mode, with selections should try to determine
+      parameters: start number, increment, sequence type and format; without should re-use
+      last params with optional action to always show pop-up panel for options.
+- [ ] Add: smart insert mode to preserve column alignment a la BeyondEdit mode. This one is
+      a career decision because it affects typing, delete/backspace, paste (chars), delete
+      char selections.
+- [ ] Add: smart paste:
+      - [ ] line mode pastes should paste above/below current line according to settings
+      - [ ] char pasting less than a line pasted in **middle of word** should preserve case of
+            first pasted characters so camel humps are preserved.
+- [ ] Add: low-lighting to isolate parts of source a la BeyondEdit 
+      - [ ] with options to copy/cut low-lighted or not low-lighted blocks
+- [ ] Add: global highlight word which will work across files to mark presence with actions to:
+      - [ ] clear all highlights
+      - [ ] clear highlight for word at caret or selection
+      - [ ] highlight word at caret or selection
+      - [ ] next/prev highlight in file 
+
+### 0.7.2 - Refactoring and Code Cleanup
 
 - Change: switch all code to use `EditorCaret` for manipulating selections
-- Change: completely rewritten the abstraction layer. Now much better and easier to maintain.
+- Change: completely rewritten the abstraction layer. Now much better and easier to
+  maintain.
 - Add: Selection extends at start/end, 4 combinations
 - Add: Typing deletes line selection option
-- Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or more
-  lines
+- Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or
+  more lines
 - Add: indent/unindent to preserve caret column position
+- Fix: disable trying to preserve column when soft-wraps are on. Just freezes the caret at
+  a location since vertical movement causes horizontal in the visual position space.
+- Fix: disabling delete on typing for line selections would sometimes disable it for non
+  line selections.
 
 ### 0.7.0 - Enhancements
 
 - Add: Fixes for actions in Auto Line Mode:
     - Toggle Case: remove selection after if there was not one before
     - Copy: if no selection before then leave the caret column unchanged
-    - Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
-      action, if selection was line selection before then restore caret column position after
-- Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
-  for bug in IDE action that does not adjust selection start if it is not at the left margin.
-- Add: Select pasted text option to keep the selection so it can be operated on with option to
-  only select if pasted text contains at least one line--contains end of line.
-- Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
-  the left margin.
-- Add: option to remove selection created by toggle case. Will leave selection made before in
-  tact.
+    - Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection
+      after action, if selection was line selection before then restore caret column
+      position after
+- Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a
+  fix for bug in IDE action that does not adjust selection start if it is not at the left
+  margin.
+- Add: Select pasted text option to keep the selection so it can be operated on with option
+  to only select if pasted text contains at least one line--contains end of line.
+- Fix: toggle multi-caret/selection would loose the last line of selection if the caret
+  was at the left margin.
+- Add: option to remove selection created by toggle case. Will leave selection made before
+  in tact.
 - Fix: delete to line end not eol was deleting one character less than end of line
-- Add: Option to fix duplicate line or selection to duplicate before the selection if caret is
-  at the head of the selection (actually if the selection was started from the end).
+- Add: Option to fix duplicate line or selection to duplicate before the selection if
+  caret is at the head of the selection (actually if the selection was started from the
+  end).
 
-    Allows fast duplication of a block of code up, instead of always down and having to move it
-    up over a copy of itself.
-- Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
-  full lines if the trimming or expansion affects whitespace chars only.
+    Allows fast duplication of a block of code up, instead of always down and having to
+    move it up over a copy of itself.
+- Fix: paste will now convert to line selection if it can trim/expand the pasted selection
+  to full lines if the trimming or expansion affects whitespace chars only.
 - Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
-  remembers if it was turned on from the panel and if line mode is disabled offers a link to
-  disable it.
+  remembers if it was turned on from the panel and if line mode is disabled offers a link
+  to disable it.
 - Add: Identifier Word variations, will only stop on java identifiers, spaces and
   non-identifiers are treated as equal
 - Add: Customized Word variations can set if these will stop on:
@@ -55,21 +94,23 @@
     - indent/trailing blanks on a line
     - identifier camel humps or word camel humps rules
     - normal, stay on same line and stay on same line in multi-caret mode
-- Add: action to toggle camel humps mode, with option to make mouse setting follow camel humps
-  setting.
-- Add: action to toggle identifier/word mode for customized word actions, customized next word
-  is taken as the value to toggle with the rest following.
-- Add: Delete and Backspace white space only, used to pull jagged edge alignment into a straight
-  line.
-- Add: settings UI for custom next/prev word end/start, start of word and end of word variations
+- Add: action to toggle camel humps mode, with option to make mouse setting follow camel
+  humps setting.
+- Add: action to toggle identifier/word mode for customized word actions, customized next
+  word is taken as the value to toggle with the rest following.
+- Add: Delete and Backspace white space only, used to pull jagged edge alignment into a
+  straight line.
+- Add: settings UI for custom next/prev word end/start, start of word and end of word
+  variations
 
 ### 0.6.2 - Bug Fix and Features
 
 - Add: option to Auto Indent Lines after move lines up/down, with a configurable delay
-- Add: skeleton code for Patterned next/prev actions to be used with multi-carets to search for
-  text occurrence and place the caret at the start/end (for backwards) searches. Actions are
-  coming in the next release.
-- Change: refactor the code for cleaner layout now that the training wheels are coming off.
+- Add: skeleton code for Patterned next/prev actions to be used with multi-carets to search
+  for text occurrence and place the caret at the start/end (for backwards) searches.
+  Actions are coming in the next release.
+- Change: refactor the code for cleaner layout now that the training wheels are coming
+  off.
 
 ### 0.6.1 - Bug Fix and Features
 
@@ -89,8 +130,8 @@
 ### 0.6.0 - Bug Fix and Features
 
 - Fix: toggle carets/selection would not work during indexing, was missing dumb aware flag.
-- Change: implementation to work with standard actions where possible and adjust their operation
-  to work with line selections.
+- Change: implementation to work with standard actions where possible and adjust their
+  operation to work with line selections.
 - Add: config options to enable, disable and tweak behaviour
 
 ### 0.5.1 - Bug Fix
@@ -103,8 +144,8 @@
 - Add: Multiple caret friendly versions of editing actions that will not inadvertently move
   carets to other lines
 - Add: Line based selection mode that can be toggled between line/char mode
-- Add: Line based mouse selections: more than one line automatically switches to line selection
-  without moving caret to column 1
+- Add: Line based mouse selections: more than one line automatically switches to line
+  selection without moving caret to column 1
 - Add: Switch selection direction to move the caret to the other end of the selection
 - Add: caret straightening and toggle between selection and multiple carets to allow quick
   creation of multiple carets with line filtering:

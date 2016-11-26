@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/lib/flexmark-util.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util/src/main/java" />
+    </SOURCES>
   </library>
 </component>

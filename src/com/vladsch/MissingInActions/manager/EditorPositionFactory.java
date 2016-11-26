@@ -27,12 +27,18 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 public class EditorPositionFactory {
+    final public static EditorPositionFactory NULL = new EditorPositionFactory(null,null);
     final private LineSelectionManager myManager;
     final private Editor myEditor;
 
     EditorPositionFactory(LineSelectionManager manager) {
         myManager = manager;
         myEditor = manager.getEditor();
+    }
+
+    private EditorPositionFactory(LineSelectionManager manager, Editor editor) {
+        myManager = manager;
+        myEditor = editor;
     }
 
     public LineSelectionManager getManager() {

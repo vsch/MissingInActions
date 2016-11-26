@@ -27,53 +27,22 @@ import org.jetbrains.annotations.Nullable;
 public class LineSelectionState {
     final public @Nullable EditorPosition anchorPosition;
     final public boolean isStartAnchor;
-    final public boolean isLine;
-    final public boolean hadSelection;
-    final public boolean hadLineSelection;
-    final public int preservedColumn; 
-    final public int preservedIndent; 
 
-    LineSelectionState(@Nullable EditorPosition anchorPosition, boolean isStartAnchor, boolean isLine, boolean hadSelection, boolean hadLineSelection, int preservedColumn, int preservedIndent) {
+    LineSelectionState(@Nullable EditorPosition anchorPosition, boolean isStartAnchor) {
         this.anchorPosition = anchorPosition;
         this.isStartAnchor = isStartAnchor;
-        this.isLine = isLine;
-        this.hadSelection = hadSelection;
-        this.hadLineSelection = hadLineSelection;
-        this.preservedColumn = preservedColumn;
-        this.preservedIndent = preservedIndent;
     }
 
     LineSelectionState(LineSelectionState other) {
         this.anchorPosition = other.anchorPosition;
         this.isStartAnchor = other.isStartAnchor;
-        this.isLine = other.isLine;
-        this.hadSelection = other.hadSelection;
-        this.hadLineSelection = other.hadLineSelection;
-        this.preservedColumn = other.preservedColumn;
-        this.preservedIndent = other.preservedIndent;
-    }
-
-    public LineSelectionState(int preservedColumn, int preservedIndent) {
-        this.anchorPosition = null;
-        this.isStartAnchor = false;
-        this.isLine = false;
-        this.hadSelection = false;
-        this.hadLineSelection = false;
-
-        this.preservedColumn = preservedColumn;
-        this.preservedIndent = preservedIndent;
     }
 
     @Override
     public String toString() {
         return "LineSelectionState{" +
                 "anchorPosition=" + anchorPosition +
-                ", isLine=" + isLine +
-                ", hadSelection=" + hadSelection +
-                ", hadLineSelection=" + hadLineSelection +
                 ", isStartAnchor=" + isStartAnchor +
-                ", preservedColumn=" + preservedColumn +
-                ", preservedIndent=" + preservedIndent +
                 '}';
     }
 }
