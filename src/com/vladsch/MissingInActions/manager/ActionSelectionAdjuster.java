@@ -32,6 +32,7 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.SelectionPredicateType;
 import com.vladsch.MissingInActions.util.ActionContext;
 import com.vladsch.MissingInActions.util.CaretSnapshot;
@@ -560,20 +561,38 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 }
                 return false;
             }, (editorCaret, snapshot) -> {
-                if (editorCaret.isLine()) {
+                if (snapshot != null && snapshot.isLine() && editorCaret.isLine()) {
+                    editorCaret
+                            .setIsStartAnchor(snapshot.isStartAnchor())
+                            .setAnchorColumn(editorCaret.getAnchorPosition().atColumn(snapshot.getAnchorColumn()))
+                            .restoreColumn(snapshot)
+                            .normalizeCaretPosition()
+                    ;
+
+                    int value = -1;
                     if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER)) {
-                        // move caret to start of selection
-                        editorCaret.setIsStartAnchor(false);
+                        value = settings.getCaretOnMoveSelectionUp();
                     } else if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
-                        // move caret to end of selection
-                        editorCaret.setIsStartAnchor(true);
+                        value = settings.getCaretOnMoveSelectionDown();
                     }
 
-                    if (snapshot != null) snapshot.restoreColumn(editorCaret);
+                    if (value != -1) {
+                        boolean doneIt = CaretAdjustmentType.onFirst(value, map -> map
+                                .to(CaretAdjustmentType.TO_START, () -> {
+                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                })
+                                .to(CaretAdjustmentType.TO_END, () -> {
+                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                })
+                                .to(CaretAdjustmentType.TO_ANCHOR, () -> {
+                                })
+                                .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
+                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
+                                })
+                        );
 
-                    editorCaret
-                            .normalizeCaretPosition()
-                            .commit();
+                        editorCaret.commit();
+                    }
                 }
             });
             return;
@@ -619,7 +638,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         }, (editorCaret, snapshot) -> {
             if (snapshot != null) {
                 snapshot.restoreColumn();
-                
+
                 if (editorCaret.hasSelection()) {
                     if (!snapshot.hasSelection()) {
                         snapshot.removeSelection();
@@ -628,27 +647,27 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                             if (settings.isDuplicateAtStartOrEnd()) {
                                 if (editorCaret.hasSelection()) {
                                     int column = editorCaret.getCaretPosition().column;
-    
+
                                     if (!snapshot.isStartAnchor() && snapshot.getSelectionStart().getOffset() < snapshot.getSelectionEnd().getOffset()) {
                                         editorCaret
                                                 .setCaretPosition(editorCaret.getCaretPosition().atOffset(snapshot.getSelectionStart().getOffset()))
                                                 .setSelectionEnd(snapshot.getSelectionEnd().getOffset())
                                                 .setSelectionStart(editorCaret.getCaretPosition())
                                                 .setIsStartAnchor(false)
-                                                .setSavedAnchor(editorCaret.getSelectionEnd())
+                                                .setAnchorColumn(editorCaret.getSelectionEnd())
                                         ;
                                     }
-    
+
                                     if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
                                         // can safely be changed to a line selection
                                         editorCaret.trimOrExpandToLineSelection();
                                     }
-    
+
                                     if (editorCaret.isLine() || (column > editorCaret.getCaretPosition().column
                                             && editorCaret.getCaretPosition().column < editorCaret.getCaretPosition().getIndentColumn())) {
                                         editorCaret.setCaretPosition(editorCaret.getCaretPosition().atColumn(column));
                                     }
-    
+
                                     editorCaret
                                             .normalizeCaretPosition()
                                             .commit();
@@ -794,7 +813,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
                     if (oneLine) {
                         EditorPosition anchor = editorCaret.getAnchorPosition();
-                        editorCaret.setSavedAnchor(anchor)
+                        editorCaret.setAnchorColumn(anchor)
                                 .setSelectionStart(anchor.atStartOfLine())
                                 .setSelectionEnd(anchor.atStartOfNextLine())
                                 .toLineSelection()
@@ -812,7 +831,14 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                             //logger.debug("after line select editorCaret out: " + editorCaret);
                         } else {
                             //logger.debug("after line select before toCaretPosBased editorCaret: " + editorCaret);
-                            editorCaret.toCaretPositionBasedLineSelection()
+
+                            // if it was a char selection we should use it's anchor position
+                            //if (snapshot.hasSelection() && !snapshot.isLine()) {
+                            //    editorCaret.setAnchorColumn(snapshot.getAnchorColumn());
+                            //}
+
+                            editorCaret
+                                    .toCaretPositionBasedLineSelection()
                                     .normalizeCaretPosition();
 
                             //logger.debug("after line select editorCaret out: " + editorCaret);

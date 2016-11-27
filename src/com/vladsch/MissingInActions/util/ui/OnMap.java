@@ -19,30 +19,8 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.manager;
+package com.vladsch.MissingInActions.util.ui;
 
-import org.jetbrains.annotations.Nullable;
-
-@SuppressWarnings("WeakerAccess")
-public class LineSelectionState {
-    final public int anchorColumn;
-    final public boolean isStartAnchor;
-
-    LineSelectionState(int anchorColumn, boolean isStartAnchor) {
-        this.anchorColumn = anchorColumn;
-        this.isStartAnchor = isStartAnchor;
-    }
-
-    LineSelectionState(LineSelectionState other) {
-        this.anchorColumn = other.anchorColumn;
-        this.isStartAnchor = other.isStartAnchor;
-    }
-
-    @Override
-    public String toString() {
-        return "LineSelectionState{" +
-                "anchorColumn=" + anchorColumn +
-                ", isStartAnchor=" + isStartAnchor +
-                '}';
-    }
+public interface OnMap {
+    OnIt on(OnIt on);
 }

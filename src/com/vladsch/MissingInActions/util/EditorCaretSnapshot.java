@@ -22,8 +22,10 @@
 package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.editor.Caret;
+import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface that provides read-only access to caret data
@@ -43,6 +45,7 @@ public interface EditorCaretSnapshot {
         @NotNull @Override public EditorPosition getLineSelectionEnd() { return EditorPosition.NULL; }
         @NotNull @Override public EditorPosition getAnchorPosition() { return EditorPosition.NULL; }
         @NotNull @Override public EditorPosition getAntiAnchorPosition() { return EditorPosition.NULL; }
+        @Override public int getAnchorColumn() { return -1; }
         @Override public int getColumn() { return 0; } 
         @Override public int getIndent() { return 0; } 
         @NotNull @Override public EditorCaretSnapshot removeSelection() { return this; }
@@ -74,6 +77,7 @@ public interface EditorCaretSnapshot {
     EditorPosition getAntiAnchorPosition();
     int getColumn();
     int getIndent();
+    int getAnchorColumn();
     @NotNull
     EditorCaretSnapshot removeSelection();
 }

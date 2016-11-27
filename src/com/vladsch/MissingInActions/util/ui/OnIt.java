@@ -19,30 +19,22 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.manager;
+package com.vladsch.MissingInActions.util.ui;
 
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.util.Pair;
 
-@SuppressWarnings("WeakerAccess")
-public class LineSelectionState {
-    final public int anchorColumn;
-    final public boolean isStartAnchor;
+import java.util.ArrayList;
+import java.util.List;
 
-    LineSelectionState(int anchorColumn, boolean isStartAnchor) {
-        this.anchorColumn = anchorColumn;
-        this.isStartAnchor = isStartAnchor;
+public class OnIt {
+    final private ArrayList<Pair<ComboBoxAdaptable, Runnable>> myList = new ArrayList<>();
+
+    public OnIt to(ComboBoxAdaptable type, Runnable doRun) {
+        myList.add(Pair.create(type, doRun));
+        return this;
     }
 
-    LineSelectionState(LineSelectionState other) {
-        this.anchorColumn = other.anchorColumn;
-        this.isStartAnchor = other.isStartAnchor;
-    }
-
-    @Override
-    public String toString() {
-        return "LineSelectionState{" +
-                "anchorColumn=" + anchorColumn +
-                ", isStartAnchor=" + isStartAnchor +
-                '}';
+    public List<Pair<ComboBoxAdaptable, Runnable>> getList() {
+        return myList;
     }
 }

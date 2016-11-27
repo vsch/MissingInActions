@@ -15,14 +15,8 @@
 
 ### To Do
 
-- [ ] Fix: check if editor has pop-up and do nothing for up/down/left/right keys. Test that
-      left/right is needed.
-- [ ] Fix: only move caret to top/bottom of selections if they are less than full screen.
-- [ ] Fix: move lines up/down looses caret column
-- [ ] Fix: copy in multi-caret mode with selections moves the first caret to end of
-      selection. Disable caret movement for copy in multi-caret mode.
-- [ ] Fix: selecting lines down, then flipping anchor selecting up, won't go down after a blank
-      line is selected. Works fine selecting up over a blank line without flipping anchor.
+- [ ] Add: option to use visual column for caret restoration. Less jarring with folded regions
+      and works with soft wraps.
 - [ ] Add: sort lines options pop-up panel for selecting sorting by StringManipulation in
       multi-caret mode.
 - [ ] Add: insert sequence in multi-caret mode, with selections should try to determine
@@ -45,6 +39,17 @@
 
 ### 0.7.2 - Refactoring and Code Cleanup
 
+- Fix: copy in multi-caret mode with selections moves the first caret to end of
+      selection. Disable caret movement for copy in multi-caret mode.
+- Fix: move lines up/down looses caret column
+- Fix: selecting lines down gets stuck at blank lines when shrinking selection and anchor is
+      at column 1.
+- Fix: toggle caret looses the original anchor column
+- Fix: move lines up/down with selection having anchor at column 1 moves caret to column 1
+      instead of preserving it.
+- Add: options on where to move the caret on selection move: for up and for down.
+- Fix: check if editor has pop-up and do nothing for up/down/left/right keys. Test that
+      left/right is needed.
 - Change: switch all code to use `EditorCaret` for manipulating selections
 - Change: completely rewritten the abstraction layer. Now much better and easier to
   maintain.

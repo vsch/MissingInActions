@@ -42,17 +42,16 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 @SuppressWarnings("WeakerAccess")
 public class EditorCaret implements EditorCaretSnapshot {
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
-    
+
     final private EditorPositionFactory myFactory;
     final private Caret myCaret;
     private @NotNull EditorPosition myCaretPosition;
     private @NotNull EditorPosition mySelectionStart;
     private @NotNull EditorPosition mySelectionEnd;
-    private @NotNull EditorPosition myAnchorPosition;
+    private int myAnchorColumn;
     private boolean myIsStartAnchor;
     private boolean myIsLine;
-    private boolean myAnchorReset;
-    
+
     // *
     // * EditorCaretSnapshot
     // *
@@ -71,8 +70,6 @@ public class EditorCaret implements EditorCaretSnapshot {
         return mySelectionStart.line != mySelectionEnd.line
                 || mySelectionStart.getOffset() != mySelectionEnd.getOffset();
     }
-    
-    
 
     @Override
     public boolean hasLines() {
@@ -113,7 +110,6 @@ public class EditorCaret implements EditorCaretSnapshot {
         return mySelectionEnd.atEndOfLine();
     }
 
-
     @Override
     @NotNull
     public EditorPosition getAnchorPosition() {
@@ -148,7 +144,6 @@ public class EditorCaret implements EditorCaretSnapshot {
     EditorCaret(@NotNull EditorPositionFactory factory, @NotNull Caret caret, @NotNull LineSelectionState state) {
         myFactory = factory;
         myCaret = caret;
-        myAnchorReset = false;
 
         // first, get caret's view of the world
         myCaretPosition = myFactory.fromPosition(caret.getLogicalPosition());
@@ -158,12 +153,12 @@ public class EditorCaret implements EditorCaretSnapshot {
         // restore anchor offset
         boolean hasSelection = hasSelection();
 
-        if (state.anchorPosition != null && hasSelection) {
-            myAnchorPosition = state.anchorPosition;
+        if (state.anchorColumn != -1 && hasSelection && mySelectionStart.line != mySelectionEnd.line) {
+            myAnchorColumn = state.anchorColumn;
             myIsStartAnchor = state.isStartAnchor;
         } else {
             myIsStartAnchor = myCaret.getLeadSelectionOffset() == myCaret.getSelectionStart();
-            myAnchorPosition = myCaretPosition.atOffset(caret.getLeadSelectionOffset());
+            myAnchorColumn = myCaretPosition.atOffset(caret.getLeadSelectionOffset()).column;
         }
 
         myIsLine = hasSelection && mySelectionStart.column == 0 && mySelectionEnd.column == 0;
@@ -192,26 +187,26 @@ public class EditorCaret implements EditorCaretSnapshot {
             }
         }
     }
-    
+
     @NotNull
     public EditorCaret restoreColumn(int preservedColumn) {
-        return isUseSoftWraps() ? this : restoreColumn(preservedColumn, -1);
+        return restoreColumn(preservedColumn, -1);
     }
-    
-    @NotNull 
-    public EditorCaret restoreColumn(@NotNull CaretSnapshot snapshot) {
-        return isUseSoftWraps() ? this : restoreColumn(snapshot.getColumn(), -1);
+
+    @NotNull
+    public EditorCaret restoreColumn(@Nullable CaretSnapshot snapshot) {
+        return snapshot == null ? this : restoreColumn(snapshot.getColumn(), -1);
     }
-    
-    @NotNull 
+
+    @NotNull
     public EditorCaret restoreColumn(@NotNull CaretSnapshot snapshot, boolean indentRelative) {
-        return isUseSoftWraps() ? this : restoreColumn(snapshot.getColumn(), indentRelative ? snapshot.getIndent() : -1);
+        return restoreColumn(snapshot.getColumn(), indentRelative ? snapshot.getIndent() : -1);
     }
-    
+
     @NotNull
     public EditorCaret restoreColumn(int preservedColumn, int preservedIndent) {
-        if (isUseSoftWraps()) return  this; 
-        
+        if (isUseSoftWraps()) return this;
+
         if (preservedColumn != -1) {
             if (preservedIndent != -1) {
                 // restore indent relative
@@ -231,16 +226,44 @@ public class EditorCaret implements EditorCaretSnapshot {
 
     @NotNull
     public EditorCaret resetAnchorState() {
-        myAnchorReset = true;
+        myAnchorColumn = -1;
         return this;
     }
 
     @NotNull
-    public EditorCaret setSavedAnchor(@Nullable EditorPosition anchorPosition) {
-        if (anchorPosition == null) {
-            myAnchorReset = true;
-        } else {
-            myAnchorPosition = anchorPosition;
+    public EditorCaret setAnchorColumn(@Nullable EditorPosition position) {
+        return position == null ? this : setAnchorColumn(position.column);
+    }
+
+    @NotNull
+    public EditorCaret setAnchorColumn(int column) {
+        myAnchorColumn = column;
+        return this;
+    }
+
+    @Override
+    public int getAnchorColumn() {
+        return myAnchorColumn;
+    }
+
+    @NotNull
+    public EditorCaret setIsStartAnchorUpdateAnchorColumn(boolean isStartAnchor) {
+        if (myIsStartAnchor != isStartAnchor) {
+            if (myIsLine) {
+                toCharSelection();
+                normalizeCaretPosition();
+
+                setAnchorColumn(getCaretPosition());
+                setIsStartAnchor(isStartAnchor);
+                normalizeCaretPosition();
+
+                toLineSelection();
+                normalizeCaretPosition();
+            } else {
+                setAnchorColumn(getCaretPosition());
+                setIsStartAnchor(isStartAnchor);
+                normalizeCaretPosition();
+            }
         }
         return this;
     }
@@ -250,7 +273,7 @@ public class EditorCaret implements EditorCaretSnapshot {
      */
     public void commitState() {
         myFactory.getManager().setLineSelectionState(myCaret
-                , myAnchorReset ? null : myAnchorPosition
+                , myAnchorColumn
                 , myIsStartAnchor
         );
     }
@@ -342,13 +365,8 @@ public class EditorCaret implements EditorCaretSnapshot {
     @NotNull
     public EditorCaret toCharSelection() {
         if (myIsLine) {
-            if (myIsStartAnchor) {
-                mySelectionEnd = getCharSelectionEnd();
-                mySelectionStart = myAnchorPosition;
-            } else {
-                mySelectionStart = getCharSelectionStart();
-                mySelectionEnd = myAnchorPosition;
-            }
+            mySelectionStart = getCharSelectionStart();
+            mySelectionEnd = getCharSelectionEnd();
             myIsLine = false;
         }
         return this;
@@ -365,7 +383,7 @@ public class EditorCaret implements EditorCaretSnapshot {
             if (!myIsStartAnchor) {
                 return mySelectionStart.atColumn(myCaretPosition);
             } else {
-                return myAnchorPosition;
+                return mySelectionStart.atColumn(myAnchorColumn);
             }
         } else {
             return mySelectionStart;
@@ -378,7 +396,7 @@ public class EditorCaret implements EditorCaretSnapshot {
             if (myIsStartAnchor) {
                 return myCaretPosition.column == 0 ? mySelectionEnd.atStartOfLine() : mySelectionEnd.addLine(-1).atColumn(myCaretPosition);
             } else {
-                return myAnchorPosition;
+                return myAnchorColumn == 0 ? mySelectionEnd.atStartOfLine() : mySelectionEnd.addLine(-1).atColumn(myAnchorColumn);
             }
         } else {
             return mySelectionEnd;
@@ -396,7 +414,7 @@ public class EditorCaret implements EditorCaretSnapshot {
         if (myIsLine) {
             mySelectionStart = getLineSelectionStart();
             mySelectionEnd = getLineSelectionEnd();
-            myAnchorPosition = getAnchorPosition();
+            myAnchorColumn = 0;
             myIsLine = false;
         }
         return this;
@@ -430,27 +448,25 @@ public class EditorCaret implements EditorCaretSnapshot {
 
     @NotNull
     public EditorCaret toCaretPositionBasedLineSelection(@Nullable Boolean isSelectionStartExtended, @Nullable Boolean isSelectionEndExtended) {
-        if (!myIsLine) {
-            if (myIsStartAnchor) {
-                // adjust end
-                boolean isEndExtended = isSelectionEndExtended != null ? isSelectionEndExtended : myFactory.getManager().isSelectionEndExtended();
-                if (!isEndExtended || mySelectionEnd.column == 0) {
-                    mySelectionEnd = mySelectionEnd.atStartOfLine();
-                } else {
-                    mySelectionEnd = mySelectionEnd.atEndOfLine();
-                }
+        if (myIsStartAnchor) {
+            // adjust end
+            boolean isEndExtended = isSelectionEndExtended != null ? isSelectionEndExtended : myFactory.getManager().isSelectionEndExtended();
+            if (!isEndExtended || myCaretPosition.column == 0) {
+                mySelectionEnd = mySelectionEnd.atStartOfLine();
             } else {
-                // adjust start
-                boolean isStartExtended = isSelectionStartExtended != null ? isSelectionStartExtended : myFactory.getManager().isSelectionStartExtended();
-                if (!isStartExtended && mySelectionStart.column != 0) {
-                    mySelectionStart = mySelectionStart.atStartOfNextLine();
-                } else {
-                    mySelectionStart = mySelectionStart.atStartOfLine();
-                }
+                mySelectionEnd = mySelectionEnd.atEndOfLine();
             }
-
-            myIsLine = true;
+        } else {
+            // adjust start
+            boolean isStartExtended = isSelectionStartExtended != null ? isSelectionStartExtended : myFactory.getManager().isSelectionStartExtended();
+            if (!isStartExtended && myCaretPosition.column != 0) {
+                mySelectionStart = mySelectionStart.atStartOfNextLine();
+            } else {
+                mySelectionStart = mySelectionStart.atStartOfLine();
+            }
         }
+
+        myIsLine = true;
         return this;
     }
 
@@ -475,7 +491,7 @@ public class EditorCaret implements EditorCaretSnapshot {
                 } else {
                     mySelectionEnd = mySelectionEnd.atColumn(myCaretPosition);
                 }
-                mySelectionStart = myAnchorPosition;
+                mySelectionStart = getCharSelectionStart();
             } else {
                 boolean isStartExtended = isSelectionStartExtended != null ? isSelectionStartExtended : myFactory.getManager().isSelectionStartExtended();
                 if (!isStartExtended && myCaretPosition.column != 0) {
@@ -483,7 +499,7 @@ public class EditorCaret implements EditorCaretSnapshot {
                 } else {
                     mySelectionStart = mySelectionStart.atColumn(myCaretPosition);
                 }
-                mySelectionEnd = myAnchorPosition;
+                mySelectionEnd = getCharSelectionEnd();
             }
 
             if (mySelectionStart.line > mySelectionEnd.line || (mySelectionStart.line == mySelectionEnd.line && mySelectionStart.column > mySelectionEnd.column)) {
@@ -491,7 +507,7 @@ public class EditorCaret implements EditorCaretSnapshot {
                 mySelectionStart = mySelectionEnd;
                 mySelectionEnd = pos;
                 myIsStartAnchor = !myIsStartAnchor;
-                myAnchorPosition = getAnchorPosition();
+                myAnchorColumn = getAnchorPosition().column;
             }
             myIsLine = false;
         }
@@ -749,7 +765,7 @@ public class EditorCaret implements EditorCaretSnapshot {
         myIsStartAnchor = isStartAnchor;
         return this;
     }
-    
+
     public boolean isUseSoftWraps() {
         return myFactory.getEditor().getSettings().isUseSoftWraps();
     }
@@ -764,10 +780,10 @@ public class EditorCaret implements EditorCaretSnapshot {
     public EditorPosition adjustIndentRelative(EditorPosition position, int ourIndent, int preservedColumn, int preservedIndent) {
         return position.atColumn(ourIndent + (preservedColumn - preservedIndent));
     }
-    
+
     public String toString() {
         return "EditorCaret{" +
-                ", anchorPosition=" + myAnchorPosition +
+                ", anchorPosition=" + myAnchorColumn +
                 ", isLine=" + myIsLine +
                 ", caretPosition=" + myCaretPosition +
                 ", selectionStart=" + mySelectionStart +

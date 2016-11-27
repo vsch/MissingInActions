@@ -21,9 +21,38 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
+import com.intellij.openapi.util.Pair;
+
 import javax.swing.*;
 
 public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
+
+    static boolean onFirst(ComboBoxAdapter adapter, int intValue, OnMap map) {
+        OnIt on = map.on(new OnIt());
+
+        for (Pair<ComboBoxAdaptable, Runnable> doRun : on.getList()) {
+            if (doRun.getFirst().getIntValue() == intValue && adapter.isAdaptable(doRun.getFirst())) {
+                doRun.getSecond().run();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean onAll(ComboBoxAdapter adapter, int intValue, OnMap map) {
+        boolean ran = false;
+        OnIt on = map.on(new OnIt());
+
+        for (Pair<ComboBoxAdaptable, Runnable> doRun : on.getList()) {
+            if (doRun.getFirst().getIntValue() == intValue && adapter.isAdaptable(doRun.getFirst())) {
+                doRun.getSecond().run();
+                ran = true;
+            }
+        }
+        return ran;
+    }
+
+    boolean isAdaptable(ComboBoxAdaptable type);
     void fillComboBox(JComboBox comboBox, E... exclude);
     E findEnum(int intValue);
     E findEnum(String displayName);

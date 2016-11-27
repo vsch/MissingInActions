@@ -21,12 +21,13 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import com.intellij.codeInsight.lookup.LookupManager;
+import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretAttributes;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.util.Key;
 import com.intellij.ui.JBColor;
@@ -41,7 +42,10 @@ import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.List;
 
@@ -53,6 +57,7 @@ import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_ARE
 public class LineSelectionManager implements
         CaretListener
         //, SelectionListener
+        , PropertyChangeListener
         , EditorMouseListener
         , EditorMouseMotionListener
         , Disposable
@@ -79,6 +84,7 @@ public class LineSelectionManager implements
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private AwtRunnable myHighlightCaretsRunnable = new AwtRunnable(true, this::highlightCarets);
+    private boolean myIsActiveLookup;  // true if a lookup is active in the editor
 
     @Override
     public void dispose() {
@@ -152,12 +158,12 @@ public class LineSelectionManager implements
     @NotNull
     public LineSelectionState getSelectionState(@NotNull Caret caret) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        return new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor);
+        return new LineSelectionState(state.anchorColumn, state.isStartAnchor);
     }
 
-    void setLineSelectionState(@NotNull Caret caret, @Nullable LogicalPosition anchorPosition, boolean isStartAnchor) {
+    void setLineSelectionState(@NotNull Caret caret, int anchorColumn, boolean isStartAnchor) {
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        state.anchorPosition = anchorPosition;
+        state.anchorColumn = anchorColumn;
         state.isStartAnchor = isStartAnchor;
     }
 
@@ -197,7 +203,7 @@ public class LineSelectionManager implements
             if (editorCaret.isLine()) {
                 lineCarets.put(caret, true);
                 editorCaret
-                        .toCharSelectionForCaretPositionBasedLineSelection(startExtended, endExtended)
+                        .toCharSelection()
                         .normalizeCaretPosition()
                         .commit();
             }
@@ -223,7 +229,7 @@ public class LineSelectionManager implements
             if (lineCarets.containsKey(caret)) {
                 EditorCaret editorCaret = getEditorCaret(caret);
                 editorCaret
-                        .toCaretPositionBasedLineSelection()
+                        .toLineSelection()
                         .normalizeCaretPosition()
                         .commit();
             }
@@ -276,9 +282,17 @@ public class LineSelectionManager implements
             //    myEditor.getSelectionModel().removeSelectionListener(this);
             //});
 
+            if (myEditor.getProject() != null) {
+                LookupManager.getInstance(myEditor.getProject()).addPropertyChangeListener(this);
+                
+                myDelayedRunner.addRunnable("LookupManagerPropertyListener", () -> {
+                    LookupManager.getInstance(myEditor.getProject()).removePropertyChangeListener(this);
+                });
+            }
+
             if (settings.isMouseLineSelection()) {
-                myEditor.addEditorMouseMotionListener(this);
                 myEditor.addEditorMouseListener(this);
+                myEditor.addEditorMouseMotionListener(this);
                 myDelayedRunner.addRunnable("MouseListener", () -> {
                     myEditor.removeEditorMouseListener(this);
                     myEditor.removeEditorMouseMotionListener(this);
@@ -287,9 +301,28 @@ public class LineSelectionManager implements
         }
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
+            final JComponent rootPane = myEditor.getComponent();
+            Editor newEditor = null;
+            Editor oldEditor = null;
+            if (evt.getNewValue() instanceof LookupImpl) {
+                LookupImpl lookup = (LookupImpl) evt.getNewValue();
+                newEditor = lookup.getEditor();
+            }
+            if (evt.getOldValue() instanceof LookupImpl) {
+                LookupImpl lookup = (LookupImpl) evt.getOldValue();
+                oldEditor = lookup.getEditor();
+            }
+            myIsActiveLookup = newEditor == myEditor;
+            int tmp = 0;
+        }
+    }
+    
     @SuppressWarnings("WeakerAccess")
     public boolean isLineSelectionSupported() {
-        return myEditor.getProject() != null && !myEditor.isOneLineMode();
+        return myEditor.getProject() != null && !myEditor.isOneLineMode() && !myIsActiveLookup;
     }
 
     public void guard(Runnable runnable) {
@@ -330,7 +363,7 @@ public class LineSelectionManager implements
 
     @Override
     public void mouseReleased(EditorMouseEvent e) {
-        if (e.getArea() == EDITING_AREA) {
+        if (e.getArea() == EDITING_AREA && !myEditor.getSettings().isUseSoftWraps() && !myEditor.isColumnMode()) {
             int offset = myEditor.getCaretModel().getOffset();
             //println("mouse released offset: " + offset + " anchor: " + myMouseAnchor /*+ " event:" + e.getMouseEvent()*/ + " isConsumed " + e.isConsumed());
 
@@ -362,8 +395,8 @@ public class LineSelectionManager implements
 
     @Override
     public void mouseDragged(EditorMouseEvent e) {
-        if (e.getArea() == EDITING_AREA) {
-            int offset = myEditor.getCaretModel().getOffset();
+        if (e.getArea() == EDITING_AREA && !myEditor.getSettings().isUseSoftWraps() && !myEditor.isColumnMode()) {
+            // TODO: get mouse anchor in Visual
             //println("mouseDragged offset: " + offset + " ctrl:" + isControlledSelect(e) + " anchor: " + myMouseAnchor + " event:" + e.getMouseEvent() + " isConsumed" + e.isConsumed());
             if (myMouseAnchor == -1) {
                 // first drag event, take the selection's anchor
@@ -389,7 +422,7 @@ public class LineSelectionManager implements
         int endOffset = isStartAnchor ? offset : mouseAnchor;
 
         StoredLineSelectionState state = getStoredSelectionState(caret);
-        state.anchorPosition = myPositionFactory.fromOffset(mouseAnchor);
+        state.anchorColumn = myPositionFactory.fromOffset(mouseAnchor).column;
         state.isStartAnchor = isStartAnchor;
 
         final EditorPosition start = myPositionFactory.fromOffset(startOffset);
@@ -428,11 +461,9 @@ public class LineSelectionManager implements
                     }
                     state.isStartAnchor = isStartAnchor;
                     caret.setSelection(isStartAnchor ? startOffset : caret.getOffset(), isStartAnchor ? caret.getOffset() : endOffset);
-                    EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, new LineSelectionState(myPositionFactory.fromPosition(state.anchorPosition), state.isStartAnchor));
+                    EditorCaret editorCaret = new EditorCaret(myPositionFactory, caret, new LineSelectionState(state.anchorColumn, state.isStartAnchor));
                     editorCaret
                             .toCaretPositionBasedLineSelection(true, false)
-                            .toCharSelectionForCaretPositionBasedLineSelection(isSelectionStartExtended(), isSelectionEndExtended())
-                            .toCaretPositionBasedLineSelection(isSelectionStartExtended(), isSelectionEndExtended())
                             .normalizeCaretPosition()
                             .commit();
                 } else {
@@ -495,18 +526,18 @@ public class LineSelectionManager implements
     }
 
     private static class StoredLineSelectionState {
-        @Nullable LogicalPosition anchorPosition = null;
+        int anchorColumn = -1;
         boolean isStartAnchor = true;
 
         void resetToDefault() {
-            anchorPosition = null;
+            anchorColumn = -1;
             isStartAnchor = true;
         }
 
         @Override
         public String toString() {
             return "StoredLineSelectionState{" +
-                    "anchorPosition=" + anchorPosition +
+                    "anchorColumn=" + anchorColumn +
                     ", isStartAnchor=" + isStartAnchor +
                     '}';
         }

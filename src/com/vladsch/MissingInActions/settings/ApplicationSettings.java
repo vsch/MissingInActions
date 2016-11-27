@@ -59,6 +59,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myIsSelectionEndExtended = false;
     private boolean myIsSelectionStartExtended = true;
     private boolean myTypingDeletesLineSelection = false;
+    private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
+    private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
 
     // customized word flags
     @SuppressWarnings("ConstantConditionalExpression")
@@ -88,6 +90,22 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myUpDownMovement
                 //|| myLeftRightMovement
         );
+    }
+
+    public int getCaretOnMoveSelectionDown() {
+        return myCaretOnMoveSelectionDown;
+    }
+
+    public void setCaretOnMoveSelectionDown(int caretOnMoveSelectionDown) {
+        myCaretOnMoveSelectionDown = caretOnMoveSelectionDown;
+    }
+
+    public int getCaretOnMoveSelectionUp() {
+        return myCaretOnMoveSelectionUp;
+    }
+
+    public void setCaretOnMoveSelectionUp(int caretOnMoveSelectionUp) {
+        myCaretOnMoveSelectionUp = caretOnMoveSelectionUp;
     }
 
     public boolean isIndentUnindent() {

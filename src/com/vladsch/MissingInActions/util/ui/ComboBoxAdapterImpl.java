@@ -46,6 +46,11 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
     }
 
     @Override
+    public boolean isAdaptable(ComboBoxAdaptable type) {
+        return myDefault.getClass() == type.getClass();
+    }
+
+    @Override
     public E findEnum(int intValue) {
         for (E item : myDefault.getEnumValues()) {
             if (item.getIntValue() == intValue) {
@@ -79,4 +84,5 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
     public E getDefault() {
         return myDefault;
     }
+
 }

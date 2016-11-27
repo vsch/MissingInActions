@@ -63,9 +63,8 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
         if (caret.hasSelection()) {
             EditorCaret editorCaret = manager.getEditorCaret(caret);
             if (editorCaret.getSelectionLineCount() > 1) {
-                editorCaret.setIsStartAnchor(!editorCaret.isStartAnchor())
-                        .setSavedAnchor(editorCaret.getAnchorPosition())
-                        .normalizeCaretPosition()
+                editorCaret
+                        .setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor())
                         .commit();
             }
         }

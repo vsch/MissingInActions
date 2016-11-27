@@ -25,9 +25,7 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
-import com.vladsch.flexmark.util.collection.DataValueFactory;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
-import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
 import com.vladsch.flexmark.util.options.MutableDataSet;
@@ -50,6 +48,7 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     final static public DataKey<EditorPosition>         LINE_SELECTION_START    = new DynamicDefaultKey<>("LINE_SELECTION_START", holder -> CARET.getFrom(holder).getLineSelectionStart());
     final static public DataKey<EditorPosition>         SELECTION_END           = new DynamicDefaultKey<>("SELECTION_END", holder -> CARET.getFrom(holder).getSelectionEnd());
     final static public DataKey<EditorPosition>         SELECTION_START         = new DynamicDefaultKey<>("SELECTION_START", holder -> CARET.getFrom(holder).getSelectionStart());
+    final static public DataKey<Integer>                ANCHOR_COLUMN           = new DynamicDefaultKey<>("ANCHOR_COLUMN", holder -> CARET.getFrom(holder).getAnchorColumn());
     final static public DataKey<Integer>                COLUMN                  = new DynamicDefaultKey<>("COLUMN", holder -> CARET.getFrom(holder).getColumn());
     final static public DataKey<Integer>                INDENT                  = new DynamicDefaultKey<>("INDENT", holder -> CARET.getFrom(holder).getIndent());
     final static public DataKey<Integer>                SELECTION_LINE_COUNT    = new DynamicDefaultKey<>("SELECTION_LINE_COUNT", holder -> CARET.getFrom(holder).getSelectionLineCount());
@@ -90,6 +89,7 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
         LINE_SELECTION_START.getFrom(this);
         SELECTION_END.getFrom(this);
         SELECTION_START.getFrom(this);
+        ANCHOR_COLUMN.getFrom(this);
         COLUMN.getFrom(this);
         INDENT.getFrom(this);
         SELECTION_LINE_COUNT.getFrom(this);
@@ -102,20 +102,21 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     // *
 
     // @formatter:off
-    @Override public boolean                       hasLines()                 { return HAS_LINES.getFrom(this); }
-    @Override public boolean                       hasSelection()             { return HAS_SELECTION.getFrom(this); } 
-    @Override public boolean                       isLine()                   { return IS_LINE.getFrom(this); }
-    @Override public boolean                       isStartAnchor()            { return IS_START_ANCHOR.getFrom(this); }     
-    @Override @NotNull public EditorPosition       getAnchorPosition()        { return ANCHOR_POSITION.getFrom(this); }         
-    @Override @NotNull public EditorPosition       getAntiAnchorPosition()    { return ANTI_ANCHOR_POSITION.getFrom(this); }             
-    @Override @NotNull public EditorPosition       getCaretPosition()         { return CARET_POSITION.getFrom(this); }     
-    @Override @NotNull public EditorPosition       getLineSelectionEnd()      { return LINE_SELECTION_END.getFrom(this); }         
-    @Override @NotNull public EditorPosition       getLineSelectionStart()    { return LINE_SELECTION_START.getFrom(this); }             
-    @Override @NotNull public EditorPosition       getSelectionEnd()          { return SELECTION_END.getFrom(this); }     
-    @Override @NotNull public EditorPosition       getSelectionStart()        { return SELECTION_START.getFrom(this); }         
-    @Override public int                           getColumn()                { return COLUMN.getFrom(this); } 
-    @Override public int                           getIndent()                { return INDENT.getFrom(this); } 
-    @Override public int                           getSelectionLineCount()    { return SELECTION_LINE_COUNT.getFrom(this); }             
+    @Override public boolean                        hasLines()                              { return HAS_LINES.getFrom(this); }
+    @Override public boolean                        hasSelection()                          { return HAS_SELECTION.getFrom(this); } 
+    @Override public boolean                        isLine()                                { return IS_LINE.getFrom(this); }
+    @Override public boolean                        isStartAnchor()                         { return IS_START_ANCHOR.getFrom(this); }     
+    @Override @NotNull public EditorPosition        getAnchorPosition()                     { return ANCHOR_POSITION.getFrom(this); }         
+    @Override @NotNull public EditorPosition        getAntiAnchorPosition()                 { return ANTI_ANCHOR_POSITION.getFrom(this); }             
+    @Override @NotNull public EditorPosition        getCaretPosition()                      { return CARET_POSITION.getFrom(this); }     
+    @Override @NotNull public EditorPosition        getLineSelectionEnd()                   { return LINE_SELECTION_END.getFrom(this); }         
+    @Override @NotNull public EditorPosition        getLineSelectionStart()                 { return LINE_SELECTION_START.getFrom(this); }             
+    @Override @NotNull public EditorPosition        getSelectionEnd()                       { return SELECTION_END.getFrom(this); }     
+    @Override @NotNull public EditorPosition        getSelectionStart()                     { return SELECTION_START.getFrom(this); }         
+    @Override public int                            getAnchorColumn()                       { return ANCHOR_COLUMN.getFrom(this); }         
+    @Override public int                            getColumn()                             { return COLUMN.getFrom(this); } 
+    @Override public int                            getIndent()                             { return INDENT.getFrom(this); } 
+    @Override public int                            getSelectionLineCount()                 { return SELECTION_LINE_COUNT.getFrom(this); }             
     // @formatter:on
 
     // Helpers

@@ -44,63 +44,29 @@
         <div xmlns="http://www.w3.org/1999/html">
             <h3>0.7.2 - Refactoring and Code Cleanup</h3>
             <ul>
+                <li>Fix: copy in multi-caret mode with selections moves the first caret to end of
+                    selection. Disable caret movement for copy in multi-caret mode.</li>
+                <li>Fix: move lines up/down looses caret column</li>
+                <li>Fix: selecting lines down gets stuck at blank lines when shrinking selection and anchor is
+                    at column 1.</li>
+                <li>Fix: toggle caret looses the original anchor column</li>
+                <li>Fix: move lines up/down with selection having anchor at column 1 moves caret to column 1
+                    instead of preserving it.</li>
+                <li>Add: options on where to move the caret on selection move: for up and for down.</li>
+                <li>Fix: check if editor has pop-up and do nothing for up/down/left/right keys. Test that
+                    left/right is needed.</li>
                 <li>Change: switch all code to use <code>EditorCaret</code> for manipulating selections</li>
-                <li>Change: completely rewritten the abstraction layer. Now much better and easier to maintain.</li>
+                <li>Change: completely rewritten the abstraction layer. Now much better and easier to
+                    maintain.</li>
                 <li>Add: Selection extends at start/end, 4 combinations</li>
                 <li>Add: Typing deletes line selection option</li>
-                <li>Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or more
-                    lines</li>
+                <li>Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or
+                    more lines</li>
                 <li>Add: indent/unindent to preserve caret column position</li>
-                <li>Fix: disable trying to preserve column when soft-wraps are on. Just freezes the caret at a
-                    location since vertical movement causes horizontal in the visual position space.</li>
-                <li>Fix: disabling delete on typing for line selections would sometimes disable it for non line selections.</li>
-            </ul>
-            <h3>0.7.0 - Enhancements</h3>
-            <ul>
-                <li>Add: Fixes for actions in Auto Line Mode:
-                    <ul>
-                        <li>Toggle Case: remove selection after if there was not one before</li>
-                        <li>Copy: if no selection before then leave the caret column unchanged</li>
-                        <li>Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
-                            action, if selection was line selection before then restore caret column position after</li>
-                    </ul>
-                </li>
-                <li>Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
-                    for bug in IDE action that does not adjust selection start if it is not at the left margin.</li>
-                <li>Add: Select pasted text option to keep the selection so it can be operated on with option to
-                    only select if pasted text contains at least one line--contains end of line.</li>
-                <li>Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
-                    the left margin.</li>
-                <li>Add: option to remove selection created by toggle case. Will leave selection made before in
-                    tact.</li>
-                <li>Fix: delete to line end not eol was deleting one character less than end of line</li>
-                <li>Add: Option to fix duplicate line or selection to duplicate before the selection if caret is
-                    at the head of the selection (actually if the selection was started from the end).
-                    <p>Allows fast duplication of a block of code up, instead of always down and having to move it
-                        up over a copy of itself.</p>
-                </li>
-                <li>Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
-                    full lines if the trimming or expansion affects whitespace chars only.</li>
-                <li>Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
-                    remembers if it was turned on from the panel and if line mode is disabled offers a link to
-                    disable it.</li>
-                <li>Add: Identifier Word variations, will only stop on java identifiers, spaces and
-                    non-identifiers are treated as equal</li>
-                <li>Add: Customized Word variations can set if these will stop on:
-                    <ul>
-                        <li>start of line/end of line</li>
-                        <li>indent/trailing blanks on a line</li>
-                        <li>identifier camel humps or word camel humps rules</li>
-                        <li>normal, stay on same line and stay on same line in multi-caret mode</li>
-                    </ul>
-                </li>
-                <li>Add: action to toggle camel humps mode, with option to make mouse setting follow camel humps
-                    setting.</li>
-                <li>Add: action to toggle identifier/word mode for customized word actions, customized next word
-                    is taken as the value to toggle with the rest following.</li>
-                <li>Add: Delete and Backspace white space only, used to pull jagged edge alignment into a straight
-                    line.</li>
-                <li>Add: settings UI for custom next/prev word end/start, start of word and end of word variations</li>
+                <li>Fix: disable trying to preserve column when soft-wraps are on. Just freezes the caret at
+                    a location since vertical movement causes horizontal in the visual position space.</li>
+                <li>Fix: disabling delete on typing for line selections would sometimes disable it for non
+                    line selections.</li>
             </ul>
         </div>
         ]]></change-notes>

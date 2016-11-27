@@ -60,11 +60,13 @@ public class ApplicationSettingsForm implements Disposable {
     private CustomizedBoundaryForm myCustomizedPrevWordBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
-    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm1;
+    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm;
     private JBCheckBox myIsSelectionEndExtendedPastCaret;
     private JBCheckBox myIsSelectionStartExtendedBeforeCaret;
     private JBCheckBox myTypingDeletesLineSelection;
     private JBCheckBox myIndentUnindent;
+    private JComboBox myCaretOnMoveSelectionDown;
+    private JComboBox myCaretOnMoveSelectionUp;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -113,6 +115,8 @@ public class ApplicationSettingsForm implements Disposable {
 
                 || SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue != mySettings.getSelectPastedPredicate()
                 || SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue != mySettings.getDuplicateAtStartOrEndPredicate()
+                || CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionDown.getSelectedItem()).intValue != mySettings.getCaretOnMoveSelectionDown()
+                || CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionUp.getSelectedItem()).intValue != mySettings.getCaretOnMoveSelectionUp()
                 ;
     }
 
@@ -143,6 +147,9 @@ public class ApplicationSettingsForm implements Disposable {
 
         mySettings.setSelectPastedPredicate(SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue);
         mySettings.setDuplicateAtStartOrEndPredicate(SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue);
+        
+        mySettings.setCaretOnMoveSelectionDown(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionDown.getSelectedItem()).intValue);
+        mySettings.setCaretOnMoveSelectionUp(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionUp.getSelectedItem()).intValue);
 
         if (mySettings.isMouseCamelHumpsFollow()) {
             EditorSettingsExternalizable settings = EditorSettingsExternalizable.getInstance();
@@ -166,6 +173,8 @@ public class ApplicationSettingsForm implements Disposable {
 
         mySelectPastedPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getSelectPastedPredicate()).displayName);
         myDuplicateAtStartOrEndPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getDuplicateAtStartOrEndPredicate()).displayName);
+        myCaretOnMoveSelectionDown.setSelectedItem(CaretAdjustmentType.ADAPTER.findEnum(mySettings.getCaretOnMoveSelectionDown()).displayName);
+        myCaretOnMoveSelectionUp.setSelectedItem(CaretAdjustmentType.ADAPTER.findEnum(mySettings.getCaretOnMoveSelectionUp()).displayName);
 
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
@@ -271,6 +280,9 @@ public class ApplicationSettingsForm implements Disposable {
 
         myDuplicateAtStartOrEndPredicate = new JComboBox();
         SelectionPredicateType.fillComboBox(myDuplicateAtStartOrEndPredicate);
+
+        myCaretOnMoveSelectionDown = new JComboBox(); CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionDown);
+        myCaretOnMoveSelectionUp = new JComboBox(); CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionUp);
 
         myMouseModifier = new JComboBox();
         MouseModifierType.fillComboBox(myMouseModifier);
