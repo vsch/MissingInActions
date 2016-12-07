@@ -32,9 +32,10 @@ import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGIO
 import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REGION;
 
 @State(
-        name = "MissingInAction",
+        name = "MissingInActions",
         storages = {
-                @Storage(id = "MissingInActionSettings", file = StoragePathMacros.APP_CONFIG + "/MissingInAction.xml", roamingType = RoamingType.DISABLED)
+                @Storage(id = "MissingInActionSettings", file = StoragePathMacros.APP_CONFIG + "/MissingInAction.xml", roamingType = RoamingType.DISABLED, deprecated = true),
+                @Storage(id = "MissingInActionSettings", file = StoragePathMacros.APP_CONFIG + "/MissingInActions.xml", roamingType = RoamingType.DISABLED)
         }
 )
 @SuppressWarnings("WeakerAccess")
@@ -47,6 +48,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myIndentUnindent = false;
     private boolean myLeftRightMovement = false;
     private boolean myUpDownSelection = false;
+    private boolean myCopyLineOrLineSelection = false;
+    private boolean myStartEndAsLineSelection = false;
     private int myAutoIndentDelay = 300;
     private boolean myAutoIndent = false;
     private boolean mySelectPasted = false;
@@ -59,15 +62,25 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myIsSelectionEndExtended = false;
     private boolean myIsSelectionStartExtended = true;
     private boolean myTypingDeletesLineSelection = false;
+    private boolean myPreserveCamelCaseOnPaste = false;
+    private boolean myPreserveScreamingSnakeCaseOnPaste = false;
+    private boolean myPreserveSnakeCaseOnPaste = false;
+    private boolean myRemovePrefixOnPaste = false;
+    private String myRemovePrefixOnPaste1 = "my";
+    private String myRemovePrefixOnPaste2 = "our";
+    private boolean myOverrideStandardPaste = false;
     private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
     private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
 
     // customized word flags
-    @SuppressWarnings("ConstantConditionalExpression")
+    @SuppressWarnings({ "ConstantConditionalExpression", "PointlessBitwiseExpression" })
     final private static int CUSTOMIZED_DEFAULTS = (true ? START_OF_LINE : 0)
             | (true ? END_OF_LINE : 0)
             | (true ? START_OF_TRAILING_BLANKS | END_OF_LEADING_BLANKS : 0)
-            | (true ? IDENTIFIER : 0)
+            | (false ? IDE_WORD : 0)
+            | (false ? MIA_WORD : 0)
+            | (true ? MIA_IDENTIFIER : 0)
+            | (false ? SPACE_DELIMITED : 0)
             | (false ? START_OF_WORD : 0)
             | (false ? END_OF_WORD : 0)
             | (false ? START_OF_FOLDING_REGION : 0)
@@ -91,6 +104,42 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myLeftRightMovement
         );
     }
+
+    public boolean isOverrideStandardPaste() { return myOverrideStandardPaste; }
+
+    public void setOverrideStandardPaste(final boolean overrideStandardPaste) { myOverrideStandardPaste = overrideStandardPaste; }
+
+    public boolean isPreserveScreamingSnakeCaseOnPaste() { return myPreserveScreamingSnakeCaseOnPaste; }
+
+    public void setPreserveScreamingSnakeCaseOnPaste(boolean preserveScreamingSnakeCaseOnPaste) { myPreserveScreamingSnakeCaseOnPaste = preserveScreamingSnakeCaseOnPaste; }
+
+    public boolean isPreserveSnakeCaseOnPaste() { return myPreserveSnakeCaseOnPaste; }
+
+    public void setPreserveSnakeCaseOnPaste(boolean preserveSnakeCaseOnPaste) { myPreserveSnakeCaseOnPaste = preserveSnakeCaseOnPaste; }
+
+    public boolean isRemovePrefixOnPaste() { return myRemovePrefixOnPaste; }
+
+    public void setRemovePrefixOnPaste(boolean removePrefixOnPaste) { myRemovePrefixOnPaste = removePrefixOnPaste; }
+
+    public String getRemovePrefixOnPaste1() { return myRemovePrefixOnPaste1; }
+
+    public void setRemovePrefixOnPaste1(String removePrefixOnPaste1) { myRemovePrefixOnPaste1 = removePrefixOnPaste1; }
+
+    public String getRemovePrefixOnPaste2() { return myRemovePrefixOnPaste2; }
+
+    public void setRemovePrefixOnPaste2(String removePrefixOnPaste2) { myRemovePrefixOnPaste2 = removePrefixOnPaste2; }
+
+    public boolean isPreserveCamelCaseOnPaste() { return myPreserveCamelCaseOnPaste; }
+
+    public void setPreserveCamelCaseOnPaste(boolean preserveCamelCaseOnPaste) { myPreserveCamelCaseOnPaste = preserveCamelCaseOnPaste; }
+
+    public boolean isStartEndAsLineSelection() { return myStartEndAsLineSelection; }
+
+    public void setStartEndAsLineSelection(boolean startEndAsLineSelection) { myStartEndAsLineSelection = startEndAsLineSelection; }
+
+    public boolean isCopyLineOrLineSelection() { return myCopyLineOrLineSelection; }
+
+    public void setCopyLineOrLineSelection(boolean copyLineOrLineSelection) { myCopyLineOrLineSelection = copyLineOrLineSelection; }
 
     public int getCaretOnMoveSelectionDown() {
         return myCaretOnMoveSelectionDown;

@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="true" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="567" height="297"/>
+      <xy x="20" y="20" width="232" height="307"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,7 +16,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="97f8d" layout-manager="GridLayoutManager" row-count="9" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="97f8d" layout-manager="GridLayoutManager" row-count="12" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -24,7 +24,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="694ab" class="javax.swing.JLabel" binding="myLabelStartOfLine">
+              <component id="694ab" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -34,7 +34,7 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="bd418" class="javax.swing.JLabel" binding="myLabelLeadingBlanks">
+              <component id="bd418" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -44,7 +44,7 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="85a15" class="javax.swing.JLabel" binding="myLabelTrailingSpaces">
+              <component id="85a15" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -54,7 +54,7 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="c3872" class="javax.swing.JLabel" binding="myLabelEndOfLine">
+              <component id="c3872" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -64,20 +64,20 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="a4acd" class="javax.swing.JLabel" binding="myLabelIdentifier">
+              <component id="a4acd" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <focusable value="false"/>
-                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.label"/>
-                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.ide-word.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.ide-word.description"/>
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="77975" class="javax.swing.JLabel" binding="myLabelSingleLine">
+              <component id="77975" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <focusable value="false"/>
@@ -86,18 +86,18 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="b85be" class="javax.swing.JLabel" binding="myLabelMultiCaretSingleLine">
+              <component id="b85be" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <focusable value="false"/>
-                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.mult-caret-single-line.label"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.multi-caret-single-line.label"/>
                   <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.multi-caret-single-line.description"/>
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="962f2" class="javax.swing.JLabel" binding="myLabelEndOfWord">
+              <component id="962f2" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -107,13 +107,46 @@
                   <visible value="true"/>
                 </properties>
               </component>
-              <component id="3b30a" class="javax.swing.JLabel" binding="myLabelStartOfWord">
+              <component id="3b30a" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <focusable value="false"/>
                   <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.start-of-word.label"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="74dca" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.mia-word.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.mia-word.description"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="445ad" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                  <visible value="true"/>
+                </properties>
+              </component>
+              <component id="20e74" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <focusable value="false"/>
+                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.space-delimited.label"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.space-delimited.description"/>
                   <visible value="true"/>
                 </properties>
               </component>

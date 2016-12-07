@@ -53,7 +53,7 @@ public class ReEntryGuard extends AtomicInteger {
         ifUnguarded(runnable, null);
     }
 
-    public void ifUnguarded(@NotNull Runnable runnable, boolean ifGuardedRunOnExit) {
+    public void ifUnguarded(boolean ifGuardedRunOnExit, @NotNull Runnable runnable) {
         ifUnguarded(runnable, ifGuardedRunOnExit ? runnable : null);
     }
 

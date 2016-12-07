@@ -30,13 +30,13 @@ public class ToggleCustomIdentifierModeAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         ApplicationSettings settings = ApplicationSettings.getInstance();
-        boolean identifierMode = (settings.getCustomizedNextWordBounds() & EditHelpers.IDENTIFIER) != 0;
+        boolean identifierMode = (settings.getCustomizedNextWordBounds() & EditHelpers.MIA_IDENTIFIER) != 0;
 
-        settings.setCustomizedNextWordBounds((settings.getCustomizedNextWordBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
-        settings.setCustomizedNextWordStartBounds((settings.getCustomizedNextWordStartBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
-        settings.setCustomizedNextWordEndBounds((settings.getCustomizedNextWordEndBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
-        settings.setCustomizedPrevWordBounds((settings.getCustomizedPrevWordBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
-        settings.setCustomizedPrevWordStartBounds((settings.getCustomizedPrevWordStartBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
-        settings.setCustomizedPrevWordEndBounds((settings.getCustomizedPrevWordEndBounds() & ~EditHelpers.IDENTIFIER) | (!identifierMode ? EditHelpers.IDENTIFIER : 0));
+        settings.setCustomizedNextWordBounds((settings.getCustomizedNextWordBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
+        settings.setCustomizedNextWordStartBounds((settings.getCustomizedNextWordStartBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
+        settings.setCustomizedNextWordEndBounds((settings.getCustomizedNextWordEndBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
+        settings.setCustomizedPrevWordBounds((settings.getCustomizedPrevWordBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
+        settings.setCustomizedPrevWordStartBounds((settings.getCustomizedPrevWordStartBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
+        settings.setCustomizedPrevWordEndBounds((settings.getCustomizedPrevWordEndBounds() & ~EditHelpers.MIA_IDENTIFIER) | (!identifierMode ? EditHelpers.MIA_IDENTIFIER : 0));
     }
 }

@@ -36,7 +36,7 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     // @formatter:off
     final static public DataKey<EditorCaretSnapshot>    CARET                   = new DataKey<>("CARET", EditorCaretSnapshot.NULL);
     final static public DataKey<Params>                 PARAMS                  = new DataKey<>("PARAMS", value-> new Params(null));
-    
+
     final static public DataKey<Boolean>                HAS_LINES               = new DynamicDefaultKey<>("HAS_LINES", holder -> CARET.getFrom(holder).hasLines());
     final static public DataKey<Boolean>                HAS_SELECTION           = new DynamicDefaultKey<>("HAS_SELECTION", holder -> CARET.getFrom(holder).hasSelection());
     final static public DataKey<Boolean>                IS_LINE                 = new DynamicDefaultKey<>("IS_LINE", holder -> CARET.getFrom(holder).isLine());
@@ -63,15 +63,21 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     }
 
     final private Caret myCaret;
+    final private int myIndex;
 
-    public CaretSnapshot(EditorCaret editorCaret) {
+    public CaretSnapshot(EditorCaret editorCaret, int index) {
         myCaret = editorCaret.getCaret();
+        myIndex = index;
         snapshot(editorCaret);
     }
 
     @NotNull
     public Caret getCaret() {
         return myCaret;
+    }
+
+    public int getIndex() {
+        return myIndex;
     }
 
     private void snapshot(EditorCaret editorCaret) {
@@ -103,20 +109,20 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
 
     // @formatter:off
     @Override public boolean                        hasLines()                              { return HAS_LINES.getFrom(this); }
-    @Override public boolean                        hasSelection()                          { return HAS_SELECTION.getFrom(this); } 
+    @Override public boolean                        hasSelection()                          { return HAS_SELECTION.getFrom(this); }
     @Override public boolean                        isLine()                                { return IS_LINE.getFrom(this); }
-    @Override public boolean                        isStartAnchor()                         { return IS_START_ANCHOR.getFrom(this); }     
-    @Override @NotNull public EditorPosition        getAnchorPosition()                     { return ANCHOR_POSITION.getFrom(this); }         
-    @Override @NotNull public EditorPosition        getAntiAnchorPosition()                 { return ANTI_ANCHOR_POSITION.getFrom(this); }             
-    @Override @NotNull public EditorPosition        getCaretPosition()                      { return CARET_POSITION.getFrom(this); }     
-    @Override @NotNull public EditorPosition        getLineSelectionEnd()                   { return LINE_SELECTION_END.getFrom(this); }         
-    @Override @NotNull public EditorPosition        getLineSelectionStart()                 { return LINE_SELECTION_START.getFrom(this); }             
-    @Override @NotNull public EditorPosition        getSelectionEnd()                       { return SELECTION_END.getFrom(this); }     
-    @Override @NotNull public EditorPosition        getSelectionStart()                     { return SELECTION_START.getFrom(this); }         
-    @Override public int                            getAnchorColumn()                       { return ANCHOR_COLUMN.getFrom(this); }         
-    @Override public int                            getColumn()                             { return COLUMN.getFrom(this); } 
-    @Override public int                            getIndent()                             { return INDENT.getFrom(this); } 
-    @Override public int                            getSelectionLineCount()                 { return SELECTION_LINE_COUNT.getFrom(this); }             
+    @Override public boolean                        isStartAnchor()                         { return IS_START_ANCHOR.getFrom(this); }
+    @Override @NotNull public EditorPosition        getAnchorPosition()                     { return ANCHOR_POSITION.getFrom(this); }
+    @Override @NotNull public EditorPosition        getAntiAnchorPosition()                 { return ANTI_ANCHOR_POSITION.getFrom(this); }
+    @Override @NotNull public EditorPosition        getCaretPosition()                      { return CARET_POSITION.getFrom(this); }
+    @Override @NotNull public EditorPosition        getLineSelectionEnd()                   { return LINE_SELECTION_END.getFrom(this); }
+    @Override @NotNull public EditorPosition        getLineSelectionStart()                 { return LINE_SELECTION_START.getFrom(this); }
+    @Override @NotNull public EditorPosition        getSelectionEnd()                       { return SELECTION_END.getFrom(this); }
+    @Override @NotNull public EditorPosition        getSelectionStart()                     { return SELECTION_START.getFrom(this); }
+    @Override public int                            getAnchorColumn()                       { return ANCHOR_COLUMN.getFrom(this); }
+    @Override public int                            getColumn()                             { return COLUMN.getFrom(this); }
+    @Override public int                            getIndent()                             { return INDENT.getFrom(this); }
+    @Override public int                            getSelectionLineCount()                 { return SELECTION_LINE_COUNT.getFrom(this); }
     // @formatter:on
 
     // Helpers

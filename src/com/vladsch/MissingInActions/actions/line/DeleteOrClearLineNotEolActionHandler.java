@@ -80,7 +80,7 @@ public class DeleteOrClearLineNotEolActionHandler extends EditorWriteActionHandl
             }
 
             if (end > lineEndOffset) {
-                end = lineEndOffset - 1;
+                end = lineEndOffset;
             }
 
             if (end > lineEndOffset || end <= start) {

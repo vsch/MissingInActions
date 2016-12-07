@@ -24,7 +24,7 @@
  * User: max
  * Date: May 13, 2002
  * Time: 9:58:23 PM
- * To change template for new class use 
+ * To change template for new class use
  * Code Style | Class Templates options (Tools | IDE Options).
  */
 package com.vladsch.MissingInActions.actions.line;
@@ -63,9 +63,12 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
         if (caret.hasSelection()) {
             EditorCaret editorCaret = manager.getEditorCaret(caret);
             if (editorCaret.getSelectionLineCount() > 1) {
-                editorCaret
-                        .setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor())
-                        .commit();
+                int column = editorCaret.getCaretPosition().column;
+                editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
+                if (column != 0 && editorCaret.getCaretPosition().column == 0) {
+                      editorCaret.restoreColumn(column);
+                }
+                editorCaret.commit();
             }
         }
     }

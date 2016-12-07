@@ -21,6 +21,8 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
 import com.vladsch.MissingInActions.util.EditHelpers;
@@ -31,7 +33,7 @@ import java.util.function.Function;
 
 @SuppressWarnings("WeakerAccess")
 public class EditorPosition extends LogicalPosition {
-    final public static  EditorPosition NULL = new EditorPosition(EditorPositionFactory.NULL, 0, 0);
+    final public static EditorPosition NULL = new EditorPosition(EditorPositionFactory.NULL, 0, 0);
     final private @NotNull EditorPositionFactory myFactory;
 
     EditorPosition(@NotNull EditorPositionFactory factory, int line, int column) throws IllegalArgumentException {
@@ -87,13 +89,33 @@ public class EditorPosition extends LogicalPosition {
     }
 
     @NotNull
-    public EditorPosition atEndOfLine() {
+    public EditorPosition atEndOfLineSelection() {
         if (line < myFactory.getDocumentLineCount()) {
             int lineOffset = column > 0 ? 1 : 0;
             return atPosition(line + lineOffset, 0);
         } else {
             return myFactory.getDocumentEndPosition();
         }
+    }
+
+    @NotNull
+    public EditorPosition atStartColumn() {
+        return atPosition(line, 0);
+    }
+
+    @NotNull
+    public EditorPosition atTrimmedEndColumn() {
+        return atPosition(line, getTrimmedEndColumn());
+    }
+
+    @NotNull
+    public EditorPosition atEndColumn() {
+        return atPosition(line, getEndColumn());
+    }
+
+    public boolean isAtBoundary(int flags) {
+        // TODO: add code
+        return false;
     }
 
     @NotNull
@@ -110,12 +132,14 @@ public class EditorPosition extends LogicalPosition {
     public EditorPosition toTrimmedOrExpandedFullLine() {
         EditorPosition result = this;
         if (column != 0) {
-            if (column <= getIndentColumn()) {
+            int indentColumn = getIndentColumn();
+            int trimmedEndColumn = getTrimmedEndColumn();
+            if (this.column <= indentColumn || indentColumn == trimmedEndColumn) {
                 // all before start and after end is blank, we can safely convert it by expanding to full lines
                 result = atStartOfLine();
-            } else if (column >= getTrimmedEndColumn()) {
+            } else if (this.column >= trimmedEndColumn) {
                 // all after start and before end is blank, we can safely convert it to by trimming out the empty first and last line of the selection
-                result = atEndOfLine();
+                result = atEndOfLineSelection();
             }
         }
         return result;
@@ -128,7 +152,7 @@ public class EditorPosition extends LogicalPosition {
         if (column != 0) {
             if (column >= getTrimmedEndColumn()) {
                 // all after start and before end is blank, we can safely convert it to by trimming out the empty first and last line of the selection
-                result = atEndOfLine();
+                result = atEndOfLineSelection();
             } else if (column <= getIndentColumn()) {
                 // all before start and after end is blank, we can safely convert it by expanding to full lines
                 result = atStartOfLine();
@@ -180,13 +204,23 @@ public class EditorPosition extends LogicalPosition {
         return start.column == 0 && end.column == 0 && end.line > start.line;
     }
 
+    @NotNull
+    public Editor getEditor() {
+        return myFactory.getEditor();
+    }
+
+    @NotNull
+    public Document getDocument() {
+        return myFactory.getEditor().getDocument();
+    }
+
     public int getIndentColumn() {
         return EditHelpers.countWhiteSpace(myFactory.getEditor().getDocument().getCharsSequence(), atStartOfLine().getOffset(), atStartOfNextLine().getOffset());
     }
 
     public int getTrimmedEndColumn() {
         CharSequence chars = myFactory.getEditor().getDocument().getCharsSequence();
-        int endOfLine = atEndOfLine().getOffset();
+        int endOfLine = atEndOfLineSelection().getOffset();
         int startOfLine = atStartOfLine().getOffset();
 
         if (endOfLine < chars.length()) {
@@ -196,9 +230,14 @@ public class EditorPosition extends LogicalPosition {
         return endOfLine - startOfLine - EditHelpers.countWhiteSpaceReversed(chars, startOfLine, endOfLine);
     }
 
+    public int getEndColumn() {
+        Document document = getDocument();
+        return document.getLineEndOffset(line) - document.getLineStartOffset(line);
+    }
+
     @NotNull
     public EditorPosition atTrimmedStart() {
-        return column != 0 && column >= getTrimmedEndColumn() ? atEndOfLine() : this;
+        return column != 0 && column >= getTrimmedEndColumn() ? atEndOfLineSelection() : this;
     }
 
     @NotNull

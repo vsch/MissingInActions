@@ -15,31 +15,6 @@
         <option name="HTML_DO_NOT_INDENT_CHILDREN_OF" value="html,body" />
         <option name="HTML_DONT_ADD_BREAKS_IF_INLINE_CONTENT" value="title,h1,h2,h3,h4,h5,h6,p,li" />
         <option name="FORMATTER_TAGS_ENABLED" value="true" />
-        <JavaCodeStyleSettings>
-          <option name="DO_NOT_WRAP_AFTER_SINGLE_ANNOTATION" value="true" />
-          <option name="BLANK_LINES_AROUND_INITIALIZER" value="0" />
-        </JavaCodeStyleSettings>
-        <MarkdownNavigatorCodeStyleSettings>
-          <option name="WRAP_ON_TYPING" value="1" />
-          <option name="SMART_EDIT_ASTERISKS" value="true" />
-          <option name="SMART_EDIT_TILDES" value="true" />
-          <option name="KEEP_BLANK_LINES" value="1" />
-          <option name="LIST_RIGHT_ALIGN_NUMERIC" value="false" />
-          <option name="LIST_SPACING" value="1" />
-          <option name="VERBATIM_MINIMIZE_INDENT" value="true" />
-          <option name="CODE_FENCE_MINIMIZE_INDENT" value="true" />
-          <option name="CODE_FENCE_MATCH_CLOSING_MARKER" value="true" />
-          <option name="ABBREVIATIONS_PLACEMENT" value="4" />
-          <option name="FOOTNOTE_PLACEMENT" value="4" />
-          <option name="REFERENCE_PLACEMENT" value="4" />
-          <option name="ABBREVIATIONS_SORT" value="2" />
-          <option name="FOOTNOTE_SORT" value="2" />
-          <option name="REFERENCE_SORT" value="2" />
-          <option name="SMART_EDIT_TABLES" value="true" />
-          <option name="TABLE_LEFT_ALIGN_MARKER" value="0" />
-          <option name="TOC_TITLE_LEVEL" value="3" />
-          <option name="RIGHT_MARGIN" value="96" />
-        </MarkdownNavigatorCodeStyleSettings>
         <DBN-PSQL>
           <case-options enabled="false">
             <option name="KEYWORD_CASE" value="lower" />
@@ -64,6 +39,35 @@
             <option name="ITERATION_ELEMENTS_WRAPPING" value="chop_down_if_not_single" />
           </formatting-settings>
         </DBN-SQL>
+        <JavaCodeStyleSettings>
+          <option name="DO_NOT_WRAP_AFTER_SINGLE_ANNOTATION" value="true" />
+          <option name="BLANK_LINES_AROUND_INITIALIZER" value="0" />
+        </JavaCodeStyleSettings>
+        <MarkdownNavigatorCodeStyleSettings>
+          <option name="WRAP_ON_TYPING" value="1" />
+          <option name="SMART_EDIT_ASTERISKS" value="true" />
+          <option name="SMART_EDIT_TILDES" value="true" />
+          <option name="KEEP_BLANK_LINES" value="1" />
+          <option name="LIST_ALIGN_FIRST_LINE_TEXT" value="true" />
+          <option name="LIST_SPACING" value="1" />
+          <option name="VERBATIM_MINIMIZE_INDENT" value="true" />
+          <option name="CODE_FENCE_MINIMIZE_INDENT" value="true" />
+          <option name="CODE_FENCE_MATCH_CLOSING_MARKER" value="true" />
+          <option name="ABBREVIATIONS_PLACEMENT" value="4" />
+          <option name="FOOTNOTE_PLACEMENT" value="4" />
+          <option name="REFERENCE_PLACEMENT" value="4" />
+          <option name="ABBREVIATIONS_SORT" value="2" />
+          <option name="FOOTNOTE_SORT" value="2" />
+          <option name="REFERENCE_SORT" value="2" />
+          <option name="SMART_EDIT_TABLES" value="true" />
+          <option name="TABLE_LEFT_ALIGN_MARKER" value="0" />
+          <option name="TOC_TITLE_LEVEL" value="3" />
+          <option name="RIGHT_MARGIN" value="96" />
+        </MarkdownNavigatorCodeStyleSettings>
+        <MultiMarkdownCodeStyleSettings>
+          <option name="LIST_ALIGN_FIRST_LINE_TEXT" value="true" />
+          <option name="LIST_RIGHT_ALIGN_NUMERIC" value="true" />
+        </MultiMarkdownCodeStyleSettings>
         <XML>
           <option name="XML_ATTRIBUTE_WRAP" value="0" />
           <option name="XML_KEEP_BLANK_LINES" value="1" />

@@ -107,7 +107,7 @@ public class EditorCaret implements EditorCaretSnapshot {
     @Override
     @NotNull
     public EditorPosition getLineSelectionEnd() {
-        return mySelectionEnd.atEndOfLine();
+        return mySelectionEnd.atEndOfLineSelection();
     }
 
     @Override
@@ -454,7 +454,7 @@ public class EditorCaret implements EditorCaretSnapshot {
             if (!isEndExtended || myCaretPosition.column == 0) {
                 mySelectionEnd = mySelectionEnd.atStartOfLine();
             } else {
-                mySelectionEnd = mySelectionEnd.atEndOfLine();
+                mySelectionEnd = mySelectionEnd.atEndOfLineSelection();
             }
         } else {
             // adjust start
@@ -528,7 +528,7 @@ public class EditorCaret implements EditorCaretSnapshot {
         if (!myIsLine && mySelectionStart.line != mySelectionEnd.line) {
             if (mySelectionStart.column != 0 || mySelectionEnd.column != 0) {
                 EditorPosition selectionStart = mySelectionStart.toTrimmedOrExpandedFullLine();
-                EditorPosition selectionEnd = mySelectionEnd.toExpandedOrTrimmedFullLine();
+                EditorPosition selectionEnd = mySelectionEnd.toTrimmedOrExpandedFullLine();
                 return selectionStart.column == 0 && selectionEnd.column == 0;
             } else {
                 return true;
@@ -546,7 +546,7 @@ public class EditorCaret implements EditorCaretSnapshot {
     public EditorCaret trimOrExpandToFullLines() {
         if ((mySelectionStart.column != 0 || mySelectionEnd.column != 0) && hasSelection()) {
             mySelectionStart = mySelectionStart.toTrimmedOrExpandedFullLine();
-            mySelectionEnd = mySelectionEnd.toExpandedOrTrimmedFullLine();
+            mySelectionEnd = mySelectionEnd.toTrimmedOrExpandedFullLine();
         }
         return this;
     }

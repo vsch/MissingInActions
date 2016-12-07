@@ -36,7 +36,7 @@
         ]]>
     </description>
 
-    <version>0.7.2</version>
+    <version>0.7.3.1</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
@@ -120,16 +120,16 @@
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordEndWithSelectionAction" id="MissingInActions.PreviousWordEndWithSelection" text="Move Caret to Previous End of Word with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordEndInDifferentHumpsModeAction" id="MissingInActions.PreviousWordEndInDifferentHumpsMode" text='Move Caret to Previous End of Word in Different "CamelHumps" Mode' description='"Move Caret to Previous End of Word in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordEndInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousWordEndInDifferentHumpsModeWithSelection" text='Move Caret to Previous End of Word in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous End of Word in Different "CamelHumps" Mode with Selection'/>
-            <action class="com.vladsch.MissingInActions.actions.character.word.NextWordStartAction" id="MissingInActions.NextWordStart" text="Move Caret to Next Start of Word" description="Move Caret to Next Start of Word"/> 
+            <action class="com.vladsch.MissingInActions.actions.character.word.NextWordStartAction" id="MissingInActions.NextWordStart" text="Move Caret to Next Start of Word" description="Move Caret to Next Start of Word"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordStartWithSelectionAction" id="MissingInActions.NextWordStartWithSelection" text="Move Caret to Next Start of Word with Selection" description="Move Caret to Next Start of Word with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordStartInDifferentHumpsModeAction" id="MissingInActions.NextWordInDifferentHumpsModeStart" text='Move Caret to Next Start of Word in Different "CamelHumps" Mode' description='"Move Caret to Next Start of Word in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.NextWordInDifferentHumpsModeStartWithSelection" text='Move Caret to Next Start of Word in Different "CamelHumps" Mode with Selection' description='Move Caret to Next Start of Word in Different "CamelHumps" Mode with Selection'/>
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartAction" id="MissingInActions.PreviousWordStart" text="Move Caret to Previous Start of Word" description="Move Caret to Previous Start of Word"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartWithSelectionAction" id="MissingInActions.PreviousWordStartWithSelection" text="Move Caret to Previous Start of Word with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeAction" id="MissingInActions.PreviousWordInDifferentHumpsModeStart" text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode' description='"Move Caret to Previous Start of Word in Different "CamelHumps" Mode'/>
-            <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousWordInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection'/>        
+            <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousWordInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection'/>
         </group>
-        
+
         <group id="MissingInActions.IdentifierActions" text="Identifier Start/End Navigation and Selection">
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordAction" id="MissingInActions.NextIdentifier" text="Move Caret to Next Identifier" description="Move Caret to Next Identifier"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordWithSelectionAction" id="MissingInActions.NextIdentifierWithSelection" text="Move Caret to Next Identifier with Selection" description="Move Caret to Next Identifier with Selection"/>
@@ -147,16 +147,16 @@
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndWithSelectionAction" id="MissingInActions.PreviousIdentifierEndWithSelection" text="Move Caret to Previous End of Identifier with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndInDifferentHumpsModeAction" id="MissingInActions.PreviousIdentifierEndInDifferentHumpsMode" text='Move Caret to Previous End of Identifier in Different "CamelHumps" Mode' description='"Move Caret to Previous End of Identifier in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousIdentifierEndInDifferentHumpsModeWithSelection" text='Move Caret to Previous End of Identifier in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous End of Identifier in Different "CamelHumps" Mode with Selection'/>
-            <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordStartAction" id="MissingInActions.NextIdentifierStart" text="Move Caret to Next Start of Identifier" description="Move Caret to Next Start of Identifier"/> 
+            <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordStartAction" id="MissingInActions.NextIdentifierStart" text="Move Caret to Next Start of Identifier" description="Move Caret to Next Start of Identifier"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordStartWithSelectionAction" id="MissingInActions.NextIdentifierStartWithSelection" text="Move Caret to Next Start of Identifier with Selection" description="Move Caret to Next Start of Identifier with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordStartInDifferentHumpsModeAction" id="MissingInActions.NextIdentifierInDifferentHumpsModeStart" text='Move Caret to Next Start of Identifier in Different "CamelHumps" Mode' description='"Move Caret to Next Start of Identifier in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.NextIdentifierInDifferentHumpsModeStartWithSelection" text='Move Caret to Next Start of Identifier in Different "CamelHumps" Mode with Selection' description='Move Caret to Next Start of Identifier in Different "CamelHumps" Mode with Selection'/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartAction" id="MissingInActions.PreviousIdentifierStart" text="Move Caret to Previous Start of Identifier" description="Move Caret to Previous Start of Identifier"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartWithSelectionAction" id="MissingInActions.PreviousIdentifierStartWithSelection" text="Move Caret to Previous Start of Identifier with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeAction" id="MissingInActions.PreviousIdentifierInDifferentHumpsModeStart" text='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode' description='"Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode'/>
-            <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousIdentifierInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection'/>        
+            <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousIdentifierInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection'/>
         </group>
-        
+
         <group id="MissingInActions.CustomizedActions" text="Identifier Start/End Navigation and Selection">
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordAction" id="MissingInActions.NextCustomized" text="Move Caret to Next Customized" description="Move Caret to Next Customized"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordWithSelectionAction" id="MissingInActions.NextCustomizedWithSelection" text="Move Caret to Next Customized with Selection" description="Move Caret to Next Customized with Selection"/>
@@ -174,7 +174,7 @@
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndWithSelectionAction" id="MissingInActions.PreviousCustomizedEndWithSelection" text="Move Caret to Previous End of Customized with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndInDifferentHumpsModeAction" id="MissingInActions.PreviousCustomizedEndInDifferentHumpsMode" text='Move Caret to Previous End of Customized in Different "CamelHumps" Mode' description='"Move Caret to Previous End of Customized in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousCustomizedEndInDifferentHumpsModeWithSelection" text='Move Caret to Previous End of Customized in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous End of Customized in Different "CamelHumps" Mode with Selection'/>
-            <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordStartAction" id="MissingInActions.NextCustomizedStart" text="Move Caret to Next Start of Customized" description="Move Caret to Next Start of Customized"/> 
+            <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordStartAction" id="MissingInActions.NextCustomizedStart" text="Move Caret to Next Start of Customized" description="Move Caret to Next Start of Customized"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordStartWithSelectionAction" id="MissingInActions.NextCustomizedStartWithSelection" text="Move Caret to Next Start of Customized with Selection" description="Move Caret to Next Start of Customized with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordStartInDifferentHumpsModeAction" id="MissingInActions.NextCustomizedInDifferentHumpsModeStart" text='Move Caret to Next Start of Customized in Different "CamelHumps" Mode' description='"Move Caret to Next Start of Customized in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.NextCustomizedInDifferentHumpsModeStartWithSelection" text='Move Caret to Next Start of Customized in Different "CamelHumps" Mode with Selection' description='Move Caret to Next Start of Customized in Different "CamelHumps" Mode with Selection'/>
@@ -182,7 +182,7 @@
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartWithSelectionAction" id="MissingInActions.PreviousCustomizedStartWithSelection" text="Move Caret to Previous Start of Customized with Selection" description="Move caret to end of previous word with selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartInDifferentHumpsModeAction" id="MissingInActions.PreviousCustomizedInDifferentHumpsModeStart" text='Move Caret to Previous Start of Customized in Different "CamelHumps" Mode' description='"Move Caret to Previous Start of Customized in Different "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousCustomizedInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Customized in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Customized in Different "CamelHumps" Mode with Selection'/>
-            
+
             <action class="com.vladsch.MissingInActions.actions.character.ToggleCamelModeAction"
                     id="MissingInActions.ToggleCamelMode"
                     text='Toggle "CamelHumps" Mode'
@@ -194,8 +194,8 @@
                     description='Toggle Identifier Mode for Customized'>
             </action>
         </group>
-        
-        <group id="MissingInActions.MultiCaretFriendly" text="Multi Caret Friendly Deletes">
+
+        <group id="MissingInActions.MultiCaretFriendly" text="Multi Caret Friendly">
             <action class="com.vladsch.MissingInActions.actions.line.DeleteToLineEndNotEolAction"
                     id="MissingInActions.DeleteToLineEndNotEol"
                     text="Delete to Line End not EOL"
@@ -249,6 +249,18 @@
                     text='Delete to Word End in Different "CamelHumps" Mode not EOL'
                     description='Delete to Word End in Different "CamelHumps" Mode not EOL'>
             </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.MiaPasteAction"
+                    id="MissingInActions.Paste"
+                    text="Paste"
+                    description="Paste">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction"
+                    id="MissingInActions.MultiplePaste"
+                    text="Paste from history ..."
+                    description="Paste from history ...">
+            </action>
         </group>
 
         <group id="MissingInActions.MultiCaretShapersFilters" text="Multi Caret Modifiers">
@@ -258,16 +270,52 @@
                     description="Straighten Carets">
             </action>
 
+            <action class="com.vladsch.MissingInActions.actions.carets.SmartKeepLineCaretsAction"
+                    id="MissingInActions.SmartKeepLineCarets"
+                    text="Smart Keep Line Carets"
+                    description="Smart Keep Line Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.SmartRemoveLineCaretsAction"
+                    id="MissingInActions.SmartRemoveLineCarets"
+                    text="Smart Remove Line Carets"
+                    description="Smart Remove Line Carets">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.carets.RemoveBlankLineCaretsAction"
                     id="MissingInActions.RemoveBlankLineCarets"
                     text="Remove Blank Line Carets"
                     description="Remove Blank Line Carets">
             </action>
 
-            <action class="com.vladsch.MissingInActions.actions.carets.RemoveNonBlankLineCaretsAction"
-                    id="MissingInActions.RemoveNonBlankLineCarets"
-                    text="Remove Non Blank Line Carets"
-                    description="Remove Non Blank Line Carets">
+            <action class="com.vladsch.MissingInActions.actions.carets.RemoveLineCommentCaretsAction"
+                    id="MissingInActions.RemoveCommentLineCarets"
+                    text="Remove Line Comment Carets"
+                    description="Remove Line Comment Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.RemoveCodeLineCaretsAction"
+                    id="MissingInActions.RemoveCodeLineCarets"
+                    text="Remove Code Line Carets"
+                    description="Remove Code Line Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.KeepBlankLineCaretsAction"
+                    id="MissingInActions.KeepBlankLineCarets"
+                    text="Keep Blank Line Carets"
+                    description="Keep Blank Line Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.KeepLineCommentCaretsAction"
+                    id="MissingInActions.KeepLineCommentCarets"
+                    text="Keep Line Comment Carets"
+                    description="Keep Line Comment Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.KeepCodeLineCaretsAction"
+                    id="MissingInActions.KeepCodeLineCarets"
+                    text="Keep Code Line Carets"
+                    description="Keep Code Line Carets">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.carets.ToggleCaretsLineSelectionAction"

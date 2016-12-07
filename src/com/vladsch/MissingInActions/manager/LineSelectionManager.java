@@ -24,19 +24,19 @@ package com.vladsch.MissingInActions.manager;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretAttributes;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.util.Key;
-import com.intellij.ui.JBColor;
 import com.intellij.util.messages.MessageBusConnection;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
+import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
-import com.vladsch.MissingInActions.util.AwtRunnable;
+import com.vladsch.MissingInActions.util.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +47,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.List;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 
@@ -62,28 +61,22 @@ public class LineSelectionManager implements
         , EditorMouseMotionListener
         , Disposable
 {
-    private static boolean ourHaveCustomCaretAttributes = true;
 
     final private Editor myEditor;
     final private ReEntryGuard myCaretGuard = new ReEntryGuard();
     final private HashMap<Caret, StoredLineSelectionState> mySelectionStates = new HashMap<>();
     final private @NotNull DelayedRunner myDelayedRunner = new DelayedRunner();
     final private MessageBusConnection myMessageBusConnection;
-    final private @Nullable Key<CaretAttributes> myCustomAttributesKey;
     final private @NotNull ActionSelectionAdjuster myActionSelectionAdjuster;
     final private @NotNull EditorPositionFactory myPositionFactory;
 
     final private StoredLineSelectionState myPrimarySelectionState = new StoredLineSelectionState();
     private int myMouseAnchor = -1;
-    @Nullable private Caret myPrimaryCaret = null;
-    @Nullable private Caret mySecondaryCaret = null;
-    private @Nullable CaretAttributes myPrimaryAttributes = null;
-    private @Nullable CaretAttributes mySecondaryAttributes = null;
     private boolean myIsSelectionEndExtended;
     private boolean myIsSelectionStartExtended;
+    private final CaretHighlighter myCaretHighlighter;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
-    private AwtRunnable myHighlightCaretsRunnable = new AwtRunnable(true, this::highlightCarets);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
 
     @Override
@@ -103,18 +96,17 @@ public class LineSelectionManager implements
         myEditor = editor;
         myPositionFactory = new EditorPositionFactory(this);
 
-        Key<CaretAttributes> key = null;
-        if (ourHaveCustomCaretAttributes) {
-            try {
-                key = CaretAttributes.KEY;
-            } catch (Throwable ignored) {
-                ourHaveCustomCaretAttributes = false;
-            }
+
+        // this can fail if caret visual attributes are not implemented in the IDE (since 2017.1)
+        CaretHighlighter caretHighlighter;
+        try {
+            caretHighlighter = new CaretHighlighterImpl(this);
+        } catch (Throwable ignored) {
+            caretHighlighter = CaretHighlighter.NULL;
         }
 
+        myCaretHighlighter = caretHighlighter;
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
-        //myCustomAttributesKey = key;
-        myCustomAttributesKey = null;
 
         ApplicationSettings settings = ApplicationSettings.getInstance();
         settingsChanged(settings);
@@ -178,10 +170,6 @@ public class LineSelectionManager implements
         }
     }
 
-    public void updateCaretHighlights() {
-        highlightCarets();
-    }
-
     @SuppressWarnings("WeakerAccess")
     public boolean isSelectionEndExtended() {
         return myIsSelectionEndExtended;
@@ -216,13 +204,9 @@ public class LineSelectionManager implements
         myIsSelectionStartExtended = settings.isSelectionStartExtended();
 
         hookListeners(settings);
-        removeCaretHighlight();
-        highlightCarets();
-
-        if (myCustomAttributesKey != null) {
-            myPrimaryAttributes = new CaretAttributes(null, CaretAttributes.Weight.HEAVY);
-            mySecondaryAttributes = new CaretAttributes(JBColor.RED, CaretAttributes.Weight.THIN);
-        }
+        myCaretHighlighter.removeCaretHighlight();
+        myCaretHighlighter.updateCaretHighlights();
+        myCaretHighlighter.settingsChanged(settings);
 
         // change all selections that were lines back to lines
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
@@ -234,39 +218,7 @@ public class LineSelectionManager implements
                         .commit();
             }
         }
-    }
 
-    private void removeCaretHighlight() {
-        if (myCustomAttributesKey != null) {
-            if (myPrimaryCaret != null) {
-                myPrimaryCaret.putUserData(myCustomAttributesKey, null);
-            }
-            if (mySecondaryCaret != null) {
-                mySecondaryCaret.putUserData(myCustomAttributesKey, null);
-            }
-        }
-        myPrimaryCaret = null;
-        mySecondaryCaret = null;
-    }
-
-    private void highlightCarets() {
-        if (myCustomAttributesKey != null) {
-            Caret caret = myEditor.getCaretModel().getPrimaryCaret();
-
-            int caretCount = myEditor.getCaretModel().getCaretCount();
-            if (myPrimaryCaret != null && (caretCount == 1 || myPrimaryCaret != caret)) {
-                removeCaretHighlight();
-            }
-
-            if (caretCount > 1) {
-                myPrimaryCaret = caret;
-                myPrimaryCaret.putUserData(myCustomAttributesKey, myPrimaryAttributes);
-
-                List<Caret> carets = caret.getCaretModel().getAllCarets();
-                mySecondaryCaret = carets.get(0) == myPrimaryCaret ? carets.get(1) : carets.get(0);
-                mySecondaryCaret.putUserData(myCustomAttributesKey, mySecondaryAttributes);
-            }
-        }
     }
 
     private void hookListeners(ApplicationSettings settings) {
@@ -284,7 +236,7 @@ public class LineSelectionManager implements
 
             if (myEditor.getProject() != null) {
                 LookupManager.getInstance(myEditor.getProject()).addPropertyChangeListener(this);
-                
+
                 myDelayedRunner.addRunnable("LookupManagerPropertyListener", () -> {
                     LookupManager.getInstance(myEditor.getProject()).removePropertyChangeListener(this);
                 });
@@ -296,6 +248,19 @@ public class LineSelectionManager implements
                 myDelayedRunner.addRunnable("MouseListener", () -> {
                     myEditor.removeEditorMouseListener(this);
                     myEditor.removeEditorMouseMotionListener(this);
+                });
+            }
+
+            // override standard pastes
+            if (settings.isOverrideStandardPaste()) {
+                final AnAction multiPaste = new MiaMultiplePasteAction();
+                final AnAction paste = new MiaPasteAction();
+                multiPaste.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
+                paste.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
+
+                myDelayedRunner.addRunnable("Override Paste", ()->{
+                    multiPaste.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                    paste.unregisterCustomShortcutSet(myEditor.getContentComponent());
                 });
             }
         }
@@ -319,7 +284,7 @@ public class LineSelectionManager implements
             int tmp = 0;
         }
     }
-    
+
     @SuppressWarnings("WeakerAccess")
     public boolean isLineSelectionSupported() {
         return myEditor.getProject() != null && !myEditor.isOneLineMode() && !myIsActiveLookup;
@@ -328,6 +293,14 @@ public class LineSelectionManager implements
     public void guard(Runnable runnable) {
         myCaretGuard.guard(runnable);
     }
+
+    public void ifUnguarded(@NotNull Runnable runnable) {myCaretGuard.ifUnguarded(runnable);}
+
+    public void ifUnguarded(boolean ifGuardedRunOnExit, @NotNull Runnable runnable) {myCaretGuard.ifUnguarded(ifGuardedRunOnExit, runnable);}
+
+    public void ifUnguarded(@NotNull Runnable runnable, @Nullable Runnable runOnGuardExit) {myCaretGuard.ifUnguarded(runnable, runOnGuardExit);}
+
+    public boolean unguarded() {return myCaretGuard.unguarded();}
 
     private void println(String message) {
         if (Plugin.isFeatureLicensed(Plugin.FEATURE_DEVELOPMENT)) {
@@ -450,7 +423,7 @@ public class LineSelectionManager implements
                         if (isStartAnchor) {
                             caret.moveToLogicalPosition(end.addLine(-1).atColumn(caret.getLogicalPosition()));
                         } else {
-                            caret.moveToLogicalPosition(start.atEndOfLine().atColumn(caret.getLogicalPosition()));
+                            caret.moveToLogicalPosition(start.atEndOfLineSelection().atColumn(caret.getLogicalPosition()));
                         }
                     } else {
                         if (isStartAnchor) {
@@ -470,7 +443,7 @@ public class LineSelectionManager implements
                     if (isStartAnchor) {
                         caret.setSelection(start.atStartOfLine().getOffset(), end.atStartOfLine().getOffset());
                     } else {
-                        caret.setSelection(start.atStartOfLine().getOffset(), end.atEndOfLine().getOffset());
+                        caret.setSelection(start.atStartOfLine().getOffset(), end.atEndOfLineSelection().getOffset());
                     }
                 }
             }
@@ -482,7 +455,7 @@ public class LineSelectionManager implements
         myCaretGuard.ifUnguarded(() -> {
             Caret caret = e.getCaret();
             if (myMouseAnchor == -1 && caret != null) {
-                highlightCarets();
+                myCaretHighlighter.updateCaretHighlights();
             }
         });
     }
@@ -512,7 +485,7 @@ public class LineSelectionManager implements
     public void caretAdded(CaretEvent e) {
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
-            myCaretGuard.ifUnguarded(myHighlightCaretsRunnable);
+            myCaretHighlighter.caretAdded(caret);
         }
     }
 
@@ -521,8 +494,12 @@ public class LineSelectionManager implements
         mySelectionStates.remove(e.getCaret());
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
-            myCaretGuard.ifUnguarded(myHighlightCaretsRunnable);
+            myCaretHighlighter.caretRemoved(caret);
         }
+    }
+
+    public void updateCaretHighlights() {
+        myCaretHighlighter.updateCaretHighlights();
     }
 
     private static class StoredLineSelectionState {

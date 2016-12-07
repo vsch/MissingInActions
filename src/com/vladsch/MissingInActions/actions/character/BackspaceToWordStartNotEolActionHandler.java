@@ -104,7 +104,7 @@ public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHa
         int boundaryFlags = (true ? START_OF_LINE : 0)
                 | (true ? END_OF_LINE : 0)
                 | (true ? START_OF_TRAILING_BLANKS | END_OF_LEADING_BLANKS : 0)
-                | (true ? IDENTIFIER : 0)
+                | (true ? MIA_IDENTIFIER : 0)
                 | (true ? START_OF_WORD : 0)
                 | (false ? END_OF_WORD : 0)
                 | (false ? START_OF_FOLDING_REGION : 0)

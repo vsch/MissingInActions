@@ -25,6 +25,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBTextField;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.EditHelpers;
 
@@ -45,9 +46,18 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox myDeleteOperations;
     private JBCheckBox myUpDownMovement;
     private JBCheckBox myLeftRightMovement;
+    private JBCheckBox myCopyLineOrLineSelection;
+    private JBCheckBox myStartEndAsLineSelection;
     private JComboBox myMouseModifier;
     private JBCheckBox myAutoIndent;
     private JBCheckBox mySelectPasted;
+    private JBCheckBox myPreserveCamelCaseOnPaste;
+    private JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
+    private JBCheckBox myPreserveSnakeCaseOnPaste;
+    private JBCheckBox myRemovePrefixOnPaste;
+    private JBCheckBox myOverrideStandardPaste;
+    private JBTextField myRemovePrefixOnPaste1;
+    private JBTextField myRemovePrefixOnPaste2;
     private JComboBox mySelectPastedPredicate;
     private JBCheckBox myUnselectToggleCase;
     private JSpinner myAutoIndentDelay;
@@ -77,6 +87,7 @@ public class ApplicationSettingsForm implements Disposable {
         mySelectPasted.addActionListener(e -> updateOptions(false));
         myDuplicateAtStartOrEnd.addActionListener(e -> updateOptions(false));
         myMouseCamelHumpsFollow.addActionListener(e -> updateOptions(false));
+        myRemovePrefixOnPaste.addActionListener(e -> updateOptions(false));
 
         updateOptions(true);
     }
@@ -99,17 +110,26 @@ public class ApplicationSettingsForm implements Disposable {
                 || myIndentUnindent.isSelected() != mySettings.isIndentUnindent()
                 || myLeftRightMovement.isSelected() != mySettings.isLeftRightMovement()
                 || myUpDownSelection.isSelected() != mySettings.isUpDownSelection()
+                || myCopyLineOrLineSelection.isSelected() != mySettings.isCopyLineOrLineSelection()
+                || myStartEndAsLineSelection.isSelected() != mySettings.isStartEndAsLineSelection()
                 || myAutoIndent.isSelected() != mySettings.isAutoIndent()
                 || mySelectPasted.isSelected() != mySettings.isSelectPasted()
+                || myPreserveCamelCaseOnPaste.isSelected() != mySettings.isPreserveCamelCaseOnPaste()
+                || myPreserveScreamingSnakeCaseOnPaste.isSelected() != mySettings.isPreserveScreamingSnakeCaseOnPaste()
+                || myPreserveSnakeCaseOnPaste.isSelected() != mySettings.isPreserveSnakeCaseOnPaste()
+                || myRemovePrefixOnPaste.isSelected() != mySettings.isRemovePrefixOnPaste()
+                || myOverrideStandardPaste.isSelected() != mySettings.isOverrideStandardPaste()
+                || !myRemovePrefixOnPaste1.getText().equals(mySettings.getRemovePrefixOnPaste1())
+                || !myRemovePrefixOnPaste2.getText().equals(mySettings.getRemovePrefixOnPaste2())
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
                 || myDuplicateAtStartOrEnd.isSelected() != mySettings.isDuplicateAtStartOrEnd()
                 || (Integer) myAutoIndentDelay.getValue() != mySettings.getAutoIndentDelay()
-                || (myCustomizedNextWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordBounds() & ~wordMask)
                 || myMouseCamelHumpsFollow.isSelected() != mySettings.isMouseCamelHumpsFollow()
                 || myTypingDeletesLineSelection.isSelected() != mySettings.isTypingDeletesLineSelection()
-                || (myCustomizedPrevWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
                 || (myCustomizedNextWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordStartBounds() & ~wordMask)
                 || (myCustomizedPrevWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
+                || (myCustomizedNextWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordBounds() & ~wordMask)
+                || (myCustomizedPrevWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
                 || (myCustomizedNextWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordEndBounds() & ~wordMask)
                 || (myCustomizedPrevWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
 
@@ -131,23 +151,32 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setIndentUnindent(myIndentUnindent.isSelected());
         mySettings.setLeftRightMovement(myLeftRightMovement.isSelected());
         mySettings.setUpDownSelection(myUpDownSelection.isSelected());
+        mySettings.setCopyLineOrLineSelection(myCopyLineOrLineSelection.isSelected());
+        mySettings.setStartEndAsLineSelection(myStartEndAsLineSelection.isSelected());
         mySettings.setAutoIndent(myAutoIndent.isSelected());
         mySettings.setSelectPasted(mySelectPasted.isSelected());
+        mySettings.setPreserveCamelCaseOnPaste(myPreserveCamelCaseOnPaste.isSelected());
+        mySettings.setPreserveScreamingSnakeCaseOnPaste(myPreserveScreamingSnakeCaseOnPaste.isSelected());
+        mySettings.setPreserveSnakeCaseOnPaste(myPreserveSnakeCaseOnPaste.isSelected());
+        mySettings.setRemovePrefixOnPaste(myRemovePrefixOnPaste.isSelected());
+        mySettings.setOverrideStandardPaste(myOverrideStandardPaste.isSelected());
+        mySettings.setRemovePrefixOnPaste1(myRemovePrefixOnPaste1.getText());
+        mySettings.setRemovePrefixOnPaste2(myRemovePrefixOnPaste2.getText());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
         mySettings.setDuplicateAtStartOrEnd(myDuplicateAtStartOrEnd.isSelected());
         mySettings.setMouseCamelHumpsFollow(myMouseCamelHumpsFollow.isSelected());
         mySettings.setTypingDeletesLineSelection(myTypingDeletesLineSelection.isSelected());
         mySettings.setAutoIndentDelay((Integer) myAutoIndentDelay.getValue());
-        mySettings.setCustomizedNextWordBounds(myCustomizedNextWordBounds.getValue());
-        mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
         mySettings.setCustomizedNextWordStartBounds(myCustomizedNextWordStartBounds.getValue());
         mySettings.setCustomizedPrevWordStartBounds(myCustomizedPrevWordStartBounds.getValue());
+        mySettings.setCustomizedNextWordBounds(myCustomizedNextWordBounds.getValue());
+        mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
         mySettings.setCustomizedNextWordEndBounds(myCustomizedNextWordEndBounds.getValue());
         mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
 
         mySettings.setSelectPastedPredicate(SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue);
         mySettings.setDuplicateAtStartOrEndPredicate(SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue);
-        
+
         mySettings.setCaretOnMoveSelectionDown(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionDown.getSelectedItem()).intValue);
         mySettings.setCaretOnMoveSelectionUp(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionUp.getSelectedItem()).intValue);
 
@@ -168,8 +197,17 @@ public class ApplicationSettingsForm implements Disposable {
         myIndentUnindent.setSelected(mySettings.isIndentUnindent());
         myLeftRightMovement.setSelected(mySettings.isLeftRightMovement());
         myUpDownSelection.setSelected(mySettings.isUpDownSelection());
+        myCopyLineOrLineSelection.setSelected(mySettings.isCopyLineOrLineSelection());
+        myStartEndAsLineSelection.setSelected(mySettings.isStartEndAsLineSelection());
         myAutoIndent.setSelected(mySettings.isAutoIndent());
         mySelectPasted.setSelected(mySettings.isSelectPasted());
+        myPreserveCamelCaseOnPaste.setSelected(mySettings.isPreserveCamelCaseOnPaste());
+        myPreserveScreamingSnakeCaseOnPaste.setSelected(mySettings.isPreserveScreamingSnakeCaseOnPaste());
+        myPreserveSnakeCaseOnPaste.setSelected(mySettings.isPreserveSnakeCaseOnPaste());
+        myRemovePrefixOnPaste.setSelected(mySettings.isRemovePrefixOnPaste());
+        myOverrideStandardPaste.setSelected(mySettings.isOverrideStandardPaste());
+        myRemovePrefixOnPaste1.setText(mySettings.getRemovePrefixOnPaste1());
+        myRemovePrefixOnPaste2.setText(mySettings.getRemovePrefixOnPaste2());
 
         mySelectPastedPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getSelectPastedPredicate()).displayName);
         myDuplicateAtStartOrEndPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getDuplicateAtStartOrEndPredicate()).displayName);
@@ -181,10 +219,10 @@ public class ApplicationSettingsForm implements Disposable {
         myMouseCamelHumpsFollow.setSelected(mySettings.isMouseCamelHumpsFollow());
         myTypingDeletesLineSelection.setSelected(mySettings.isTypingDeletesLineSelection());
         myAutoIndentDelay.setValue(mySettings.getAutoIndentDelay());
-        myCustomizedNextWordBounds.setValue(mySettings.getCustomizedNextWordBounds());
-        myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
         myCustomizedNextWordStartBounds.setValue(mySettings.getCustomizedNextWordStartBounds());
         myCustomizedPrevWordStartBounds.setValue(mySettings.getCustomizedPrevWordStartBounds());
+        myCustomizedNextWordBounds.setValue(mySettings.getCustomizedNextWordBounds());
+        myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
         myCustomizedNextWordEndBounds.setValue(mySettings.getCustomizedNextWordEndBounds());
         myCustomizedPrevWordEndBounds.setValue(mySettings.getCustomizedPrevWordEndBounds());
         updateOptions(false);
@@ -229,10 +267,15 @@ public class ApplicationSettingsForm implements Disposable {
         myMouseModifier.setEnabled(selected && myMouseLineSelection.isSelected());
         myUpDownSelection.setEnabled(enabled);
         myUpDownMovement.setEnabled(enabled && modeEnabled);
+        myStartEndAsLineSelection.setEnabled(enabled && modeEnabled);
         myIndentUnindent.setEnabled(enabled && modeEnabled);
         myDeleteOperations.setEnabled(enabled && modeEnabled);
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
+        myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
+
+        myRemovePrefixOnPaste1.setEnabled(myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled());
+        myRemovePrefixOnPaste2.setEnabled(myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled());
 
         myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
@@ -281,8 +324,10 @@ public class ApplicationSettingsForm implements Disposable {
         myDuplicateAtStartOrEndPredicate = new JComboBox();
         SelectionPredicateType.fillComboBox(myDuplicateAtStartOrEndPredicate);
 
-        myCaretOnMoveSelectionDown = new JComboBox(); CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionDown);
-        myCaretOnMoveSelectionUp = new JComboBox(); CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionUp);
+        myCaretOnMoveSelectionDown = new JComboBox();
+        CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionDown);
+        myCaretOnMoveSelectionUp = new JComboBox();
+        CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionUp);
 
         myMouseModifier = new JComboBox();
         MouseModifierType.fillComboBox(myMouseModifier);

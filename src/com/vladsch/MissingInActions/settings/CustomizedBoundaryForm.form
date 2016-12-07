@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="67" height="297"/>
+      <xy x="20" y="20" width="71" height="379"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,7 +16,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="97f8d" layout-manager="GridLayoutManager" row-count="11" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="97f8d" layout-manager="GridLayoutManager" row-count="12" column-count="1" same-size-horizontally="false" same-size-vertically="true" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -26,45 +26,40 @@
             <children>
               <component id="8db26" class="com.intellij.ui.components.JBCheckBox" binding="myStartOfLine">
                 <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
               <component id="e5fa8" class="com.intellij.ui.components.JBCheckBox" binding="myTrailingSpaces">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
               <component id="1d98b" class="com.intellij.ui.components.JBCheckBox" binding="myLeadingBlanks">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
               <component id="1a25a" class="com.intellij.ui.components.JBCheckBox" binding="myEndOfLine">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
-              <component id="dae7e" class="com.intellij.ui.components.JBCheckBox" binding="myEndOfFold">
-                <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-              </component>
-              <component id="fdf37" class="com.intellij.ui.components.JBCheckBox" binding="myIdentifier">
+              <component id="fcde8" class="com.intellij.ui.components.JBRadioButton" binding="myIdentifier">
                 <constraints>
                   <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <horizontalAlignment value="0"/>
                   <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
                 </properties>
               </component>
               <component id="e5b3f" class="com.intellij.ui.components.JBCheckBox" binding="mySingleLine">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.single-line.description"/>
@@ -72,7 +67,7 @@
               </component>
               <component id="78145" class="com.intellij.ui.components.JBCheckBox" binding="myMultiCaretSingleLine">
                 <constraints>
-                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.multi-caret-single-line.description"/>
@@ -90,11 +85,32 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="df44d" class="com.intellij.ui.components.JBCheckBox" binding="myStartOfFold">
+              <component id="44a41" class="com.intellij.ui.components.JBRadioButton" binding="myWord">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <horizontalAlignment value="0"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                </properties>
+              </component>
+              <component id="41355" class="com.intellij.ui.components.JBRadioButton" binding="myIdeWord">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <horizontalAlignment value="0"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                </properties>
+              </component>
+              <component id="47240" class="com.intellij.ui.components.JBRadioButton" binding="mySpaceDelimited">
+                <constraints>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <horizontalAlignment value="0"/>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.word-boundary.identifiers.description"/>
+                </properties>
               </component>
             </children>
           </grid>
@@ -102,4 +118,12 @@
       </grid>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="WordRules">
+      <member id="41355"/>
+      <member id="44a41"/>
+      <member id="fcde8"/>
+      <member id="47240"/>
+    </group>
+  </buttonGroups>
 </form>

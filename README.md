@@ -59,7 +59,7 @@ and selection of start and end of words!
 [Version Notes]  
 [Download Latest 0.7.0 from this repo] 
 
-![Screen Shot sequence](assets/images/noload/MissingInActions.gif)
+![Screen Shot sequence](/assets/images/noload/MissingInActions.gif)
 
 ![Edit Actions](/assets/images/ToolsSettings.png)
 
@@ -144,7 +144,7 @@ indent the moved lines after a short delay. You can configure the delay so that 
 auto repeat on up/done kicks in before the delay runs out. When you pause or invoke another
 action the lines will be re-indented.
 
-![Screen Shot sequence](assets/images/noload/AutoIndentAfterMoveLines.gif)
+![Screen Shot sequence](/assets/images/noload/AutoIndentAfterMoveLines.gif)
 
 ### Auto Line Selections
 

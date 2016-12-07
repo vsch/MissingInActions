@@ -22,9 +22,8 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBRadioButton;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -34,9 +33,10 @@ public class CustomizedBoundaryForm {
     private JBCheckBox myLeadingBlanks;
     private JBCheckBox myTrailingSpaces;
     private JBCheckBox myEndOfLine;
-    private JBCheckBox myStartOfFold;
-    private JBCheckBox myEndOfFold;
-    private JBCheckBox myIdentifier;
+    private JBRadioButton myIdeWord;
+    private JBRadioButton myWord;
+    private JBRadioButton mySpaceDelimited;
+    private JBRadioButton myIdentifier;
     private JBCheckBox mySingleLine;
     private JBCheckBox myMultiCaretSingleLine;
     private JBCheckBox myStartOfWord;
@@ -45,8 +45,6 @@ public class CustomizedBoundaryForm {
     private int myFlags;
 
     public CustomizedBoundaryForm() {
-        myStartOfFold.setVisible(false);
-        myEndOfFold.setVisible(false);
         myStartOfWord.setEnabled(false);
         myEndOfWord.setEnabled(false);
 
@@ -68,11 +66,12 @@ public class CustomizedBoundaryForm {
         if (myEndOfWord.isSelected()) flags |= EditHelpers.END_OF_WORD;
         if (myStartOfLine.isSelected()) flags |= EditHelpers.START_OF_LINE;
         if (myEndOfLine.isSelected()) flags |= EditHelpers.END_OF_LINE;
-        if (myStartOfFold.isSelected()) flags |= EditHelpers.START_OF_FOLDING_REGION;
-        if (myEndOfFold.isSelected()) flags |= EditHelpers.END_OF_FOLDING_REGION;
         if (myLeadingBlanks.isSelected()) flags |= EditHelpers.END_OF_LEADING_BLANKS;
         if (myTrailingSpaces.isSelected()) flags |= EditHelpers.START_OF_TRAILING_BLANKS;
-        if (myIdentifier.isSelected()) flags |= EditHelpers.IDENTIFIER;
+        if (myIdeWord.isSelected()) flags |= EditHelpers.IDE_WORD;
+        else if (myWord.isSelected()) flags |= EditHelpers.MIA_WORD;
+        else if (myIdentifier.isSelected()) flags |= EditHelpers.MIA_IDENTIFIER;
+        else if (mySpaceDelimited.isSelected()) flags |= EditHelpers.SPACE_DELIMITED;
         if (mySingleLine.isSelected()) flags |= EditHelpers.SINGLE_LINE;
         if (myMultiCaretSingleLine.isEnabled()) {
             if (myMultiCaretSingleLine.isSelected()) flags |= EditHelpers.MULTI_CARET_SINGLE_LINE;
@@ -85,15 +84,17 @@ public class CustomizedBoundaryForm {
 
     public void setValue(int flags) {
         myFlags = flags;
+
         myStartOfWord.setSelected((flags & EditHelpers.START_OF_WORD) != 0);
         myEndOfWord.setSelected((flags & EditHelpers.END_OF_WORD) != 0);
         myStartOfLine.setSelected((flags & EditHelpers.START_OF_LINE) != 0);
         myEndOfLine.setSelected((flags & EditHelpers.END_OF_LINE) != 0);
-        myStartOfFold.setSelected((flags & EditHelpers.START_OF_FOLDING_REGION) != 0);
-        myEndOfFold.setSelected((flags & EditHelpers.END_OF_FOLDING_REGION) != 0);
         myLeadingBlanks.setSelected((flags & EditHelpers.END_OF_LEADING_BLANKS) != 0);
         myTrailingSpaces.setSelected((flags & EditHelpers.START_OF_TRAILING_BLANKS) != 0);
-        myIdentifier.setSelected((flags & EditHelpers.IDENTIFIER) != 0);
+        myIdeWord.setSelected((flags & EditHelpers.IDE_WORD) != 0);
+        myWord.setSelected((flags & EditHelpers.MIA_WORD) != 0);
+        myIdentifier.setSelected((flags & EditHelpers.MIA_IDENTIFIER) != 0);
+        mySpaceDelimited.setSelected((flags & EditHelpers.SPACE_DELIMITED) != 0);
         mySingleLine.setSelected((flags & EditHelpers.SINGLE_LINE) != 0);
         myMultiCaretSingleLine.setSelected((flags & EditHelpers.MULTI_CARET_SINGLE_LINE) != 0);
     }

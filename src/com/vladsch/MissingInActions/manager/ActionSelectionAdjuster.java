@@ -27,17 +27,23 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.util.TextRange;
+import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.SelectionPredicateType;
 import com.vladsch.MissingInActions.util.ActionContext;
 import com.vladsch.MissingInActions.util.CaretSnapshot;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import com.vladsch.flexmark.util.ValueRunnable;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +54,8 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
+import static com.vladsch.MissingInActions.util.EditHelpers.isCamelCase;
+import static java.lang.Character.*;
 
 public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
@@ -321,7 +329,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             myRunBeforeActions.add(runnable);
 
             // now schedule it to run
-            OneTimeRunnable.schedule(runnable, triggeredAction.getDelay());
+            OneTimeRunnable.schedule(triggeredAction.getDelay(), runnable);
         }
     }
 
@@ -361,9 +369,10 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     }
 
     private void forAllEditorCarets(@NotNull ActionContext context, @NotNull EditorCaretBeforeAction runnable) {
+        int index = 0;
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
             EditorCaret editorCaret = myManager.getEditorCaret(caret);
-            CaretSnapshot snapshot = new CaretSnapshot(editorCaret);
+            CaretSnapshot snapshot = new CaretSnapshot(editorCaret, index++);
 
             if (runnable.run(editorCaret, snapshot)) {
                 context.add(editorCaret, snapshot);
@@ -382,6 +391,27 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         });
     }
 
+    private void forAllEditorCaretsInWriteAction(@NotNull AnActionEvent event, boolean inWriteAction, @NotNull EditorCaretBeforeAction runnable, @NotNull EditorCaretAfterAction afterAction) {
+        final ActionContext context = new ActionContext();
+        forAllEditorCarets(context, runnable);
+
+        if (inWriteAction) {
+            myAfterActions.addAfterAction(event, () -> {
+                WriteCommandAction.runWriteCommandAction(myEditor.getProject(), () -> {
+                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                        afterAction.run(myManager.getEditorCaret(caret), context.get(caret));
+                    }
+                });
+            });
+        } else {
+            myAfterActions.addAfterAction(event, () -> {
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    afterAction.run(myManager.getEditorCaret(caret), context.get(caret));
+                }
+            });
+        }
+    }
+
     @SuppressWarnings({ "WeakerAccess", "UnnecessaryReturnStatement" })
     protected void adjustBeforeAction(ApplicationSettings settings, AnAction action, AdjustmentType adjustments, AnActionEvent event) {
         boolean isLineModeEnabled = settings.isLineModeEnabled();
@@ -396,7 +426,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
             if (adjustments == MOVE_CARET_LEFT_RIGHT___REMOVE_LINE__NOTHING) {
                 // DONE: all selection models
-                // if it is a line selection, then remove it 
+                // if it is a line selection, then remove it
                 if (myEditor.getSelectionModel().hasSelection()) {
                     boolean leftRightMovement = settings.isLeftRightMovement();
                     if (leftRightMovement) {
@@ -445,6 +475,32 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                         return false;
                     });
                 }
+                return;
+            }
+
+            if (adjustments == MOVE_CARET_START_END_W_SELECTION___TO_CHAR__TO_LINE_OR_NOTHING) {
+                // DONE: all selection models
+                forAllEditorCarets(event, (editorCaret, snapshot) -> {
+                    if (editorCaret.isLine()) {
+                        editorCaret
+                                .toCharSelectionForCaretPositionBasedLineSelection()
+                                .normalizeCaretPosition()
+                                .commit();
+                    }
+                    return settings.isStartEndAsLineSelection();
+                }, (editorCaret, snapshot) -> {
+                    if (settings.isStartEndAsLineSelection()) {
+                        editorCaret
+                                .restoreColumn(snapshot)
+                                .setSelectionStart(editorCaret.getSelectionStart().atColumn(editorCaret.getCaretPosition()))
+                                .setAnchorColumn(editorCaret.getCaretPosition().column)
+                                .setIsStartAnchor(action instanceof TextEndWithSelectionAction)
+                                .toLineSelection()
+                                .normalizeCaretPosition()
+                                .restoreColumn(snapshot)
+                                .commit();
+                    }
+                });
                 return;
             }
 
@@ -506,23 +562,25 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
             if (adjustments == COPY___IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN) {
                 // DONE: all selection models
-                forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                    return !editorCaret.hasSelection();
-                }, (editorCaret, snapshot) -> {
-                    if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                if (settings.isCopyLineOrLineSelection()) {
+                    forAllEditorCarets(event, (editorCaret, snapshot) -> {
+                        return !editorCaret.hasSelection() || editorCaret.isLine();
+                    }, (editorCaret, snapshot) -> {
+                        if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                            editorCaret
+                                    .trimOrExpandToLineSelection()
+                                    .toLineSelection();
+                        }
+
+                        if (snapshot != null) {
+                            snapshot.restoreColumn(editorCaret);
+                        }
+
                         editorCaret
-                                .trimOrExpandToLineSelection()
-                                .toLineSelection();
-                    }
-
-                    if (snapshot != null) {
-                        snapshot.restoreColumn(editorCaret);
-                    }
-
-                    editorCaret
-                            .normalizeCaretPosition()
-                            .commit();
-                });
+                                //.normalizeCaretPosition()
+                                .commit();
+                    });
+                }
                 return;
             }
         }
@@ -637,7 +695,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             return saveSnapshot;
         }, (editorCaret, snapshot) -> {
             if (snapshot != null) {
-                snapshot.restoreColumn();
+                editorCaret.restoreColumn(snapshot);
 
                 if (editorCaret.hasSelection()) {
                     if (!snapshot.hasSelection()) {
@@ -645,33 +703,32 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                     } else {
                         if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.DUPLICATE_ACTION)) {
                             if (settings.isDuplicateAtStartOrEnd()) {
-                                if (editorCaret.hasSelection()) {
-                                    int column = editorCaret.getCaretPosition().column;
+                                int column = editorCaret.getCaretPosition().column;
 
-                                    if (!snapshot.isStartAnchor() && snapshot.getSelectionStart().getOffset() < snapshot.getSelectionEnd().getOffset()) {
-                                        editorCaret
-                                                .setCaretPosition(editorCaret.getCaretPosition().atOffset(snapshot.getSelectionStart().getOffset()))
-                                                .setSelectionEnd(snapshot.getSelectionEnd().getOffset())
-                                                .setSelectionStart(editorCaret.getCaretPosition())
-                                                .setIsStartAnchor(false)
-                                                .setAnchorColumn(editorCaret.getSelectionEnd())
-                                        ;
-                                    }
-
-                                    if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
-                                        // can safely be changed to a line selection
-                                        editorCaret.trimOrExpandToLineSelection();
-                                    }
-
-                                    if (editorCaret.isLine() || (column > editorCaret.getCaretPosition().column
-                                            && editorCaret.getCaretPosition().column < editorCaret.getCaretPosition().getIndentColumn())) {
-                                        editorCaret.setCaretPosition(editorCaret.getCaretPosition().atColumn(column));
-                                    }
-
+                                if (!snapshot.isStartAnchor() && snapshot.getSelectionStart().getOffset() < snapshot.getSelectionEnd().getOffset()) {
                                     editorCaret
-                                            .normalizeCaretPosition()
-                                            .commit();
+                                            .setCaretPosition(editorCaret.getCaretPosition().atOffset(snapshot.getSelectionStart().getOffset()))
+                                            .setSelectionEnd(snapshot.getSelectionEnd().getOffset())
+                                            .setSelectionStart(editorCaret.getCaretPosition())
+                                            .setIsStartAnchor(false)
+                                            .setAnchorColumn(editorCaret.getSelectionEnd())
+                                    ;
                                 }
+
+                                if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                                    // can safely be changed to a line selection
+                                    editorCaret.trimOrExpandToLineSelection();
+                                }
+
+                                editorCaret.normalizeCaretPosition();
+
+                                if (editorCaret.isLine() ||
+                                        (column > editorCaret.getCaretPosition().column
+                                                && (editorCaret.getCaretPosition().column == 0 || editorCaret.getCaretPosition().column < editorCaret.getCaretPosition().getIndentColumn()))) {
+                                    editorCaret.setCaretPosition(editorCaret.getCaretPosition().atColumn(column));
+                                }
+
+                                editorCaret.commit();
                             }
                         }
                     }
@@ -683,14 +740,78 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     private void adjustPasteAction(ApplicationSettings settings, AnAction action, AnActionEvent event) {
         // these can replace selections, need to move to start, after if pasted was lines, then we should restore caret pos
         class Params extends CaretSnapshot.Params<Params> {
-            private Params(CaretSnapshot snapshot) { super(snapshot); }
-
             private long timestamp;
+            private boolean startToLowerCase;
+            private boolean startToUpperCase;
+            private boolean startToBound;
+            private boolean endToBound;
+            private boolean toScreamingSnakeCase;
+            private boolean toSnakeCase;
+            private boolean toCamelCase;
+
+            private Params(CaretSnapshot snapshot) {
+                super(snapshot);
+            }
         }
 
-        forAllEditorCarets(event, (editorCaret, snapshot) -> {
+        final int[] cumulativeCaretDelta = new int[] { 0 };
+
+        final boolean inWriteAction = (settings.isPreserveCamelCaseOnPaste()
+                || settings.isPreserveSnakeCaseOnPaste()
+                || settings.isPreserveScreamingSnakeCaseOnPaste()
+                || settings.isRemovePrefixOnPaste() && !(settings.getRemovePrefixOnPaste1().isEmpty() && settings.getRemovePrefixOnPaste2().isEmpty()))
+                && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION);
+
+        forAllEditorCaretsInWriteAction(event, inWriteAction, (editorCaret, snapshot) -> {
             Params params = new Params(snapshot);
             params.timestamp = myEditor.getDocument().getModificationStamp();
+
+            if (settings.isPreserveCamelCaseOnPaste() || settings.isPreserveSnakeCaseOnPaste() || settings.isPreserveScreamingSnakeCaseOnPaste()) {
+                int beforeOffset = editorCaret.getCaretPosition().getOffset();
+                int afterOffset = editorCaret.getCaretPosition().getOffset();
+                int textLength = myEditor.getDocument().getTextLength();
+                BasedSequence charSequence = new SubSequence(myEditor.getDocument().getCharsSequence());
+                BasedSequence word = SubSequence.NULL;
+                BasedSequence expandedWord;
+
+                if (editorCaret.hasSelection() && !editorCaret.isLine()) {
+                    beforeOffset = editorCaret.getSelectionStart().getOffset();
+                    afterOffset = editorCaret.getSelectionEnd().getOffset();
+
+                    // check if we need to change it to screaming or regular snake case
+                    expandedWord = EditHelpers.getWordAtOffsets(charSequence, beforeOffset, afterOffset, EditHelpers.WORD_IDENTIFIER, false);
+                    word = charSequence.subSequence(beforeOffset, afterOffset);
+                } else {
+                    expandedWord = EditHelpers.getWordAtOffset(charSequence, beforeOffset, EditHelpers.WORD_IDENTIFIER, false);
+                }
+
+                params.toScreamingSnakeCase = EditHelpers.isScreamingSnakeCase(expandedWord);
+                if (!params.toScreamingSnakeCase) {
+                    params.toSnakeCase = EditHelpers.isSnakeCase(expandedWord);
+                    if (!params.toSnakeCase) {
+                        if (isCamelCase(expandedWord)) {
+                            params.toCamelCase = true;
+                        }
+
+                        // still do the bounds if not fully camel case
+                        char charBefore = beforeOffset > 0 && beforeOffset - 1 < textLength ? charSequence.charAt(beforeOffset - 1) : ' ';
+                        char charAtBefore = beforeOffset >= 0 && beforeOffset < textLength ? charSequence.charAt(beforeOffset) : ' ';
+                        char charAtAfter = afterOffset >= 0 && afterOffset - 1 < textLength ? charSequence.charAt(afterOffset - 1) : ' ';
+                        char charAfter = afterOffset < textLength ? charSequence.charAt(afterOffset) : ' ';
+
+                        // non-alpha|non-alpha : start=do nothing, end=do nothing
+                        // alpha|non-alpha: start=make bound, end=do nothing
+                        // non-alpha|alpha: start=do nothing, end=make bound
+                        // alpha|alpha: start=make bound, end=make bound
+                        boolean identifierStart = EditHelpers.isIdentifierStart(charSequence, beforeOffset, true);
+                        boolean identifierEnd = EditHelpers.isIdentifierEnd(charSequence, beforeOffset, true);
+                        params.startToLowerCase = identifierStart && isLowerCase(charAtBefore);
+                        params.startToUpperCase = identifierStart && isUpperCase(charAtBefore);
+                        params.startToBound = identifierStart || identifierEnd;
+                        params.endToBound = EditHelpers.isIdentifierStart(charSequence, afterOffset, true) || EditHelpers.isIdentifierEnd(charSequence, afterOffset, true);
+                    }
+                }
+            }
 
             if (editorCaret.isLine()) {
                 Caret caret = editorCaret.getCaret();
@@ -701,7 +822,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 }
             }
             return true;
-        }, (editorCaret, snapshot) -> {
+        }, (EditorCaret editorCaret, CaretSnapshot snapshot) -> {
             if (snapshot != null) {
                 Params params = (Params) snapshot.get(CaretSnapshot.PARAMS);
 
@@ -710,19 +831,136 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 }
 
                 // if leave selected is enabled
-                if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION) && settings.isSelectPasted()) {
+                if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION)) {
                     if (params.timestamp < myEditor.getDocument().getModificationStamp()) {
-                        TextRange range = myEditor.getUserData(EditorEx.LAST_PASTED_REGION);
-                        if (range != null) {
+                        TextRange textRange = myEditor.getUserData(EditorEx.LAST_PASTED_REGION);
+                        TextRange[] ranges = textRange != null ? null : myEditor.getUserData(MiaPasteAction.LAST_PASTED_REGIONS);
+                        TextRange rawRange = ranges != null && ranges.length > snapshot.getIndex() ? ranges[snapshot.getIndex()] : textRange;
+                        if (rawRange != null) {
+                            TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
                             editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
+                            boolean isSingleLineChar = !editorCaret.hasLines();
 
-                            if (SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
-                                if (editorCaret.hasLines()) {
-                                    editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
-                                } else {
-                                    editorCaret.normalizeCaretPosition();
+                            if (isSingleLineChar) {
+                                // remove prefixes first so camel case adjustment works right
+                                String prefixOnPaste1 = settings.getRemovePrefixOnPaste1();
+                                String prefixOnPaste2 = settings.getRemovePrefixOnPaste2();
+                                int beforeOffset = range.getStartOffset();
+                                int afterOffset = range.getEndOffset();
+                                int textLength = myEditor.getDocument().getTextLength();
+                                BasedSequence charSequence = new SubSequence(myEditor.getDocument().getCharsSequence());
+                                final BasedSequence inserted = charSequence.subSequence(beforeOffset, afterOffset);
+                                String word = inserted.toString();
+                                int caretDelta = 0;
+
+                                if (settings.isRemovePrefixOnPaste() && !(prefixOnPaste1.isEmpty() && prefixOnPaste2.isEmpty())) {
+                                    if ((EditHelpers.isWord(charSequence, beforeOffset) || EditHelpers.isWord(charSequence, afterOffset)
+                                            || EditHelpers.isWordEnd(charSequence, beforeOffset, false)
+                                            || EditHelpers.isWordStart(charSequence, afterOffset, false))
+                                            && (!EditHelpers.isIdentifierStart(charSequence, beforeOffset, false) || !EditHelpers.isIdentifierEnd(charSequence, afterOffset, false))) {
+                                        if (!prefixOnPaste1.isEmpty() && inserted.startsWith(prefixOnPaste1)) {
+                                            word = word.substring(prefixOnPaste1.length());
+                                        } else if (!prefixOnPaste2.isEmpty() && inserted.startsWith(prefixOnPaste2)) {
+                                            word = word.substring(prefixOnPaste2.length());
+                                        }
+                                    }
                                 }
-                                editorCaret.commit();
+
+                                // adjust for camel case preservation
+                                if (settings.isPreserveCamelCaseOnPaste() || settings.isPreserveSnakeCaseOnPaste() || settings.isPreserveScreamingSnakeCaseOnPaste()) {
+                                    char charBefore = beforeOffset > 0 && beforeOffset - 1 < textLength ? charSequence.charAt(beforeOffset - 1) : ' ';
+                                    char charAtBefore = !word.isEmpty() ? word.charAt(0) : ' ';
+                                    char charAtAfter = !word.isEmpty() ? word.charAt(word.length() - 1) : ' ';
+                                    char charAfter = afterOffset < textLength ? charSequence.charAt(afterOffset) : ' ';
+                                    String sBefore = String.valueOf(charBefore);
+                                    String sAtBefore = String.valueOf(charAtBefore);
+                                    String sAtAfter = String.valueOf(charAtAfter);
+                                    String sAfter = String.valueOf(charAfter);
+                                    boolean wordStartAtBefore = EditHelpers.isWordStart(charSequence, beforeOffset, false);
+                                    boolean wordEndAtAfter = EditHelpers.isWordEnd(charSequence, afterOffset, false);
+
+                                    if (settings.isPreserveScreamingSnakeCaseOnPaste() && params.toScreamingSnakeCase) {
+                                        word = EditHelpers.makeScreamingSnakeCase(word);
+                                        if (charAfter == '_' && charAtAfter == '_') word = word.substring(0, word.length() - 1);
+                                        else if (!wordEndAtAfter && charAfter != '_' && charAtAfter != '_') word = word + "_";
+                                        if (charBefore == '_' && charAtBefore == '_') word = word.substring(1);
+                                        else if (!wordStartAtBefore && charBefore != '_' && charAtBefore != '_') word = "_" + word;
+                                    } else if (settings.isPreserveSnakeCaseOnPaste() && params.toSnakeCase) {
+                                        word = EditHelpers.makeSnakeCase(word);
+                                        if (charAfter == '_' && charAtAfter == '_') word = word.substring(0, word.length() - 1);
+                                        else if (!wordEndAtAfter && charAfter != '_' && charAtAfter != '_') word = word + "_";
+                                        if (charBefore == '_' && charAtBefore == '_') word = word.substring(1);
+                                        else if (!wordStartAtBefore && charBefore != '_' && charAtBefore != '_') word = "_" + word;
+                                    } else if (settings.isPreserveCamelCaseOnPaste()) {
+                                        if (params.toCamelCase && EditHelpers.canMakeCamelCase(word)) {
+                                            word = EditHelpers.makeCamelCase(word);
+                                            charAtAfter = word.charAt(word.length() - 1);
+                                            sAtAfter = String.valueOf(charAfter);
+                                        }
+
+                                        if (params.startToUpperCase && isLowerCase(charAtBefore)) {
+                                            word = sAtBefore.toUpperCase() + word.substring(1);
+                                        } else if (params.startToLowerCase && isUpperCase(charAtBefore) && !(word.length() > 1 && EditHelpers.hasNoLowerCase(word))) {
+                                            word = sAtBefore.toLowerCase() + word.substring(1);
+                                        } else if (params.startToBound && isAlphabetic(charAtBefore)) {
+                                            // try to change case so that it is a hump bound
+                                            if (isLowerCase(charAtBefore) && EditHelpers.isHumpBoundIdentifier(sBefore + sAtBefore.toUpperCase(), 1, true)
+                                                    && !EditHelpers.isHumpBoundIdentifier(sBefore + sAtBefore, 1, true)) {
+                                                word = sAtBefore.toUpperCase() + word.substring(1);
+                                            } else if (isUpperCase(charAtBefore) && EditHelpers.isHumpBoundIdentifier(sBefore + sAtBefore.toLowerCase(), 1, true)
+                                                    && !EditHelpers.isHumpBoundIdentifier(sBefore + sAtBefore, 1, true)) {
+                                                word = sAtBefore.toLowerCase() + word.substring(1);
+                                            }
+                                        }
+
+                                        if ((params.endToBound || EditHelpers.isCamelCase(word)) && isAlphabetic(charAfter)) {
+                                            // try to change case so that it is a hump bound
+                                            if (isLowerCase(charAfter) && EditHelpers.isHumpBoundIdentifier(sAtAfter + sAfter.toUpperCase(), 1, true)
+                                                    && !EditHelpers.isHumpBoundIdentifier(sAtAfter + sAfter, 1, true)) {
+                                                // make upper case after insertion point
+                                                word = word + sAfter.toUpperCase();
+                                                afterOffset++;
+                                                caretDelta--;
+                                            }
+                                        }
+                                    }
+
+                                    if (!word.equals(inserted.toString())) {
+                                        final int finalBeforeOffset = beforeOffset;
+                                        final int finalAfterOffset = afterOffset;
+                                        final String finalWord = word;
+                                        final int finalCaretDelta = caretDelta;
+                                        if (!inWriteAction) {
+                                            WriteCommandAction.runWriteCommandAction(myEditor.getProject(), () -> {
+                                                myEditor.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
+                                                editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
+                                            });
+                                        } else {
+                                            myEditor.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
+                                            editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
+                                        }
+
+                                        // adjust for the rest of the carets
+                                        cumulativeCaretDelta[0] -= inserted.length() - word.length();
+                                    }
+
+                                    if (settings.isSelectPasted()) {
+                                        if (SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(0)) {
+                                            editorCaret.getCaret().setSelection(beforeOffset, beforeOffset + word.length() + caretDelta);
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (settings.isSelectPasted()) {
+                                    if (SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
+                                        if (editorCaret.hasLines()) {
+                                            editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
+                                        } else {
+                                            editorCaret.normalizeCaretPosition();
+                                        }
+                                        editorCaret.commit();
+                                    }
+                                }
                             }
                         }
                     }

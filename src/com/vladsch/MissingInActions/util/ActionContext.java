@@ -42,8 +42,8 @@ public class ActionContext {
         return myCaretSnapshots.containsKey(caret);
     }
 
-    public void add(@NotNull EditorCaret editorCaret) {
-        add(editorCaret, new CaretSnapshot(editorCaret));
+    public void add(@NotNull EditorCaret editorCaret, int index) {
+        add(editorCaret, new CaretSnapshot(editorCaret, index));
     }
 
     public void add(@NotNull EditorCaret editorCaret, @NotNull CaretSnapshot snapshot) {
@@ -54,7 +54,7 @@ public class ActionContext {
     public CaretSnapshot get(@Nullable Caret caret) {
         return myCaretSnapshots.get(caret);
     }
-    
+
     @Nullable
     public CaretSnapshot runFor(Caret caret, ValueRunnable<CaretSnapshot> runnable) {
         CaretSnapshot snapshot = myCaretSnapshots.get(caret);

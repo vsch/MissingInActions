@@ -65,7 +65,7 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
         int regionEnd()                      { return indexMapper.map(matcher.regionEnd()); }
         int start(int group)                 { return indexMapper.map(matcher.start(group)); }
         int end(int group)                   { return indexMapper.map(matcher.end(group)); }
-                                                    
+
         boolean find(int start)              { return matcher.find(indexMapper.map(start)); }
         Matcher region(int start, int end)   { return matcher.region(indexMapper.map(start), indexMapper.map(end));}
 
@@ -101,7 +101,7 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
     final protected MyMatcher prepareMatcher(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars) {
         Pattern pattern = getPattern(manager, caret, range, chars);
         MyMatcher myMatcher = null;
-        
+
         if (pattern != null) {
 
             if (!myBackwards) {
@@ -112,11 +112,11 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
                 Matcher matcher = pattern.matcher(reversed);
                 myMatcher = new MyMatcher(matcher, reversed.getIndexMapper());
             }
-            // we extend the range to include the start of line at start offset and end of line+1 at end offset, however we start searching 
+            // we extend the range to include the start of line at start offset and end of line+1 at end offset, however we start searching
             // at range start and any match that ends >= range end is treated as a non-match
             EditorPositionFactory f = manager.getPositionFactory();
             int start = f.fromOffset(range.getStart()).atStartOfLine().getOffset();
-            int end = f.fromOffset(range.getEnd()).atEndOfLine().getOffset();
+            int end = f.fromOffset(range.getEnd()).atEndOfLineSelection().getOffset();
 
             myMatcher.region(start, end);
             myMatcher.useTransparentBounds(!mySingleLine);

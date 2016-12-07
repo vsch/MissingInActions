@@ -26,25 +26,45 @@ import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.vladsch.MissingInActions.manager.*;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
+import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static java.lang.Character.*;
+
 @SuppressWarnings({ "SameParameterValue", "WeakerAccess" })
 public class EditHelpers {
-    public static int START_OF_WORD = 1;
-    public static int END_OF_WORD = 2;
-    public static int START_OF_TRAILING_BLANKS = 4;
-    public static int END_OF_LEADING_BLANKS = 8;
-    public static int START_OF_LINE = 16;
-    public static int END_OF_LINE = 32;
-    public static int IDENTIFIER = 64;
-    public static int START_OF_FOLDING_REGION = 128;
-    public static int END_OF_FOLDING_REGION = 256;
-    public static int SINGLE_LINE = 512;
-    public static int MULTI_CARET_SINGLE_LINE = 1024;
+    public static final int START_OF_WORD = 0x0001;
+    public static final int END_OF_WORD = 0x0002;
+    public static final int START_OF_TRAILING_BLANKS = 0x0004;
+    public static final int END_OF_LEADING_BLANKS = 0x0008;
+    public static final int START_OF_LINE = 0x0010;
+    public static final int END_OF_LINE = 0x0020;
+    public static final int MIA_IDENTIFIER = 0x0040;
+    public static final int START_OF_FOLDING_REGION = 0x0080;
+    public static final int END_OF_FOLDING_REGION = 0x0100;
+    public static final int SINGLE_LINE = 0x0200;
+    public static final int MULTI_CARET_SINGLE_LINE = 0x0400;
+    public static final int IDE_WORD = 0x0800;
+    public static final int SPACE_DELIMITED = 0x1000;
+    public static final int MIA_WORD = 0x2000;
+
+    public static final int WORD_SPACE_DELIMITED = 0;
+    public static final int WORD_IDE = 1;
+    public static final int WORD_MIA = 2;
+    public static final int WORD_IDENTIFIER = 3;
+
+    public static int getWordType(int flags) {
+        if ((flags & MIA_IDENTIFIER) != 0) return WORD_IDENTIFIER;
+        if ((flags & IDE_WORD) != 0) return WORD_IDE;
+        if ((flags & SPACE_DELIMITED) != 0) return WORD_SPACE_DELIMITED;
+        return WORD_MIA;
+    }
 
     @SuppressWarnings("PointlessBitwiseExpression")
     public static int BOUNDARY_FLAGS = 0
@@ -54,7 +74,6 @@ public class EditHelpers {
             | END_OF_LEADING_BLANKS
             | START_OF_LINE
             | END_OF_LINE
-            | IDENTIFIER
             | START_OF_FOLDING_REGION
             | END_OF_FOLDING_REGION
             | SINGLE_LINE;
@@ -81,7 +100,7 @@ public class EditHelpers {
         boolean stopAtStartOfFolding = isSet(flags, START_OF_FOLDING_REGION);
         boolean stopAtEndOfFolding = isSet(flags, END_OF_FOLDING_REGION);
         boolean stopAtEndOfLine = isSet(flags, END_OF_LINE);
-        boolean strictIdentifier = isSet(flags, IDENTIFIER);
+        boolean strictIdentifier = isSet(flags, MIA_IDENTIFIER);
         boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
         int offset = caretModel.getOffset();
@@ -121,13 +140,14 @@ public class EditHelpers {
             if (stopAtEndOfFolding) done = true;
         }
 
+        int wordType = getWordType(flags);
         while (!done) {
             for (; newOffset < maxOffset; newOffset++) {
-                if (stopAtStartOfWord && (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel))) {
+                if (stopAtStartOfWord && isWordTypeStart(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
-                if (stopAtEndOfWord && (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel))) {
+                if (stopAtEndOfWord && isWordTypeEnd(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
@@ -178,7 +198,7 @@ public class EditHelpers {
         boolean stopAtEndOfLine = isSet(flags, END_OF_LINE);
         boolean stopAtStartOfFolding = isSet(flags, START_OF_FOLDING_REGION);
         boolean stopAtEndOfFolding = isSet(flags, END_OF_FOLDING_REGION);
-        boolean strictIdentifier = isSet(flags, IDENTIFIER);
+        boolean strictIdentifier = isSet(flags, MIA_IDENTIFIER);
         boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
         LogicalPosition position = caretModel.getLogicalPosition();
@@ -219,13 +239,14 @@ public class EditHelpers {
             if (stopAtStartOfFolding) done = true;
         }
 
+        int wordType = getWordType(flags);
         while (!done) {
             for (; newOffset > minOffset; newOffset--) {
-                if (stopAtStartOfWord && (strictIdentifier ? isIdentifierEnd(editor, newOffset, camel) : isWordEnd(editor, newOffset, camel))) {
+                if (stopAtStartOfWord && isWordTypeEnd(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
-                if (stopAtEndOfWord && (strictIdentifier ? isIdentifierStart(editor, newOffset, camel) : isWordStart(editor, newOffset, camel))) {
+                if (stopAtEndOfWord && isWordTypeStart(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
@@ -257,6 +278,62 @@ public class EditHelpers {
         setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
     }
 
+    public static boolean isWordTypeStart(int wordType, @NotNull Editor editor, int offset, boolean isCamel) {
+        switch (wordType) {
+            case WORD_SPACE_DELIMITED:
+                return isWhitespaceEnd(editor.getDocument().getCharsSequence(), offset, isCamel);
+            case WORD_IDE:
+                return EditorActionUtil.isWordOrLexemeStart(editor, offset, isCamel);
+            case WORD_MIA:
+                return isWordStart(editor.getDocument().getCharsSequence(), offset, isCamel);
+            case WORD_IDENTIFIER:
+                return isIdentifierStart(editor.getDocument().getCharsSequence(), offset, isCamel);
+        }
+        return false;
+    }
+
+    public static boolean isWordTypeEnd(int wordType, @NotNull Editor editor, int offset, boolean isCamel) {
+        switch (wordType) {
+            case WORD_SPACE_DELIMITED:
+                return isWhitespaceStart(editor.getDocument().getCharsSequence(), offset);
+            case WORD_IDE:
+                return EditorActionUtil.isWordOrLexemeEnd(editor, offset, isCamel);
+            case WORD_MIA:
+                return isWordEnd(editor.getDocument().getCharsSequence(), offset, isCamel);
+            case WORD_IDENTIFIER:
+                return isIdentifierEnd(editor.getDocument().getCharsSequence(), offset, isCamel);
+        }
+        return false;
+    }
+
+    public static boolean isWordTypeStart(int wordType, @NotNull CharSequence charSequence, int offset, boolean isCamel) {
+        switch (wordType) {
+            case WORD_SPACE_DELIMITED:
+                return isWhitespaceEnd(charSequence, offset, isCamel);
+            case WORD_IDE:
+                throw new IllegalArgumentException("wordType: WORD_IDE is only supported with editor parameter based isWordTypeStart function");
+            case WORD_MIA:
+                return isWordStart(charSequence, offset, isCamel);
+            case WORD_IDENTIFIER:
+                return isIdentifierStart(charSequence, offset, isCamel);
+        }
+        return false;
+    }
+
+    public static boolean isWordTypeEnd(int wordType, @NotNull CharSequence charSequence, int offset, boolean isCamel) {
+        switch (wordType) {
+            case WORD_SPACE_DELIMITED:
+                return isWhitespaceStart(charSequence, offset);
+            case WORD_IDE:
+                throw new IllegalArgumentException("wordType: WORD_IDE is only supported with editor parameter based isWordTypeEnd function");
+            case WORD_MIA:
+                return isWordEnd(charSequence, offset, isCamel);
+            case WORD_IDENTIFIER:
+                return isIdentifierEnd(charSequence, offset, isCamel);
+        }
+        return false;
+    }
+
     public static boolean isWordStart(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
         return isWordStart(chars, offset, isCamel);
@@ -275,6 +352,159 @@ public class EditHelpers {
     public static boolean isIdentifierEnd(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
         return isIdentifierEnd(chars, offset, isCamel);
+    }
+
+    public static boolean isWhitespaceStart(@NotNull CharSequence text, int offset) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+
+        return (!Character.isWhitespace(prev) && Character.isWhitespace(current));
+    }
+
+    public static boolean isWhitespaceMiddle(@NotNull CharSequence text, int offset) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+
+        return (Character.isWhitespace(prev) && Character.isWhitespace(current));
+    }
+
+    public static boolean isWhitespaceEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+
+        return (Character.isWhitespace(prev) && !Character.isWhitespace(current));
+    }
+
+    public static boolean isWord(@NotNull CharSequence text, int offset) {
+        return offset >= 0 && offset < text.length() && Character.isJavaIdentifierPart(text.charAt(offset));
+    }
+
+    public static boolean isWordStart(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+
+        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        if (!firstIsIdentifierPart && secondIsIdentifierPart) {
+            return true;
+        }
+
+        if (isCamel && firstIsIdentifierPart && secondIsIdentifierPart && isHumpBoundWord(text, offset, true)) {
+            return true;
+        }
+
+        return (Character.isWhitespace(prev) || firstIsIdentifierPart) &&
+                !Character.isWhitespace(current) && !secondIsIdentifierPart;
+    }
+
+    public static boolean isWordEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+        char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
+
+        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        if (firstIsIdentifierPart && !secondIsIdentifierPart) {
+            return true;
+        }
+
+        if (isCamel) {
+            if (firstIsIdentifierPart
+                    && (Character.isLowerCase(prev) && isUpperCase(current)
+                    || prev != '_' && current == '_'
+                    || isUpperCase(prev) && isUpperCase(current) && Character.isLowerCase(next))) {
+                return true;
+            }
+        }
+
+        return !Character.isWhitespace(prev) && !firstIsIdentifierPart &&
+                (Character.isWhitespace(current) || secondIsIdentifierPart);
+    }
+
+    public static boolean isIdentifierStart(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+
+        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
+
+        //noinspection SimplifiableIfStatement
+        if (!prevIsIdentifierPart && currentIsIdentifierPart) return true;
+
+        return isCamel && prevIsIdentifierPart && currentIsIdentifierPart && isHumpBoundIdentifier(text, offset, true);
+    }
+
+    public static boolean isIdentifierEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
+        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
+        char current = offset < text.length() ? text.charAt(offset) : 0;
+        char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
+
+        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
+        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
+
+        //noinspection SimplifiableIfStatement
+        if (prevIsIdentifierPart && !currentIsIdentifierPart) return true;
+
+        return isCamel && prevIsIdentifierPart
+                && (Character.isLowerCase(prev) && isUpperCase(current)
+                || prev != '_' && current == '_'
+                || isUpperCase(prev) && isUpperCase(current) && Character.isLowerCase(next));
+    }
+
+/*
+    public static boolean isHumpBoundStart(@NotNull CharSequence editorText, int offset) {
+        return isHumpBoundIdentifier(editorText, offset, true);
+    }
+
+    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset) {
+        return isHumpBoundIdentifier(editorText, offset, false);
+    }
+*/
+
+    public static boolean isHumpBoundWord(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0) return start;
+        else if (offset >= editorText.length()) return !start;
+
+        final char prevChar = offset > 0 ? editorText.charAt(offset - 1) : 0;
+        final char curChar = editorText.charAt(offset);
+        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
+
+        return isLowerCaseOrDigit(prevChar) && isUpperCase(curChar) ||
+                start && prevChar == '_' && curChar != '_' ||
+                !start && prevChar != '_' && curChar == '_' ||
+                start && prevChar == '$' && isLetterOrDigit(curChar) ||
+                !start && isLetterOrDigit(prevChar) && curChar == '$' ||
+                isUpperCase(prevChar) && isUpperCase(curChar) && Character.isLowerCase(nextChar);
+    }
+
+    public static boolean isHumpBoundIdentifier(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0) return start;
+        else if (offset >= editorText.length()) return !start;
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+
+        return isLowerCaseOrDigit(prevChar) && isUpperCase(curChar) ||
+                start && prevChar == '_' && curChar != '_' ||
+                start && prevChar == '$' && isLetterOrDigit(curChar) ||
+                !start && prevChar != '_' && curChar == '_' ||
+                !start && isLetterOrDigit(prevChar) && curChar == '$';
+    }
+
+/*
+    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0 || offset >= editorText.length()) return false;
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
+
+        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
+                !start && prevChar != '_' && curChar == '_' ||
+                !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
+    }
+*/
+
+    public static boolean isLowerCaseOrDigit(char c) {
+        return Character.isLowerCase(c) || Character.isDigit(c);
     }
 
     private static void setupSelection(@NotNull Editor editor, boolean isWithSelection, int selectionStart, @NotNull LogicalPosition blockSelectionStart) {
@@ -315,131 +545,6 @@ public class EditHelpers {
             pos--;
         }
         return end - pos - 1;
-    }
-
-    public static boolean isWordStart(@NotNull CharSequence text, int offset, boolean isCamel) {
-        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
-        char current = text.charAt(offset);
-
-        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
-        if (!firstIsIdentifierPart && secondIsIdentifierPart) {
-            return true;
-        }
-
-        if (isCamel && firstIsIdentifierPart && secondIsIdentifierPart && isHumpBoundWord(text, offset, true)) {
-            return true;
-        }
-
-        return (Character.isWhitespace(prev) || firstIsIdentifierPart) &&
-                !Character.isWhitespace(current) && !secondIsIdentifierPart;
-    }
-
-    public static boolean isWordEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
-        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
-        char current = text.charAt(offset);
-        char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
-
-        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
-        if (firstIsIdentifierPart && !secondIsIdentifierPart) {
-            return true;
-        }
-
-        if (isCamel) {
-            if (firstIsIdentifierPart
-                    && (Character.isLowerCase(prev) && Character.isUpperCase(current)
-                    || prev != '_' && current == '_'
-                    || Character.isUpperCase(prev) && Character.isUpperCase(current) && Character.isLowerCase(next))) {
-                return true;
-            }
-        }
-
-        return !Character.isWhitespace(prev) && !firstIsIdentifierPart &&
-                (Character.isWhitespace(current) || secondIsIdentifierPart);
-    }
-
-    public static boolean isIdentifierStart(@NotNull CharSequence text, int offset, boolean isCamel) {
-        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
-        char current = text.charAt(offset);
-
-        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
-
-        //noinspection SimplifiableIfStatement
-        if (!prevIsIdentifierPart && currentIsIdentifierPart) return true;
-
-        return isCamel && prevIsIdentifierPart && currentIsIdentifierPart && isHumpBoundIdentifier(text, offset, true);
-    }
-
-    public static boolean isIdentifierEnd(@NotNull CharSequence text, int offset, boolean isCamel) {
-        char prev = offset > 0 ? text.charAt(offset - 1) : 0;
-        char current = text.charAt(offset);
-        char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
-
-        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
-
-        //noinspection SimplifiableIfStatement
-        if (prevIsIdentifierPart && !currentIsIdentifierPart) return true;
-
-        return isCamel && prevIsIdentifierPart
-                && (Character.isLowerCase(prev) && Character.isUpperCase(current)
-                || prev != '_' && current == '_'
-                || Character.isUpperCase(prev) && Character.isUpperCase(current) && Character.isLowerCase(next));
-    }
-
-/*
-    public static boolean isHumpBoundStart(@NotNull CharSequence editorText, int offset) {
-        return isHumpBoundIdentifier(editorText, offset, true);
-    }
-
-    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset) {
-        return isHumpBoundIdentifier(editorText, offset, false);
-    }
-*/
-
-    public static boolean isHumpBoundWord(@NotNull CharSequence editorText, int offset, boolean start) {
-        if (offset <= 0 || offset >= editorText.length()) return false;
-        final char prevChar = editorText.charAt(offset - 1);
-        final char curChar = editorText.charAt(offset);
-        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
-
-        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
-                start && prevChar == '_' && curChar != '_' ||
-                !start && prevChar != '_' && curChar == '_' ||
-                start && prevChar == '$' && Character.isLetterOrDigit(curChar) ||
-                !start && Character.isLetterOrDigit(prevChar) && curChar == '$' ||
-                Character.isUpperCase(prevChar) && Character.isUpperCase(curChar) && Character.isLowerCase(nextChar);
-    }
-
-    public static boolean isHumpBoundIdentifier(@NotNull CharSequence editorText, int offset, boolean start) {
-        if (offset <= 0 || offset >= editorText.length()) return false;
-        final char prevChar = editorText.charAt(offset - 1);
-        final char curChar = editorText.charAt(offset);
-
-        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
-                start && prevChar == '_' && curChar != '_' ||
-                start && prevChar == '$' && Character.isLetterOrDigit(curChar) ||
-                !start && prevChar != '_' && curChar == '_' ||
-                !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
-    }
-
-/*
-    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
-        if (offset <= 0 || offset >= editorText.length()) return false;
-        final char prevChar = editorText.charAt(offset - 1);
-        final char curChar = editorText.charAt(offset);
-        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
-
-        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
-                !start && prevChar != '_' && curChar == '_' ||
-                !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
-    }
-*/
-
-    private static boolean isLowerCaseOrDigit(char c) {
-        return Character.isLowerCase(c) || Character.isDigit(c);
     }
 
     public static void deleteSelectedText(@NotNull Editor editor) {
@@ -558,10 +663,311 @@ public class EditHelpers {
                 }
 
                 if (singleLine) {
-                    // limit it to the caret line 
+                    // limit it to the caret line
                 }
             }
         }
         return range;
+    }
+
+    public static int getNextWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        // move back on line to start of word
+        int newOffset = offset;
+        int length = charSequence.length();
+        do {
+            if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
+                return newOffset;
+            }
+            newOffset++;
+        } while (newOffset < length);
+
+        return offset;
+    }
+
+    public static int getPreviousWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        // move back on line to start of word
+        int newOffset = offset;
+        do {
+            if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
+                return newOffset;
+            }
+            newOffset--;
+        } while (newOffset >= 0);
+
+        return offset;
+    }
+
+    public static int getPreviousWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        // move back on line to start of word
+        int newOffset = offset;
+        do {
+            if (isWordTypeEnd(wordType, charSequence, newOffset, isCamel)) {
+                return newOffset;
+            }
+            newOffset--;
+        } while (newOffset >= 0);
+
+        return offset;
+    }
+
+    public static int getNextWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        // move back on line to start of word
+        int newOffset = offset;
+        int length = charSequence.length();
+        do {
+            if (isWordTypeEnd(wordType, charSequence, newOffset, isCamel)) {
+                return newOffset;
+            }
+            newOffset++;
+        } while (newOffset <= length);
+
+        return offset;
+    }
+
+    public static int getWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        if (wordType != WORD_SPACE_DELIMITED && !isWord(charSequence, offset) && !isWordEnd(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+            // go forward
+            return offset;//getNextWordStartAtOffset(charSequence, offset, wordType, isCamel);
+        } else {
+            // go backwards
+            return getPreviousWordStartAtOffset(charSequence, offset, wordType, isCamel);
+        }
+    }
+
+    public static int getWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        if (wordType != WORD_SPACE_DELIMITED && !isWord(charSequence, offset) && !isWordStart(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+            // go backwards
+            return offset; //getPreviousWordEndAtOffset(charSequence, offset, wordType, isCamel);
+        } else {
+            // go forward
+            return getNextWordEndAtOffset(charSequence, offset, wordType, isCamel);
+        }
+    }
+
+    public static String getWordAtOffsets(String charSequence, int start, int end, int wordType, boolean isCamel) {
+        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
+        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
+        return startOffset > endOffset ? "" : charSequence.substring(startOffset, endOffset);
+    }
+
+    public static CharSequence getWordAtOffsets(CharSequence charSequence, int start, int end, int wordType, boolean isCamel) {
+        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
+        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
+        return startOffset > endOffset ? SubSequence.NULL : charSequence.subSequence(startOffset, endOffset);
+    }
+
+    public static BasedSequence getWordAtOffsets(BasedSequence charSequence, int start, int end, int wordType, boolean isCamel) {
+        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
+        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
+        return startOffset > endOffset ? SubSequence.NULL : charSequence.subSequence(startOffset, endOffset);
+    }
+
+    public static String getWordAtOffset(String charSequence, int offset, int wordType, boolean isCamel) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    }
+
+    public static CharSequence getWordAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    }
+
+    public static BasedSequence getWordAtOffset(BasedSequence charSequence, int offset, int wordType, boolean isCamel) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    }
+
+    public static boolean isMixedSnakeCase(CharSequence word) {
+        int iMax = word.length();
+        boolean hadUpper = false;
+        boolean hadLower = false;
+        boolean hadUnder = false;
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isUpperCase(c)) hadUpper = true;
+            else if (c == '_') hadUnder = true;
+            else if (isLowerCase(c)) hadLower = true;
+            else if (!isDigit(c)) return false;
+        }
+        return hadUnder && (hadUpper && hadLower);
+    }
+
+    public static boolean isScreamingSnakeCase(CharSequence word) {
+        int iMax = word.length();
+        boolean hadUpper = false;
+        boolean hadUnder = false;
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isUpperCase(c)) hadUpper = true;
+            else if (c == '_') hadUnder = true;
+            else if (isLowerCase(c)) return false;
+            else if (!isDigit(c)) return false;
+        }
+        return hadUnder && hadUpper;
+    }
+
+    public static boolean isSnakeCase(CharSequence word) {
+        int iMax = word.length();
+        boolean hadLower = false;
+        boolean hadUnder = false;
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isLowerCase(c)) hadLower = true;
+            else if (c == '_') hadUnder = true;
+            else if (isUpperCase(c)) return false;
+            else if (!isDigit(c)) return false;
+        }
+        return hadUnder && hadLower;
+    }
+
+    public static boolean isCamelCase(CharSequence word) {
+        int iMax = word.length();
+        boolean hadLower = false;
+        boolean hadUpper = false;
+        boolean hadUnder = false;
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isLowerCase(c)) hadLower = true;
+            else if (isUpperCase(c)) hadUpper = true;
+            else if (c == '_') hadUnder = true;
+            else if (!isDigit(c)) return false;
+        }
+        return !hadUnder && (hadLower && hadUpper);
+    }
+
+    public static boolean hasNoUpperCase(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isUpperCase(c)) return false;
+        }
+        return true;
+    }
+
+    public static boolean hasNoLowerCase(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isLowerCase(c)) return false;
+        }
+        return true;
+    }
+
+    public static boolean isHasLowerCaseOrUpperCase(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isLowerCase(c)) return true;
+            if (isUpperCase(c)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isProperCamelCase(CharSequence word) {
+        return isCamelCase(word) && isLowerCase(word.charAt(0));
+    }
+
+    public static boolean isPascalCase(CharSequence word) {
+        return isCamelCase(word) && isUpperCase(word.charAt(0));
+    }
+
+    public static boolean canMakeScreamingSnakeCase(CharSequence word) {
+        if (!(isMixedSnakeCase(word) || isSnakeCase(word) || isCamelCase(word)) && !isScreamingSnakeCase(word)) return false;
+        String screamingSnakeCase = makeScreamingSnakeCase(word);
+        return !word.equals(screamingSnakeCase) && (!hasUnderscores(screamingSnakeCase) || isScreamingSnakeCase(screamingSnakeCase));
+    }
+
+    public static boolean canMakeSnakeCase(CharSequence word) {
+        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isCamelCase(word)) && !isSnakeCase(word)) return false;
+        String snakeCase = makeSnakeCase(word);
+        return !word.equals(snakeCase) && (!hasUnderscores(snakeCase) || isSnakeCase(snakeCase));
+    }
+
+    public static boolean canMakeCamelCase(CharSequence word) {
+        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word)) && !hasNoLowerCase(word)) return false;
+        String camelCase = makeCamelCase(word);
+        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase) || hasNoLowerCase(camelCase));
+    }
+
+    public static boolean canMakeProperCamelCase(CharSequence word) {
+        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word) || isCamelCase(word) || isHasLowerCaseOrUpperCase(word))) return false;
+        String camelCase = makeProperCamelCase(word);
+        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase));
+    }
+
+    public static boolean canMakePascalCase(CharSequence word) {
+        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word) || isCamelCase(word))) return false;
+        String pascalCase = makePascalCase(word);
+        return !(pascalCase.length() > 1 && isUpperCase(pascalCase.charAt(1))) && !word.equals(pascalCase) && isPascalCase(pascalCase);
+    }
+
+    public static boolean isSnakeCaseBound(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0) return start;
+        else if (offset >= editorText.length()) return !start;
+
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+
+        return start ? prevChar == '_' && curChar != '_' && isLetterOrDigit(curChar) : prevChar != '_' && curChar == '_' && isLetterOrDigit(prevChar);
+    }
+
+    public static String makeMixedSnakeCase(CharSequence word) {
+        StringBuilder sb = new StringBuilder();
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            if (isHumpBoundIdentifier(word, i, true) && !isSnakeCaseBound(word, i, true)) {
+                sb.append('_');
+            }
+            sb.append(word.charAt(i));
+        }
+        return sb.toString();
+    }
+
+    public static boolean hasUnderscores(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            if (word.charAt(i) == '_') return true;
+        }
+        return false;
+    }
+
+    public static String makeCamelCase(CharSequence word) {
+        StringBuilder sb = new StringBuilder();
+        if (hasUnderscores(word)) {
+            int iMax = word.length();
+            boolean toUpper = false;
+
+            for (int i = 0; i < iMax; i++) {
+                char c = word.charAt(i);
+                if (c == '_') {
+                    toUpper = true;
+                } else {
+                    if (toUpper) sb.append(Character.toUpperCase(c));
+                    else sb.append(Character.toLowerCase(c));
+                    toUpper = false;
+                }
+            }
+        } else if (hasNoLowerCase(word)) {
+            sb.append(word.charAt(0));
+            sb.append(word.toString().substring(1).toLowerCase());
+        } else {
+            sb.append(word);
+        }
+        return sb.toString();
+    }
+
+    public static String makeProperCamelCase(CharSequence word) {
+        String s = makeCamelCase(word);
+        return s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
+
+    public static String makePascalCase(CharSequence word) {
+        String s = makeCamelCase(word);
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
+
+    public static String makeScreamingSnakeCase(CharSequence word) {
+        return makeMixedSnakeCase(word).toUpperCase();
+    }
+
+    public static String makeSnakeCase(CharSequence word) {
+        return makeMixedSnakeCase(word).toLowerCase();
     }
 }

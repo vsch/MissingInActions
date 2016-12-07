@@ -29,6 +29,8 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
+import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
+import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
@@ -64,8 +66,11 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , NextWordWithSelectionAction.class
                 , PreviousWordInDifferentHumpsModeWithSelectionAction.class
                 , PreviousWordWithSelectionAction.class
-                , TextEndWithSelectionAction.class
+        );
+
+        addActionAdjustment(AdjustmentType.MOVE_CARET_START_END_W_SELECTION___TO_CHAR__TO_LINE_OR_NOTHING
                 , TextStartWithSelectionAction.class
+                , TextEndWithSelectionAction.class
         );
 
         addActionSet(ActionSetType.SELECTING_ACTION
@@ -107,7 +112,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.word.PreviousWordInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.word.PreviousWordWithSelectionAction.class
-                
+
                 , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.identifier.NextWordStartInDifferentHumpsModeWithSelectionAction.class
@@ -120,7 +125,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.character.identifier.NextWordWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordWithSelectionAction.class
-                
+
                 , com.vladsch.MissingInActions.actions.character.custom.NextWordEndInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.custom.NextWordEndWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.custom.NextWordStartInDifferentHumpsModeWithSelectionAction.class
@@ -185,6 +190,8 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MultiplePasteAction.class
                 , PasteFromX11Action.class
                 , SimplePasteAction.class
+                , MiaPasteAction.class
+                , MiaMultiplePasteAction.class
         );
 
         addActionSet(ActionSetType.PASTE_ACTION
@@ -193,6 +200,8 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MultiplePasteAction.class
                 , PasteFromX11Action.class
                 , SimplePasteAction.class
+                , MiaPasteAction.class
+                , MiaMultiplePasteAction.class
         );
 
         addActionAdjustment(AdjustmentType.AUTO_INDENT_LINES
@@ -230,7 +239,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
         addActionSet(ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER
                 , MoveLineUpAction.class
         );
-        
+
         addActionSet(ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER
                 , MoveLineDownAction.class
         );

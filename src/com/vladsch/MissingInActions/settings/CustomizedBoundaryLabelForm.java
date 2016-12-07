@@ -21,28 +21,15 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.ui.components.JBCheckBox;
-import com.vladsch.MissingInActions.util.EditHelpers;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.*;
 
 public class CustomizedBoundaryLabelForm {
     private JPanel myMainPanel;
-    private JLabel myLabelStartOfLine;  // StartOfLine
-    private JLabel myLabelLeadingBlanks;  // LeadingBlanks
-    private JLabel myLabelTrailingSpaces;  // TrailingSpaces
-    private JLabel myLabelEndOfLine;  // EndOfLine
     private JLabel myLabelStartOfFold;  // StartOfFold
     private JLabel myLabelEndOfFold;  // EndOfFold
-    private JLabel myLabelIdentifier;  // Identifier
-    private JLabel myLabelSingleLine;  // SingleLine
-    private JLabel myLabelMultiCaretSingleLine;  // MultiCaretSingleLine
-    private JLabel myLabelEndOfWord;
-    private JLabel myLabelStartOfWord;
     private JLabel myHeading;
 
-    public CustomizedBoundaryLabelForm() {    
+    public CustomizedBoundaryLabelForm() {
         //myLabelStartOfFold.setVisible(false);
         //myLabelEndOfFold.setVisible(false);
     }

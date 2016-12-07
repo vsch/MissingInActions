@@ -37,7 +37,13 @@ import static javax.swing.SwingUtilities.isEventDispatchThread;
  * Useful for triggering actions after a delay that may need to be run before the delay triggers
  */
 public class OneTimeRunnable extends AwtRunnable implements CancellableRunnable {
+    static public final OneTimeRunnable NULL = new OneTimeRunnable(()->{}).cancelled();
     final private AtomicBoolean myHasRun;
+
+    private OneTimeRunnable cancelled() {
+        myHasRun.set(true);
+        return this;
+    }
 
     public OneTimeRunnable(Runnable command) {
         this(false, command);
@@ -74,13 +80,13 @@ public class OneTimeRunnable extends AwtRunnable implements CancellableRunnable 
      * the given command will only be executed once, either by the delayed trigger or by the run method.
      * if you want to execute the task early just invoke #run, it will do nothing if the task has already run.
      *
-     * @param command the task to execute
      * @param delay   the time from now to delay execution
+     * @param command the task to execute
      * @return a {@link OneTimeRunnable} which will run after the given
      * delay or if {@link #run()} is invoked before {@link #cancel()} is invoked
      * @throws NullPointerException       if command is null
      */
-    public static OneTimeRunnable schedule(@NotNull Runnable command, int delay) {
+    public static OneTimeRunnable schedule(int delay, @NotNull Runnable command) {
         OneTimeRunnable runnable = command instanceof OneTimeRunnable ? (OneTimeRunnable) command : new OneTimeRunnable(command);
         CancelableJobScheduler.getScheduler().schedule(runnable, delay);
         return runnable;
