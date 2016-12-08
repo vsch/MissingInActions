@@ -10,8 +10,8 @@ out/
 /MissingInActions.jar
 /libprep
 /MissingInActions.iws
-assets/ScreenShotSequence.psd
-assets/toolbar-icons.psd
+MissingInActionsAssets/ScreenShotSequence.psd
+MissingInActionsAssets/toolbar-icons.psd
 /BEDIT_README.md
 /update-plugin.sh
 /release.sh
