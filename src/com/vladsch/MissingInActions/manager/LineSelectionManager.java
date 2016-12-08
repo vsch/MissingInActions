@@ -23,13 +23,16 @@ package com.vladsch.MissingInActions.manager;
 
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
+import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
@@ -43,6 +46,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -75,6 +81,10 @@ public class LineSelectionManager implements
     private boolean myIsSelectionEndExtended;
     private boolean myIsSelectionStartExtended;
     private final CaretHighlighter myCaretHighlighter;
+    private ApplicationSettings mySettings;
+    private AnAction myMultiPasteAction;
+    private AnAction myPasteAction;
+    private PasteOverrider myPasteOverrider;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -96,7 +106,6 @@ public class LineSelectionManager implements
         myEditor = editor;
         myPositionFactory = new EditorPositionFactory(this);
 
-
         // this can fail if caret visual attributes are not implemented in the IDE (since 2017.1)
         CaretHighlighter caretHighlighter;
         try {
@@ -108,8 +117,12 @@ public class LineSelectionManager implements
         myCaretHighlighter = caretHighlighter;
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
 
-        ApplicationSettings settings = ApplicationSettings.getInstance();
-        settingsChanged(settings);
+        myMultiPasteAction = null;
+        myPasteAction = null;
+        myPasteOverrider = null;
+
+        mySettings = ApplicationSettings.getInstance();
+        settingsChanged(mySettings);
 
         myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
@@ -182,6 +195,8 @@ public class LineSelectionManager implements
 
     private void settingsChanged(@NotNull ApplicationSettings settings) {
         // unhook all the stuff for settings registration
+        mySettings = settings;
+
         boolean startExtended = settings.isSelectionStartExtended();
         boolean endExtended = settings.isSelectionEndExtended();
 
@@ -218,7 +233,45 @@ public class LineSelectionManager implements
                         .commit();
             }
         }
+    }
 
+    /**
+     * This is needed to override paste actions only if there are multiple carets
+     * <p>
+     * Otherwise, formatting after paste will not work right in single caret mode and
+     * without the override multi-caret select after paste and all the smart paste
+     * adjustments don't work because the IDE does not provide data for last pasted
+     * ranges.
+     */
+    private class PasteOverrider implements IdeEventQueue.EventDispatcher {
+        @Override
+        public boolean dispatch(@NotNull AWTEvent e) {
+            if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
+                Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
+                    return component == myEditor.getComponent();
+                });
+
+                if (owner == myEditor.getComponent()) {
+                    boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
+                    if (registerPasteOverrides != (myMultiPasteAction != null || myPasteAction != null)) {
+                        if (!registerPasteOverrides) {
+                            // unregister them
+                            if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                            if (myPasteAction != null) myPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                            myMultiPasteAction = null;
+                            myPasteAction = null;
+                        } else {
+                            // we register our own pastes to handle multi-caret
+                            myMultiPasteAction = new MiaMultiplePasteAction();
+                            myPasteAction = new MiaPasteAction();
+                            myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
+                            myPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     private void hookListeners(ApplicationSettings settings) {
@@ -253,14 +306,25 @@ public class LineSelectionManager implements
 
             // override standard pastes
             if (settings.isOverrideStandardPaste()) {
-                final AnAction multiPaste = new MiaMultiplePasteAction();
-                final AnAction paste = new MiaPasteAction();
-                multiPaste.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
-                paste.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
+                //final AnAction multiPaste = new MiaMultiplePasteAction();
+                //final AnAction paste = new MiaPasteAction();
+                //multiPaste.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
+                //paste.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
+                //
+                //myDelayedRunner.addRunnable("Override Paste", () -> {
+                //    multiPaste.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                //    paste.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                //});
+                myPasteOverrider = new PasteOverrider();
+                IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
 
-                myDelayedRunner.addRunnable("Override Paste", ()->{
-                    multiPaste.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                    paste.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                myDelayedRunner.addRunnable("Override Paste", () -> {
+                    if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                    if (myPasteAction != null) myPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
+                    if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
+                    myMultiPasteAction = null;
+                    myPasteAction = null;
+                    myPasteOverrider = null;
                 });
             }
         }

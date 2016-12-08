@@ -54,6 +54,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myAutoIndent = false;
     private boolean mySelectPasted = false;
     private int mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
+    private boolean mySelectPastedMultiCaret = true;
     private boolean myUnselectToggleCase = false;
     private boolean myWeSetVirtualSpace = true;
     private boolean myDuplicateAtStartOrEnd = false;
@@ -104,6 +105,10 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myLeftRightMovement
         );
     }
+
+    public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }
+
+    public void setSelectPastedMultiCaret(final boolean selectPastedMultiCaret) { mySelectPastedMultiCaret = selectPastedMultiCaret; }
 
     public boolean isOverrideStandardPaste() { return myOverrideStandardPaste; }
 

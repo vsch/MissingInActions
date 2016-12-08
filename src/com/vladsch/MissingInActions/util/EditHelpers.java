@@ -264,7 +264,7 @@ public class EditHelpers {
             }
         }
 
-        if (editor instanceof EditorImpl && ((EditorImpl) editor).myUseNewRendering) {
+        if (editor instanceof EditorImpl) {
             int boundaryOffset = ((EditorImpl) editor).findNearestDirectionBoundary(offset, false);
             if (boundaryOffset >= 0) {
                 newOffset = Math.max(boundaryOffset, newOffset);

@@ -51,6 +51,7 @@ public class ApplicationSettingsForm implements Disposable {
     private JComboBox myMouseModifier;
     private JBCheckBox myAutoIndent;
     private JBCheckBox mySelectPasted;
+    private JBCheckBox mySelectPastedMultiCaret;
     private JBCheckBox myPreserveCamelCaseOnPaste;
     private JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
     private JBCheckBox myPreserveSnakeCaseOnPaste;
@@ -114,6 +115,7 @@ public class ApplicationSettingsForm implements Disposable {
                 || myStartEndAsLineSelection.isSelected() != mySettings.isStartEndAsLineSelection()
                 || myAutoIndent.isSelected() != mySettings.isAutoIndent()
                 || mySelectPasted.isSelected() != mySettings.isSelectPasted()
+                || mySelectPastedMultiCaret.isSelected() != mySettings.isSelectPastedMultiCaret()
                 || myPreserveCamelCaseOnPaste.isSelected() != mySettings.isPreserveCamelCaseOnPaste()
                 || myPreserveScreamingSnakeCaseOnPaste.isSelected() != mySettings.isPreserveScreamingSnakeCaseOnPaste()
                 || myPreserveSnakeCaseOnPaste.isSelected() != mySettings.isPreserveSnakeCaseOnPaste()
@@ -155,6 +157,7 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setStartEndAsLineSelection(myStartEndAsLineSelection.isSelected());
         mySettings.setAutoIndent(myAutoIndent.isSelected());
         mySettings.setSelectPasted(mySelectPasted.isSelected());
+        mySettings.setSelectPastedMultiCaret(mySelectPastedMultiCaret.isSelected());
         mySettings.setPreserveCamelCaseOnPaste(myPreserveCamelCaseOnPaste.isSelected());
         mySettings.setPreserveScreamingSnakeCaseOnPaste(myPreserveScreamingSnakeCaseOnPaste.isSelected());
         mySettings.setPreserveSnakeCaseOnPaste(myPreserveSnakeCaseOnPaste.isSelected());
@@ -201,6 +204,7 @@ public class ApplicationSettingsForm implements Disposable {
         myStartEndAsLineSelection.setSelected(mySettings.isStartEndAsLineSelection());
         myAutoIndent.setSelected(mySettings.isAutoIndent());
         mySelectPasted.setSelected(mySettings.isSelectPasted());
+        mySelectPastedMultiCaret.setSelected(mySettings.isSelectPastedMultiCaret());
         myPreserveCamelCaseOnPaste.setSelected(mySettings.isPreserveCamelCaseOnPaste());
         myPreserveScreamingSnakeCaseOnPaste.setSelected(mySettings.isPreserveScreamingSnakeCaseOnPaste());
         myPreserveSnakeCaseOnPaste.setSelected(mySettings.isPreserveSnakeCaseOnPaste());
@@ -273,6 +277,7 @@ public class ApplicationSettingsForm implements Disposable {
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
         myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
+        mySelectPastedMultiCaret.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
 
         myRemovePrefixOnPaste1.setEnabled(myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled());
         myRemovePrefixOnPaste2.setEnabled(myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled());

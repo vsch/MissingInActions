@@ -796,7 +796,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                         // still do the bounds if not fully camel case
                         char charBefore = beforeOffset > 0 && beforeOffset - 1 < textLength ? charSequence.charAt(beforeOffset - 1) : ' ';
                         char charAtBefore = beforeOffset >= 0 && beforeOffset < textLength ? charSequence.charAt(beforeOffset) : ' ';
-                        char charAtAfter = afterOffset >= 0 && afterOffset - 1 < textLength ? charSequence.charAt(afterOffset - 1) : ' ';
+                        char charAtAfter = afterOffset > 0 && afterOffset - 1 < textLength ? charSequence.charAt(afterOffset - 1) : ' ';
                         char charAfter = afterOffset < textLength ? charSequence.charAt(afterOffset) : ' ';
 
                         // non-alpha|non-alpha : start=do nothing, end=do nothing
@@ -945,7 +945,8 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                                     }
 
                                     if (settings.isSelectPasted()) {
-                                        if (SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(0)) {
+                                        if (settings.isSelectPastedMultiCaret() && myEditor.getCaretModel().getCaretCount() > 1
+                                                || SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
                                             editorCaret.getCaret().setSelection(beforeOffset, beforeOffset + word.length() + caretDelta);
                                         }
                                     }

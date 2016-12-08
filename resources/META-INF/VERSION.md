@@ -27,42 +27,47 @@
       - [ ] keep comments
       - [ ] keep blank lines
       - [ ] straighten caret
+- [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
+      indent.
 
 &nbsp;</details>
 
 
 ### 0.7.3 - Refactoring and Code Cleanup
 
-- Add: smart paste functionality. 
-      - preserve camel case, screaming snake case and snake case on char paste.
-      - remove prefix on paste if not isolated word, with two configurable prefixes: default
-        `my` and `our`
+- Add: smart paste functionality.
+    - preserve camel case, screaming snake case and snake case on char paste based on context of
+      where it is pasted.
+    - remove prefix on paste if not isolated word, with two configurable prefixes: default `my`
+      and `our`
 
-      The two combined together allow you to select a member with prefix and paste it anywhere.
-      MIA will adjust the pasted text to match the format at destination: camel case, snake
-      case, screaming snake case. Inserting and deleting underscores as needed, adjusting case
-      after the pasted text if needed. 99% of the time there is no need to edit results after
-      pasting, the other 1% hit undo and get the text as it was before MIA modified it.
+    The two combined together allow you to select a member with prefix and paste it anywhere.
+    MIA will adjust the pasted text to match the format at destination: camel case, snake case,
+    screaming snake case. Inserting and deleting underscores as needed, adjusting case after the
+    pasted text if needed. 90% of the time there is no need to edit results after pasting, the
+    other 10% hit undo and get the text as it was before MIA modified it.
 - Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
   caret filtering and spawning actions.
 - Add: select to end of file and select to beginning of file as line selection ops (with an
-      option in settings)
+  option in settings)
 - Fix: Copy moves to bottom since the mark is always start anchored
 - Add: line comment caret remove/keep actions. Rename the others to fit in the remove/keep
   format. Line Comment is a line that either begins with a line comment prefix, or one that
   begins with a block comment prefix and ends in a block comment prefix.
-    - `KeepBlankLineCarets`: keep only carets on blank lines
-    - `KeepCodeLineCarets`: keep only carets on lines which are not blank and not line comments 
-    - `KeepLineCommentCarets`: keep only carets on line comment lines 
-    - `RemoveBlankLineCarets`: remove carets which are not on blank lines
-    - `RemoveCodeLineCarets`: remove carets which are on blank or line comment lines 
-    - `RemoveLineCommentCarets`: remove carets which are not on line comment lines 
-    - `SmartKeepLineCarets`: useful for quickly isolating code, or comment lines. If have carets
+    - `MissingInActions.KeepBlankLineCarets`: keep only carets on blank lines
+    - `MissingInActions.KeepCodeLineCarets`: keep only carets on lines which are not blank and not line comments
+    - `MissingInActions.KeepLineCommentCarets`: keep only carets on line comment lines
+    - `MissingInActions.RemoveBlankLineCarets`: remove carets which are not on blank lines
+    - `MissingInActions.RemoveCodeLineCarets`: remove carets which are on blank or line comment lines
+    - `MissingInActions.RemoveLineCommentCarets`: remove carets which are not on line comment lines
+    - `MissingInActions.SmartKeepLineCarets`: useful for quickly isolating code, or comment lines. If have carets
       on code lines, remove non-code lines; else if have carets on line comment lines then
       remove non-comment lines, else nothing.
-    - `SmartRemoveLineCarets`: opposite of smart keep. Useful for isolating carets so unneeded
+    - `MissingInActions.SmartRemoveLineCarets`: opposite of smart keep. Useful for isolating carets so unneeded
       lines can be deleted. If have carets on code lines, remove code lines; else if have carets
       on line comment lines then remove comment lines, else nothing.
+
+    In all cases if the operation would remove all carets then nothing is done.
 
 ### 0.7.2 - Refactoring and Code Cleanup
 
