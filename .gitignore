@@ -22,3 +22,6 @@ assets/toolbar-icons.psd
 /lib/kotlin-reflect.jar
 /assets/images/EditActions@2x.png
 /assets/images/ToolsSettings@2x.png
+/MissingInActionsAssets/
+/.idea/vcs.xml
+/MissingInActions.wiki
