@@ -828,7 +828,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                             boolean isSingleLineChar = !editorCaret.hasLines();
 
                             if (isSingleLineChar) {
-                                cumulativeCaretDelta[0] += params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
+                                cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
                                         , selectPasted || settings.isSelectPastedMultiCaret() && myEditor.getCaretModel().getCaretCount() > 1
                                         , settings.isPreserveCamelCaseOnPaste()
                                         , settings.isPreserveSnakeCaseOnPaste()

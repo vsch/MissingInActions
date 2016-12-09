@@ -22,16 +22,18 @@
 package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.vladsch.MissingInActions.util.EditHelpers.*;
-import static java.lang.Character.isLowerCase;
-import static java.lang.Character.isUpperCase;
+import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
+import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
+import static com.vladsch.MissingInActions.util.WordStudy.*;
 
+@SuppressWarnings("WeakerAccess")
 public class CaseFormatPreserver {
     private boolean startToLowerCase;
     private boolean startToUpperCase;
@@ -45,6 +47,7 @@ public class CaseFormatPreserver {
     private boolean hadSelection;
 
     public CaseFormatPreserver() {
+        clear();
     }
 
     public void clear() {
@@ -61,23 +64,36 @@ public class CaseFormatPreserver {
     }
 
     public void studyFormatBefore(@NotNull EditorCaret editorCaret, final @Nullable String removePrefix1, final @Nullable String removePrefix2) {
+        final Caret caret = editorCaret.getCaret();
+        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), removePrefix1, removePrefix2);
+    }
+
+    public void studyFormatBefore(
+            final BasedSequence chars
+            , final int offset
+            , final int selectionStart
+            , final int selectionEnd
+            , final @Nullable String removePrefix1
+            , final @Nullable String removePrefix2
+    ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
-        int beforeOffset = editorCaret.getCaretPosition().getOffset();
+        int beforeOffset = offset;
         int afterOffset = beforeOffset;
-        BasedSequence charSequence = editorCaret.getDocumentChars();
 
-        if (editorCaret.hasSelection() && !editorCaret.isLine()) {
-            beforeOffset = editorCaret.getSelectionStart().getOffset();
-            afterOffset = editorCaret.getSelectionEnd().getOffset();
+        clear();
+
+        if (selectionStart != selectionEnd && !((selectionStart == 0 || chars.charAt(selectionStart-1)=='\n') && chars.charAt(selectionEnd-1) == '\n')) {
+            beforeOffset = selectionStart;
+            afterOffset = selectionEnd;
             hadSelection = true;
         }
 
-        int expandedBeforeOffset = getPreviousWordStartAtOffset(charSequence, beforeOffset, EditHelpers.WORD_IDENTIFIER, false, true);
-        int expandedAfterOffset = getNextWordEndAtOffset(charSequence, afterOffset, EditHelpers.WORD_IDENTIFIER, false, true);
+        int expandedBeforeOffset = getPreviousWordStartAtOffset(chars, beforeOffset, EditHelpers.WORD_IDENTIFIER, false, true);
+        int expandedAfterOffset = getNextWordEndAtOffset(chars, afterOffset, EditHelpers.WORD_IDENTIFIER, false, true);
 
-        InsertedRangeContext e = new InsertedRangeContext(charSequence, expandedBeforeOffset, expandedAfterOffset);
-        InsertedRangeContext w = new InsertedRangeContext(charSequence, beforeOffset, afterOffset);
+        InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset);
+        InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset);
 
         if (!w.isEmpty()) {
             if (!prefix1.isEmpty() || !prefix2.isEmpty()) {
@@ -88,7 +104,7 @@ public class CaseFormatPreserver {
             }
         }
 
-        toScreamingSnakeCase = e.isScreamingSnakeCase() || e.hasNoLowerCase();
+        toScreamingSnakeCase = e.isScreamingSnakeCase() || e.hasUnderscore() && e.hasNoLowerCase() && e.hasUpperCase();
         if (!toScreamingSnakeCase) {
             toSnakeCase = e.isSnakeCase();
             if (!toSnakeCase) {
@@ -103,8 +119,8 @@ public class CaseFormatPreserver {
                 // alpha|alpha: start=make bound, end=make bound
                 boolean identifierStart = w.isIdentifierStartBefore(true);
                 boolean identifierEnd = w.isIdentifierEndBefore(true);
-                startToLowerCase = identifierStart && w.isLowerCaseAtStart();
-                startToUpperCase = identifierStart && w.isUpperCaseAtStart();
+                startToLowerCase = identifierStart && w.isLowerCaseAtStart() && w.wordStudy().only(LOWER|UPPER|UNDER|EMPTY);
+                startToUpperCase = identifierStart && w.isUpperCaseAtStart() && w.wordStudy().only(LOWER|UPPER|UNDER|EMPTY);
                 startOnBound = identifierStart || identifierEnd;
                 endOnBound = w.isIdentifierStartAfter(true) || w.isIdentifierEndAfter(true);
             }
@@ -121,21 +137,61 @@ public class CaseFormatPreserver {
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
     ) {
+        InsertedRangeContext i = preserveFormatAfter(
+                editorCaret.getDocumentChars()
+                , range
+                , preserveCamelCase, preserveSnakeCase, preserveScreamingSnakeCase
+                , removePrefix1, removePrefix2
+        );
+
+        if (i != null) {
+            if (!i.isEqualsInserted()) {
+                final int finalBeforeOffset = i.beforeOffset;
+                final int finalAfterOffset = i.afterOffset - i.getCaretDelta();
+                final String finalWord = i.word();
+                final int finalCaretDelta = i.getCaretDelta();
+                if (startWriteAction) {
+                    WriteCommandAction.runWriteCommandAction(editorCaret.getProject(), () -> {
+                        editorCaret.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
+                        editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
+                    });
+                } else {
+                    editorCaret.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
+                    editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
+                }
+            }
+
+            if (selectRange) {
+                editorCaret.getCaret().setSelection(i.beforeOffset, i.beforeOffset + i.word().length() + i.getCaretDelta());
+            }
+            return i.getCumulativeCaretDelta();
+        }
+        return 0;
+    }
+
+    public InsertedRangeContext preserveFormatAfter(final BasedSequence chars
+            , final @NotNull TextRange range
+            , final boolean preserveCamelCase
+            , final boolean preserveSnakeCase
+            , final boolean preserveScreamingSnakeCase
+            , final @Nullable String removePrefix1
+            , final @Nullable String removePrefix2
+    ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
-        editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
-        boolean isSingleLineChar = !editorCaret.hasLines();
-        int cumulativeCaretDelta = 0;
+        BasedSequence insertedRange = (BasedSequence) range.subSequence(chars);
+        boolean isSingleLineChar = insertedRange.indexOf('\n') == -1;
+        InsertedRangeContext i = null;
 
         if (isSingleLineChar) {
             // remove prefixes first so camel case adjustment works right
-            InsertedRangeContext i = new InsertedRangeContext(editorCaret.getDocumentChars(), range.getStartOffset(), range.getEndOffset());
+            i = new InsertedRangeContext(chars, range.getStartOffset(), range.getEndOffset());
             int caretDelta = 0;
             boolean removedPrefix = false;
 
             if (!i.isIsolated() || hadSelection) {
                 if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
-                    if (!(hadStartOfWord && hadStartOfWordWithPrefix) && !i.isIsolated()) {
+                    if (!(hadStartOfWord && hadStartOfWordWithPrefix) && !i.isIsolated() && i.wordStudy().only(UPPER|LOWER|DIGITS)) {
                         if (!i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
                         else if (!i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
                     }
@@ -143,12 +199,18 @@ public class CaseFormatPreserver {
 
                 // adjust for camel case preservation
                 if (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase) {
-                    if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
+                    if (preserveScreamingSnakeCase && toScreamingSnakeCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
+                        // remove prefix if converting to snake case
+                        if (!removedPrefix && !i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
+                        else if (!removedPrefix && !i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
                         i.makeScreamingSnakeCase();
-                    } else if (preserveSnakeCase && toSnakeCase) {
+                    } else if (preserveSnakeCase && toSnakeCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
+                        // remove prefix if converting to snake case
+                        if (!removedPrefix && !i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
+                        else if (!removedPrefix && !i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
                         i.makeSnakeCase();
                     } else if (preserveCamelCase) {
-                        if (toCamelCase) {
+                        if (toCamelCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
                             i.makeCamelCase();
                         }
 
@@ -177,30 +239,9 @@ public class CaseFormatPreserver {
                 }
             }
 
-            if (!i.isEqualsInserted()) {
-                final int finalBeforeOffset = i.beforeOffset;
-                final int finalAfterOffset = i.afterOffset - caretDelta;
-                final String finalWord = i.word();
-                final int finalCaretDelta = caretDelta;
-                if (startWriteAction) {
-                    WriteCommandAction.runWriteCommandAction(editorCaret.getProject(), () -> {
-                        editorCaret.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
-                        editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
-                    });
-                } else {
-                    editorCaret.getDocument().replaceString(finalBeforeOffset, finalAfterOffset, finalWord);
-                    editorCaret.getCaret().moveToOffset(finalBeforeOffset + finalWord.length() + finalCaretDelta);
-                }
-
-                // adjust for the rest of the carets
-                cumulativeCaretDelta -= i.inserted.length() - i.word().length() - caretDelta;
-            }
-
-            if (selectRange) {
-                editorCaret.getCaret().setSelection(i.beforeOffset, i.beforeOffset + i.word().length() + caretDelta);
-            }
+            i.setCaretDelta(caretDelta);
         }
 
-        return cumulativeCaretDelta;
+        return i;
     }
 }

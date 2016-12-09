@@ -54,6 +54,8 @@ public class InsertedRangeContext {
     public final boolean isWordEndAtEnd;
 
     private String myWord;
+    private int myCaretDelta;
+    private WordStudy myWordStudy;
 
     public InsertedRangeContext(@NotNull BasedSequence charSequence, int beforeOffset, int afterOffset) {
         this.charSequence = charSequence;
@@ -66,12 +68,12 @@ public class InsertedRangeContext {
 
         this.beforeOffset = beforeOffset;
         this.afterOffset = afterOffset;
-        TextRange range = EditHelpers.getWordRangeAtOffsets(charSequence, beforeOffset, afterOffset, WORD_IDENTIFIER,false,true);
+        TextRange range = EditHelpers.getWordRangeAtOffsets(charSequence, beforeOffset, afterOffset, WORD_IDENTIFIER, false, true);
         this.expandedBeforeOffset = range.getStartOffset();
-        this.expandedAfterOffset =  range.getEndOffset();
+        this.expandedAfterOffset = range.getEndOffset();
 
-        this.expandedPrefix = expandedBeforeOffset > beforeOffset ? "":charSequence.subSequence(expandedBeforeOffset, beforeOffset).toString();
-        this.expandedSuffix = expandedAfterOffset < afterOffset ? "":charSequence.subSequence(afterOffset, expandedAfterOffset).toString();
+        this.expandedPrefix = expandedBeforeOffset > beforeOffset ? "" : charSequence.subSequence(expandedBeforeOffset, beforeOffset).toString();
+        this.expandedSuffix = expandedAfterOffset < afterOffset ? "" : charSequence.subSequence(afterOffset, expandedAfterOffset).toString();
 
         this.inserted = charSequence.subSequence(beforeOffset, afterOffset).toString();
 
@@ -83,21 +85,42 @@ public class InsertedRangeContext {
         this.isWordEndAtEnd = isWordEnd(charSequence, afterOffset, false);
 
         myWord = inserted;
+        myWordStudy = WordStudy.of(myWord);
+        myCaretDelta = 0;
+    }
+
+    public int getCaretDelta() {
+        return myCaretDelta;
+    }
+
+    public void setCaretDelta(final int caretDelta) {
+        myCaretDelta = caretDelta;
+    }
+
+    public int getCumulativeCaretDelta() {
+        return (inserted.length() - word().length() - myCaretDelta);
     }
 
     // adjust with change to word
-    public char charAtStart() { return !myWord.isEmpty() ? myWord.charAt(0) : ' '; }
+    public char charAtStart() { return !myWord.isEmpty() ? myWord.charAt(0) : charAfter; }
 
-    public char charAtEnd() { return !myWord.isEmpty() ? myWord.charAt(myWord.length() - 1) : ' '; }
-
-    @NotNull
-    public String sAtStart() { return String.valueOf(!myWord.isEmpty() ? myWord.charAt(0) : ' '); }
+    public char charAtEnd() { return !myWord.isEmpty() ? myWord.charAt(myWord.length() - 1) : charAfter; }
 
     @NotNull
-    public String sAtEnd() { return String.valueOf(!myWord.isEmpty() ? myWord.charAt(myWord.length() - 1) : ' '); }
+    public String sAtStart() { return String.valueOf(charAtStart()); }
+
+    @NotNull
+    public String sAtEnd() { return String.valueOf(charAtEnd()); }
 
     @NotNull
     public String word() { return myWord; }
+
+    @NotNull
+    public WordStudy wordStudy() {
+        if (myWord.equals(myWordStudy.getWord())) return myWordStudy;
+        myWordStudy = WordStudy.of(myWord);
+        return myWordStudy;
+    }
 
     @NotNull
     public String range(int start, int end) { return myWord.substring(start, end); }
@@ -256,13 +279,13 @@ public class InsertedRangeContext {
 
     @NotNull
     public InsertedRangeContext makeScreamingSnakeCase() {
-        myWord = EditHelpers.makeScreamingSnakeCase(myWord);
+        myWord = wordStudy().makeScreamingSnakeCase();
         return fixSnakeCase();
     }
 
     @NotNull
     public InsertedRangeContext makeSnakeCase() {
-        myWord = EditHelpers.makeSnakeCase(myWord);
+        myWord = wordStudy().makeSnakeCase();
         return fixSnakeCase();
     }
 
@@ -277,33 +300,33 @@ public class InsertedRangeContext {
 
     @NotNull
     public InsertedRangeContext makeCamelCase() {
-        myWord = EditHelpers.makeCamelCase(myWord);
+        myWord = wordStudy().makeCamelCase();
         return this;
     }
 
     public boolean isHumpBoundIdentifierAtStart() { return isHumpBoundIdentifierAtStart(null); }
+
     public boolean isHumpBoundIdentifierAtEnd() { return isHumpBoundIdentifierAtEnd(null); }
 
     public boolean isHumpBoundIdentifierAtStart(@Nullable Function<String, String> op) {
         return EditHelpers.isHumpBoundIdentifier(sBefore + (op == null ? sAtStart() : op.apply(sAtStart())), 1, true);
     }
 
-
     public boolean isHumpBoundIdentifierAtEnd(@Nullable Function<String, String> op) {
         return EditHelpers.isHumpBoundIdentifier(sAtEnd() + (op == null ? sAfter : op.apply(sAfter)), 1, false);
     }
 
     public boolean hasNoLowerCaseAfterPrefix(final int count) {
-        return myWord.length() > count && EditHelpers.hasNoLowerCase(myWord);
+        return myWord.length() > count && wordStudy().hasNoLowerCase();
     }
 
     public boolean hasNoUpperCaseAfterPrefix(final int count) {
-        return myWord.length() > count && EditHelpers.hasNoUpperCase(myWord);
+        return myWord.length() > count && wordStudy().hasNoUpperCase();
     }
 
-    public boolean hasNoLowerCase() { return EditHelpers.hasNoLowerCase(myWord); }
+    public boolean hasNoLowerCase() { return wordStudy().hasNoLowerCase(); }
 
-    public boolean hasNoUpperCase() { return EditHelpers.hasNoUpperCase(myWord); }
+    public boolean hasNoUpperCase() { return wordStudy().hasNoUpperCase(); }
 
     public boolean isEqualsInserted() { return myWord.equals(inserted); }
 
@@ -335,25 +358,29 @@ public class InsertedRangeContext {
     public boolean isAlphabeticAtEnd() { return isAlphabetic(charAtEnd()); }
     public boolean isAlphabeticAfter() { return isAlphabetic(charAfter); }
 
-    public boolean isCamelCase() { return EditHelpers.isCamelCase(myWord); }
-    public boolean isScreamingSnakeCase() { return EditHelpers.isScreamingSnakeCase(myWord); }
-    public boolean isSnakeCase() { return EditHelpers.isSnakeCase(myWord); }
+    public boolean isCamelCase() { return wordStudy().isCamelCase(); }
+    public boolean isScreamingSnakeCase() { return wordStudy().isScreamingSnakeCase(); }
+    public boolean isSnakeCase() { return wordStudy().isSnakeCase(); }
 
     public boolean isIsolated() { return expandedPrefix.isEmpty() && expandedSuffix.isEmpty(); }
-    public boolean isExpandedCamelCase() { return EditHelpers.isCamelCase(expandedPrefix + myWord + expandedSuffix); }
-    public boolean isExpandedScreamingSnakeCase() { return EditHelpers.isScreamingSnakeCase(expandedPrefix + myWord + expandedSuffix); }
-    public boolean isExpandedSnakeCase() { return EditHelpers.isSnakeCase(expandedPrefix + myWord + expandedSuffix); }
+    public boolean isExpandedCamelCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isCamelCase(); }
+    public boolean isExpandedScreamingSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isScreamingSnakeCase(); }
+    public boolean isExpandedSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isSnakeCase(); }
 
-    public boolean canMakeCamelCase() { return EditHelpers.canMakeCamelCase(myWord); }
-    public boolean canMakeScreamingSnakeCase() { return EditHelpers.canMakeScreamingSnakeCase(myWord); }
-    public boolean canMakeSnakeCase() { return EditHelpers.canMakeSnakeCase(myWord); }
+    public boolean canBeCamelCase() { return wordStudy().canBeCamelCase(); }
+    public boolean canBeScreamingSnakeCase() { return wordStudy().canBeScreamingSnakeCase(); }
+    public boolean canBeSnakeCase() { return wordStudy().canBeSnakeCase(); }
 
-    public boolean canMakeExpandedCamelCase() { return EditHelpers.canMakeCamelCase(expandedPrefix + myWord + expandedSuffix); }
-    public boolean canMakeExpandedScreamingSnakeCase() { return EditHelpers.canMakeScreamingSnakeCase(expandedPrefix + myWord + expandedSuffix); }
-    public boolean canMakeExpandedSnakeCase() { return EditHelpers.canMakeSnakeCase(expandedPrefix + myWord + expandedSuffix); }
+    public boolean canBeExpandedCamelCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeCamelCase(); }
+    public boolean canBeExpandedScreamingSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeScreamingSnakeCase(); }
+    public boolean canBeExpandedSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeSnakeCase(); }
 
     public boolean isEmpty() { return myWord.isEmpty(); }
     public boolean isNotEmpty() { return !myWord.isEmpty(); }
+
+    public boolean hasUnderscore() { return myWord.indexOf('_') != -1; }
+    public boolean hasUpperCase() { return wordStudy().hasUpperCase(); }
+    public boolean hasLowerCase() { return wordStudy().hasLowerCase(); }
 
     // @formatter:off
 }

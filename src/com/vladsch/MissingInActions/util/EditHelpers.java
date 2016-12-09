@@ -502,6 +502,16 @@ public class EditHelpers {
                 !start && isLetterOrDigit(prevChar) && curChar == '$';
     }
 
+    public static boolean isSnakeCaseBound(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0) return start;
+        else if (offset >= editorText.length()) return !start;
+
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+
+        return start ? prevChar == '_' && curChar != '_' && isLetterOrDigit(curChar) : prevChar != '_' && curChar == '_' && isLetterOrDigit(prevChar);
+    }
+
 /*
     public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
         if (offset <= 0 || offset >= editorText.length()) return false;
@@ -704,7 +714,7 @@ public class EditHelpers {
             if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
-            if (stopIfNonWord && !isWordType(wordType, charSequence, newOffset)) break;
+            if (stopIfNonWord && !isWordTypeEnd(wordType,charSequence,newOffset,false) && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset--;
         } while (newOffset >= 0);
 
@@ -804,218 +814,4 @@ public class EditHelpers {
         return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel, stopIfNonWord);
     }
 
-    public static boolean isMixedSnakeCase(CharSequence word) {
-        int iMax = word.length();
-        boolean hadUpper = false;
-        boolean hadLower = false;
-        boolean hadUnder = false;
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isUpperCase(c)) hadUpper = true;
-            else if (c == '_') hadUnder = true;
-            else if (isLowerCase(c)) hadLower = true;
-            else if (!isDigit(c)) return false;
-        }
-        return hadUnder && (hadUpper && hadLower);
-    }
-
-    public static boolean isScreamingSnakeCase(CharSequence word) {
-        int iMax = word.length();
-        boolean hadUpper = false;
-        boolean hadUnder = false;
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isUpperCase(c)) hadUpper = true;
-            else if (c == '_') hadUnder = true;
-            else if (isLowerCase(c)) return false;
-            else if (!isDigit(c)) return false;
-        }
-        return hadUnder && hadUpper;
-    }
-
-    public static boolean isSnakeCase(CharSequence word) {
-        int iMax = word.length();
-        boolean hadLower = false;
-        boolean hadUnder = false;
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isLowerCase(c)) hadLower = true;
-            else if (c == '_') hadUnder = true;
-            else if (isUpperCase(c)) return false;
-            else if (!isDigit(c)) return false;
-        }
-        return hadUnder && hadLower;
-    }
-
-    public static boolean isCamelCase(CharSequence word) {
-        int iMax = word.length();
-        boolean hadLower = false;
-        boolean hadUpper = false;
-        boolean hadUnder = false;
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isLowerCase(c)) hadLower = true;
-            else if (isUpperCase(c)) hadUpper = true;
-            else if (c == '_') hadUnder = true;
-            else if (!isDigit(c)) return false;
-        }
-        return !hadUnder && (hadLower && hadUpper);
-    }
-
-    public static boolean hasNoUpperCase(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isUpperCase(c)) return false;
-        }
-        return true;
-    }
-
-    public static boolean hasUpperCase(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isUpperCase(c)) return true;
-        }
-        return false;
-    }
-
-    public static boolean hasNoLowerCase(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isLowerCase(c)) return false;
-        }
-        return true;
-    }
-
-    public static boolean hasLowerCase(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isLowerCase(c)) return true;
-        }
-        return false;
-    }
-
-    public static boolean isHasLowerCaseOrUpperCase(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            char c = word.charAt(i);
-            if (isLowerCase(c)) return true;
-            if (isUpperCase(c)) return true;
-        }
-        return false;
-    }
-
-    public static boolean isProperCamelCase(CharSequence word) {
-        return isCamelCase(word) && isLowerCase(word.charAt(0));
-    }
-
-    public static boolean isPascalCase(CharSequence word) {
-        return isCamelCase(word) && isUpperCase(word.charAt(0));
-    }
-
-    public static boolean canMakeScreamingSnakeCase(CharSequence word) {
-        if (!(isMixedSnakeCase(word) || isSnakeCase(word) || isCamelCase(word)) && !isScreamingSnakeCase(word)) return false;
-        String screamingSnakeCase = makeScreamingSnakeCase(word);
-        return !word.equals(screamingSnakeCase) && isScreamingSnakeCase(screamingSnakeCase);
-    }
-
-    public static boolean canMakeSnakeCase(CharSequence word) {
-        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isCamelCase(word)) && !isSnakeCase(word)) return false;
-        String snakeCase = makeSnakeCase(word);
-        return !word.equals(snakeCase) && isSnakeCase(snakeCase);
-    }
-
-    public static boolean canMakeCamelCase(CharSequence word) {
-        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word)) && !hasNoLowerCase(word)) return false;
-        String camelCase = makeCamelCase(word);
-        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasLowerCase(camelCase) || hasUpperCase(camelCase));
-    }
-
-    public static boolean canMakeProperCamelCase(CharSequence word) {
-        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word) || isCamelCase(word) || isHasLowerCaseOrUpperCase(word))) return false;
-        String camelCase = makeProperCamelCase(word);
-        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase) && hasLowerCase(camelCase));
-    }
-
-    public static boolean canMakePascalCase(CharSequence word) {
-        if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word) || isCamelCase(word))) return false;
-        String pascalCase = makePascalCase(word);
-        return !(pascalCase.length() > 1 && isUpperCase(pascalCase.charAt(1))) && !word.equals(pascalCase) && isPascalCase(pascalCase);
-    }
-
-    public static boolean isSnakeCaseBound(@NotNull CharSequence editorText, int offset, boolean start) {
-        if (offset <= 0) return start;
-        else if (offset >= editorText.length()) return !start;
-
-        final char prevChar = editorText.charAt(offset - 1);
-        final char curChar = editorText.charAt(offset);
-
-        return start ? prevChar == '_' && curChar != '_' && isLetterOrDigit(curChar) : prevChar != '_' && curChar == '_' && isLetterOrDigit(prevChar);
-    }
-
-    public static String makeMixedSnakeCase(CharSequence word) {
-        StringBuilder sb = new StringBuilder();
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            if (isHumpBoundIdentifier(word, i, true) && !isSnakeCaseBound(word, i, true)) {
-                sb.append('_');
-            }
-            sb.append(word.charAt(i));
-        }
-        return sb.toString();
-    }
-
-    public static boolean hasUnderscores(CharSequence word) {
-        int iMax = word.length();
-        for (int i = 0; i < iMax; i++) {
-            if (word.charAt(i) == '_') return true;
-        }
-        return false;
-    }
-
-    public static String makeCamelCase(CharSequence word) {
-        StringBuilder sb = new StringBuilder();
-        if (hasUnderscores(word)) {
-            int iMax = word.length();
-            boolean toUpper = false;
-
-            for (int i = 0; i < iMax; i++) {
-                char c = word.charAt(i);
-                if (c == '_') {
-                    toUpper = true;
-                } else {
-                    if (toUpper) sb.append(Character.toUpperCase(c));
-                    else sb.append(Character.toLowerCase(c));
-                    toUpper = false;
-                }
-            }
-        } else if (hasNoLowerCase(word)) {
-            sb.append(word.charAt(0));
-            sb.append(word.toString().substring(1).toLowerCase());
-        } else {
-            sb.append(word);
-        }
-        return sb.toString();
-    }
-
-    public static String makeProperCamelCase(CharSequence word) {
-        String s = makeCamelCase(word);
-        return s.substring(0, 1).toLowerCase() + s.substring(1);
-    }
-
-    public static String makePascalCase(CharSequence word) {
-        String s = makeCamelCase(word);
-        return s.substring(0, 1).toUpperCase() + s.substring(1);
-    }
-
-    public static String makeScreamingSnakeCase(CharSequence word) {
-        return makeMixedSnakeCase(word).toUpperCase();
-    }
-
-    public static String makeSnakeCase(CharSequence word) {
-        return makeMixedSnakeCase(word).toLowerCase();
-    }
 }
