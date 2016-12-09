@@ -25,9 +25,9 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.*;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
 import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
@@ -334,6 +334,18 @@ public class EditHelpers {
         return false;
     }
 
+    public static boolean isWordType(int wordType, @NotNull CharSequence charSequence, int offset) {
+        switch (wordType) {
+            case WORD_SPACE_DELIMITED:
+                return offset >= 0 && offset < charSequence.length() && isWhitespace(charSequence.charAt(offset));
+            case WORD_IDE:
+            case WORD_MIA:
+            case WORD_IDENTIFIER:
+                return isIdentifier(charSequence, offset);
+        }
+        return false;
+    }
+
     public static boolean isWordStart(@NotNull Editor editor, int offset, boolean isCamel) {
         CharSequence chars = editor.getDocument().getCharsSequence();
         return isWordStart(chars, offset, isCamel);
@@ -375,7 +387,7 @@ public class EditHelpers {
         return (Character.isWhitespace(prev) && !Character.isWhitespace(current));
     }
 
-    public static boolean isWord(@NotNull CharSequence text, int offset) {
+    public static boolean isIdentifier(@NotNull CharSequence text, int offset) {
         return offset >= 0 && offset < text.length() && Character.isJavaIdentifierPart(text.charAt(offset));
     }
 
@@ -383,8 +395,8 @@ public class EditHelpers {
         char prev = offset > 0 ? text.charAt(offset - 1) : 0;
         char current = offset < text.length() ? text.charAt(offset) : 0;
 
-        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        final boolean firstIsIdentifierPart =prev != 0 &&  Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart =current != 0 &&  Character.isJavaIdentifierPart(current);
         if (!firstIsIdentifierPart && secondIsIdentifierPart) {
             return true;
         }
@@ -402,8 +414,8 @@ public class EditHelpers {
         char current = offset < text.length() ? text.charAt(offset) : 0;
         char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
 
-        final boolean firstIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        final boolean firstIsIdentifierPart =prev != 0 &&  Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart =current != 0 &&  Character.isJavaIdentifierPart(current);
         if (firstIsIdentifierPart && !secondIsIdentifierPart) {
             return true;
         }
@@ -425,8 +437,8 @@ public class EditHelpers {
         char prev = offset > 0 ? text.charAt(offset - 1) : 0;
         char current = offset < text.length() ? text.charAt(offset) : 0;
 
-        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        final boolean prevIsIdentifierPart = prev != 0 && Character.isJavaIdentifierPart(prev);
+        final boolean currentIsIdentifierPart = current != 0 && Character.isJavaIdentifierPart(current);
 
         //noinspection SimplifiableIfStatement
         if (!prevIsIdentifierPart && currentIsIdentifierPart) return true;
@@ -439,8 +451,8 @@ public class EditHelpers {
         char current = offset < text.length() ? text.charAt(offset) : 0;
         char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
 
-        final boolean prevIsIdentifierPart = Character.isJavaIdentifierPart(prev);
-        final boolean currentIsIdentifierPart = Character.isJavaIdentifierPart(current);
+        final boolean prevIsIdentifierPart = prev != 0 && Character.isJavaIdentifierPart(prev);
+        final boolean currentIsIdentifierPart = current != 0 && Character.isJavaIdentifierPart(current);
 
         //noinspection SimplifiableIfStatement
         if (prevIsIdentifierPart && !currentIsIdentifierPart) return true;
@@ -670,7 +682,7 @@ public class EditHelpers {
         return range;
     }
 
-    public static int getNextWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+    public static int getNextWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
         // move back on line to start of word
         int newOffset = offset;
         int length = charSequence.length();
@@ -678,39 +690,42 @@ public class EditHelpers {
             if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
+            if (stopIfNonWord && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset++;
         } while (newOffset < length);
 
         return offset;
     }
 
-    public static int getPreviousWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+    public static int getPreviousWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
         // move back on line to start of word
         int newOffset = offset;
         do {
             if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
+            if (stopIfNonWord && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset--;
         } while (newOffset >= 0);
 
         return offset;
     }
 
-    public static int getPreviousWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+    public static int getPreviousWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
         // move back on line to start of word
         int newOffset = offset;
         do {
             if (isWordTypeEnd(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
+            if (stopIfNonWord && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset--;
         } while (newOffset >= 0);
 
         return offset;
     }
 
-    public static int getNextWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
+    public static int getNextWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
         // move back on line to start of word
         int newOffset = offset;
         int length = charSequence.length();
@@ -718,60 +733,75 @@ public class EditHelpers {
             if (isWordTypeEnd(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
+            if (stopIfNonWord && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset++;
         } while (newOffset <= length);
 
         return offset;
     }
 
-    public static int getWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
-        if (wordType != WORD_SPACE_DELIMITED && !isWord(charSequence, offset) && !isWordEnd(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+    public static int getWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordEnd(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
             // go forward
             return offset;//getNextWordStartAtOffset(charSequence, offset, wordType, isCamel);
         } else {
             // go backwards
-            return getPreviousWordStartAtOffset(charSequence, offset, wordType, isCamel);
+            return getPreviousWordStartAtOffset(charSequence, offset, wordType, isCamel, stopIfNonWord);
         }
     }
 
-    public static int getWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
-        if (wordType != WORD_SPACE_DELIMITED && !isWord(charSequence, offset) && !isWordStart(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+    public static int getWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordStart(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
             // go backwards
             return offset; //getPreviousWordEndAtOffset(charSequence, offset, wordType, isCamel);
         } else {
             // go forward
-            return getNextWordEndAtOffset(charSequence, offset, wordType, isCamel);
+            return getNextWordEndAtOffset(charSequence, offset, wordType, isCamel, stopIfNonWord);
         }
     }
 
-    public static String getWordAtOffsets(String charSequence, int start, int end, int wordType, boolean isCamel) {
-        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
-        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
-        return startOffset > endOffset ? "" : charSequence.substring(startOffset, endOffset);
+    public static TextRange getWordRangeAtOffsets(CharSequence charSequence, int start, int end, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        if (start < 0) start = 0;
+        if (end > charSequence.length()) end = charSequence.length();
+        if (start > end) start = end;
+        if (end < start) end = start;
+
+        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel, stopIfNonWord);
+        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel, stopIfNonWord);
+
+        // trim to word
+        while (startOffset < endOffset && !isWordType(wordType, charSequence, startOffset)) startOffset++;
+        while (startOffset < endOffset && !isWordType(wordType, charSequence, endOffset-1)) endOffset--;
+        if (stopIfNonWord) {
+            if (startOffset > end) startOffset = end;
+            if (endOffset < start) endOffset = start;
+        }
+
+        return startOffset > endOffset ? new TextRange(start,end) : new TextRange(startOffset, endOffset);
     }
 
-    public static CharSequence getWordAtOffsets(CharSequence charSequence, int start, int end, int wordType, boolean isCamel) {
-        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
-        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
-        return startOffset > endOffset ? SubSequence.NULL : charSequence.subSequence(startOffset, endOffset);
+    public static String getWordAtOffsets(String charSequence, int start, int end, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return getWordRangeAtOffsets(charSequence, start, end, wordType, isCamel, stopIfNonWord).substring(charSequence);
     }
 
-    public static BasedSequence getWordAtOffsets(BasedSequence charSequence, int start, int end, int wordType, boolean isCamel) {
-        int startOffset = getWordStartAtOffset(charSequence, start, wordType, isCamel);
-        int endOffset = getWordEndAtOffset(charSequence, Math.max(startOffset, end), wordType, isCamel);
-        return startOffset > endOffset ? SubSequence.NULL : charSequence.subSequence(startOffset, endOffset);
+    public static CharSequence getWordAtOffsets(CharSequence charSequence, int start, int end, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return getWordRangeAtOffsets(charSequence, start, end, wordType, isCamel, stopIfNonWord).subSequence(charSequence);
     }
 
-    public static String getWordAtOffset(String charSequence, int offset, int wordType, boolean isCamel) {
-        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    public static BasedSequence getWordAtOffsets(BasedSequence charSequence, int start, int end, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return (BasedSequence) getWordRangeAtOffsets(charSequence, start, end, wordType, isCamel, stopIfNonWord).subSequence(charSequence);
     }
 
-    public static CharSequence getWordAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel) {
-        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    public static String getWordAtOffset(String charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel, stopIfNonWord);
     }
 
-    public static BasedSequence getWordAtOffset(BasedSequence charSequence, int offset, int wordType, boolean isCamel) {
-        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel);
+    public static CharSequence getWordAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel, stopIfNonWord);
+    }
+
+    public static BasedSequence getWordAtOffset(BasedSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
+        return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel, stopIfNonWord);
     }
 
     public static boolean isMixedSnakeCase(CharSequence word) {
@@ -841,6 +871,15 @@ public class EditHelpers {
         return true;
     }
 
+    public static boolean hasUpperCase(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isUpperCase(c)) return true;
+        }
+        return false;
+    }
+
     public static boolean hasNoLowerCase(CharSequence word) {
         int iMax = word.length();
         for (int i = 0; i < iMax; i++) {
@@ -848,6 +887,15 @@ public class EditHelpers {
             if (isLowerCase(c)) return false;
         }
         return true;
+    }
+
+    public static boolean hasLowerCase(CharSequence word) {
+        int iMax = word.length();
+        for (int i = 0; i < iMax; i++) {
+            char c = word.charAt(i);
+            if (isLowerCase(c)) return true;
+        }
+        return false;
     }
 
     public static boolean isHasLowerCaseOrUpperCase(CharSequence word) {
@@ -871,25 +919,25 @@ public class EditHelpers {
     public static boolean canMakeScreamingSnakeCase(CharSequence word) {
         if (!(isMixedSnakeCase(word) || isSnakeCase(word) || isCamelCase(word)) && !isScreamingSnakeCase(word)) return false;
         String screamingSnakeCase = makeScreamingSnakeCase(word);
-        return !word.equals(screamingSnakeCase) && (!hasUnderscores(screamingSnakeCase) || isScreamingSnakeCase(screamingSnakeCase));
+        return !word.equals(screamingSnakeCase) && isScreamingSnakeCase(screamingSnakeCase);
     }
 
     public static boolean canMakeSnakeCase(CharSequence word) {
         if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isCamelCase(word)) && !isSnakeCase(word)) return false;
         String snakeCase = makeSnakeCase(word);
-        return !word.equals(snakeCase) && (!hasUnderscores(snakeCase) || isSnakeCase(snakeCase));
+        return !word.equals(snakeCase) && isSnakeCase(snakeCase);
     }
 
     public static boolean canMakeCamelCase(CharSequence word) {
         if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word)) && !hasNoLowerCase(word)) return false;
         String camelCase = makeCamelCase(word);
-        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase) || hasNoLowerCase(camelCase));
+        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasLowerCase(camelCase) || hasUpperCase(camelCase));
     }
 
     public static boolean canMakeProperCamelCase(CharSequence word) {
         if (!(isMixedSnakeCase(word) || isScreamingSnakeCase(word) || isSnakeCase(word) || isCamelCase(word) || isHasLowerCaseOrUpperCase(word))) return false;
         String camelCase = makeProperCamelCase(word);
-        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase));
+        return !word.equals(camelCase) && (isCamelCase(camelCase) || hasNoUpperCase(camelCase) && hasLowerCase(camelCase));
     }
 
     public static boolean canMakePascalCase(CharSequence word) {

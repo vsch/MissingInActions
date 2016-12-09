@@ -247,7 +247,11 @@ public class EditHelpersTest {
         int iMax = source.length();
         for (int i = 0; i < iMax - 1; i++) {
             for (int j = i; j < iMax; j++) {
-                assertEquals(source.trim(), EditHelpers.getWordAtOffsets(source, i, j, EditHelpers.WORD_IDENTIFIER, false));
+                if (i < 1 && j < 1 || i > source.length() - 1 && j > source.length() - 1) {
+                    assertEquals("", EditHelpers.getWordAtOffsets(source, i, j, EditHelpers.WORD_IDENTIFIER, false,true));
+                } else {
+                    assertEquals(source.trim(), EditHelpers.getWordAtOffsets(source, i, j, EditHelpers.WORD_IDENTIFIER, false,true));
+                }
             }
         }
     }

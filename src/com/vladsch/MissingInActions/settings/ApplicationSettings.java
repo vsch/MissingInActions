@@ -54,11 +54,12 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myAutoIndent = false;
     private boolean mySelectPasted = false;
     private int mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
-    private boolean mySelectPastedMultiCaret = true;
+    private boolean mySelectPastedMultiCaret = false;
     private boolean myUnselectToggleCase = false;
     private boolean myWeSetVirtualSpace = true;
     private boolean myDuplicateAtStartOrEnd = false;
     private int myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
+    private int myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
     private boolean myMouseCamelHumpsFollow = false;
     private boolean myIsSelectionEndExtended = false;
     private boolean myIsSelectionStartExtended = true;
@@ -70,6 +71,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private String myRemovePrefixOnPaste1 = "my";
     private String myRemovePrefixOnPaste2 = "our";
     private boolean myOverrideStandardPaste = false;
+    private boolean myOverrideStandardPasteOnlyMultiCaret = true;
     private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
     private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
 
@@ -105,6 +107,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myLeftRightMovement
         );
     }
+
+    public int getLinePasteCaretAdjustment() { return myLinePasteCaretAdjustment; }
+
+    public void setLinePasteCaretAdjustment(final int linePasteCaretAdjustment) { myLinePasteCaretAdjustment = linePasteCaretAdjustment; }
+
+    public boolean isOverrideStandardPasteOnlyMultiCaret() { return myOverrideStandardPasteOnlyMultiCaret; }
+
+    public void setOverrideStandardPasteOnlyMultiCaret(final boolean overrideStandardPasteOnlyMultiCaret) { myOverrideStandardPasteOnlyMultiCaret = overrideStandardPasteOnlyMultiCaret; }
 
     public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }
 

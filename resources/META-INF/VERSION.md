@@ -35,6 +35,8 @@
 
 ### 0.7.3 - Refactoring and Code Cleanup
 
+- [ ] Fix: line selecting up when line from and line to are empty just moves up without selecting
+- [ ] Add: MIAPasteAction to auto indent trigger list
 - Add: smart paste functionality.
     - preserve camel case, screaming snake case and snake case on char paste based on context of
       where it is pasted.

@@ -30,7 +30,6 @@ import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
-import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
@@ -190,7 +189,6 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MultiplePasteAction.class
                 , PasteFromX11Action.class
                 , SimplePasteAction.class
-                , MiaPasteAction.class
                 , MiaMultiplePasteAction.class
         );
 
@@ -200,7 +198,6 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , MultiplePasteAction.class
                 , PasteFromX11Action.class
                 , SimplePasteAction.class
-                , MiaPasteAction.class
                 , MiaMultiplePasteAction.class
         );
 

@@ -22,6 +22,7 @@
  */
 package com.vladsch.MissingInActions.actions.character;
 
+import com.intellij.codeInsight.editorActions.PasteHandler;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -32,6 +33,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.UIBundle;
+import com.vladsch.MissingInActions.util.ClipboardContext;
 
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
@@ -105,12 +107,20 @@ public class MiaMultiplePasteAction extends AnAction implements DumbAware {
             if (editor != null) {
                 if (editor.isViewer()) return;
 
-                final AnAction pasteAction = ActionManager.getInstance().getAction("MissingInActions.Paste");
+                final AnAction pasteAction = ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE/*"MissingInActions.Paste"*/);
                 AnActionEvent newEvent = new AnActionEvent(e.getInputEvent(),
                         DataManager.getInstance().getDataContext(focusedComponent),
                         e.getPlace(), e.getPresentation(),
                         ActionManager.getInstance(),
                         e.getModifiers());
+
+                // do clipboard study so we have the selected data not what was there before action
+                Transferable transferable = ClipboardContext.getTransferable(editor, newEvent.getDataContext());
+                ClipboardContext clipboardContext = null;
+                if (transferable != null) {
+                    clipboardContext = ClipboardContext.studyPrePasteTransferable(editor, transferable);
+                }
+                editor.putUserData(ClipboardContext.LAST_PASTED_CLIPBOARD_CONTEXT, clipboardContext);
                 pasteAction.actionPerformed(newEvent);
             } else {
                 final Action pasteAction = ((JComponent) focusedComponent).getActionMap().get(DefaultEditorKit.pasteAction);

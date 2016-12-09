@@ -22,12 +22,11 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
-import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.*;
+import com.intellij.openapi.project.Project;
 import com.vladsch.MissingInActions.util.CaretSnapshot;
 import com.vladsch.MissingInActions.util.EditorCaretSnapshot;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,8 +42,8 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 public class EditorCaret implements EditorCaretSnapshot {
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
 
-    final private EditorPositionFactory myFactory;
-    final private Caret myCaret;
+    final private @NotNull EditorPositionFactory myFactory;
+    final private @NotNull Caret myCaret;
     private @NotNull EditorPosition myCaretPosition;
     private @NotNull EditorPosition mySelectionStart;
     private @NotNull EditorPosition mySelectionEnd;
@@ -737,6 +736,7 @@ public class EditorCaret implements EditorCaretSnapshot {
     }
 
     @NotNull
+    @SuppressWarnings("UnusedReturnValue")
     public EditorCaret atColumn(int other) {
         myCaretPosition = myCaretPosition.atColumn(other);
         return this;
@@ -770,9 +770,29 @@ public class EditorCaret implements EditorCaretSnapshot {
         return myFactory.getEditor().getSettings().isUseSoftWraps();
     }
 
-    @Nullable
+    @NotNull
     public EditorPositionFactory getFactory() { return myFactory; }
 
+    @NotNull
+    public LineSelectionManager getManager() { return myFactory.getManager(); }
+
+    public int getDocumentTextLength() { return myFactory.getDocumentTextLength(); }
+
+    public int getDocumentLineCount() { return myFactory.getDocumentLineCount(); }
+
+    @NotNull
+    public BasedSequence getDocumentChars() { return myFactory.getDocumentChars(); }
+
+    @NotNull
+    public Editor getEditor() { return myFactory.getEditor(); }
+
+    @NotNull
+    public Document getDocument() { return myFactory.getDocument(); }
+
+    @NotNull
+    public Project getProject() { return getEditor().getProject(); }
+
+    @NotNull
     public EditorPosition adjustIndentRelative(EditorPosition position, int preservedColumn, int preservedIndent) {
         return adjustIndentRelative(position, position.getIndentColumn(), preservedColumn, preservedIndent);
     }
@@ -791,4 +811,5 @@ public class EditorCaret implements EditorCaretSnapshot {
                 ", isStartAnchor=" + myIsStartAnchor +
                 '}';
     }
+
 }

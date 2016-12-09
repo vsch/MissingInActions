@@ -26,6 +26,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +60,15 @@ public class EditorPosition extends LogicalPosition {
         else line = Math.min(line, myFactory.getDocumentLineCount());
         return this.line == line && this.column == column ? this : new EditorPosition(myFactory, line, column);
     }
+
+    public LineSelectionManager getManager() { return myFactory.getManager(); }
+
+    public int getDocumentTextLength() { return myFactory.getDocumentTextLength(); }
+
+    public int getDocumentLineCount() { return myFactory.getDocumentLineCount(); }
+
+    @NotNull
+    public BasedSequence getDocumentChars() { return myFactory.getDocumentChars(); }
 
     @NotNull
     public EditorPosition onLine(int line) {
@@ -248,5 +259,9 @@ public class EditorPosition extends LogicalPosition {
     @NotNull
     public EditorPosition atOffset(int offset) {
         return offset == getOffset() ? this : myFactory.fromOffset(offset);
+    }
+
+    public EditorPosition atIndentColumn() {
+        return atColumn(getIndentColumn());
     }
 }

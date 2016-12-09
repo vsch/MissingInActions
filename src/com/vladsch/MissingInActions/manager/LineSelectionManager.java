@@ -30,12 +30,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
-import com.vladsch.MissingInActions.actions.character.MiaPasteAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
@@ -47,7 +45,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -83,7 +80,6 @@ public class LineSelectionManager implements
     private final CaretHighlighter myCaretHighlighter;
     private ApplicationSettings mySettings;
     private AnAction myMultiPasteAction;
-    private AnAction myPasteAction;
     private PasteOverrider myPasteOverrider;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
@@ -118,7 +114,6 @@ public class LineSelectionManager implements
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
 
         myMultiPasteAction = null;
-        myPasteAction = null;
         myPasteOverrider = null;
 
         mySettings = ApplicationSettings.getInstance();
@@ -253,25 +248,29 @@ public class LineSelectionManager implements
 
                 if (owner == myEditor.getComponent()) {
                     boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
-                    if (registerPasteOverrides != (myMultiPasteAction != null || myPasteAction != null)) {
+                    if (registerPasteOverrides == (myMultiPasteAction == null)) {
                         if (!registerPasteOverrides) {
                             // unregister them
-                            if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                            if (myPasteAction != null) myPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                            myMultiPasteAction = null;
-                            myPasteAction = null;
+                            unRegisterPasteOverrides();
                         } else {
                             // we register our own pastes to handle multi-caret
-                            myMultiPasteAction = new MiaMultiplePasteAction();
-                            myPasteAction = new MiaPasteAction();
-                            myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
-                            myPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
+                            registerPasteOverrides();
                         }
                     }
                 }
             }
             return false;
         }
+    }
+
+    private void registerPasteOverrides() {
+        myMultiPasteAction = new MiaMultiplePasteAction();
+        myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
+    }
+
+    private void unRegisterPasteOverrides() {
+        if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
+        myMultiPasteAction = null;
     }
 
     private void hookListeners(ApplicationSettings settings) {
@@ -306,26 +305,19 @@ public class LineSelectionManager implements
 
             // override standard pastes
             if (settings.isOverrideStandardPaste()) {
-                //final AnAction multiPaste = new MiaMultiplePasteAction();
-                //final AnAction paste = new MiaPasteAction();
-                //multiPaste.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
-                //paste.registerCustomShortcutSet(CommonUIShortcuts.getPaste(), myEditor.getContentComponent());
-                //
-                //myDelayedRunner.addRunnable("Override Paste", () -> {
-                //    multiPaste.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                //    paste.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                //});
-                myPasteOverrider = new PasteOverrider();
-                IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
+                if (settings.isOverrideStandardPasteOnlyMultiCaret()) {
+                    myPasteOverrider = new PasteOverrider();
+                    IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
 
-                myDelayedRunner.addRunnable("Override Paste", () -> {
-                    if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                    if (myPasteAction != null) myPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
-                    if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
-                    myMultiPasteAction = null;
-                    myPasteAction = null;
-                    myPasteOverrider = null;
-                });
+                    myDelayedRunner.addRunnable("Override Paste", () -> {
+                        unRegisterPasteOverrides();
+                        if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
+                        myMultiPasteAction = null;
+                    });
+                } else {
+                    registerPasteOverrides();
+                    myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
+                }
             }
         }
     }

@@ -21,11 +21,16 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("WeakerAccess")
 public class EditorPositionFactory {
     final public static EditorPositionFactory NULL = new EditorPositionFactory(null,null);
     final private LineSelectionManager myManager;
@@ -41,13 +46,11 @@ public class EditorPositionFactory {
         myEditor = editor;
     }
 
-    public LineSelectionManager getManager() {
-        return myManager;
-    }
+    @NotNull
+    public LineSelectionManager getManager() { return myManager; }
 
-    public Editor getEditor() {
-        return myEditor;
-    }
+    @NotNull
+    public Editor getEditor() { return myEditor; }
 
     @Nullable
     @Contract("!null->!null; null->null")
@@ -55,19 +58,22 @@ public class EditorPositionFactory {
         return other == null ? null : other instanceof EditorPosition ? (EditorPosition) other : new EditorPosition(this, other);
     }
 
+    @NotNull
     @SuppressWarnings("SameParameterValue")
     public EditorPosition fromPosition(int line, int column) {
         return new EditorPosition(this, line, column);
     }
 
+    @NotNull
     public EditorPosition fromOffset(int offset) {
         return new EditorPosition(this, myEditor.offsetToLogicalPosition(offset));
     }
 
+    @NotNull
     @SuppressWarnings("WeakerAccess")
-    public EditorPosition getDocumentEndPosition() {
-        return new EditorPosition(this, myEditor.offsetToLogicalPosition(myEditor.getDocument().getTextLength()));
-    }
+    public EditorPosition getDocumentEndPosition() { return new EditorPosition(this, myEditor.offsetToLogicalPosition(myEditor.getDocument().getTextLength())); }
+
+    public int getDocumentTextLength() { return myEditor.getDocument().getTextLength(); }
 
     @SuppressWarnings("WeakerAccess")
     public int getDocumentLineCount() {
@@ -77,4 +83,10 @@ public class EditorPositionFactory {
     public int getOffset(LogicalPosition position) {
         return myEditor.logicalPositionToOffset(position);
     }
+
+    @NotNull
+    public BasedSequence getDocumentChars() { return new SubSequence(myEditor.getDocument().getCharsSequence()); }
+
+    @NotNull
+    public Document getDocument() { return myEditor.getDocument(); }
 }

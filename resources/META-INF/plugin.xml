@@ -250,12 +250,6 @@
                     description='Delete to Word End in Different "CamelHumps" Mode not EOL'>
             </action>
 
-            <action class="com.vladsch.MissingInActions.actions.character.MiaPasteAction"
-                    id="MissingInActions.Paste"
-                    text="Paste"
-                    description="Paste">
-            </action>
-
             <action class="com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction"
                     id="MissingInActions.MultiplePaste"
                     text="Paste from history ..."
