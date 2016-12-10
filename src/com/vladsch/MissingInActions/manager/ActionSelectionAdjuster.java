@@ -36,10 +36,7 @@ import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.util.TextRange;
-import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
-import com.vladsch.MissingInActions.settings.LinePasteCaretAdjustmentType;
-import com.vladsch.MissingInActions.settings.SelectionPredicateType;
+import com.vladsch.MissingInActions.settings.*;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.ValueRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -780,6 +777,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
             params.preserver.studyFormatBefore(editorCaret
                     , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
                     , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
+                    , null
             );
 
             Caret caret = editorCaret.getCaret();
@@ -835,6 +833,8 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                                         , settings.isPreserveScreamingSnakeCaseOnPaste()
                                         , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
                                         , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
+                                        , RemovePrefixOnPasteType.ADAPTER.findEnum(settings.getRemovePrefixOnPasteType())
+                                        , settings.isAddPrefixOnPaste()
                                 );
                             } else {
                                 if (selectPasted) {
@@ -918,27 +918,66 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
                     // since dall are coming in as non-line, we will have to make the adjustments ourselves
                     boolean oneLine = false;
+                    final boolean endOnBlank = editorCaret.getSelectionEnd().atEndColumn().column == 0;
+                    final boolean startOnBlank = editorCaret.getSelectionStart().atEndColumn().column == 0;
+
+                    if (!snapshot.isLine() && snapshot.getCaretPosition().line == editorCaret.getCaretPosition().line + 1 && endOnBlank) {
+                        // line completely empty, we need to move the bottom of the selection down to next start of line
+                        editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(1).atColumn(0));
+                    }
+
                     if (!snapshot.isLine()) {
                         // pause on line only if just created a line selection
                         boolean pauseOnLine = editorCaret.getSelectionLineCount() == 2;
 
-                        if (editorCaret.isStartAnchor() && myManager.isSelectionEndExtended() && editorCaret.getCaretPosition().column != 0) {
-                            if (!snapshot.hasSelection() || pauseOnLine && deltaLines > 0) {
-                                // need to keep caret on same line, freshly minted line selection
-                                editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(-1));
-                                oneLine = !snapshot.hasSelection();
+                        if (editorCaret.isStartAnchor()) {
+                            if (myManager.isSelectionEndExtended() && editorCaret.getCaretPosition().column != 0) {
+                                if (!snapshot.hasSelection() || pauseOnLine && deltaLines > 0) {
+                                    // need to keep caret on same line, freshly minted line selection
+                                    editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(-1));
+                                    oneLine = !snapshot.hasSelection();
+                                }
                             }
-                        } else if (!editorCaret.isStartAnchor() && myManager.isSelectionStartExtended() && editorCaret.getCaretPosition().column != 0) {
-                            if (!snapshot.hasSelection() || pauseOnLine && deltaLines > 0) {
-                                // need to keep caret on same line, freshly minted line selection
-                                editorCaret.setSelectionStart(editorCaret.getSelectionStart().addLine(1));
-                                oneLine = !snapshot.hasSelection();
+                        } else {
+                            if (myManager.isSelectionStartExtended()) {
+                                if (editorCaret.getCaretPosition().column != 0 && editorCaret.getSelectionEnd().line != editorCaret.getDocumentLineCount()) {
+                                    if (!snapshot.hasSelection() || pauseOnLine && deltaLines > 0) {
+                                        // need to keep caret on same line, freshly minted line selection
+                                        if (endOnBlank) {
+                                            // blank lines cause problems, need to pretend selection is one line higher here
+                                            if (!snapshot.hasSelection()) {
+                                                editorCaret.setAnchorPosition(editorCaret.getAnchorPosition().addLine(-1));
+                                            }
+                                        }
+                                        editorCaret.setSelectionStart(editorCaret.getSelectionStart().addLine(1));
+                                        oneLine = !snapshot.hasSelection();
+                                    }
+                                } else if (endOnBlank) {
+                                    // move end one line up
+                                    editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(-1));
+                                }
+                            }
+                        }
+                    } else {
+                        // blank lines cause problems, need to adjust here
+                        if (editorCaret.isStartAnchor()) {
+                            if (myManager.isSelectionEndExtended() && editorCaret.getCaretPosition().column != 0) {
+                                if (startOnBlank && endOnBlank) {
+                                    if (editorCaret.getSelectionLineCount() != 0) {
+                                        editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(1));
+                                    }
+                                }
+                            }
+                        } else {
+                            if (myManager.isSelectionStartExtended() && editorCaret.getCaretPosition().column != 0) {
+                                if (endOnBlank && editorCaret.getSelectionLineCount() == 1) {
+                                    editorCaret.setAnchorPosition(editorCaret.getAnchorPosition().addLine(-1));
+                                }
                             }
                         }
                     }
 
                     //logger.debug("after line select deltaLines: " + deltaLines + "editorCaret after adjust: " + editorCaret);
-
                     if (oneLine) {
                         EditorPosition anchor = editorCaret.getAnchorPosition();
                         editorCaret.setAnchorColumn(anchor)
@@ -947,7 +986,6 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                                 .toLineSelection()
                                 .normalizeCaretPosition()
                                 .commit();
-
                         //logger.debug("after line select one liner editorCaret: " + editorCaret);
                     } else {
                         int column = editorCaret.getCaretPosition().column;
@@ -955,20 +993,12 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                         if (editorCaret.getSelectionLineCount() == 0 && editorCaret.getCaretPosition().line == editorCaret.getSelectionStart().line) {
                             // see if it would make a character mark
                             editorCaret.normalizeCaretPosition();
-
                             //logger.debug("after line select editorCaret out: " + editorCaret);
                         } else {
                             //logger.debug("after line select before toCaretPosBased editorCaret: " + editorCaret);
-
-                            // if it was a char selection we should use it's anchor position
-                            //if (snapshot.hasSelection() && !snapshot.isLine()) {
-                            //    editorCaret.setAnchorColumn(snapshot.getAnchorColumn());
-                            //}
-
                             editorCaret
                                     .toCaretPositionBasedLineSelection()
                                     .normalizeCaretPosition();
-
                             //logger.debug("after line select editorCaret out: " + editorCaret);
                         }
 

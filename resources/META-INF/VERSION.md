@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.7.3 - Refactoring and Code Cleanup](#073---refactoring-and-code-cleanup)
+- [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
 - [0.7.2 - Refactoring and Code Cleanup](#072---refactoring-and-code-cleanup)
 - [0.7.0 - Enhancements](#070---enhancements)
 - [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
@@ -15,7 +15,7 @@
 
 &nbsp;<details id="todo"><summary>**To Do List**</summary>
 
-##### This Release To Do
+##### Next Release To Do
 
 - [ ] Add: word highlight with spectrum generated for each different word in a rainbow
       progression so that the order in which the highlights were made can be visually verified.
@@ -33,15 +33,31 @@
 &nbsp;</details>
 
 
-### 0.7.3 - Refactoring and Code Cleanup
+### 0.8.0 - Bug Fixes and New Features
 
-- [ ] Fix: line selecting up when line from and line to are empty just moves up without selecting
-- [ ] Add: MIAPasteAction to auto indent trigger list
+- Add: pictographic of dupe for carets on clipboard
+- Add: adding prefixes when pasting over words with prefix to smart paste when pasting over
+      an identifier that had a prefix.
+- Fix: line selecting up when line from is completely empty just moves up without selecting
+- Add: `Duplicate Line or Selection for Carets on Clipboard` action which will duplicate line or
+  selection to match number of carets in the clipboard and create a caret on the first line of
+  each copied block. No need to count how many duplicates you need for multi-caret text on
+  clipboard or to place carets for it. Just copy multi-caret selection, then go to line or
+  select lines to be duplicated and action!, `Duplicate Line or Selection for Carets on
+  Clipboard` that is.
+
+    If the selection is a character selection within a line, will duplicate the line and carets
+    with this selection. Makes it quick to create variants by:
+
+    1. copying multi-caret selection
+    2. select part of the line to be replaced
+    3. dupe for clipboard carets
+    4. paste
 - Add: smart paste functionality.
-    - preserve camel case, screaming snake case and snake case on char paste based on context of
-      where it is pasted.
-    - remove prefix on paste if not isolated word, with two configurable prefixes: default `my`
-      and `our`
+    - preserve camel/pascal case, screaming snake case and snake case on char paste based on
+      context of where it is pasted and what is pasted.
+    - remove prefix on paste if pasting text next to or inside an identifier, with two
+      configurable prefixes by default: `my` and `our`
 
     The two combined together allow you to select a member with prefix and paste it anywhere.
     MIA will adjust the pasted text to match the format at destination: camel case, snake case,

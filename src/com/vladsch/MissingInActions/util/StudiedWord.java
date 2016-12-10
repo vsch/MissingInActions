@@ -25,21 +25,26 @@ import static java.lang.Character.*;
 import static java.lang.Character.isLetterOrDigit;
 
 @SuppressWarnings("WeakerAccess")
-public class WordStudy {
+public class StudiedWord {
     public static final int EMPTY = 0x0001;
     public static final int NUL = 0x0002;
     public static final int CTRL = 0x0004;
     public static final int SPACE = 0x0008;
-    public static final int DIGITS = 0x0010;
-    public static final int SYMBOLS = 0x0020;
-    public static final int UPPER = 0x0040;
-    public static final int LOWER = 0x0080;
-    public static final int UNDER = 0x0100;
-    public static final int DOT = 0x0200;
-    public static final int DASH = 0x0400;
-    public static final int SLASH = 0x0800;
+    public static final int UNDER = 0x0010;
+    public static final int DOT = 0x0020;
+    public static final int DASH = 0x0040;
+    public static final int SLASH = 0x0080;
+    public static final int DIGITS = 0x0100;
+    public static final int LOWER = 0x0200;
+    public static final int UPPER = 0x0400;
+    public static final int SYMBOLS = 0x0800;
     public static final int OTHER = 0x1000;
     public static final int NOT_DEFINED = 0x2000;
+
+    public static final int LOWER_TO_UPPER = 0x00010000;
+    public static final int UNDER_TO_UPPER = 0x00010000;
+    public static final int DASH_TO_UPPER = 0x00020000;
+    public static final int UPPER_TO_LOWER = 0x00020000;
 
     public static final int LETTER = LOWER | UPPER;
     public static final int ALPHANUMERIC = LOWER | UPPER | DIGITS;
@@ -47,20 +52,20 @@ public class WordStudy {
     private static int[] ascii = new int[] {
             0x0002, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004,
             0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004,
-            0x0008, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0400, 0x0200, 0x0800,
-            0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020,
-            0x0020, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040,
-            0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0020, 0x0020, 0x0020, 0x0020, 0x0100,
-            0x0020, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080,
-            0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020,
+            0x0008, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0040, 0x0020, 0x0080,
+            0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800,
+            0x0800, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400,
+            0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0800, 0x0800, 0x0800, 0x0800, 0x0010,
+            0x0800, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200,
+            0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800,
             0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
             0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
-            0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x0080, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
-            0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x0080, 0x1000, 0x1000, 0x1000, 0x1000, 0x0080, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
-            0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040,
-            0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x1000, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0040, 0x0080,
-            0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080,
-            0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x1000, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080, 0x0080,
+            0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x0200, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
+            0x1000, 0x1000, 0x1000, 0x1000, 0x1000, 0x0200, 0x1000, 0x1000, 0x1000, 0x1000, 0x0200, 0x1000, 0x1000, 0x1000, 0x1000, 0x1000,
+            0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400,
+            0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x1000, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0200,
+            0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200,
+            0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x1000, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200, 0x0200,
     };
 
     private final CharSequence myWord;
@@ -69,7 +74,7 @@ public class WordStudy {
     private final int myLastFlags;
     private final int myWordFlags;
 
-    public WordStudy(final CharSequence word) {
+    public StudiedWord(final CharSequence word) {
         myWord = word;
         myFirstFlags = myWord.length() == 0 ? EMPTY : flags(myWord.charAt(0));
         mySecondFlags = myWord.length() < 2 ? EMPTY : flags(myWord.charAt(1));
@@ -77,8 +82,8 @@ public class WordStudy {
         myLastFlags = myWord.length() == 0 ? EMPTY : flags(myWord.charAt(myWord.length() - 1));
     }
 
-    public static WordStudy of(CharSequence word) {
-        return new WordStudy(word);
+    public static StudiedWord of(CharSequence word) {
+        return new StudiedWord(word);
     }
 
     public CharSequence getWord() {
@@ -117,7 +122,11 @@ public class WordStudy {
         return has(myLastFlags, flags) && only(myLastFlags, flags);
     }
 
-    public static int flags(char c) {
+    public boolean identifier() {
+        return only(LOWER | UPPER | DIGITS | UNDER) && first(LOWER | UPPER | UNDER);
+    }
+
+    public static int compute(char c) {
         if (c == 0) return NUL;
         else if (c < 0x20) return CTRL;
         else if (c == ' ') return SPACE;
@@ -129,6 +138,15 @@ public class WordStudy {
         else if (Character.isUpperCase(c)) return UPPER;
         else if (isDigit(c)) return DIGITS;
         else if (c < 128) return SYMBOLS;
+        else if (!Character.isDefined(c)) return NOT_DEFINED;
+        else return OTHER;
+    }
+
+    public static int flags(char c) {
+        if (c == 0) return NUL;
+        if (c < 256) return ascii[c];
+        else if (Character.isLowerCase(c)) return LOWER;
+        else if (Character.isUpperCase(c)) return UPPER;
         else if (!Character.isDefined(c)) return NOT_DEFINED;
         else return OTHER;
     }
@@ -183,7 +201,7 @@ public class WordStudy {
     public boolean isLowerCase()                { return just(LOWER); }
     public boolean isUpperCase()                { return just(UPPER); }
     public boolean isProperCamelCase()          { return isCamelCase() && first(LOWER); }
-    public boolean isPascalCase()               { return isCamelCase() && first(UPPER); }
+    public boolean isPascalCase()               { return isCamelCase() && first(UPPER) && second(LOWER); }
     // @formatter:on
 
     public String makeMixedSnakeCase() {
@@ -247,8 +265,7 @@ public class WordStudy {
     public boolean canBeMixedSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeMixedSnakeCase();
-            assert !word.equals(myWord) && WordStudy.of(word).isScreamingSnakeCase();
-            return true;
+            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
         }
         return false;
     }
@@ -256,8 +273,7 @@ public class WordStudy {
     public boolean canBeScreamingSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeScreamingSnakeCase();
-            assert !word.equals(myWord) && WordStudy.of(word).isScreamingSnakeCase();
-            return true;
+            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
         }
         return false;
     }
@@ -265,7 +281,7 @@ public class WordStudy {
     public boolean canBeSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeSnakeCase();
-            return !word.equals(myWord) && WordStudy.of(word).isSnakeCase();
+            return !word.equals(myWord) && StudiedWord.of(word).isSnakeCase();
         }
         return false;
     }
@@ -273,7 +289,7 @@ public class WordStudy {
     public boolean canBeCamelCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeCamelCase();
-            return !word.equals(myWord) && WordStudy.of(word).isCamelCase();
+            return !word.equals(myWord) && StudiedWord.of(word).isCamelCase();
         }
         return false;
     }
@@ -281,7 +297,7 @@ public class WordStudy {
     public boolean canBeProperCamelCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeProperCamelCase();
-            return !word.equals(myWord) && WordStudy.of(word).isProperCamelCase();
+            return !word.equals(myWord) && StudiedWord.of(word).isProperCamelCase();
         }
         return false;
     }
@@ -289,7 +305,7 @@ public class WordStudy {
     public boolean canBePascalCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makePascalCase();
-            return !word.equals(myWord) && WordStudy.of(word).isPascalCase();
+            return !word.equals(myWord) && StudiedWord.of(word).isPascalCase();
         }
         return false;
     }

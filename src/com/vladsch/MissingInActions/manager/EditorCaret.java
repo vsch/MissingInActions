@@ -163,24 +163,22 @@ public class EditorCaret implements EditorCaretSnapshot {
         myIsLine = hasSelection && mySelectionStart.column == 0 && mySelectionEnd.column == 0;
 
         if (myCaretPosition.atStartOfLine().getOffset() + 1 == myCaretPosition.atStartOfNextLine().getOffset()) {
-            if (!myIsLine && (myIsStartAnchor || !hasSelection)) {
-                if (myCaretPosition.getOffset() == mySelectionEnd.getOffset()) {
-                    if (myCaretPosition.column != mySelectionEnd.column) {
-                        // on an empty line the selection end offset will always convert to 0 column regardless of the caret column
-                        // this makes it look like the selection ends on previous line, when it ends on this one
-                        // need to adjust the end to compensate for the blank line behavior
-                        mySelectionEnd = myCaretPosition;
+            if (!myIsLine) {
+                if (myIsStartAnchor || !hasSelection) {
+                    if (myCaretPosition.getOffset() == mySelectionEnd.getOffset()) {
+                        if (myCaretPosition.column != mySelectionEnd.column) {
+                            // on an empty line the selection end offset will always convert to 0 column regardless of the caret column
+                            // this makes it look like the selection ends on previous line, when it ends on this one
+                            // need to adjust the end to compensate for the blank line behavior
+                            mySelectionEnd = myCaretPosition;
+                        }
                     }
-                }
-            }
-
-            if (!myIsLine && (!myIsStartAnchor || !hasSelection)) {
-                if (myCaretPosition.getOffset() == mySelectionStart.getOffset()) {
-                    if (myCaretPosition.column != mySelectionStart.column) {
-                        // on an empty line the selection start offset will always convert to 0 column regardless of the caret column
-                        // this makes it look like the selection ends on previous line, when it ends on this one
-                        // need to adjust the end to compensate for the blank line behavior
-                        mySelectionStart = myCaretPosition;
+                } else {
+                    if (mySelectionStart.line + 1 == mySelectionEnd.line && mySelectionEnd.atEndColumn().column == 0) {
+                            // on an empty line the selection end offset will always convert to 0 column regardless of the caret column
+                            // this makes it look like the selection ends on previous line, when it ends on this one
+                            // need to adjust the end to compensate for the blank line behavior
+                            mySelectionEnd = mySelectionEnd.atStartOfNextLine().atColumn(myAnchorColumn);
                     }
                 }
             }
@@ -811,5 +809,4 @@ public class EditorCaret implements EditorCaretSnapshot {
                 ", isStartAnchor=" + myIsStartAnchor +
                 '}';
     }
-
 }

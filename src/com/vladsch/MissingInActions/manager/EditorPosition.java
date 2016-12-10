@@ -243,7 +243,7 @@ public class EditorPosition extends LogicalPosition {
 
     public int getEndColumn() {
         Document document = getDocument();
-        return document.getLineEndOffset(line) - document.getLineStartOffset(line);
+        return line >= document.getLineCount() ? 0 : document.getLineEndOffset(line) - document.getLineStartOffset(line);
     }
 
     @NotNull

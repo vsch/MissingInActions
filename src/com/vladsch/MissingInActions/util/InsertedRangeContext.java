@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
+import static com.vladsch.MissingInActions.util.StudiedWord.UPPER;
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
@@ -55,7 +56,8 @@ public class InsertedRangeContext {
 
     private String myWord;
     private int myCaretDelta;
-    private WordStudy myWordStudy;
+    private StudiedWord myStudiedWord;
+    private boolean myPrefixRemoved;
 
     public InsertedRangeContext(@NotNull BasedSequence charSequence, int beforeOffset, int afterOffset) {
         this.charSequence = charSequence;
@@ -85,8 +87,9 @@ public class InsertedRangeContext {
         this.isWordEndAtEnd = isWordEnd(charSequence, afterOffset, false);
 
         myWord = inserted;
-        myWordStudy = WordStudy.of(myWord);
+        myStudiedWord = StudiedWord.of(myWord);
         myCaretDelta = 0;
+        myPrefixRemoved = false;
     }
 
     public int getCaretDelta() {
@@ -100,6 +103,10 @@ public class InsertedRangeContext {
     public int getCumulativeCaretDelta() {
         return (inserted.length() - word().length() - myCaretDelta);
     }
+
+    public boolean isPrefixRemoved() { return myPrefixRemoved; }
+
+    public void setPrefixRemoved(final boolean prefixRemoved) { myPrefixRemoved = prefixRemoved; }
 
     // adjust with change to word
     public char charAtStart() { return !myWord.isEmpty() ? myWord.charAt(0) : charAfter; }
@@ -116,10 +123,10 @@ public class InsertedRangeContext {
     public String word() { return myWord; }
 
     @NotNull
-    public WordStudy wordStudy() {
-        if (myWord.equals(myWordStudy.getWord())) return myWordStudy;
-        myWordStudy = WordStudy.of(myWord);
-        return myWordStudy;
+    public StudiedWord studiedWord() {
+        if (myWord.equals(myStudiedWord.getWord())) return myStudiedWord;
+        myStudiedWord = StudiedWord.of(myWord);
+        return myStudiedWord;
     }
 
     @NotNull
@@ -165,9 +172,33 @@ public class InsertedRangeContext {
     }
 
     public boolean removePrefix(@NotNull String text) {
-        if (!text.isEmpty() && myWord.startsWith(text)) {
+        if (!text.isEmpty() && myWord.startsWith(text) && myWord.length() > text.length()) {
             myWord = myWord.substring(text.length());
             return true;
+        }
+        return false;
+    }
+
+    public boolean removeCamelCasePrefix(@NotNull String text) {
+        if (!text.isEmpty() && myWord.startsWith(text) && myWord.length() > text.length() && Character.isLowerCase(myWord.charAt(text.length() - 1))) {
+            myWord = myWord.substring(text.length());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removePrefixOnce(@NotNull String text) {
+        if (!myPrefixRemoved) {
+            myPrefixRemoved = removePrefix(text);
+            return myPrefixRemoved;
+        }
+        return false;
+    }
+
+    public boolean removeCamelCasePrefixOnce(@NotNull String text) {
+        if (!myPrefixRemoved) {
+            myPrefixRemoved = removeCamelCasePrefix(text);
+            return myPrefixRemoved;
         }
         return false;
     }
@@ -278,29 +309,11 @@ public class InsertedRangeContext {
     }
 
     @NotNull
-    public InsertedRangeContext makeScreamingSnakeCase() {
-        myWord = wordStudy().makeScreamingSnakeCase();
-        return fixSnakeCase();
-    }
-
-    @NotNull
-    public InsertedRangeContext makeSnakeCase() {
-        myWord = wordStudy().makeSnakeCase();
-        return fixSnakeCase();
-    }
-
-    @NotNull
     public InsertedRangeContext fixSnakeCase() {
         if (charBefore == '_' && charAtStart() == '_') deletePrefix(1);
         else if (!isWordStartAtStart && charBefore != '_' && charAtStart() != '_') prefixWith("_");
         if (charAfter == '_' && charAtEnd() == '_') deleteSuffix(1);
         else if (!isWordEndAtEnd && charAfter != '_' && charAtEnd() != '_') suffixWith("_");
-        return this;
-    }
-
-    @NotNull
-    public InsertedRangeContext makeCamelCase() {
-        myWord = wordStudy().makeCamelCase();
         return this;
     }
 
@@ -317,16 +330,16 @@ public class InsertedRangeContext {
     }
 
     public boolean hasNoLowerCaseAfterPrefix(final int count) {
-        return myWord.length() > count && wordStudy().hasNoLowerCase();
+        return myWord.length() > count && studiedWord().hasNoLowerCase();
     }
 
     public boolean hasNoUpperCaseAfterPrefix(final int count) {
-        return myWord.length() > count && wordStudy().hasNoUpperCase();
+        return myWord.length() > count && studiedWord().hasNoUpperCase();
     }
 
-    public boolean hasNoLowerCase() { return wordStudy().hasNoLowerCase(); }
+    public boolean hasNoLowerCase() { return studiedWord().hasNoLowerCase(); }
 
-    public boolean hasNoUpperCase() { return wordStudy().hasNoUpperCase(); }
+    public boolean hasNoUpperCase() { return studiedWord().hasNoUpperCase(); }
 
     public boolean isEqualsInserted() { return myWord.equals(inserted); }
 
@@ -358,29 +371,51 @@ public class InsertedRangeContext {
     public boolean isAlphabeticAtEnd() { return isAlphabetic(charAtEnd()); }
     public boolean isAlphabeticAfter() { return isAlphabetic(charAfter); }
 
-    public boolean isCamelCase() { return wordStudy().isCamelCase(); }
-    public boolean isScreamingSnakeCase() { return wordStudy().isScreamingSnakeCase(); }
-    public boolean isSnakeCase() { return wordStudy().isSnakeCase(); }
+    public boolean isCamelCase() { return studiedWord().isCamelCase(); }
+    public boolean isPascalCase() { return studiedWord().isPascalCase(); }
+    public boolean isSnakeCase() { return studiedWord().isSnakeCase(); }
+    public boolean isScreamingSnakeCase() { return studiedWord().isScreamingSnakeCase(); }
 
     public boolean isIsolated() { return expandedPrefix.isEmpty() && expandedSuffix.isEmpty(); }
-    public boolean isExpandedCamelCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isCamelCase(); }
-    public boolean isExpandedScreamingSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isScreamingSnakeCase(); }
-    public boolean isExpandedSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).isSnakeCase(); }
 
-    public boolean canBeCamelCase() { return wordStudy().canBeCamelCase(); }
-    public boolean canBeScreamingSnakeCase() { return wordStudy().canBeScreamingSnakeCase(); }
-    public boolean canBeSnakeCase() { return wordStudy().canBeSnakeCase(); }
+    public boolean isExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isCamelCase(); }
+    public boolean isExpandedPascalCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isPascalCase(); }
+    public boolean isExpandedSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isSnakeCase(); }
+    public boolean isExpandedScreamingSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isScreamingSnakeCase(); }
 
-    public boolean canBeExpandedCamelCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeCamelCase(); }
-    public boolean canBeExpandedScreamingSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeScreamingSnakeCase(); }
-    public boolean canBeExpandedSnakeCase() { return WordStudy.of(expandedPrefix + myWord + expandedSuffix).canBeSnakeCase(); }
+    public boolean canBeCamelCase() { return studiedWord().canBeCamelCase(); }
+    public boolean canBePascalCase() { return studiedWord().canBePascalCase(); }
+    public boolean canBeSnakeCase() { return studiedWord().canBeSnakeCase(); }
+    public boolean canBeScreamingSnakeCase() { return studiedWord().canBeScreamingSnakeCase(); }
+
+    public boolean canBeExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).canBeCamelCase(); }
+
+    @NotNull public InsertedRangeContext makeCamelCase() { myWord = studiedWord().makeCamelCase(); return this; }
+    @NotNull public InsertedRangeContext makePascalCase() { myWord = studiedWord().makePascalCase(); return this; }
+    @NotNull public InsertedRangeContext makeSnakeCase() { myWord = studiedWord().makeSnakeCase(); fixSnakeCase(); return this; }
+    @NotNull public InsertedRangeContext makeScreamingSnakeCase() { myWord = studiedWord().makeScreamingSnakeCase(); fixSnakeCase(); return this; }
+
+    public boolean hasUnderscore() { return myWord.indexOf('_') != -1; }
+    public boolean hasUpperCase() { return studiedWord().hasUpperCase(); }
+    public boolean hasLowerCase() { return studiedWord().hasLowerCase(); }
 
     public boolean isEmpty() { return myWord.isEmpty(); }
     public boolean isNotEmpty() { return !myWord.isEmpty(); }
 
-    public boolean hasUnderscore() { return myWord.indexOf('_') != -1; }
-    public boolean hasUpperCase() { return wordStudy().hasUpperCase(); }
-    public boolean hasLowerCase() { return wordStudy().hasLowerCase(); }
+    public boolean has(final int flags) { return myStudiedWord.has(flags); }
+    public boolean not(final int flags) { return myStudiedWord.not(flags); }
+    public boolean only(final int flags) { return myStudiedWord.only(flags); }
+    public boolean just(final int flags) { return myStudiedWord.just(flags); }
+    public boolean all(final int flags) { return myStudiedWord.all(flags); }
+    public boolean first(final int flags) { return myStudiedWord.first(flags); }
+    public boolean second(final int flags) { return myStudiedWord.second(flags); }
+    public boolean last(final int flags) { return myStudiedWord.last(flags); }
 
-    // @formatter:off
+    public InsertedRangeContext prefixWithCamelCase(final String prefix) {
+        if (!studiedWord().first(UPPER)) prefixToUpperCase(1);
+        prefixWith(prefix);
+        return this;
+    }
+
+    // @formatter:on
 }

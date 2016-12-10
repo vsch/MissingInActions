@@ -25,25 +25,28 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.settings.RemovePrefixOnPasteType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
 import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
-import static com.vladsch.MissingInActions.util.WordStudy.*;
+import static com.vladsch.MissingInActions.util.StudiedWord.*;
 
 @SuppressWarnings("WeakerAccess")
 public class CaseFormatPreserver {
-    private boolean startToLowerCase;
-    private boolean startToUpperCase;
-    private boolean startOnBound;
-    private boolean endOnBound;
+    private boolean startWasLowerCase;
+    private boolean startWasUpperCase;
+    private boolean startWasOnBound;
+    private boolean endWasOnBound;
     private boolean toScreamingSnakeCase;
     private boolean toSnakeCase;
+    private boolean toPascalCase;
     private boolean toCamelCase;
     private boolean hadStartOfWord;
-    private boolean hadStartOfWordWithPrefix;
+    private boolean hadStartOfWordWithPrefix1;
+    private boolean hadStartOfWordWithPrefix2;
     private boolean hadSelection;
 
     public CaseFormatPreserver() {
@@ -51,21 +54,26 @@ public class CaseFormatPreserver {
     }
 
     public void clear() {
-        startToLowerCase = false;
-        startToUpperCase = false;
-        startOnBound = false;
-        endOnBound = false;
+        startWasLowerCase = false;
+        startWasUpperCase = false;
+        startWasOnBound = false;
+        endWasOnBound = false;
         toScreamingSnakeCase = false;
         toSnakeCase = false;
+        toPascalCase = false;
         toCamelCase = false;
         hadStartOfWord = false;
-        hadStartOfWordWithPrefix = false;
+        hadStartOfWordWithPrefix1 = false;
+        hadStartOfWordWithPrefix2 = false;
         hadSelection = false;
     }
 
-    public void studyFormatBefore(@NotNull EditorCaret editorCaret, final @Nullable String removePrefix1, final @Nullable String removePrefix2) {
+    public void studyFormatBefore(@NotNull EditorCaret editorCaret
+            , final @Nullable String removePrefix1, final @Nullable String removePrefix2
+            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+    ) {
         final Caret caret = editorCaret.getCaret();
-        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), removePrefix1, removePrefix2);
+        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), removePrefix1, removePrefix2, prefixOnPasteType);
     }
 
     public void studyFormatBefore(
@@ -75,15 +83,17 @@ public class CaseFormatPreserver {
             , final int selectionEnd
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
+            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
     ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
         int beforeOffset = offset;
         int afterOffset = beforeOffset;
+        RemovePrefixOnPasteType prefixType = prefixOnPasteType == null ? RemovePrefixOnPasteType.DEFAULT : prefixOnPasteType;
 
         clear();
 
-        if (selectionStart != selectionEnd && !((selectionStart == 0 || chars.charAt(selectionStart-1)=='\n') && chars.charAt(selectionEnd-1) == '\n')) {
+        if (selectionStart != selectionEnd && !((selectionStart == 0 || chars.charAt(selectionStart - 1) == '\n') && chars.charAt(selectionEnd - 1) == '\n')) {
             beforeOffset = selectionStart;
             afterOffset = selectionEnd;
             hadSelection = true;
@@ -98,8 +108,9 @@ public class CaseFormatPreserver {
         if (!w.isEmpty()) {
             if (!prefix1.isEmpty() || !prefix2.isEmpty()) {
                 hadStartOfWord = w.isIdentifierStartBefore(false);
-                if ((!prefix1.isEmpty() && w.word().startsWith(prefix1) || !prefix2.isEmpty() && w.word().startsWith(prefix2))) {
-                    hadStartOfWordWithPrefix = true;
+                if (hadStartOfWord) {
+                    if (prefixType.isMatched(w.word(), prefix1)) hadStartOfWordWithPrefix1 = true;
+                    else if (prefixType.isMatched(w.word(), prefix2)) hadStartOfWordWithPrefix2 = true;
                 }
             }
         }
@@ -108,7 +119,9 @@ public class CaseFormatPreserver {
         if (!toScreamingSnakeCase) {
             toSnakeCase = e.isSnakeCase();
             if (!toSnakeCase) {
-                if (e.isCamelCase() || e.hasNoUpperCase()) {
+                if (e.isPascalCase()) {
+                    toPascalCase = true;
+                } else if (e.isCamelCase() || e.just(LOWER|DIGITS) && e.first(LOWER)) {
                     toCamelCase = true;
                 }
 
@@ -119,10 +132,10 @@ public class CaseFormatPreserver {
                 // alpha|alpha: start=make bound, end=make bound
                 boolean identifierStart = w.isIdentifierStartBefore(true);
                 boolean identifierEnd = w.isIdentifierEndBefore(true);
-                startToLowerCase = identifierStart && w.isLowerCaseAtStart() && w.wordStudy().only(LOWER|UPPER|UNDER|EMPTY);
-                startToUpperCase = identifierStart && w.isUpperCaseAtStart() && w.wordStudy().only(LOWER|UPPER|UNDER|EMPTY);
-                startOnBound = identifierStart || identifierEnd;
-                endOnBound = w.isIdentifierStartAfter(true) || w.isIdentifierEndAfter(true);
+                startWasLowerCase = identifierStart && w.isLowerCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
+                startWasUpperCase = identifierStart && w.isUpperCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
+                startWasOnBound = identifierStart || identifierEnd;
+                endWasOnBound = w.isIdentifierStartAfter(true) || w.isIdentifierEndAfter(true);
             }
         }
     }
@@ -136,12 +149,15 @@ public class CaseFormatPreserver {
             , final boolean preserveScreamingSnakeCase
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
+            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final boolean addPrefix
     ) {
         InsertedRangeContext i = preserveFormatAfter(
                 editorCaret.getDocumentChars()
                 , range
                 , preserveCamelCase, preserveSnakeCase, preserveScreamingSnakeCase
                 , removePrefix1, removePrefix2
+                , prefixOnPasteType, addPrefix
         );
 
         if (i != null) {
@@ -176,6 +192,8 @@ public class CaseFormatPreserver {
             , final boolean preserveScreamingSnakeCase
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
+            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final boolean addPrefix
     ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
@@ -187,47 +205,65 @@ public class CaseFormatPreserver {
             // remove prefixes first so camel case adjustment works right
             i = new InsertedRangeContext(chars, range.getStartOffset(), range.getEndOffset());
             int caretDelta = 0;
-            boolean removedPrefix = false;
 
             if (!i.isIsolated() || hadSelection) {
+                RemovePrefixOnPasteType prefixType = prefixOnPasteType == null ? RemovePrefixOnPasteType.DEFAULT : prefixOnPasteType;
+
                 if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
-                    if (!(hadStartOfWord && hadStartOfWordWithPrefix) && !i.isIsolated() && i.wordStudy().only(UPPER|LOWER|DIGITS)) {
-                        if (!i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
-                        else if (!i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
+                    if (hadStartOfWord && hadStartOfWordWithPrefix1 && prefixType.isMatched(i.word(), prefix1)) {
+
+                    } else if (hadStartOfWord && hadStartOfWordWithPrefix2 && prefixType.isMatched(i.word(), prefix2)) {
+
+                    } else {
+                        if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
+                            // TODO: change prefix type to enumeration
+                            i.removeCamelCasePrefixOnce(prefix1);
+                            i.removeCamelCasePrefixOnce(prefix2);
+                        }
                     }
                 }
 
                 // adjust for camel case preservation
-                if (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase) {
-                    if (preserveScreamingSnakeCase && toScreamingSnakeCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
+                if (i.studiedWord().only(UPPER | LOWER | UNDER | DIGITS) && (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase)) {
+                    if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
                         // remove prefix if converting to snake case
-                        if (!removedPrefix && !i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
-                        else if (!removedPrefix && !i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
+                        i.removeCamelCasePrefixOnce(prefix1);
+                        i.removeCamelCasePrefixOnce(prefix2);
                         i.makeScreamingSnakeCase();
-                    } else if (preserveSnakeCase && toSnakeCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
+                    } else if (preserveSnakeCase && toSnakeCase ) {
                         // remove prefix if converting to snake case
-                        if (!removedPrefix && !i.word().equals(prefix1) && i.removePrefix(prefix1)) removedPrefix = true;
-                        else if (!removedPrefix && !i.word().equals(prefix2) && i.removePrefix(prefix2)) removedPrefix = true;
+                        i.removeCamelCasePrefixOnce(prefix1);
+                        i.removeCamelCasePrefixOnce(prefix2);
                         i.makeSnakeCase();
                     } else if (preserveCamelCase) {
-                        if (toCamelCase && i.wordStudy().only(UPPER|LOWER|UNDER|DIGITS)) {
+                        if (toPascalCase) {
+                            i.makePascalCase();
+                        } else if (toCamelCase) {
                             i.makeCamelCase();
                         }
 
-                        if (startToUpperCase && i.isLowerCaseAtStart()) {
+                        if (addPrefix && hadStartOfWord && hadStartOfWordWithPrefix1 && !prefixType.isMatched(i.word(), prefix1)) {
+                            i.prefixWithCamelCase(prefix1);
+                        } else if (addPrefix && hadStartOfWord && hadStartOfWordWithPrefix2 && !prefixType.isMatched(i.word(), prefix2)) {
+                            i.prefixWithCamelCase(prefix2);
+                        } else if (startWasUpperCase && i.isLowerCaseAtStart()) {
+                            i.removeCamelCasePrefixOnce(prefix1);
+                            i.removeCamelCasePrefixOnce(prefix2);
                             i.prefixToUpperCase(1);
-                        } else if (startToLowerCase && i.isUpperCaseAtStart() && !i.hasNoLowerCaseAfterPrefix(1)) {
-                            i.prefixToLowerCase(1);
-                        } else if (startOnBound && i.isAlphabeticAtStart()) {
-                            // try to change case so that it is hump bound
-                            if (i.isLowerCaseAtStart() && i.isHumpBoundIdentifierAtStart(String::toUpperCase) && !i.isHumpBoundIdentifierAtStart()) {
-                                i.prefixToUpperCase(1);
-                            } else if (i.isUpperCaseAtStart() && i.isHumpBoundIdentifierAtStart(String::toLowerCase) && !i.isHumpBoundIdentifierAtStart()) {
+                        } else {
+                            if (startWasLowerCase && i.isUpperCaseAtStart() && !i.hasNoLowerCaseAfterPrefix(1)) {
                                 i.prefixToLowerCase(1);
+                            } else if (startWasOnBound && i.isAlphabeticAtStart()) {
+                                // try to change case so that it is hump bound
+                                if (i.isLowerCaseAtStart() && i.isHumpBoundIdentifierAtStart(String::toUpperCase) && !i.isHumpBoundIdentifierAtStart()) {
+                                    i.prefixToUpperCase(1);
+                                } else if (i.isUpperCaseAtStart() && i.isHumpBoundIdentifierAtStart(String::toLowerCase) && !i.isHumpBoundIdentifierAtStart()) {
+                                    i.prefixToLowerCase(1);
+                                }
                             }
                         }
 
-                        if ((endOnBound || i.isExpandedCamelCase()) && i.isAlphabeticAfter()) {
+                        if ((endWasOnBound || i.isExpandedCamelCase()) && i.isAlphabeticAfter()) {
                             // try to change case so that it is a hump bound
                             if (i.isLowerCaseAfter() && i.isHumpBoundIdentifierAtEnd(String::toUpperCase) && !i.isHumpBoundIdentifierAtEnd()) {
                                 // make upper case after insertion point

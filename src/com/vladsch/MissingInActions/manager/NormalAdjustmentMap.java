@@ -30,7 +30,7 @@ import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
-import com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterAction;
+import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class NormalAdjustmentMap extends ActionAdjustmentMap {
@@ -207,14 +207,14 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
 
         addActionAdjustment(AdjustmentType.DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , DuplicateAction.class
-                , DuplicateBeforeAfterAction.class
+                , DuplicateForClipboardCaretsAction.class
                 , DuplicateLinesAction.class
                 , CutAction.class
         );
 
         addActionSet(ActionSetType.DUPLICATE_ACTION
                 , DuplicateAction.class
-                , DuplicateBeforeAfterAction.class
+                , DuplicateForClipboardCaretsAction.class
                 , DuplicateLinesAction.class
         );
 

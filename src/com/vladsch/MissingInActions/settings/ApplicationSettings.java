@@ -62,12 +62,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
     private boolean myMouseCamelHumpsFollow = false;
     private boolean myIsSelectionEndExtended = false;
-    private boolean myIsSelectionStartExtended = true;
+    private boolean myIsSelectionStartExtended = false;
     private boolean myTypingDeletesLineSelection = false;
     private boolean myPreserveCamelCaseOnPaste = false;
     private boolean myPreserveScreamingSnakeCaseOnPaste = false;
     private boolean myPreserveSnakeCaseOnPaste = false;
     private boolean myRemovePrefixOnPaste = false;
+    private boolean myAddPrefixOnPaste = false;
+    private int myRemovePrefixOnPasteType = RemovePrefixOnPasteType.DEFAULT.intValue;
     private String myRemovePrefixOnPaste1 = "my";
     private String myRemovePrefixOnPaste2 = "our";
     private boolean myOverrideStandardPaste = false;
@@ -107,6 +109,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myLeftRightMovement
         );
     }
+
+    public boolean isAddPrefixOnPaste() { return myAddPrefixOnPaste; }
+
+    public void setAddPrefixOnPaste(final boolean addPrefixOnPaste) { myAddPrefixOnPaste = addPrefixOnPaste; }
+
+    public int getRemovePrefixOnPasteType() { return myRemovePrefixOnPasteType; }
+
+    public void setRemovePrefixOnPasteType(final int removePrefixOnPasteType) { myRemovePrefixOnPasteType = removePrefixOnPasteType; }
 
     public int getLinePasteCaretAdjustment() { return myLinePasteCaretAdjustment; }
 

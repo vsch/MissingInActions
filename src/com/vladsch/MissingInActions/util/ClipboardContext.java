@@ -89,6 +89,28 @@ public class ClipboardContext {
     /**
      * Get the data about clipboard transferable as if there were just enough carets for each caret in the data
      * @param editor editor for paste
+     * @param dataContext data context for action
+     */
+    @Nullable
+    public static ClipboardContext studyClipboard(final @NotNull Editor editor, DataContext dataContext) {
+        Transferable transferable = getTransferable(editor, dataContext);
+        return transferable == null ? null : studyTransferable(editor, transferable);
+    }
+
+    /**
+     * Get the data about clipboard transferable as if there were just enough carets for each caret in the data
+     * @param editor editor for paste
+     * @param dataContext data context for action
+     */
+    @Nullable
+    public static ClipboardContext studyPrePasteClipboard(final @NotNull Editor editor, DataContext dataContext) {
+        Transferable transferable = getTransferable(editor, dataContext);
+        return transferable == null ? null : studyPrePasteTransferable(editor, transferable);
+    }
+
+    /**
+     * Get the data about clipboard transferable as if there were just enough carets for each caret in the data
+     * @param editor editor for paste
      * @param content transferable content to study
      */
     @Nullable
