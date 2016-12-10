@@ -186,13 +186,13 @@ especially in multi-caret mode, a joy:
     the IDE provided. I don't know if you do these case changes and prefix editing often but I
     found myself doing them ad nauseam. Copy once, use it everywhere is here.
 
-    Every time I use it feels that way. I know it isn't, I had to write debug the code, but it
+    Every time I use it feels like magic. I know it isn't, I had to write debug the code, but it
     still feels that way.
 
 6. Duplicate Line or Selection for Carets on Clipboard action is a multiple caret user's dream.
    It makes modifying a line or lines for repeated variations an effortless joy. A live example
    from Mia's own source code. I needed variations for several functions based on naming
-   convention: came case, pascal case, snake case and screaming snake case. I already have the
+   convention: camel case, pascal case, snake case and screaming snake case. I already have the
    case names throughout the code. I just need to create a new function with these variations.
    Easy, take existing lines with the case names and use multi-select, copy, select case name in
    destination line, dupe for clipboard, paste.
