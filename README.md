@@ -238,7 +238,7 @@ selection when the mouse button is released.
 
 [Download Latest 0.8.0 from this repo]: ../../raw/master/dist/MissingInActions.0.8.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
-[Mia Dupe For Clipboard Carets]: https://github.com/vsch/MissingInActions/raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
-[Mia Smart Paste Multi Caret]: https://github.com/vsch/MissingInActions/raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
+[Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
+[Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
 [Version Notes]: /resources/META-INF/VERSION.md
 
