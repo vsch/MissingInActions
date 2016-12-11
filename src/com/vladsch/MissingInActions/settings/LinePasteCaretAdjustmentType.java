@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;

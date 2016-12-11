@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
 import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
+import static com.vladsch.MissingInActions.util.EditHelpers.isWordTypeEnd;
 import static com.vladsch.MissingInActions.util.StudiedWord.*;
 
 @SuppressWarnings("WeakerAccess")
@@ -45,8 +46,7 @@ public class CaseFormatPreserver {
     private boolean toPascalCase;
     private boolean toCamelCase;
     private boolean hadStartOfWord;
-    private boolean hadStartOfWordWithPrefix1;
-    private boolean hadStartOfWordWithPrefix2;
+    private String startOfWordWithPrefix;
     private boolean hadSelection;
 
     public CaseFormatPreserver() {
@@ -63,8 +63,7 @@ public class CaseFormatPreserver {
         toPascalCase = false;
         toCamelCase = false;
         hadStartOfWord = false;
-        hadStartOfWordWithPrefix1 = false;
-        hadStartOfWordWithPrefix2 = false;
+        startOfWordWithPrefix = "";
         hadSelection = false;
     }
 
@@ -109,8 +108,7 @@ public class CaseFormatPreserver {
             if (!prefix1.isEmpty() || !prefix2.isEmpty()) {
                 hadStartOfWord = w.isIdentifierStartBefore(false);
                 if (hadStartOfWord) {
-                    if (prefixType.isMatched(w.word(), prefix1)) hadStartOfWordWithPrefix1 = true;
-                    else if (prefixType.isMatched(w.word(), prefix2)) hadStartOfWordWithPrefix2 = true;
+                    startOfWordWithPrefix = w.getMatchedPrefix(prefixType, prefix1, prefix2);
                 }
             }
         }
@@ -121,7 +119,7 @@ public class CaseFormatPreserver {
             if (!toSnakeCase) {
                 if (e.isPascalCase()) {
                     toPascalCase = true;
-                } else if (e.isCamelCase() || e.just(LOWER|DIGITS) && e.first(LOWER)) {
+                } else if (e.isCamelCase() || e.just(LOWER | DIGITS) && e.first(LOWER)) {
                     toCamelCase = true;
                 }
 
@@ -210,15 +208,14 @@ public class CaseFormatPreserver {
                 RemovePrefixOnPasteType prefixType = prefixOnPasteType == null ? RemovePrefixOnPasteType.DEFAULT : prefixOnPasteType;
 
                 if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
-                    if (hadStartOfWord && hadStartOfWordWithPrefix1 && prefixType.isMatched(i.word(), prefix1)) {
-
-                    } else if (hadStartOfWord && hadStartOfWordWithPrefix2 && prefixType.isMatched(i.word(), prefix2)) {
-
-                    } else {
-                        if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
-                            // TODO: change prefix type to enumeration
-                            i.removeCamelCasePrefixOnce(prefix1);
-                            i.removeCamelCasePrefixOnce(prefix2);
+                    String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);
+                    if (!matchedPrefix.isEmpty()) {
+                        if (hadStartOfWord && startOfWordWithPrefix.equals(matchedPrefix)) {
+                            // leave the prefix
+                        } else {
+                            if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
+                                i.removePrefixesOnce(prefixType, prefix1, prefix2);
+                            }
                         }
                     }
                 }
@@ -227,13 +224,11 @@ public class CaseFormatPreserver {
                 if (i.studiedWord().only(UPPER | LOWER | UNDER | DIGITS) && (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase)) {
                     if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
                         // remove prefix if converting to snake case
-                        i.removeCamelCasePrefixOnce(prefix1);
-                        i.removeCamelCasePrefixOnce(prefix2);
+                        i.removePrefixesOnce(prefixType, prefix1, prefix2);
                         i.makeScreamingSnakeCase();
-                    } else if (preserveSnakeCase && toSnakeCase ) {
+                    } else if (preserveSnakeCase && toSnakeCase) {
                         // remove prefix if converting to snake case
-                        i.removeCamelCasePrefixOnce(prefix1);
-                        i.removeCamelCasePrefixOnce(prefix2);
+                        i.removePrefixesOnce(prefixType, prefix1, prefix2);
                         i.makeSnakeCase();
                     } else if (preserveCamelCase) {
                         if (toPascalCase) {
@@ -242,13 +237,10 @@ public class CaseFormatPreserver {
                             i.makeCamelCase();
                         }
 
-                        if (addPrefix && hadStartOfWord && hadStartOfWordWithPrefix1 && !prefixType.isMatched(i.word(), prefix1)) {
-                            i.prefixWithCamelCase(prefix1);
-                        } else if (addPrefix && hadStartOfWord && hadStartOfWordWithPrefix2 && !prefixType.isMatched(i.word(), prefix2)) {
-                            i.prefixWithCamelCase(prefix2);
+                        if (addPrefix && hadStartOfWord && !startOfWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(prefixType, startOfWordWithPrefix, prefix1, prefix2)) {
+                            // prefix replaced
                         } else if (startWasUpperCase && i.isLowerCaseAtStart()) {
-                            i.removeCamelCasePrefixOnce(prefix1);
-                            i.removeCamelCasePrefixOnce(prefix2);
+                            i.removePrefixesOnce(prefixType, prefix1, prefix2);
                             i.prefixToUpperCase(1);
                         } else {
                             if (startWasLowerCase && i.isUpperCaseAtStart() && !i.hasNoLowerCaseAfterPrefix(1)) {

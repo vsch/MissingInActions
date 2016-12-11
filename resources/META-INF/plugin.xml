@@ -36,7 +36,7 @@
         ]]>
     </description>
 
-    <version>0.8.0</version>
+    <version>0.8.0.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
@@ -435,8 +435,14 @@
 
         <action class="com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction"
                 id="MissingInActions.DuplicateForClipboardCarets"
-                text="Duplicate Line or Selection for Carets on Clipboard"
-                description="Duplicate Line or Selection for Carets on Clipboard">
+                text="Duplicate Line or Selection for Carets from Clipboard"
+                description="Duplicate Line or Selection for Carets from Clipboard">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction"
+                id="MissingInActions.DuplicateForMultipleClipboardCarets"
+                text="Duplicate Line or Selection for Carets from Clipboard History"
+                description="Duplicate Line or Selection for Carets from Clipboard History">
         </action>
     </actions>
 </idea-plugin>

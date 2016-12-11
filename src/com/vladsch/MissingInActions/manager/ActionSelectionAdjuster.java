@@ -35,6 +35,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.*;
 import com.vladsch.MissingInActions.util.*;
@@ -150,7 +151,16 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                         //if (debug) System.out.println("running Before " + action);
                         guard(() -> {
                             ApplicationSettings settings = getSettings();
-                            adjustBeforeAction(settings, action, adjustments, event);
+                            try {
+                                adjustBeforeAction(settings, action, adjustments, event);
+                            } catch (Throwable e) {
+                                logger.error("adjustBeforeAction exception", e);
+
+                                // remove stuff added for after action and cleanup
+                                Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
+                                Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
+                                if (cleanup != null) cleanup.forEach(Runnable::run);
+                            }
                         });
                     }
 
@@ -209,6 +219,8 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                     myTentativeSelectionMarker = null;
                 }
             }
+        } else if (cleanup != null) {
+            cleanup.forEach(Runnable::run);
         }
     }
 
@@ -744,31 +756,34 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         class Params extends CaretSnapshot.Params<Params> {
             private long timestamp;
             private CaseFormatPreserver preserver = new CaseFormatPreserver();
-            private boolean restoreColumn;
 
             private Params(CaretSnapshot snapshot) {
                 super(snapshot);
             }
         }
 
-        final int[] cumulativeCaretDelta = new int[] { 0 };
+        final LinePasteCaretAdjustmentType adjustment = LinePasteCaretAdjustmentType.ADAPTER.findEnum(settings.getLinePasteCaretAdjustment());
+        updateLastPastedClipboardCarets(ClipboardCaretContent.getTransferable(myEditor, event.getDataContext()), adjustment);
+        myAfterActionsCleanup.addAfterAction(event, () -> {
+            ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, null);
+            myEditor.putUserData(EditorEx.LAST_PASTED_REGION, null);
+        });
 
-        // Multiple paste may change this but all the rest should be ok, that is why we override with
-        // our own multiple paste which updates this value, otherwise we could store it in a variable
-        final Transferable transferable = ClipboardContext.getTransferable(myEditor, event.getDataContext());
-        final ClipboardContext clipboardData = transferable != null ? ClipboardContext.studyPrePasteTransferable(myEditor, transferable) : null;
-        myEditor.putUserData(ClipboardContext.LAST_PASTED_CLIPBOARD_CONTEXT, clipboardData);
-        if (clipboardData != null) {
-            myAfterActionsCleanup.addAfterAction(event, () -> {
-                myEditor.putUserData(ClipboardContext.LAST_PASTED_CLIPBOARD_CONTEXT, null);
-            });
-        }
+        final CopyPasteManager.ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> {
+            updateLastPastedClipboardCarets(newTransferable, adjustment);
+        };
+
+        final CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
+        copyPasteManager.addContentChangedListener(contentChangedListener);
+        myAfterActionsCleanup.addAfterAction(event, () -> copyPasteManager.removeContentChangedListener(contentChangedListener));
 
         final boolean inWriteAction = (settings.isPreserveCamelCaseOnPaste()
                 || settings.isPreserveSnakeCaseOnPaste()
                 || settings.isPreserveScreamingSnakeCaseOnPaste()
                 || settings.isRemovePrefixOnPaste() && !(settings.getRemovePrefixOnPaste1().isEmpty() && settings.getRemovePrefixOnPaste2().isEmpty()))
                 && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION);
+
+        final int[] cumulativeCaretDelta = new int[] { 0 };
 
         forAllEditorCaretsInWriteAction(event, inWriteAction, (editorCaret, snapshot) -> {
             Params params = new Params(snapshot);
@@ -787,17 +802,8 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 } else {
                     caret.moveToOffset(caret.getSelectionEnd());
                 }
-            } else {
-                final LinePasteCaretAdjustmentType adjustment = LinePasteCaretAdjustmentType.ADAPTER.findEnum(settings.getLinePasteCaretAdjustment());
-                if (!editorCaret.hasSelection() && clipboardData != null && adjustment != LinePasteCaretAdjustmentType.NONE) {
-                    if (clipboardData.isFullLine(snapshot.getIndex())) {
-                        // we are changing where the paste will go, need to adjust the clipboard data text range
-                        final int offset = adjustment.getPastePosition(editorCaret.getCaretPosition()).getOffset();
-                        clipboardData.shiftCaretRangeRight(snapshot.getIndex(), offset - caret.getOffset());
-                        caret.moveToOffset(offset);
-                        params.restoreColumn = true;
-                    }
-                }
+                //} else {
+                // // adjustments now done in ClipboardContext.studyPrePasteTransferable via ClipboardContext.CaretOffsetAdjuster
             }
 
             return true;
@@ -808,11 +814,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 // if leave selected is enabled
                 if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION)) {
                     if (params.timestamp < myEditor.getDocument().getModificationStamp()) {
-                        ClipboardContext clipboardContext = myEditor.getUserData(ClipboardContext.LAST_PASTED_CLIPBOARD_CONTEXT);
-
-                        TextRange[] ranges = clipboardContext != null ? clipboardContext.getTextRanges() : null;
-                        TextRange textRange = myEditor.getUserData(EditorEx.LAST_PASTED_REGION);
-                        TextRange rawRange = ranges != null && ranges.length > snapshot.getIndex() ? ranges[snapshot.getIndex()] : textRange;
+                        TextRange rawRange = ClipboardCaretContent.getLastPastedTextRange(myEditor, snapshot.getIndex());
 
                         if (rawRange != null) {
                             CharSequence beforeShift = rawRange.subSequence(editorCaret.getDocumentChars());
@@ -820,14 +822,9 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                             CharSequence afterShift = range.subSequence(editorCaret.getDocumentChars());
                             editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
-                            boolean selectPasted = settings.isSelectPasted()
-                                    && SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount());
-
-                            boolean isSingleLineChar = !editorCaret.hasLines();
-
-                            if (isSingleLineChar) {
+                            if (!editorCaret.hasLines()) {
                                 cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                        , selectPasted || settings.isSelectPastedMultiCaret() && myEditor.getCaretModel().getCaretCount() > 1
+                                        , settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue() || settings.isSelectPastedMultiCaret() && myEditor.getCaretModel().getCaretCount() > 1
                                         , settings.isPreserveCamelCaseOnPaste()
                                         , settings.isPreserveSnakeCaseOnPaste()
                                         , settings.isPreserveScreamingSnakeCaseOnPaste()
@@ -837,18 +834,25 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                                         , settings.isAddPrefixOnPaste()
                                 );
                             } else {
-                                if (selectPasted) {
-                                    if (editorCaret.hasLines()) {
-                                        editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
-                                    } else {
-                                        editorCaret.normalizeCaretPosition();
-                                    }
-
-                                    if (params.restoreColumn) {
-                                        editorCaret.restoreColumn(snapshot);
-                                    }
-                                    editorCaret.commit();
+                                if (editorCaret.hasLines()) {
+                                    editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
+                                } else {
+                                    editorCaret.normalizeCaretPosition();
                                 }
+
+                                boolean selectPasted = settings.isSelectPasted()
+                                        && SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount());
+
+                                if (!selectPasted) {
+                                    editorCaret.removeSelection();
+                                }
+
+                                int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
+                                if (caretColumn != -1) {
+                                    editorCaret.restoreColumn(caretColumn);
+                                }
+
+                                editorCaret.commit();
                             }
                         } else {
                             snapshot.restoreColumn();
@@ -857,6 +861,17 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 }
             }
         });
+    }
+
+    private void updateLastPastedClipboardCarets(final Transferable transferable, final LinePasteCaretAdjustmentType adjustment) {
+        final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.studyPrePasteTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
+            if (!caret.hasSelection() && isFullLine) {
+                caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
+            }
+            return caret.getOffset();
+        }) : null;
+
+        ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, clipboardData);
     }
 
     private void autoIndentLines(ApplicationSettings settings, AnAction action, AnActionEvent event) {

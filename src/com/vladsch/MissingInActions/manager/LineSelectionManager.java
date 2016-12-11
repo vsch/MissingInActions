@@ -80,7 +80,7 @@ public class LineSelectionManager implements
     private final CaretHighlighter myCaretHighlighter;
     private ApplicationSettings mySettings;
     private AnAction myMultiPasteAction;
-    private PasteOverrider myPasteOverrider;
+    //private PasteOverrider myPasteOverrider;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -114,7 +114,7 @@ public class LineSelectionManager implements
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
 
         myMultiPasteAction = null;
-        myPasteOverrider = null;
+        //myPasteOverrider = null;
 
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
@@ -230,38 +230,38 @@ public class LineSelectionManager implements
         }
     }
 
-    /**
-     * This is needed to override paste actions only if there are multiple carets
-     * <p>
-     * Otherwise, formatting after paste will not work right in single caret mode and
-     * without the override multi-caret select after paste and all the smart paste
-     * adjustments don't work because the IDE does not provide data for last pasted
-     * ranges.
-     */
-    private class PasteOverrider implements IdeEventQueue.EventDispatcher {
-        @Override
-        public boolean dispatch(@NotNull AWTEvent e) {
-            if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-                Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
-                    return component == myEditor.getComponent();
-                });
-
-                if (owner == myEditor.getComponent()) {
-                    boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
-                    if (registerPasteOverrides == (myMultiPasteAction == null)) {
-                        if (!registerPasteOverrides) {
-                            // unregister them
-                            unRegisterPasteOverrides();
-                        } else {
-                            // we register our own pastes to handle multi-caret
-                            registerPasteOverrides();
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-    }
+    ///**
+    // * This is needed to override paste actions only if there are multiple carets
+    // * <p>
+    // * Otherwise, formatting after paste will not work right in single caret mode and
+    // * without the override multi-caret select after paste and all the smart paste
+    // * adjustments don't work because the IDE does not provide data for last pasted
+    // * ranges.
+    // */
+    //private class PasteOverrider implements IdeEventQueue.EventDispatcher {
+    //    @Override
+    //    public boolean dispatch(@NotNull AWTEvent e) {
+    //        if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
+    //            Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
+    //                return component == myEditor.getComponent();
+    //            });
+    //
+    //            if (owner == myEditor.getComponent()) {
+    //                boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
+    //                if (registerPasteOverrides == (myMultiPasteAction == null)) {
+    //                    if (!registerPasteOverrides) {
+    //                        // unregister them
+    //                        unRegisterPasteOverrides();
+    //                    } else {
+    //                        // we register our own pastes to handle multi-caret
+    //                        registerPasteOverrides();
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        return false;
+    //    }
+    //}
 
     private void registerPasteOverrides() {
         myMultiPasteAction = new MiaMultiplePasteAction();
@@ -305,19 +305,21 @@ public class LineSelectionManager implements
 
             // override standard pastes
             if (settings.isOverrideStandardPaste()) {
-                if (settings.isOverrideStandardPasteOnlyMultiCaret()) {
-                    myPasteOverrider = new PasteOverrider();
-                    IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
-
-                    myDelayedRunner.addRunnable("Override Paste", () -> {
-                        unRegisterPasteOverrides();
-                        if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
-                        myMultiPasteAction = null;
-                    });
-                } else {
-                    registerPasteOverrides();
-                    myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
-                }
+                registerPasteOverrides();
+                myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
+                //if (settings.isOverrideStandardPasteShowInstructions()) {
+                //    myPasteOverrider = new PasteOverrider();
+                //    IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
+                //
+                //    myDelayedRunner.addRunnable("Override Paste", () -> {
+                //        unRegisterPasteOverrides();
+                //        if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
+                //        myMultiPasteAction = null;
+                //    });
+                //} else {
+                //    registerPasteOverrides();
+                //    myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
+                //}
             }
         }
     }

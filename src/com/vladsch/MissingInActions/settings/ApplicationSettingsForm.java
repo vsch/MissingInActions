@@ -58,7 +58,7 @@ public class ApplicationSettingsForm implements Disposable {
     private JBCheckBox myRemovePrefixOnPaste;
     private JBCheckBox myAddPrefixOnPaste;
     private JBCheckBox myOverrideStandardPaste;
-    private JBCheckBox myOverrideStandardPasteOnlyMultiCaret;
+    private JBCheckBox myOverrideStandardPasteShowInstructions;
     private JBTextField myRemovePrefixOnPaste1;
     private JBTextField myRemovePrefixOnPaste2;
     private JComboBox mySelectPastedPredicate;
@@ -128,7 +128,7 @@ public class ApplicationSettingsForm implements Disposable {
                 || myRemovePrefixOnPaste.isSelected() != mySettings.isRemovePrefixOnPaste()
                 || myAddPrefixOnPaste.isSelected() != mySettings.isAddPrefixOnPaste()
                 || myOverrideStandardPaste.isSelected() != mySettings.isOverrideStandardPaste()
-                || myOverrideStandardPasteOnlyMultiCaret.isSelected() != mySettings.isOverrideStandardPasteOnlyMultiCaret()
+                || myOverrideStandardPasteShowInstructions.isSelected() != mySettings.isOverrideStandardPasteShowInstructions()
                 || !myRemovePrefixOnPaste1.getText().trim().equals(mySettings.getRemovePrefixOnPaste1().trim())
                 || !myRemovePrefixOnPaste2.getText().trim().equals(mySettings.getRemovePrefixOnPaste2().trim())
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
@@ -174,7 +174,7 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setRemovePrefixOnPaste(myRemovePrefixOnPaste.isSelected());
         mySettings.setAddPrefixOnPaste(myAddPrefixOnPaste.isSelected());
         mySettings.setOverrideStandardPaste(myOverrideStandardPaste.isSelected());
-        mySettings.setOverrideStandardPasteOnlyMultiCaret(myOverrideStandardPasteOnlyMultiCaret.isSelected());
+        mySettings.setOverrideStandardPasteShowInstructions(myOverrideStandardPasteShowInstructions.isSelected());
         mySettings.setRemovePrefixOnPaste1(myRemovePrefixOnPaste1.getText().trim());
         mySettings.setRemovePrefixOnPaste2(myRemovePrefixOnPaste2.getText().trim());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
@@ -225,7 +225,7 @@ public class ApplicationSettingsForm implements Disposable {
         myRemovePrefixOnPaste.setSelected(mySettings.isRemovePrefixOnPaste());
         myAddPrefixOnPaste.setSelected(mySettings.isAddPrefixOnPaste());
         myOverrideStandardPaste.setSelected(mySettings.isOverrideStandardPaste());
-        myOverrideStandardPasteOnlyMultiCaret.setSelected(mySettings.isOverrideStandardPasteOnlyMultiCaret());
+        myOverrideStandardPasteShowInstructions.setSelected(mySettings.isOverrideStandardPasteShowInstructions());
         myRemovePrefixOnPaste1.setText(mySettings.getRemovePrefixOnPaste1().trim());
         myRemovePrefixOnPaste2.setText(mySettings.getRemovePrefixOnPaste2().trim());
 
@@ -295,7 +295,7 @@ public class ApplicationSettingsForm implements Disposable {
         myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         mySelectPastedMultiCaret.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
-        myOverrideStandardPasteOnlyMultiCaret.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myOverrideStandardPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
         final boolean enablePrefixes = myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
                 || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled();

@@ -22,12 +22,16 @@
 package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.util.TextRange;
+import com.vladsch.MissingInActions.settings.RemovePrefixOnPasteType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.vladsch.MissingInActions.settings.RemovePrefixOnPasteType.REGEX;
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
 import static com.vladsch.MissingInActions.util.StudiedWord.UPPER;
 import static java.lang.Character.isAlphabetic;
@@ -179,14 +183,6 @@ public class InsertedRangeContext {
         return false;
     }
 
-    public boolean removeCamelCasePrefix(@NotNull String text) {
-        if (!text.isEmpty() && myWord.startsWith(text) && myWord.length() > text.length() && Character.isLowerCase(myWord.charAt(text.length() - 1))) {
-            myWord = myWord.substring(text.length());
-            return true;
-        }
-        return false;
-    }
-
     public boolean removePrefixOnce(@NotNull String text) {
         if (!myPrefixRemoved) {
             myPrefixRemoved = removePrefix(text);
@@ -195,10 +191,46 @@ public class InsertedRangeContext {
         return false;
     }
 
-    public boolean removeCamelCasePrefixOnce(@NotNull String text) {
+    public boolean removePrefixesOnce(@Nullable RemovePrefixOnPasteType prefixType, @NotNull String prefix1, @NotNull String prefix2) {
         if (!myPrefixRemoved) {
-            myPrefixRemoved = removeCamelCasePrefix(text);
-            return myPrefixRemoved;
+            RemovePrefixOnPasteType type = prefixType == null ? RemovePrefixOnPasteType.CAMEL : prefixType;
+            String matched = type.getMatched(myWord, prefix1, prefix2);
+            if (!matched.isEmpty()) {
+                return removePrefixOnce(matched);
+            }
+        }
+        return false;
+    }
+
+    public String getMatchedPrefix(final RemovePrefixOnPasteType prefixType, final String prefix1, final String prefix2) {
+        RemovePrefixOnPasteType type = prefixType == null ? RemovePrefixOnPasteType.CAMEL : prefixType;
+        if (type == REGEX) {
+            // the first is the match, the second is the replacement to add
+            return type.getMatched(myWord, prefix1, prefix2);
+        } else {
+            if (type.isMatched(myWord, prefix1)) {
+                return prefix1;
+            } else if (type.isMatched(myWord, prefix2)) {
+                return prefix2;
+            }
+        }
+        return "";
+    }
+
+    public boolean addPrefixOrReplaceMismatchedPrefix(final RemovePrefixOnPasteType prefixType, final String prefix, final String prefix1, final String prefix2) {
+        if (!myPrefixRemoved && !prefix.isEmpty()) {
+            RemovePrefixOnPasteType type = prefixType == null ? RemovePrefixOnPasteType.CAMEL : prefixType;
+            String matched = type.getMatched(myWord, prefix1, prefix2);
+            if (matched.isEmpty()) {
+                // no prefix, we add
+                prefixWithCamelCase(prefix);
+                return true;
+            } else if (!matched.equals(prefix)) {
+                // we remove then add
+                removePrefix(matched);
+                prefixWithCamelCase(prefix);
+                return true;
+            }
         }
         return false;
     }

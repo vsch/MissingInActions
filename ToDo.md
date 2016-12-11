@@ -44,8 +44,6 @@
           - Modified Lines
           - All
 - [ ] Add: scope based config for all language type settings 
-- [ ] Add: Action to duplicate caret line enough times to fit carets on clipboard and create
-      carets on duplicated lines. Leave original as is. Can always be manually deleted. 
 - [ ] Add: option to disable trimming spaces from a line containing the caret with virtual
       spaces, or restore caret column after save to prevent caret jump.
 - [ ] Add: option to fix-up line endings after move line up/down based on context to add/remove
@@ -61,26 +59,6 @@
 
 &nbsp;<details id="todo"><summary>**BeyondEdit Emulation To Do List**</summary>
 
-- [ ] Add: column aligning `ColumnAligningTabAction`, non-multi-caret mode does tab action, in
-      multi-caret mode that has the effect after action:
-      - all carets will be at the same column
-      - that column will be >= the column before action
-      - that column will be a multiple of file's indent space count
-      - each caret will be on the first non-whitespace character at or after caret before action
-      - if the caret is after the trimmed end of line then treat the end of line as a
-        non-whitespace character
-      - [ ] for each caret find the range of whitespace from caret to first non-whitespace at or
-            after the caret. If caret after last non-whitespace of the line, treat end of line
-            as the first non-whitespace character
-      - [ ] alignment column is the minimum of all range starts, aligned on tab indent count for
-            file.
-      - [ ] move each caret to minimum of alignment column and end of whitespace range
-      - [ ] if caret after move:
-          - [ ] is before the whitespace range end, delete characters to whitespace range
-          - [ ] is before alignment column, insert spaces before caret so it is moved to
-                alignment colum
-      - [ ] if no caret columns changed as the result of above steps, add indent spaces to
-            alignment column and repeat previous two steps.
 - [ ] Add: full set of backspace/delete a la BeyondEdit: spaces, spaces/non-spaces,
       words/non-words/spaces. Escalating Forwards/Backwards Deletes:
       - [x] Spaces only
@@ -118,14 +96,6 @@
           - quoted as in singe quotes, double quotes, back-quotes, etc. i.e. Wrapped in same
             character(s)
           - whitespace delimited non-whitespace
-- [ ] Add: insert numeric sequence in multi-caret mode, with selections should try to determine
-      parameters: start number, increment, sequence type and format; without should re-use last
-      params with optional action to always show pop-up panel for options.
-      - [ ] Sequences 0-9, A-Z for number bases 2-36
-      - [ ] Prefix/Suffix options to add to generated number
-      - [ ] Sequences can be 0 left filled to any width
-      - [ ] Arithmetic or Shift with Step and Direction
-      - [ ] Start/Stop number, carets whose number is outside the range insert nothing
 - [ ] Add: smart column aligned text editing based on lines around the caret line. Has the
       effect of having column based tab stops for purposes of keeping column formatted text
       aligned when insert/delete is performed:
@@ -159,10 +129,6 @@
                 inserting spaces in the range:
               - 3 or more spaces
               - 2 spaces where the range of spaces ends on a dynamic column
-- [ ] Add: smart paste:
-      - [ ] line mode pastes should paste above/below current line according to settings
-      - [ ] char pasting less than a line pasted in **middle of word** should preserve case of
-            first pasted characters so camel humps are preserved.
 - [ ] Add: Drag/Copy/Move line selection. Dragging a line selection will copy/move it always
       between lines never in the middle.
       - [ ] Visual feedback is a horizontal line at the point of insertion
@@ -182,15 +148,6 @@
             highlights. Optionally starting a Search/Replace operation with parameters that
             match the drop replacement so that further replacements could be done via
             replace/exclude/replace all.
-- [ ] Add: low-lighting to isolate parts of source a la BeyondEdit
-      - [ ] with options to copy/cut low-lighted or not low-lighted blocks
-- [ ] Add: global highlight word which will work across files to mark presence with actions to:
-      - [ ] clear all highlights
-      - [ ] clear highlight for word at caret or selection
-      - [ ] highlight word at caret or selection
-      - [ ] next/prev highlight in file
-      - [ ] Preferably should only highlight part of the document that is visible. Hidden
-            portions highlighted as they become exposed during scrolling.
 
 &nbsp;</details>
 

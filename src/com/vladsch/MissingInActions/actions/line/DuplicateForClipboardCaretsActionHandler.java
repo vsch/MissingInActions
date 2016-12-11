@@ -27,11 +27,10 @@ import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Pair;
-import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.util.ClipboardContext;
+import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -101,13 +100,13 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
         if (editor.getCaretModel().getCaretCount() > 1) {
             // already multi-caret, just execute for each caret
             editor.getCaretModel().runForEachCaret(caret1 -> {
-                duplicateLineOrSelectedBlockAtCaret(editor, editor.getDocument(), caret, true);
+                duplicateLineOrSelectedBlockAtCaret(editor, editor.getDocument(), caret1, true);
             });
         } else {
-            ClipboardContext clipboardContext = ClipboardContext.studyClipboard(editor, dataContext);
+            ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyClipboard(editor, dataContext);
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
-            int iMax = clipboardContext == null ? 1 : clipboardContext.getCaretCount();
+            int iMax = clipboardCaretContent == null ? 1 : clipboardCaretContent.getCaretCount();
             List<Couple<Integer>> copies = new ArrayList<>(iMax);
 
             int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();
@@ -127,36 +126,34 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 if (couple != null) copies.add(couple);
             }
 
-            if (iMax > 1) {
-                // create multiple carets on first line of every copy
-                EditorPosition pos = editorCaret.getCaretPosition();
-                editorCaret.removeSelection();
+            // create multiple carets on first line of every copy
+            EditorPosition pos = editorCaret.getCaretPosition();
+            editorCaret.removeSelection();
 
-                Document doc = editor.getDocument();
-                CaretModel caretModel = editor.getCaretModel();
+            Document doc = editor.getDocument();
+            CaretModel caretModel = editor.getCaretModel();
 
-                // build the carets
-                for (int i = 0; i < iMax; i++) {
-                    Couple<Integer> couple = copies.get(i);
+            // build the carets
+            for (int i = 0; i < iMax; i++) {
+                Couple<Integer> couple = copies.get(i);
 
-                    int lineNumber = doc.getLineNumber(couple.first);
-                    int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                    int lineStartOffset = doc.getLineStartOffset(lineNumber);
+                int lineNumber = doc.getLineNumber(couple.first);
+                int lineEndOffset = doc.getLineEndOffset(lineNumber);
+                int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
-                    EditorPosition editorPosition = pos.onLine(lineNumber);
-                    Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
-                    if (caret1 != null) {
-                        caret1.moveToLogicalPosition(editorPosition);
-                        int offset = editorPosition.getOffset();
+                EditorPosition editorPosition = pos.onLine(lineNumber);
+                Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
+                if (caret1 != null) {
+                    caret1.moveToLogicalPosition(editorPosition);
+                    int offset = editorPosition.getOffset();
 
-                        // replicate selection to this position
-                        if (editorCaret.isStartAnchor()) {
-                            caret1.setSelection(offset - selectionSize, offset);
-                        } else {
-                            caret1.setSelection(offset, offset + selectionSize);
-                        }
-                        manager.resetSelectionState(caret1);
+                    // replicate selection to this position
+                    if (isStartAnchor) {
+                        caret1.setSelection(offset - selectionSize, offset);
+                    } else {
+                        caret1.setSelection(offset, offset + selectionSize);
                     }
+                    manager.resetSelectionState(caret1);
                 }
             }
 

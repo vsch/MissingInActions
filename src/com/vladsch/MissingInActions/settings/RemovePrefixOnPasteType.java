@@ -69,6 +69,33 @@ public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnP
         return false;
     }
 
+    /**
+     * Convert to caret position for paste depending on where the caret is relative
+     * to indent column and setting
+     *
+     * @param text   text which is to match to the prefix
+     * @param prefix1 prefix pattern, if regex this is the match pattern
+     * @param prefix2 prefix pattern. if regex this is the replace pattern to extract the prefix
+     * @return matched prefix or empty string if text does not match prefix
+     */
+    public String getMatched(@NotNull String text, @NotNull String prefix1, @NotNull String prefix2) {
+        if (this == ANY) {
+            if (text.startsWith(prefix1) && text.length() > prefix1.length()) return prefix1;
+            if (text.startsWith(prefix2) && text.length() > prefix2.length()) return prefix2;
+        } else if (this == CAMEL) {
+            if (text.startsWith(prefix1) && text.length() > prefix1.length() && Character.isLowerCase(text.charAt(prefix1.length() - 1))) return prefix1;
+            if (text.startsWith(prefix2) && text.length() > prefix2.length() && Character.isLowerCase(text.charAt(prefix2.length() - 1))) return prefix2;
+        }
+        if (this == REGEX) {
+            try {
+                if (text.matches(prefix1)) return text.replaceFirst(prefix1, prefix2);
+            } catch (Throwable ignored) {
+
+            }
+        }
+        return "";
+    }
+
     public static final RemovePrefixOnPasteType DEFAULT = CAMEL;
     public static final ComboBoxAdapter<RemovePrefixOnPasteType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 

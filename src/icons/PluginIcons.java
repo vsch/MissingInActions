@@ -25,13 +25,18 @@ import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 
-public class MissingInActionsIcons {
+public class PluginIcons {
     private static Icon load(String path) {
-        return IconLoader.getIcon(path, MissingInActionsIcons.class);
+        return IconLoader.getIcon(path, PluginIcons.class);
     }
+
+    public static final Icon Clipboard_carets = load("/icons/Clipboard_carets.png");
+    public static final Icon Clipboard_text = load("/icons/Clipboard_text.png");
+    public static final Icon Clipboard_char_lines_caret = load("/icons/Clipboard_char_lines_caret.png");
+    public static final Icon Clipboard_line_caret = load("/icons/Clipboard_line_caret.png");
+    public static final Icon Clipboard_char_caret = load("/icons/Clipboard_char_caret.png");
 
     public static class EditorActions {
         //public static final Icon Strike_through = load("/icons/editor_actions/Strike_through.png"); // 16x16
     }
-
 }

@@ -73,7 +73,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private String myRemovePrefixOnPaste1 = "my";
     private String myRemovePrefixOnPaste2 = "our";
     private boolean myOverrideStandardPaste = false;
-    private boolean myOverrideStandardPasteOnlyMultiCaret = true;
+    private boolean myOverrideStandardPasteShowInstructions = true;
     private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
     private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
 
@@ -122,9 +122,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setLinePasteCaretAdjustment(final int linePasteCaretAdjustment) { myLinePasteCaretAdjustment = linePasteCaretAdjustment; }
 
-    public boolean isOverrideStandardPasteOnlyMultiCaret() { return myOverrideStandardPasteOnlyMultiCaret; }
+    public boolean isOverrideStandardPasteShowInstructions() { return myOverrideStandardPasteShowInstructions; }
 
-    public void setOverrideStandardPasteOnlyMultiCaret(final boolean overrideStandardPasteOnlyMultiCaret) { myOverrideStandardPasteOnlyMultiCaret = overrideStandardPasteOnlyMultiCaret; }
+    public void setOverrideStandardPasteShowInstructions(final boolean overrideStandardPasteShowInstructions) { myOverrideStandardPasteShowInstructions = overrideStandardPasteShowInstructions; }
 
     public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }
 

@@ -17,43 +17,49 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
-package com.vladsch.MissingInActions.actions.character;
 
-import com.intellij.openapi.actionSystem.ActionManager;
+/*
+ * Created by IntelliJ IDEA.
+ * User: max
+ * Date: May 14, 2002
+ * Time: 7:18:30 PM
+ * To change template for new class use
+ * Code Style | Class Templates options (Tools | IDE Options).
+ */
+package com.vladsch.MissingInActions.actions.line;
+
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.ui.UIBundle;
+import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.actions.MultiplePasteActionBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.text.DefaultEditorKit;
 
-public class MiaMultiplePasteAction extends MultiplePasteActionBase {
+// same as duplicate but shows clipboard history popup first
+public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActionBase {
     @NotNull
     @Override
     protected AnAction getPasteAction(@NotNull final Editor editor) {
-        return ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
+        return new DuplicateForClipboardCaretsAction();
     }
 
     @Nullable
     @Override
     protected Action getPasteAction(@NotNull final JComponent focusedComponent) {
-        return focusedComponent.getActionMap().get(DefaultEditorKit.pasteAction);
+        return null;
     }
 
     @NotNull
     @Override
     protected String getContentChooserTitle(@Nullable final Editor editor, @NotNull final JComponent focusedComponent) {
-        return UIBundle.message("choose.content.to.paste.dialog.title");
+        return editor != null ? Bundle.message("actions.dupe-for-carets-from-history.editor.title") : "Disabled";
     }
 
     @Override
     protected boolean isEnabled(@Nullable final Editor editor, @NotNull final JComponent focusedComponent) {
-        return true;
+        return editor != null && editor.getCaretModel().getCaretCount() == 1;
     }
 }
