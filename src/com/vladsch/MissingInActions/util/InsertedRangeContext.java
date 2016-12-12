@@ -204,17 +204,7 @@ public class InsertedRangeContext {
 
     public String getMatchedPrefix(final RemovePrefixOnPasteType prefixType, final String prefix1, final String prefix2) {
         RemovePrefixOnPasteType type = prefixType == null ? RemovePrefixOnPasteType.CAMEL : prefixType;
-        if (type == REGEX) {
-            // the first is the match, the second is the replacement to add
-            return type.getMatched(myWord, prefix1, prefix2);
-        } else {
-            if (type.isMatched(myWord, prefix1)) {
-                return prefix1;
-            } else if (type.isMatched(myWord, prefix2)) {
-                return prefix2;
-            }
-        }
-        return "";
+        return type.getMatched(myWord, prefix1, prefix2);
     }
 
     public boolean addPrefixOrReplaceMismatchedPrefix(final RemovePrefixOnPasteType prefixType, final String prefix, final String prefix1, final String prefix2) {

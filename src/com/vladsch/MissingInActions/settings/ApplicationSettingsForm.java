@@ -23,18 +23,22 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettingsForm implements Disposable {
+public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder {
     private JPanel myMainPanel;
     final private ApplicationSettings mySettings;
 
@@ -51,7 +55,6 @@ public class ApplicationSettingsForm implements Disposable {
     private JComboBox myMouseModifier;
     private JBCheckBox myAutoIndent;
     private JBCheckBox mySelectPasted;
-    private JBCheckBox mySelectPastedMultiCaret;
     private JBCheckBox myPreserveCamelCaseOnPaste;
     private JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
     private JBCheckBox myPreserveSnakeCaseOnPaste;
@@ -62,6 +65,7 @@ public class ApplicationSettingsForm implements Disposable {
     private JBTextField myRemovePrefixOnPaste1;
     private JBTextField myRemovePrefixOnPaste2;
     private JComboBox mySelectPastedPredicate;
+    private JComboBox mySelectPastedMultiCaretPredicate;
     private JBCheckBox myUnselectToggleCase;
     private JSpinner myAutoIndentDelay;
     private JBCheckBox myDuplicateAtStartOrEnd;
@@ -82,22 +86,53 @@ public class ApplicationSettingsForm implements Disposable {
     private JComboBox myCaretOnMoveSelectionDown;
     private JComboBox myCaretOnMoveSelectionUp;
     private JComboBox myRemovePrefixOnPasteType;
+    private JButton myEditRegExButton;
+
+    private @NotNull String mySample1Text;
+    private @NotNull String mySample2Text;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
 
-        myMouseLineSelection.addActionListener(e -> updateOptions(false));
-        myUpDownSelection.addActionListener(e -> updateOptions(false));
-        myAutoIndent.addActionListener(e -> updateOptions(false));
-        mySelectPasted.addActionListener(e -> updateOptions(false));
-        myDuplicateAtStartOrEnd.addActionListener(e -> updateOptions(false));
-        myMouseCamelHumpsFollow.addActionListener(e -> updateOptions(false));
-        myRemovePrefixOnPaste.addActionListener(e -> updateOptions(false));
-        myAddPrefixOnPaste.addActionListener(e -> updateOptions(false));
-        myOverrideStandardPaste.addActionListener(e -> updateOptions(false));
+        mySample1Text = settings.getRegexSample1Text();
+        mySample2Text = settings.getRegexSample2Text();
+
+        final ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {ApplicationSettingsForm.this.updateOptions(false);}
+        };
+
+        myMouseLineSelection.addActionListener(actionListener);
+        myUpDownSelection.addActionListener(actionListener);
+        myAutoIndent.addActionListener(actionListener);
+        mySelectPasted.addActionListener(actionListener);
+        myDuplicateAtStartOrEnd.addActionListener(actionListener);
+        myMouseCamelHumpsFollow.addActionListener(actionListener);
+        myRemovePrefixOnPaste.addActionListener(actionListener);
+        myAddPrefixOnPaste.addActionListener(actionListener);
+        myOverrideStandardPaste.addActionListener(actionListener);
+        myRemovePrefixOnPasteType.addActionListener(actionListener);
+        myAutoLineMode.addActionListener(e -> updateOptions(true));
+
+        myEditRegExButton.addActionListener(e -> {
+            boolean valid = RegExTestForm.showDialog(myMainPanel, this);
+            myRemovePrefixOnPaste.setSelected(valid);
+            myAddPrefixOnPaste.setSelected(valid);
+        });
 
         updateOptions(true);
     }
+
+    // @formatter:off
+    @NotNull @Override public String getPattern1() { return myRemovePrefixOnPaste1.getText().trim(); }
+    @NotNull @Override public String getPattern2() { return myRemovePrefixOnPaste2.getText().trim(); }
+    @NotNull @Override public String getSample1() { return mySample1Text; }
+    @NotNull @Override public String getSample2() { return mySample2Text; }
+    @Override public void setPattern1(final String pattern1) { myRemovePrefixOnPaste1.setText(pattern1); }
+    @Override public void setPattern2(final String pattern2) { myRemovePrefixOnPaste2.setText(pattern2); }
+    @Override public void setSample1(final String sample1) { mySample1Text = sample1; }
+    @Override public void setSample2(final String sample2) { mySample2Text = sample2; }
+    // @formatter:on
 
     public JComponent getComponent() {
         return myMainPanel;
@@ -107,8 +142,8 @@ public class ApplicationSettingsForm implements Disposable {
         int wordMask = EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD;
         //noinspection PointlessBooleanExpression
         return false
-                || AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue() != mySettings.getAutoLineMode()
-                || MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue() != mySettings.getMouseModifier()
+                || AutoLineSettingType.get(myAutoLineMode).getIntValue() != mySettings.getAutoLineMode()
+                || MouseModifierType.get(myMouseModifier).getIntValue() != mySettings.getMouseModifier()
                 || myMouseLineSelection.isSelected() != mySettings.isMouseLineSelection()
                 || myIsSelectionEndExtendedPastCaret.isSelected() != mySettings.isSelectionEndExtended()
                 || myIsSelectionStartExtendedBeforeCaret.isSelected() != mySettings.isSelectionStartExtended()
@@ -121,7 +156,6 @@ public class ApplicationSettingsForm implements Disposable {
                 || myStartEndAsLineSelection.isSelected() != mySettings.isStartEndAsLineSelection()
                 || myAutoIndent.isSelected() != mySettings.isAutoIndent()
                 || mySelectPasted.isSelected() != mySettings.isSelectPasted()
-                || mySelectPastedMultiCaret.isSelected() != mySettings.isSelectPastedMultiCaret()
                 || myPreserveCamelCaseOnPaste.isSelected() != mySettings.isPreserveCamelCaseOnPaste()
                 || myPreserveScreamingSnakeCaseOnPaste.isSelected() != mySettings.isPreserveScreamingSnakeCaseOnPaste()
                 || myPreserveSnakeCaseOnPaste.isSelected() != mySettings.isPreserveSnakeCaseOnPaste()
@@ -143,18 +177,22 @@ public class ApplicationSettingsForm implements Disposable {
                 || (myCustomizedNextWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedNextWordEndBounds() & ~wordMask)
                 || (myCustomizedPrevWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
 
-                || SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue != mySettings.getSelectPastedPredicate()
-                || SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue != mySettings.getDuplicateAtStartOrEndPredicate()
-                || LinePasteCaretAdjustmentType.ADAPTER.findEnum((String) myLinePasteCaretAdjustment.getSelectedItem()).intValue != mySettings.getLinePasteCaretAdjustment()
-                || CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionDown.getSelectedItem()).intValue != mySettings.getCaretOnMoveSelectionDown()
-                || CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionUp.getSelectedItem()).intValue != mySettings.getCaretOnMoveSelectionUp()
-                || RemovePrefixOnPasteType.ADAPTER.findEnum((String) myRemovePrefixOnPasteType.getSelectedItem()).intValue != mySettings.getRemovePrefixOnPasteType()
+                || SelectionPredicateType.getInt(mySelectPastedPredicate) != mySettings.getSelectPastedPredicate()
+                || SelectionPredicateType.getInt(mySelectPastedMultiCaretPredicate) != mySettings.getSelectPastedMultiCaretPredicate()
+                || SelectionPredicateType.getInt(myDuplicateAtStartOrEndPredicate) != mySettings.getDuplicateAtStartOrEndPredicate()
+                || LinePasteCaretAdjustmentType.getInt(myLinePasteCaretAdjustment) != mySettings.getLinePasteCaretAdjustment()
+                || CaretAdjustmentType.getInt(myCaretOnMoveSelectionDown) != mySettings.getCaretOnMoveSelectionDown()
+                || CaretAdjustmentType.getInt(myCaretOnMoveSelectionUp) != mySettings.getCaretOnMoveSelectionUp()
+                || RemovePrefixOnPasteType.getInt(myRemovePrefixOnPasteType) != mySettings.getRemovePrefixOnPasteType()
+
+                || !mySample1Text.equals(mySettings.getRegexSample1Text())
+                || !mySample2Text.equals(mySettings.getRegexSample2Text())
                 ;
     }
 
     public void apply() {
-        mySettings.setAutoLineMode(AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem()).getIntValue());
-        mySettings.setMouseModifier(MouseModifierType.ADAPTER.findEnum((String) myMouseModifier.getSelectedItem()).getIntValue());
+        mySettings.setAutoLineMode(AutoLineSettingType.get(myAutoLineMode).getIntValue());
+        mySettings.setMouseModifier(MouseModifierType.get(myMouseModifier).getIntValue());
         mySettings.setMouseLineSelection(myMouseLineSelection.isSelected());
         mySettings.setSelectionEndExtended(myIsSelectionEndExtendedPastCaret.isSelected());
         mySettings.setSelectionStartExtended(myIsSelectionStartExtendedBeforeCaret.isSelected());
@@ -167,7 +205,6 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setStartEndAsLineSelection(myStartEndAsLineSelection.isSelected());
         mySettings.setAutoIndent(myAutoIndent.isSelected());
         mySettings.setSelectPasted(mySelectPasted.isSelected());
-        mySettings.setSelectPastedMultiCaret(mySelectPastedMultiCaret.isSelected());
         mySettings.setPreserveCamelCaseOnPaste(myPreserveCamelCaseOnPaste.isSelected());
         mySettings.setPreserveScreamingSnakeCaseOnPaste(myPreserveScreamingSnakeCaseOnPaste.isSelected());
         mySettings.setPreserveSnakeCaseOnPaste(myPreserveSnakeCaseOnPaste.isSelected());
@@ -189,13 +226,16 @@ public class ApplicationSettingsForm implements Disposable {
         mySettings.setCustomizedNextWordEndBounds(myCustomizedNextWordEndBounds.getValue());
         mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
 
-        mySettings.setSelectPastedPredicate(SelectionPredicateType.ADAPTER.findEnum((String) mySelectPastedPredicate.getSelectedItem()).intValue);
-        mySettings.setDuplicateAtStartOrEndPredicate(SelectionPredicateType.ADAPTER.findEnum((String) myDuplicateAtStartOrEndPredicate.getSelectedItem()).intValue);
-        mySettings.setLinePasteCaretAdjustment(LinePasteCaretAdjustmentType.ADAPTER.findEnum((String) myLinePasteCaretAdjustment.getSelectedItem()).intValue);
+        mySettings.setSelectPastedPredicate(SelectionPredicateType.getInt(mySelectPastedPredicate));
+        mySettings.setSelectPastedMultiCaretPredicate(SelectionPredicateType.getInt(mySelectPastedMultiCaretPredicate));
+        mySettings.setDuplicateAtStartOrEndPredicate(SelectionPredicateType.getInt(myDuplicateAtStartOrEndPredicate));
+        mySettings.setLinePasteCaretAdjustment(LinePasteCaretAdjustmentType.getInt(myLinePasteCaretAdjustment));
 
-        mySettings.setCaretOnMoveSelectionDown(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionDown.getSelectedItem()).intValue);
-        mySettings.setCaretOnMoveSelectionUp(CaretAdjustmentType.ADAPTER.findEnum((String) myCaretOnMoveSelectionUp.getSelectedItem()).intValue);
-        mySettings.setRemovePrefixOnPasteType(RemovePrefixOnPasteType.ADAPTER.findEnum((String) myRemovePrefixOnPasteType.getSelectedItem()).intValue);
+        mySettings.setCaretOnMoveSelectionDown(CaretAdjustmentType.getInt(myCaretOnMoveSelectionDown));
+        mySettings.setCaretOnMoveSelectionUp(CaretAdjustmentType.getInt(myCaretOnMoveSelectionUp));
+        mySettings.setRemovePrefixOnPasteType(RemovePrefixOnPasteType.getInt(myRemovePrefixOnPasteType));
+        mySettings.setRegexSample1Text(mySample1Text);
+        mySettings.setRegexSample2Text(mySample2Text);
 
         if (mySettings.isMouseCamelHumpsFollow()) {
             EditorSettingsExternalizable settings = EditorSettingsExternalizable.getInstance();
@@ -218,7 +258,6 @@ public class ApplicationSettingsForm implements Disposable {
         myStartEndAsLineSelection.setSelected(mySettings.isStartEndAsLineSelection());
         myAutoIndent.setSelected(mySettings.isAutoIndent());
         mySelectPasted.setSelected(mySettings.isSelectPasted());
-        mySelectPastedMultiCaret.setSelected(mySettings.isSelectPastedMultiCaret());
         myPreserveCamelCaseOnPaste.setSelected(mySettings.isPreserveCamelCaseOnPaste());
         myPreserveScreamingSnakeCaseOnPaste.setSelected(mySettings.isPreserveScreamingSnakeCaseOnPaste());
         myPreserveSnakeCaseOnPaste.setSelected(mySettings.isPreserveSnakeCaseOnPaste());
@@ -229,11 +268,12 @@ public class ApplicationSettingsForm implements Disposable {
         myRemovePrefixOnPaste1.setText(mySettings.getRemovePrefixOnPaste1().trim());
         myRemovePrefixOnPaste2.setText(mySettings.getRemovePrefixOnPaste2().trim());
 
-        mySelectPastedPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getSelectPastedPredicate()).displayName);
-        myDuplicateAtStartOrEndPredicate.setSelectedItem(SelectionPredicateType.ADAPTER.findEnum(mySettings.getDuplicateAtStartOrEndPredicate()).displayName);
-        myLinePasteCaretAdjustment.setSelectedItem(LinePasteCaretAdjustmentType.ADAPTER.findEnum(mySettings.getLinePasteCaretAdjustment()).displayName);
-        myCaretOnMoveSelectionDown.setSelectedItem(CaretAdjustmentType.ADAPTER.findEnum(mySettings.getCaretOnMoveSelectionDown()).displayName);
-        myRemovePrefixOnPasteType.setSelectedItem(RemovePrefixOnPasteType.ADAPTER.findEnum(mySettings.getRemovePrefixOnPasteType()).displayName);
+        SelectionPredicateType.set(mySelectPastedPredicate, mySettings.getSelectPastedPredicate());
+        SelectionPredicateType.set(mySelectPastedMultiCaretPredicate, mySettings.getSelectPastedMultiCaretPredicate());
+        SelectionPredicateType.set(myDuplicateAtStartOrEndPredicate, mySettings.getDuplicateAtStartOrEndPredicate());
+        LinePasteCaretAdjustmentType.set(myLinePasteCaretAdjustment, mySettings.getLinePasteCaretAdjustment());
+        CaretAdjustmentType.set(myCaretOnMoveSelectionDown, mySettings.getCaretOnMoveSelectionDown());
+        RemovePrefixOnPasteType.set(myRemovePrefixOnPasteType, mySettings.getRemovePrefixOnPasteType());
 
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
@@ -246,6 +286,8 @@ public class ApplicationSettingsForm implements Disposable {
         myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
         myCustomizedNextWordEndBounds.setValue(mySettings.getCustomizedNextWordEndBounds());
         myCustomizedPrevWordEndBounds.setValue(mySettings.getCustomizedPrevWordEndBounds());
+        mySample1Text = mySettings.getRegexSample1Text();
+        mySample2Text = mySettings.getRegexSample2Text();
         updateOptions(false);
     }
 
@@ -256,7 +298,7 @@ public class ApplicationSettingsForm implements Disposable {
 
     @SuppressWarnings("ConstantConditions")
     void updateOptions(boolean typeChanged) {
-        AutoLineSettingType type = AutoLineSettingType.ADAPTER.findEnum((String) myAutoLineMode.getSelectedItem());
+        AutoLineSettingType type = AutoLineSettingType.get(myAutoLineMode);
         boolean enabled = false;
         boolean selected = false;
         boolean untestedSelected = false;
@@ -294,14 +336,17 @@ public class ApplicationSettingsForm implements Disposable {
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
         myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
-        mySelectPastedMultiCaret.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
+        mySelectPastedMultiCaretPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         myOverrideStandardPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
-        final boolean enablePrefixes = myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
-                || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled();
+        final boolean regexPrefixes = RemovePrefixOnPasteType.get(myRemovePrefixOnPasteType) == RemovePrefixOnPasteType.REGEX;
+        final boolean enablePrefixes =
+                myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
+                        || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled();
 
         myRemovePrefixOnPaste1.setEnabled(enablePrefixes);
         myRemovePrefixOnPaste2.setEnabled(enablePrefixes);
+        myEditRegExButton.setVisible(regexPrefixes);
 
         myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         myLinePasteCaretAdjustment.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
@@ -341,29 +386,16 @@ public class ApplicationSettingsForm implements Disposable {
     }
 
     private void createUIComponents() {
-        myAutoLineMode = new JComboBox();
-        AutoLineSettingType.fillComboBox(myAutoLineMode);
-        myAutoLineMode.addActionListener(e -> updateOptions(true));
+        myAutoLineMode = AutoLineSettingType.createComboBox();
+        mySelectPastedPredicate = SelectionPredicateType.createComboBox();
+        mySelectPastedMultiCaretPredicate = SelectionPredicateType.createComboBox();
+        myDuplicateAtStartOrEndPredicate = SelectionPredicateType.createComboBox();
+        myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.createComboBox();
+        myCaretOnMoveSelectionDown = CaretAdjustmentType.createComboBox();
+        myCaretOnMoveSelectionUp = CaretAdjustmentType.createComboBox();
+        myRemovePrefixOnPasteType = RemovePrefixOnPasteType.createComboBox();
+        myMouseModifier = MouseModifierType.createComboBox();
 
-        mySelectPastedPredicate = new JComboBox();
-        SelectionPredicateType.fillComboBox(mySelectPastedPredicate);
-
-        myDuplicateAtStartOrEndPredicate = new JComboBox();
-        SelectionPredicateType.fillComboBox(myDuplicateAtStartOrEndPredicate);
-
-        myLinePasteCaretAdjustment = new JComboBox();
-        LinePasteCaretAdjustmentType.fillComboBox(myLinePasteCaretAdjustment);
-
-        myCaretOnMoveSelectionDown = new JComboBox();
-        CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionDown);
-        myCaretOnMoveSelectionUp = new JComboBox();
-        CaretAdjustmentType.fillComboBox(myCaretOnMoveSelectionUp);
-
-        myRemovePrefixOnPasteType = new JComboBox();
-        RemovePrefixOnPasteType.fillComboBox(myRemovePrefixOnPasteType);
-
-        myMouseModifier = new JComboBox();
-        MouseModifierType.fillComboBox(myMouseModifier);
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);
         myAutoIndentDelay = new JSpinner(model);
 

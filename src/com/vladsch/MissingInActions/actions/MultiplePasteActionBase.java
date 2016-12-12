@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.actions;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
@@ -40,11 +41,12 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.text.StringUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.ClipboardCaretContent;
-import com.vladsch.MissingInActions.util.Utils;
+import com.vladsch.MissingInActions.util.*;
 import com.vladsch.MissingInActions.util.ui.ContentChooser;
 import com.vladsch.MissingInActions.util.ui.EmptyContentPane;
 import icons.PluginIcons;
@@ -60,6 +62,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,9 +103,16 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final int showEOL = 0;
         final EmptyContentPane myEmptyContentDescription = new EmptyContentPane();
         final boolean showInstructions = ApplicationSettings.getInstance().isOverrideStandardPasteShowInstructions();
+        final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
+        final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
+        final CancellableRunnable[] scheduled = new CancellableRunnable[] { CancellableRunnable.NULL };
 
         //noinspection unchecked
         final ContentChooser<Transferable>[] choosers = new ContentChooser[] { null };
+        AwtRunnable listUpdater = new AwtRunnable(true, () -> {
+            if (choosers[0] != null) choosers[0].updateListContents();
+        });
+
         choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), true, true) {
             @Override
             protected String getStringRepresentationFor(final Transferable content) {
@@ -255,6 +265,32 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             }
 
             @Override
+            protected void listKeyPressed(final KeyEvent event) {
+                ContentChooser<Transferable> chooser = choosers[0];
+                if (event.getKeyCode() != 0 && chooser != null) {
+                    if (event.getKeyCode() == KeyEvent.VK_UP && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
+                        // move selection up
+                        final int[] indices = chooser.getSelectedIndices();
+                        final List<Transferable> allContents = chooser.getAllContents();
+                        int iMax = indices.length;
+                        for (int i = iMax; i-- > 0; ) {
+                            int index = indices[i];
+                            if (index > 0) {
+                                // can move it up
+                                copyPasteManager.moveContentToStackTop(allContents.get(index));
+                                scheduled[0].cancel();
+                            }
+                        }
+                        event.consume();
+                        listUpdater.run();
+                    } else if (event.getKeyCode() == KeyEvent.VK_DOWN && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
+                        // move selection down
+                        event.consume();
+                    }
+                }
+            }
+
+            @Override
             protected Icon getListEntryIcon(@NotNull final Transferable content) {
                 final ClipboardCaretContent caretContent = getCaretContent(content);
                 return caretContent != null && caretContent.getCaretCount() > 1 ? PluginIcons.Clipboard_carets : PluginIcons.Clipboard_text;
@@ -293,7 +329,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final CopyPasteManager.ContentChangedListener contentChangedListener = new CopyPasteManager.ContentChangedListener() {
             @Override
             public void contentChanged(@Nullable final Transferable oldTransferable, final Transferable newTransferable) {
-                chooser.updateListContents();
+                scheduled[0].cancel();
+                scheduled[0] = OneTimeRunnable.schedule(50, listUpdater);
             }
         };
 
@@ -313,7 +350,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             if (selectedIndices.length == 1) {
                 copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
             } else {
-                copyPasteManager.setContents(new StringSelection(chooser.getSelectedText()));
+                copyPasteManager.setContents(new StringSelection(chooser.getSelectedText() + "\n"));
             }
 
             if (editor != null) {

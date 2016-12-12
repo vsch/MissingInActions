@@ -19,16 +19,18 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util.ui;
+package com.vladsch.MissingInActions.settings;
 
-import com.vladsch.MissingInActions.settings.SelectionPredicateType;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
-public interface ComboBoxAdaptable<E> {
-    E[] getEnumValues();
-    String getDisplayName();
-    String name();
-    int getIntValue();
-    boolean isDefault();
+public interface RegExSettingsHolder {
+    @NotNull String getPattern1();
+    @NotNull String getPattern2();
+    @NotNull String getSample1();
+    @NotNull String getSample2();
+    void setPattern1(String pattern1);
+    void setPattern2(String pattern2);
+    void setSample1(String sample1);
+    void setSample2(String sample2);
 }

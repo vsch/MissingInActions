@@ -70,7 +70,23 @@ public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteC
     public static final LinePasteCaretAdjustmentType DEFAULT = NONE;
     public static final ComboBoxAdapter<LinePasteCaretAdjustmentType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 
-    public static void fillComboBox(JComboBox comboBox) { ADAPTER.fillComboBox(comboBox); }
+    public static LinePasteCaretAdjustmentType get(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    }
+
+    public static int getInt(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
+    }
+
+    static void set(JComboBox comboBox, int intValue) {
+        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
+    }
+
+    public static JComboBox createComboBox() {
+        JComboBox comboBox = new JComboBox();
+        ADAPTER.fillComboBox(comboBox);
+        return comboBox;
+    }
 
     public static LinePasteCaretAdjustmentType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 

@@ -105,7 +105,8 @@ public class LineSelectionManager implements
         // this can fail if caret visual attributes are not implemented in the IDE (since 2017.1)
         CaretHighlighter caretHighlighter;
         try {
-            caretHighlighter = new CaretHighlighterImpl(this);
+            //caretHighlighter = new CaretHighlighterImpl(this);
+            caretHighlighter = CaretHighlighter.NULL;
         } catch (Throwable ignored) {
             caretHighlighter = CaretHighlighter.NULL;
         }

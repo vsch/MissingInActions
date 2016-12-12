@@ -35,8 +35,7 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
     TO_START(1, Bundle.message("settings.line-selection.caret-adjustment.to-start")),
     TO_END(2, Bundle.message("settings.line-selection.caret-adjustment.to-end")),
     TO_ANCHOR(3, Bundle.message("settings.line-selection.caret-adjustment.to-anchor")),
-    TO_ANTI_ANCHOR(4, Bundle.message("settings.line-selection.caret-adjustment.to-anti-anchor")),
-    ;
+    TO_ANTI_ANCHOR(4, Bundle.message("settings.line-selection.caret-adjustment.to-anti-anchor")),;
 
     public final String displayName;
     public final int intValue;
@@ -53,11 +52,28 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
     public static final CaretAdjustmentType DEFAULT = NONE;
     public static final ComboBoxAdapter<CaretAdjustmentType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 
-    public static void fillComboBox(JComboBox comboBox) { ADAPTER.fillComboBox(comboBox); }
+    public static CaretAdjustmentType get(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    }
+
+    public static int getInt(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
+    }
+
+    static void set(JComboBox comboBox, int intValue) {
+        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
+    }
+
+    public static JComboBox createComboBox() {
+        JComboBox comboBox = new JComboBox();
+        ADAPTER.fillComboBox(comboBox);
+        return comboBox;
+    }
 
     public static CaretAdjustmentType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 
     public static boolean onFirst(int intValue, OnMap map) { return ComboBoxAdapter.onFirst(ADAPTER, intValue, map); }
+
     public static boolean onAll(int intValue, OnMap map) { return ComboBoxAdapter.onAll(ADAPTER, intValue, map); }
 
     public CaretAdjustmentType findEnum(String displayName) { return ADAPTER.findEnum(displayName); }

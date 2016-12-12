@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="897" height="1446"/>
+      <xy x="20" y="20" width="678" height="1431"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -357,7 +357,7 @@
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <grid id="c3718" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                              <grid id="c3718" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="-1">
                                 <margin top="0" left="0" bottom="0" right="0"/>
                                 <constraints>
                                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -379,14 +379,32 @@
                                   </component>
                                 </children>
                               </grid>
-                              <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPasteType" custom-create="true">
+                              <grid id="bf9b5" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                                <margin top="0" left="0" bottom="0" right="0"/>
                                 <constraints>
-                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                                 </constraints>
-                                <properties>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste-type.description"/>
-                                </properties>
-                              </component>
+                                <properties/>
+                                <border type="none"/>
+                                <children>
+                                  <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPasteType" custom-create="true">
+                                    <constraints>
+                                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                                    </constraints>
+                                    <properties>
+                                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste-type.description"/>
+                                    </properties>
+                                  </component>
+                                  <component id="247c2" class="javax.swing.JButton" binding="myEditRegExButton">
+                                    <constraints>
+                                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                    </constraints>
+                                    <properties>
+                                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.test-regex.label"/>
+                                    </properties>
+                                  </component>
+                                </children>
+                              </grid>
                             </children>
                           </grid>
                           <grid id="e5c5e" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -429,7 +447,7 @@
                         <properties/>
                         <border type="etched"/>
                         <children>
-                          <grid id="48938" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
+                          <grid id="48938" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
                             <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints>
                               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
@@ -451,13 +469,19 @@
                                 </constraints>
                                 <properties/>
                               </component>
-                              <component id="c0ee4" class="com.intellij.ui.components.JBCheckBox" binding="mySelectPastedMultiCaret">
+                              <component id="bf4d8" class="javax.swing.JLabel">
                                 <constraints>
                                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
                                 <properties>
                                   <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.select-pasted-multi-caret.label"/>
                                 </properties>
+                              </component>
+                              <component id="6012e" class="javax.swing.JComboBox" binding="mySelectPastedMultiCaretPredicate" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
                               </component>
                             </children>
                           </grid>

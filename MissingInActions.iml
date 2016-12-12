@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/assets/images" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/assets/doc/YouTrack/copy-paste" />
       <excludeFolder url="file://$MODULE_DIR$/libprep" />
     </content>
     <orderEntry type="inheritedJdk" />

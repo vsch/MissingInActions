@@ -54,7 +54,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myAutoIndent = false;
     private boolean mySelectPasted = false;
     private int mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
-    private boolean mySelectPastedMultiCaret = false;
+    private int mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private boolean myUnselectToggleCase = false;
     private boolean myWeSetVirtualSpace = true;
     private boolean myDuplicateAtStartOrEnd = false;
@@ -76,6 +76,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myOverrideStandardPasteShowInstructions = true;
     private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
     private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
+    private String myRegexSample1Text = "myCamelCaseInstanceMember";
+    private String myRegexSample2Text = "ourCamelCaseClassMember";
 
     // customized word flags
     @SuppressWarnings({ "ConstantConditionalExpression", "PointlessBitwiseExpression" })
@@ -110,6 +112,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         );
     }
 
+    public String getRegexSample1Text() { return myRegexSample1Text; }
+
+    public void setRegexSample1Text(final String regexSample1Text) { myRegexSample1Text = regexSample1Text; }
+
+    public String getRegexSample2Text() { return myRegexSample2Text; }
+
+    public void setRegexSample2Text(final String regexSample2Text) { myRegexSample2Text = regexSample2Text; }
+
     public boolean isAddPrefixOnPaste() { return myAddPrefixOnPaste; }
 
     public void setAddPrefixOnPaste(final boolean addPrefixOnPaste) { myAddPrefixOnPaste = addPrefixOnPaste; }
@@ -126,9 +136,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setOverrideStandardPasteShowInstructions(final boolean overrideStandardPasteShowInstructions) { myOverrideStandardPasteShowInstructions = overrideStandardPasteShowInstructions; }
 
-    public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }
+    public int getSelectPastedMultiCaretPredicate() { return mySelectPastedMultiCaretPredicate; }
 
-    public void setSelectPastedMultiCaret(final boolean selectPastedMultiCaret) { mySelectPastedMultiCaret = selectPastedMultiCaret; }
+    public void setSelectPastedMultiCaretPredicate(final int selectPastedMultiCaret) { mySelectPastedMultiCaretPredicate = selectPastedMultiCaret; }
 
     public boolean isOverrideStandardPaste() { return myOverrideStandardPaste; }
 

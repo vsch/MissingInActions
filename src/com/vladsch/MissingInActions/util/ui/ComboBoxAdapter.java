@@ -56,6 +56,7 @@ public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
     void fillComboBox(JComboBox comboBox, E... exclude);
     E findEnum(int intValue);
     E findEnum(String displayName);
+    E get(JComboBox comboBox);
     E valueOf(String name);
     E getDefault();
 }

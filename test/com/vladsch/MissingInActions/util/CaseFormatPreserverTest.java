@@ -106,8 +106,8 @@ public class CaseFormatPreserverTest {
             end = offset;
         }
 
-        String regexPrefix1 = "^(" + prefix1 + "|" + prefix2 + ").*";
-        String regexPrefix2 = "$1";
+        String regexPrefix1 = "^\\Q" + prefix1 + "\\E";
+        String regexPrefix2 = "^\\Q" + prefix2 + "\\E";
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         final SubSequence chars = new SubSequence(Substring.of(template));
         final RemovePrefixOnPasteType type = RemovePrefixOnPasteType.REGEX;
@@ -116,7 +116,6 @@ public class CaseFormatPreserverTest {
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
         final SubSequence chars1 = new SubSequence(Substring.of(edited));
-
 
         InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, regexPrefix1, regexPrefix2, type, addPrefix);
 
@@ -200,6 +199,9 @@ public class CaseFormatPreserverTest {
 
         s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", "my", "our", true, true, true, true);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
+
+        s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", "my", "our", true, true, true, true);
+        assertEquals("       LastSelectionMarker\n", s);
     }
 
     @Test

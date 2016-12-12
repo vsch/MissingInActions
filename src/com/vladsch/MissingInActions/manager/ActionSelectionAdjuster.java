@@ -581,19 +581,18 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                     forAllEditorCarets(event, (editorCaret, snapshot) -> {
                         return !editorCaret.hasSelection() || editorCaret.isLine();
                     }, (editorCaret, snapshot) -> {
-                        if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                        if (snapshot != null && !snapshot.hasSelection()) {
+                            if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
+                                editorCaret
+                                        .trimOrExpandToLineSelection()
+                                        .toLineSelection();
+                            }
+
                             editorCaret
-                                    .trimOrExpandToLineSelection()
-                                    .toLineSelection();
+                                    .restoreColumn(snapshot)
+                                    .normalizeCaretPosition()
+                                    .commit();
                         }
-
-                        if (snapshot != null) {
-                            snapshot.restoreColumn(editorCaret);
-                        }
-
-                        editorCaret
-                                //.normalizeCaretPosition()
-                                .commit();
                     });
                 }
                 return;
@@ -814,48 +813,53 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                 // if leave selected is enabled
                 if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION)) {
                     if (params.timestamp < myEditor.getDocument().getModificationStamp()) {
-                        TextRange rawRange = ClipboardCaretContent.getLastPastedTextRange(myEditor, snapshot.getIndex());
+                        ClipboardCaretContent caretContent = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
+                        if (caretContent != null) {
+                            TextRange rawRange = ClipboardCaretContent.getLastPastedTextRange(myEditor, snapshot.getIndex());
+                            if (rawRange != null) {
+                                CharSequence beforeShift = rawRange.subSequence(editorCaret.getDocumentChars());
+                                TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
+                                CharSequence afterShift = range.subSequence(editorCaret.getDocumentChars());
+                                editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
-                        if (rawRange != null) {
-                            CharSequence beforeShift = rawRange.subSequence(editorCaret.getDocumentChars());
-                            TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
-                            CharSequence afterShift = range.subSequence(editorCaret.getDocumentChars());
-                            editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
-
-                            if (!editorCaret.hasLines()) {
-                                cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                        , settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue() || settings.isSelectPastedMultiCaret() && myEditor.getCaretModel().getCaretCount() > 1
-                                        , settings.isPreserveCamelCaseOnPaste()
-                                        , settings.isPreserveSnakeCaseOnPaste()
-                                        , settings.isPreserveScreamingSnakeCaseOnPaste()
-                                        , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
-                                        , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
-                                        , RemovePrefixOnPasteType.ADAPTER.findEnum(settings.getRemovePrefixOnPasteType())
-                                        , settings.isAddPrefixOnPaste()
-                                );
-                            } else {
-                                if (editorCaret.hasLines()) {
-                                    editorCaret.trimOrExpandToLineSelection().normalizeCaretPosition();
+                                if (!editorCaret.hasLines()) {
+                                    cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
+                                            , settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue()
+                                                    || myEditor.getCaretModel().getCaretCount() > 1
+                                                    && SelectionPredicateType.isEnabled(settings.getSelectPastedMultiCaretPredicate(), editorCaret.getSelectionLineCount())
+                                            , settings.isPreserveCamelCaseOnPaste()
+                                            , settings.isPreserveSnakeCaseOnPaste()
+                                            , settings.isPreserveScreamingSnakeCaseOnPaste()
+                                            , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
+                                            , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
+                                            , RemovePrefixOnPasteType.ADAPTER.findEnum(settings.getRemovePrefixOnPasteType())
+                                            , settings.isAddPrefixOnPaste()
+                                    );
                                 } else {
+                                    if (caretContent.isFullLine(snapshot.getIndex())) {
+                                        if (editorCaret.hasLines()) {
+                                            editorCaret.trimOrExpandToLineSelection();
+                                        }
+
+                                        int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
+                                        if (caretColumn != -1) {
+                                            editorCaret.restoreColumn(caretColumn);
+                                        }
+                                    }
+
+                                    boolean selectPasted = settings.isSelectPasted()
+                                            && SelectionPredicateType.isEnabled(settings.getSelectPastedPredicate(), editorCaret.getSelectionLineCount());
+
+                                    if (!selectPasted) {
+                                        editorCaret.removeSelection();
+                                    }
+
                                     editorCaret.normalizeCaretPosition();
+                                    editorCaret.commit();
                                 }
-
-                                boolean selectPasted = settings.isSelectPasted()
-                                        && SelectionPredicateType.ADAPTER.findEnum(settings.getSelectPastedPredicate()).isEnabled(editorCaret.getSelectionLineCount());
-
-                                if (!selectPasted) {
-                                    editorCaret.removeSelection();
-                                }
-
-                                int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
-                                if (caretColumn != -1) {
-                                    editorCaret.restoreColumn(caretColumn);
-                                }
-
-                                editorCaret.commit();
+                            } else {
+                                snapshot.restoreColumn();
                             }
-                        } else {
-                            snapshot.restoreColumn();
                         }
                     }
                 }
@@ -864,7 +868,21 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     }
 
     private void updateLastPastedClipboardCarets(final Transferable transferable, final LinePasteCaretAdjustmentType adjustment) {
-        final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.studyPrePasteTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
+        // if we already saved state, it means we might have adjusted caret position for line selections of the clipboard content at the time
+        // we need to restore caret column positions to undo adjustments made for clipboard content that no longer applies
+        final ClipboardCaretContent lastClipboardData = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
+        if (lastClipboardData != null) {
+            int i = 0;
+            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                EditorPosition position = myManager.getPositionFactory().fromPosition(caret.getLogicalPosition());
+                final EditorPosition atColumn = position.atColumn(lastClipboardData.getCaretColumn(i++));
+                if (atColumn != position) {
+                    caret.moveToLogicalPosition(atColumn);
+                }
+            }
+        }
+
+        final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
             if (!caret.hasSelection() && isFullLine) {
                 caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
             }

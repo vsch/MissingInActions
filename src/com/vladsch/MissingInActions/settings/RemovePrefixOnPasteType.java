@@ -29,6 +29,7 @@ import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnPasteType> {
@@ -61,7 +62,12 @@ public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnP
         if (this == CAMEL) return text.startsWith(prefix) && text.length() > prefix.length() && Character.isLowerCase(text.charAt(prefix.length() - 1));
         if (this == REGEX) {
             try {
-                return text.matches(prefix);
+                Pattern pattern;
+                Matcher matcher;
+
+                pattern = Pattern.compile(prefix);
+                matcher = pattern.matcher(text);
+                return matcher.find() && matcher.start() == 0;
             } catch (Throwable ignored) {
 
             }
@@ -73,7 +79,7 @@ public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnP
      * Convert to caret position for paste depending on where the caret is relative
      * to indent column and setting
      *
-     * @param text   text which is to match to the prefix
+     * @param text    text which is to match to the prefix
      * @param prefix1 prefix pattern, if regex this is the match pattern
      * @param prefix2 prefix pattern. if regex this is the replace pattern to extract the prefix
      * @return matched prefix or empty string if text does not match prefix
@@ -88,7 +94,16 @@ public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnP
         }
         if (this == REGEX) {
             try {
-                if (text.matches(prefix1)) return text.replaceFirst(prefix1, prefix2);
+                Pattern pattern;
+                Matcher matcher;
+
+                pattern = Pattern.compile(prefix1);
+                matcher = pattern.matcher(text);
+                if (matcher.find() && matcher.start() == 0) return matcher.group();
+
+                pattern = Pattern.compile(prefix2);
+                matcher = pattern.matcher(text);
+                if (matcher.find() && matcher.start() == 0) return matcher.group();
             } catch (Throwable ignored) {
 
             }
@@ -99,7 +114,23 @@ public enum RemovePrefixOnPasteType implements ComboBoxAdaptable<RemovePrefixOnP
     public static final RemovePrefixOnPasteType DEFAULT = CAMEL;
     public static final ComboBoxAdapter<RemovePrefixOnPasteType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 
-    public static void fillComboBox(JComboBox comboBox) { ADAPTER.fillComboBox(comboBox); }
+    public static RemovePrefixOnPasteType get(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    }
+
+    public static int getInt(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
+    }
+
+    static void set(JComboBox comboBox, int intValue) {
+        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
+    }
+
+    public static JComboBox createComboBox() {
+        JComboBox comboBox = new JComboBox();
+        ADAPTER.fillComboBox(comboBox);
+        return comboBox;
+    }
 
     public static RemovePrefixOnPasteType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 

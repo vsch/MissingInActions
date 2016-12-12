@@ -61,6 +61,11 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
     }
 
     @Override
+    public E get(final JComboBox comboBox) {
+        return findEnum((String) comboBox.getSelectedItem());
+    }
+
+    @Override
     public E findEnum(String displayName) {
         for (E item : myDefault.getEnumValues()) {
             if (item.getDisplayName().equals(displayName)) {

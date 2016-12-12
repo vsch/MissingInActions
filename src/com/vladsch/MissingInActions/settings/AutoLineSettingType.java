@@ -44,7 +44,23 @@ public enum AutoLineSettingType implements ComboBoxAdaptable<AutoLineSettingType
     public static final AutoLineSettingType DEFAULT = DISABLED;
     public static final ComboBoxAdapter<AutoLineSettingType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 
-    public static void fillComboBox(JComboBox comboBox) { ADAPTER.fillComboBox(comboBox); }
+    public static AutoLineSettingType get(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    }
+
+    public static int getInt(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
+    }
+
+    static void set(JComboBox comboBox, int intValue) {
+        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
+    }
+
+    public static JComboBox createComboBox() {
+        JComboBox comboBox = new JComboBox();
+        ADAPTER.fillComboBox(comboBox);
+        return comboBox;
+    }
 
     public static AutoLineSettingType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 

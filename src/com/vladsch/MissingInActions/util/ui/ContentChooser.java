@@ -102,6 +102,11 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
     return myList;
   }
 
+  // add ability to handle extra keys
+  protected void listKeyPressed(KeyEvent event) {
+
+  }
+
   @Override
   protected JComponent createCenterPanel() {
     final int selectionMode = myAllowMultipleSelections ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
@@ -159,6 +164,8 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
               e.consume();
               doOKAction();
             }
+          } else {
+            listKeyPressed(e);
           }
         }
       }

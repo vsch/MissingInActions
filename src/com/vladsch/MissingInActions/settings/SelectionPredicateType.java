@@ -51,7 +51,31 @@ public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredica
     public static final SelectionPredicateType DEFAULT = WHEN_HAS_1_PLUS_LINES;
     public static final ComboBoxAdapter<SelectionPredicateType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
 
-    public static void fillComboBox(JComboBox comboBox) { ADAPTER.fillComboBox(comboBox); }
+    public static SelectionPredicateType get(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    }
+
+    public static SelectionPredicateType get(int value) {
+        return ADAPTER.findEnum(value);
+    }
+
+    public static boolean isEnabled(int value, int lineCount) {
+        return ADAPTER.findEnum(value).isEnabled(lineCount);
+    }
+
+    public static int getInt(JComboBox comboBox) {
+        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
+    }
+
+    static void set(JComboBox comboBox, int intValue) {
+        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
+    }
+
+    public static JComboBox createComboBox() {
+        JComboBox comboBox = new JComboBox();
+        ADAPTER.fillComboBox(comboBox);
+        return comboBox;
+    }
 
     public static SelectionPredicateType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 
