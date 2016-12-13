@@ -21,18 +21,20 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.openapi.actionSystem.CommonShortcuts;
-import com.intellij.openapi.actionSystem.CustomShortcutSet;
-import com.intellij.openapi.actionSystem.Shortcut;
-import com.intellij.openapi.actionSystem.ShortcutSet;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.keymap.KeymapUtil;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 public class CommonUIShortcuts {
+    public static final String ACTION_MOVE_LINE_UP_ACTION = "MoveLineUp";
+    public static final String ACTION_MOVE_LINE_DOWN_ACTION = "MoveLineDown";
+
     // @formatter:off
     public static final ShortcutSet ALT_ENTER = CommonShortcuts.ALT_ENTER;
     public static final ShortcutSet CTRL_ENTER = CommonShortcuts.CTRL_ENTER;
@@ -96,5 +98,21 @@ public class CommonUIShortcuts {
             count += length;
         }
         return new CustomShortcutSet(shortcuts);
+    }
+
+    @NotNull
+    public static String getNthShortcutText(@NotNull AnAction action, int n) {
+        Shortcut[] shortcuts = action.getShortcutSet().getShortcuts();
+        String shortcutText = "";
+        for (Shortcut shortcut : shortcuts) {
+            if (shortcut instanceof KeyboardShortcut) {
+                String text = KeymapUtil.getShortcutText(shortcut);
+                if (!text.isEmpty()) {
+                    shortcutText = text;
+                    if (--n <= 0) break;
+                }
+            }
+        }
+        return shortcutText;
     }
 }

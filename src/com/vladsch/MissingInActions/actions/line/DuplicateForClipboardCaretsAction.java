@@ -36,6 +36,10 @@ public class DuplicateForClipboardCaretsAction extends EditorAction {
         super(new DuplicateForClipboardCaretsActionHandler());
     }
 
+    public DuplicateForClipboardCaretsAction(boolean doPaste, boolean insertBlankLine) {
+        super(new DuplicateForClipboardCaretsActionHandler(doPaste, insertBlankLine));
+    }
+
     //@Override
     //public void update(final Editor editor, final Presentation presentation, final DataContext dataContext) {
     //    super.update(editor, presentation, dataContext);

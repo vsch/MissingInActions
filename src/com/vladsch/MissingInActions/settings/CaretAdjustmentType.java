@@ -56,6 +56,10 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
         return ADAPTER.findEnum((String) comboBox.getSelectedItem());
     }
 
+    public static CaretAdjustmentType get(int value) {
+        return ADAPTER.findEnum(value);
+    }
+
     public static int getInt(JComboBox comboBox) {
         return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
     }

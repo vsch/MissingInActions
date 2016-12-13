@@ -33,6 +33,7 @@ import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.List;
 
 import static java.lang.Character.*;
@@ -814,4 +815,7 @@ public class EditHelpers {
         return getWordAtOffsets(charSequence, offset, offset, wordType, isCamel, stopIfNonWord);
     }
 
+    public static boolean isPasswordEditor(@Nullable Editor editor) {
+        return editor != null && editor.getContentComponent() instanceof JPasswordField;
+    }
 }

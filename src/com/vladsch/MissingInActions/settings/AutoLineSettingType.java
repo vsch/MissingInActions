@@ -48,6 +48,10 @@ public enum AutoLineSettingType implements ComboBoxAdaptable<AutoLineSettingType
         return ADAPTER.findEnum((String) comboBox.getSelectedItem());
     }
 
+    public static AutoLineSettingType get(int value) {
+        return ADAPTER.findEnum(value);
+    }
+
     public static int getInt(JComboBox comboBox) {
         return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
     }

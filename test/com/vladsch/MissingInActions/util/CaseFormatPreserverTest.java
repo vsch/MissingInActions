@@ -22,7 +22,7 @@
 package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.util.TextRange;
-import com.vladsch.MissingInActions.settings.RemovePrefixOnPasteType;
+import com.vladsch.MissingInActions.settings.RemovePrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.SubSequence;
 import com.vladsch.flexmark.util.sequence.Substring;
 import org.junit.Test;
@@ -110,7 +110,7 @@ public class CaseFormatPreserverTest {
         String regexPrefix2 = "^\\Q" + prefix2 + "\\E";
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         final SubSequence chars = new SubSequence(Substring.of(template));
-        final RemovePrefixOnPasteType type = RemovePrefixOnPasteType.REGEX;
+        final RemovePrefixOnPastePatternType type = RemovePrefixOnPastePatternType.REGEX;
         preserver.studyFormatBefore(chars, offset, start, end, regexPrefix1, regexPrefix2, type);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());

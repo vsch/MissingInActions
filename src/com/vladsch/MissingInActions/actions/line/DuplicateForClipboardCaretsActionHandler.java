@@ -21,7 +21,7 @@
 
 package com.vladsch.MissingInActions.actions.line;
 
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
@@ -30,8 +30,10 @@ import com.intellij.openapi.util.Pair;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.RepeatedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,8 +41,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionHandler {
+    private final boolean myInsertBlankLine;
+    private final boolean myDoPaste;
+
     public DuplicateForClipboardCaretsActionHandler() {
         super(false);
+        myInsertBlankLine = false;
+        myDoPaste = false;
+    }
+
+    public DuplicateForClipboardCaretsActionHandler(boolean doPaste, boolean insertBlankLine) {
+        super(false);
+        myDoPaste = doPaste;
+        myInsertBlankLine = insertBlankLine;
     }
 
     public static Couple<Integer> duplicateLineOrSelectedBlockAtCaret(Editor editor, final Document document, @NotNull Caret caret, final boolean moveCaret) {
@@ -104,13 +117,28 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             });
         } else {
             ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyClipboard(editor, dataContext);
+            if (clipboardCaretContent == null) return;
+
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
-            int iMax = clipboardCaretContent == null ? 1 : clipboardCaretContent.getCaretCount();
+            int iMax = clipboardCaretContent.getCaretCount();
             List<Couple<Integer>> copies = new ArrayList<>(iMax);
 
             int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();
             boolean isStartAnchor = editorCaret.isStartAnchor();
+            Document doc = editor.getDocument();
+            CaretModel caretModel = editor.getCaretModel();
+
+
+            if (myInsertBlankLine) {
+                // we create a line above/below and recreate carets
+                final ApplicationSettings settings = ApplicationSettings.getInstance();
+
+                final EditorPosition pastePosition = settings.getLinePasteCaretAdjustmentType().getPastePosition(editorCaret.getCaretPosition());
+                doc.insertString(pastePosition.atColumn(0).getOffset(), "\n");
+                editorCaret.setCaretPosition(pastePosition.atColumn(editorCaret.getColumn()));
+                editorCaret.commit();
+            }
 
             if (editorCaret.hasLines() || editorCaret.isLine()) {
                 editorCaret.trimOrExpandToFullLines();
@@ -130,22 +158,29 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             EditorPosition pos = editorCaret.getCaretPosition();
             editorCaret.removeSelection();
 
-            Document doc = editor.getDocument();
-            CaretModel caretModel = editor.getCaretModel();
-
             // build the carets
+            int accumulatedOffset = 0;
             for (int i = 0; i < iMax; i++) {
                 Couple<Integer> couple = copies.get(i);
 
-                int lineNumber = doc.getLineNumber(couple.first);
+                int lineNumber = doc.getLineNumber(couple.first + accumulatedOffset);
                 int lineEndOffset = doc.getLineEndOffset(lineNumber);
                 int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
                 EditorPosition editorPosition = pos.onLine(lineNumber);
                 Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
                 if (caret1 != null) {
-                    caret1.moveToLogicalPosition(editorPosition);
                     int offset = editorPosition.getOffset();
+                    final EditorPosition atOffset = editorPosition.atOffset(offset);
+                    if (atOffset.column != editorPosition.column) {
+                        // virtual spaces, add real ones
+                        final int inserted = editorPosition.column - atOffset.column;
+                        doc.insertString(offset, new RepeatedCharSequence(' ', inserted));
+                        offset = editorPosition.getOffset();
+                        accumulatedOffset += inserted;
+                    }
+
+                    caret1.moveToLogicalPosition(editorPosition);
 
                     // replicate selection to this position
                     if (isStartAnchor) {
@@ -155,6 +190,20 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                     }
                     manager.resetSelectionState(caret1);
                 }
+            }
+
+            if (myDoPaste) {
+                // clear last pasted information, it is no good and will be cleared by running our action
+                ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
+
+                // now we paste
+                final AnAction pasteAction = ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
+                LineSelectionManager.getInstance(editor).runActionWithAdjustments(pasteAction);
+                //AnActionEvent newEvent = AnActionEvent.createFromDataContext("MiaMultiPaste Recreate Carets",null,dataContext);
+                //pasteAction.actionPerformed(newEvent);
+            } else {
+                // clear clipboard information so adjustments don't get messed up
+                ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
             }
 
             EditHelpers.scrollToCaret(editor);

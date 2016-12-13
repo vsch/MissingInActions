@@ -69,15 +69,35 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean myPreserveSnakeCaseOnPaste = false;
     private boolean myRemovePrefixOnPaste = false;
     private boolean myAddPrefixOnPaste = false;
-    private int myRemovePrefixOnPasteType = RemovePrefixOnPasteType.DEFAULT.intValue;
+    private int myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.DEFAULT.intValue;
     private String myRemovePrefixOnPaste1 = "my";
     private String myRemovePrefixOnPaste2 = "our";
     private boolean myOverrideStandardPaste = false;
-    private boolean myOverrideStandardPasteShowInstructions = true;
+    private boolean myMultiPasteShowInstructions = true;
     private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
     private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
     private String myRegexSample1Text = "myCamelCaseInstanceMember";
     private String myRegexSample2Text = "ourCamelCaseClassMember";
+    private boolean myMultiPasteShowEOL = true;
+    private boolean myMultiPasteShowOptions = true;
+
+    // get/set enums directly
+    // @formatter:off
+    public RemovePrefixOnPastePatternType getRemovePrefixOnPastePatternType() { return RemovePrefixOnPastePatternType.get(myRemovePrefixOnPastePattern); }
+    public CaretAdjustmentType getCaretOnMoveSelectionDownType() { return CaretAdjustmentType.get(myCaretOnMoveSelectionDown); }
+    public CaretAdjustmentType getCaretOnMoveSelectionUpType() { return CaretAdjustmentType.get(myCaretOnMoveSelectionUp); }
+    public SelectionPredicateType getDuplicateAtStartOrEndPredicateType() { return SelectionPredicateType.get(myDuplicateAtStartOrEndPredicate); }
+    public LinePasteCaretAdjustmentType getLinePasteCaretAdjustmentType() { return LinePasteCaretAdjustmentType.get(myLinePasteCaretAdjustment); }
+    public SelectionPredicateType getSelectPastedPredicateType() { return SelectionPredicateType.get(mySelectPastedPredicate); }
+    public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.get(mySelectPastedMultiCaretPredicate); }
+    public void setRemovePrefixOnPastePatternType(RemovePrefixOnPastePatternType removePrefixOnPastePatternType) { myRemovePrefixOnPastePattern = removePrefixOnPastePatternType.intValue; }
+    public void setCaretOnMoveSelectionDownType(CaretAdjustmentType caretOnMoveSelectionDownType) { myCaretOnMoveSelectionDown = caretOnMoveSelectionDownType.intValue; }
+    public void setCaretOnMoveSelectionUpType(CaretAdjustmentType caretOnMoveSelectionUpType) { myCaretOnMoveSelectionUp = caretOnMoveSelectionUpType.intValue; }
+    public void setDuplicateAtStartOrEndPredicateType(SelectionPredicateType duplicateAtStartOrEndPredicateType) { myDuplicateAtStartOrEndPredicate = duplicateAtStartOrEndPredicateType.intValue; }
+    public void setLinePasteCaretAdjustmentType(LinePasteCaretAdjustmentType linePasteCaretAdjustmentType) { myLinePasteCaretAdjustment = linePasteCaretAdjustmentType.intValue; }
+    public void setSelectPastedPredicateType(SelectionPredicateType selectPastedPredicateType) { mySelectPastedPredicate = selectPastedPredicateType.intValue; }
+    public void setSelectPastedMultiCaretPredicateType(SelectionPredicateType selectPastedMultiCaretPredicateType) { mySelectPastedMultiCaretPredicate = selectPastedMultiCaretPredicateType.intValue; }
+    // @formatter:on
 
     // customized word flags
     @SuppressWarnings({ "ConstantConditionalExpression", "PointlessBitwiseExpression" })
@@ -112,6 +132,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         );
     }
 
+    public boolean isMultiPasteShowOptions() { return myMultiPasteShowOptions; }
+
+    public void setMultiPasteShowOptions(final boolean multiPasteShowOptions) { myMultiPasteShowOptions = multiPasteShowOptions; }
+
+    public boolean isMultiPasteShowEOL() { return myMultiPasteShowEOL; }
+
+    public void setMultiPasteShowEOL(final boolean multiPasteShowEOL) { myMultiPasteShowEOL = multiPasteShowEOL; }
+
     public String getRegexSample1Text() { return myRegexSample1Text; }
 
     public void setRegexSample1Text(final String regexSample1Text) { myRegexSample1Text = regexSample1Text; }
@@ -124,17 +152,17 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setAddPrefixOnPaste(final boolean addPrefixOnPaste) { myAddPrefixOnPaste = addPrefixOnPaste; }
 
-    public int getRemovePrefixOnPasteType() { return myRemovePrefixOnPasteType; }
+    public int getRemovePrefixOnPastePattern() { return myRemovePrefixOnPastePattern; }
 
-    public void setRemovePrefixOnPasteType(final int removePrefixOnPasteType) { myRemovePrefixOnPasteType = removePrefixOnPasteType; }
+    public void setRemovePrefixOnPastePattern(final int removePrefixOnPastePattern) { myRemovePrefixOnPastePattern = removePrefixOnPastePattern; }
 
     public int getLinePasteCaretAdjustment() { return myLinePasteCaretAdjustment; }
 
     public void setLinePasteCaretAdjustment(final int linePasteCaretAdjustment) { myLinePasteCaretAdjustment = linePasteCaretAdjustment; }
 
-    public boolean isOverrideStandardPasteShowInstructions() { return myOverrideStandardPasteShowInstructions; }
+    public boolean isMultiPasteShowInstructions() { return myMultiPasteShowInstructions; }
 
-    public void setOverrideStandardPasteShowInstructions(final boolean overrideStandardPasteShowInstructions) { myOverrideStandardPasteShowInstructions = overrideStandardPasteShowInstructions; }
+    public void setMultiPasteShowInstructions(final boolean multiPasteShowInstructions) { myMultiPasteShowInstructions = multiPasteShowInstructions; }
 
     public int getSelectPastedMultiCaretPredicate() { return mySelectPastedMultiCaretPredicate; }
 

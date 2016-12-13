@@ -74,6 +74,10 @@ public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteC
         return ADAPTER.findEnum((String) comboBox.getSelectedItem());
     }
 
+    public static LinePasteCaretAdjustmentType get(int value) {
+        return ADAPTER.findEnum(value);
+    }
+
     public static int getInt(JComboBox comboBox) {
         return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
     }

@@ -26,7 +26,10 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.ui.UIBundle;
+import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.actions.MultiplePasteActionBase;
+import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
+import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,8 +39,18 @@ import javax.swing.text.DefaultEditorKit;
 public class MiaMultiplePasteAction extends MultiplePasteActionBase {
     @NotNull
     @Override
-    protected AnAction getPasteAction(@NotNull final Editor editor) {
-        return ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
+    protected AnAction getPasteAction(@NotNull final Editor editor, boolean recreateCaretsAction) {
+        if (recreateCaretsAction) {
+            return new DuplicateForClipboardCaretsAction(true,true);
+        } else {
+            return ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
+        }
+    }
+
+    @Nullable
+    @Override
+    protected String getCreateWithCaretsName() {
+        return Bundle.message("content-chooser.add-with-carets.label");
     }
 
     @Nullable

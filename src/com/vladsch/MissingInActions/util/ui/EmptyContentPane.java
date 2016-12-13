@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -30,15 +31,53 @@ import javax.swing.*;
 import java.awt.*;
 
 public class EmptyContentPane {
+    private final ApplicationSettings mySettings;
     public JTextPane myTextPane;
     public JPanel myPanel;
-    private JBCheckBox myDoNotShowInstructions;
+    private JBCheckBox myShowInstructions;
+    private JBCheckBox myShowTerminatingEOL;
+    private Runnable mySettingsChangedRunnable;
+    private String myTextContent;
 
     public EmptyContentPane() {
-        myDoNotShowInstructions.addActionListener(event->{
-            ApplicationSettings.getInstance().setOverrideStandardPasteShowInstructions(!myDoNotShowInstructions.isSelected());
-            myTextPane.setVisible(!myDoNotShowInstructions.isSelected());
+        mySettingsChangedRunnable = null;
+        mySettings = ApplicationSettings.getInstance();
+        myTextContent = "";
+
+        myShowInstructions.addActionListener(event -> {
+            updateTextPane();
         });
+
+        myShowTerminatingEOL.addActionListener(e -> {
+            mySettings.setMultiPasteShowEOL(myShowTerminatingEOL.isSelected());
+            if (mySettingsChangedRunnable != null) {
+                mySettingsChangedRunnable.run();
+            }
+        });
+
+        myShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
+        myTextPane.setVisible(myShowInstructions.isSelected());
+        myShowTerminatingEOL.setSelected(mySettings.isMultiPasteShowEOL());
+    }
+
+    private void updateTextPane() {
+        mySettings.setMultiPasteShowInstructions(myShowInstructions.isSelected());
+        myTextPane.setVisible(myShowInstructions.isSelected());
+        myTextPane.validate();
+        myPanel.validate();
+        myPanel.getParent().validate();
+    }
+
+    public void setSettingsChangedRunnable(final Runnable settingsChangedRunnable) {
+        mySettingsChangedRunnable = settingsChangedRunnable;
+    }
+
+    public boolean getShowInstructions() {
+        return myShowInstructions.isSelected();
+    }
+
+    public void setShowInstructions(final boolean showInstructions) {
+        myShowInstructions.setSelected(showInstructions);
     }
 
     private void createUIComponents() {
@@ -52,6 +91,7 @@ public class EmptyContentPane {
         String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + Utils.toRgbString(textColor) + "'>" +
                 (text == null ? "" : text) +
                 "</div></body></html>";
+        myTextContent = out;
         myTextPane.setText(out);
         myPanel.validate();
     }

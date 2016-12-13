@@ -42,8 +42,18 @@ import javax.swing.*;
 public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActionBase {
     @NotNull
     @Override
-    protected AnAction getPasteAction(@NotNull final Editor editor) {
-        return new DuplicateForClipboardCaretsAction();
+    protected AnAction getPasteAction(@NotNull final Editor editor, boolean recreateCaretsAction) {
+        if (recreateCaretsAction) {
+            return new DuplicateForClipboardCaretsAction(true,false);
+        } else {
+            return new DuplicateForClipboardCaretsAction();
+        }
+    }
+
+    @Nullable
+    @Override
+    protected String getCreateWithCaretsName() {
+        return Bundle.message("content-chooser.duplicate-and-paste.label");
     }
 
     @Nullable

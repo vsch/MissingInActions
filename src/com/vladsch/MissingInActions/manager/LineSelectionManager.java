@@ -561,6 +561,10 @@ public class LineSelectionManager implements
         myCaretHighlighter.updateCaretHighlights();
     }
 
+    public void runActionWithAdjustments(final AnAction action) {
+        myActionSelectionAdjuster.runAction(action, false);
+    }
+
     private static class StoredLineSelectionState {
         int anchorColumn = -1;
         boolean isStartAnchor = true;

@@ -41,25 +41,26 @@ import java.util.List;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
-@SuppressWarnings({ "WeakerAccess", "UnusedReturnValue" })
+@SuppressWarnings({ "WeakerAccess", "UnusedReturnValue", "SameParameterValue" })
 public class ClipboardCaretContent {
     private static Key<ClipboardCaretContent> LAST_PASTED_CLIPBOARD_CARETS = Key.create("LAST_PASTED_CLIPBOARD_CONTEXT");
     private static Key<CaretOffsetAdjuster> LAST_CARET_OFFSET_ADJUSTER = Key.create("LAST_CARET_OFFSET_ADJUSTER");
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.util.clipboard_context");
 
+    private final @NotNull Transferable myContent;
     private final @NotNull TextRange[] myTextRanges;
     private final @Nullable int[] myCaretColumns;          // caret logical column position before it was adjusted by CaretOffsetAdjuster
     private final boolean myHadSelection;
     private final @Nullable String[] myTexts;
-    private final @Nullable BitSet myFullLines;
-    private final @Nullable BitSet myCharLines;
+    private final @Nullable BitSet myFullLines;            // carets or caret terminated by EOL
+    private final @Nullable BitSet myCharLines;            // carets or caret not terminated by EOL but more than one line
     private final int myCaretCount;
     private final int myLineCount;
     private final @Nullable RangeMarker myRangeMarker;     // only set if editor supports multiple carets && caret count == 1 && !rangeAtStart && !rangeAtEnd, used to pasted text range after PasteHandler formats the data
     private final boolean myRangeAtTextStart;              // range starts at start of text, so ignore range marker's start
     private final boolean myRangeAtTextEnd;                // range ends at end of text so ignore range marker's end
 
-    private ClipboardCaretContent(@NotNull final TextRange[] textRanges
+    private ClipboardCaretContent(@NotNull Transferable content, @NotNull final TextRange[] textRanges
             , @Nullable final int[] caretColumns
             , final boolean hadSelection
             , @Nullable final String[] texts
@@ -71,6 +72,7 @@ public class ClipboardCaretContent {
             , final boolean rangeAtTextStart
             , final boolean rangeAtTextEnd
     ) {
+        myContent = content;
         myTextRanges = textRanges;
         myCaretColumns = caretColumns;
         myHadSelection = hadSelection;
@@ -96,6 +98,11 @@ public class ClipboardCaretContent {
 
     @NotNull
     public TextRange[] getTextRanges() { return myTextRanges; }
+
+    @NotNull
+    public Transferable getContent() {
+        return myContent;
+    }
 
     @Nullable
     public static TextRange getLastPastedTextRange(final @NotNull Editor editor, int caretIndex) {
@@ -129,6 +136,14 @@ public class ClipboardCaretContent {
 
     @Nullable
     public String[] getTexts() { return myTexts; }
+
+    public boolean hasFullLines() {
+        return myFullLines != null && myFullLines.nextSetBit(0) != -1;
+    }
+
+    public boolean hasCharLines() {
+        return myCharLines != null && myCharLines.nextSetBit(0) != -1;
+    }
 
     public int getCaretCount() { return myCaretCount; }
 
@@ -166,6 +181,11 @@ public class ClipboardCaretContent {
     @Nullable
     public static ClipboardCaretContent getLastPastedClipboardCarets(final @NotNull Editor editor) {
         return editor.getUserData(LAST_PASTED_CLIPBOARD_CARETS);
+    }
+
+    @Nullable
+    public static CaretOffsetAdjuster getLastPastedCaretOffsetAdjuster(final @NotNull Editor editor) {
+        return editor.getUserData(LAST_CARET_OFFSET_ADJUSTER);
     }
 
     public static void setLastPastedClipboardCarets(final @NotNull Editor editor, final @Nullable ClipboardCaretContent clipboardCarets) {
@@ -235,11 +255,11 @@ public class ClipboardCaretContent {
      * @param content transferable content to study
      */
     @Nullable
-    public static ClipboardCaretContent studyTransferable(final @NotNull Editor editor, @NotNull Transferable content) {
+    public static ClipboardCaretContent studyTransferable(final @Nullable Editor editor, @NotNull Transferable content) {
         String text = EditorModificationUtil.getStringContent(content);
         if (text == null) return null;
 
-        if (editor.getCaretModel().supportsMultipleCarets()) {
+        if (editor != null && editor.getCaretModel().supportsMultipleCarets()) {
             CaretStateTransferableData caretData = null;
             try {
                 caretData = content.isDataFlavorSupported(CaretStateTransferableData.FLAVOR)
@@ -266,16 +286,16 @@ public class ClipboardCaretContent {
                 else if (normalizedText.contains("\n")) charLines.set(i);
                 contentOffset += normalizedText.length();
             }
-            return new ClipboardCaretContent(ranges, null, false, texts, caretCount, lineCount, fullLines, charLines, null, false, false);
+            return new ClipboardCaretContent(content, ranges, null, false, texts, caretCount, lineCount, fullLines, charLines, null, false, false);
         } else {
-            String normalizedText = TextBlockTransferable.convertLineSeparators(editor, text);
+            String normalizedText = editor == null ? text : TextBlockTransferable.convertLineSeparators(editor, text);
             String[] texts = new String[1];
             texts[1] = normalizedText;
             BitSet fullLines = new BitSet(1);
             BitSet charLines = new BitSet(1);
             if (normalizedText.endsWith("\n")) fullLines.set(0);
             else if (normalizedText.contains("\n")) charLines.set(0);
-            return new ClipboardCaretContent(new TextRange[] { new TextRange(0, normalizedText.length()) }, null, false,texts, 1, 1, fullLines, charLines, null, false, false);
+            return new ClipboardCaretContent(content, new TextRange[] { new TextRange(0, normalizedText.length()) }, null, false, texts, 1, 1, fullLines, charLines, null, false, false);
         }
     }
 
@@ -359,9 +379,9 @@ public class ClipboardCaretContent {
                 if (selectionSize == 0 && !rangeAtTextEnd) endOffset++;
                 RangeMarker rangeMarker = editor.getDocument().createRangeMarker(startOffset, endOffset);
 
-                return new ClipboardCaretContent(ranges, columns, selectionSize != 0, null, caretCount, caretCount, fullLines, charLines, rangeMarker, rangeAtTextStart, rangeAtTextEnd);
+                return new ClipboardCaretContent(content, ranges, columns, selectionSize != 0, null, caretCount, caretCount, fullLines, charLines, rangeMarker, rangeAtTextStart, rangeAtTextEnd);
             } else {
-                return new ClipboardCaretContent(ranges, columns, selectionSize != 0, null, caretCount, caretCount, fullLines, charLines, null, false, false);
+                return new ClipboardCaretContent(content, ranges, columns, selectionSize != 0, null, caretCount, caretCount, fullLines, charLines, null, false, false);
             }
         } else {
             int caretOffset = editor.getCaretModel().getOffset();
@@ -370,7 +390,7 @@ public class ClipboardCaretContent {
             BitSet charLines = new BitSet(1);
             if (normalizedText.endsWith("\n")) fullLines.set(0);
             else if (normalizedText.contains("\n")) charLines.set(0);
-            return new ClipboardCaretContent(new TextRange[] { new TextRange(caretOffset, caretOffset + normalizedText.length()) }, null, false, null, 1, 1, fullLines, charLines, null, false, false);
+            return new ClipboardCaretContent(content, new TextRange[] { new TextRange(caretOffset, caretOffset + normalizedText.length()) }, null, false, null, 1, 1, fullLines, charLines, null, false, false);
         }
     }
 }

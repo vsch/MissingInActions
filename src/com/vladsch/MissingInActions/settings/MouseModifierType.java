@@ -47,6 +47,10 @@ public enum MouseModifierType implements ComboBoxAdaptable<MouseModifierType> {
         return ADAPTER.findEnum((String) comboBox.getSelectedItem());
     }
 
+    public static MouseModifierType get(int value) {
+        return ADAPTER.findEnum(value);
+    }
+
     public static int getInt(JComboBox comboBox) {
         return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
     }

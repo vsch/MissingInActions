@@ -320,8 +320,9 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         return SimpleDataContext.getSimpleContext(dataMap, parent);
     }
 
-    private void runAction(AnAction action) {
-        AnActionEvent event = createAnEvent(action, true);
+    @SuppressWarnings("WeakerAccess")
+    public void runAction(AnAction action, boolean autoTriggered) {
+        AnActionEvent event = createAnEvent(action, autoTriggered);
         beforeActionPerformed(action, event.getDataContext(), event);
         ActionUtil.performActionDumbAware(action, event);
         afterActionPerformed(action, event.getDataContext(), event);
@@ -335,7 +336,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
     private void addTriggeredAction(Class action) {
         TriggeredAction triggeredAction = myAdjustmentsMap.getTriggeredAction(action);
         if (triggeredAction != null && triggeredAction.isEnabled()) {
-            OneTimeRunnable runnable = new OneTimeRunnable(true, () -> runAction(triggeredAction.getAction()));
+            OneTimeRunnable runnable = new OneTimeRunnable(true, () -> runAction(triggeredAction.getAction(), true));
 
             HashSet<OneTimeRunnable> actions = myCancelActionsMap.computeIfAbsent(action, anAction -> new HashSet<>());
             if (debug) System.out.println("Adding triggered task " + runnable);
@@ -832,7 +833,7 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
                                             , settings.isPreserveScreamingSnakeCaseOnPaste()
                                             , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
                                             , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
-                                            , RemovePrefixOnPasteType.ADAPTER.findEnum(settings.getRemovePrefixOnPasteType())
+                                            , RemovePrefixOnPastePatternType.ADAPTER.findEnum(settings.getRemovePrefixOnPastePattern())
                                             , settings.isAddPrefixOnPaste()
                                     );
                                 } else {

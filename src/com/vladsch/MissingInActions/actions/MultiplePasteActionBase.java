@@ -20,16 +20,14 @@
  */
 package com.vladsch.MissingInActions.actions;
 
+import com.intellij.codeInsight.editorActions.TextBlockTransferable;
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.impl.DocumentMarkupModel;
@@ -37,13 +35,10 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.ide.CopyPasteManager;
-import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.*;
@@ -79,7 +74,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
     }
 
     @NotNull
-    protected abstract AnAction getPasteAction(@NotNull Editor editor);
+    protected abstract AnAction getPasteAction(@NotNull Editor editor, boolean recreateCaretsAction);
 
     @Nullable
     protected abstract Action getPasteAction(@NotNull JComponent focusedComponent);
@@ -89,23 +84,27 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
     protected abstract boolean isEnabled(@Nullable Editor editor, @NotNull JComponent focusedComponent);
 
+    @Nullable
+    protected abstract String getCreateWithCaretsName();
+
     @Override
     final public void actionPerformed(final AnActionEvent e) {
         Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
         if (!(component instanceof JComponent)) return;
 
+        final ApplicationSettings settings = ApplicationSettings.getInstance();
         final DataContext dataContext = e.getDataContext();
         final Project project = CommonDataKeys.PROJECT.getData(dataContext);
         final Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
         final JComponent focusedComponent = (JComponent) component;
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
-        final int showEOL = 0;
+        final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && editor.getCaretModel().getCaretCount() == 1;
         final EmptyContentPane myEmptyContentDescription = new EmptyContentPane();
-        final boolean showInstructions = ApplicationSettings.getInstance().isOverrideStandardPasteShowInstructions();
         final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
-        final CancellableRunnable[] scheduled = new CancellableRunnable[] { CancellableRunnable.NULL };
+        final boolean[] inContentManipulation = new boolean[] { false };
+        final boolean[] recreateCarets = new boolean[] { false };
 
         //noinspection unchecked
         final ContentChooser<Transferable>[] choosers = new ContentChooser[] { null };
@@ -117,35 +116,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             @Override
             protected String getStringRepresentationFor(final Transferable content) {
                 //return (String) content.getTransferData(DataFlavor.stringFlavor);
-                final ClipboardCaretContent caretContent = getCaretContent(content);
-                if (caretContent != null) {
-                    // convert multi caret text to \n separated ranges
-                    StringBuilder sb = new StringBuilder();
-                    final String[] texts = caretContent.getTexts();
-                    if (texts != null) {
-                        int iMax = caretContent.getCaretCount();
-                        for (int i = 0; i < iMax; i++) {
-                            //noinspection ConstantConditions
-                            if (showEOL > 0) {
-                                if (caretContent.isFullLine(i)) {
-                                    sb.append(texts[i].substring(0, texts[i].length() - 1));
-                                    sb.append('⏎');
-                                }
-                                sb.append('\n');
-                            } else {
-                                sb.append(texts[i]);
-                                if (!caretContent.isFullLine(i)) sb.append('\n');
-                            }
-                        }
-
-                        // remove last EOL so that line count reflects inserted lines
-                        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
-                            sb.delete(sb.length() - 1, sb.length());
-                        }
-                        return sb.toString();
-                    }
-                }
-                return "";
+                return getStringRep(editor, content, settings.isMultiPasteShowEOL(), false);
             }
 
             @NotNull
@@ -160,7 +131,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 final Editor viewer = super.createIdeaEditor(text);
                 final EditorSettings settings = viewer.getSettings();
                 settings.setFoldingOutlineShown(false);
-                settings.setGutterIconsShown(true);
                 settings.setIndentGuidesShown(false);
                 settings.setLeadingWhitespaceShown(true);
                 settings.setLineMarkerAreaShown(true);
@@ -171,68 +141,75 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
             @Override
             protected void updateViewerForSelection(@NotNull final Editor viewer, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
-                if (editor != null && viewer.getDocument().getTextLength() > 0) {
-                    if (selectedIndices.length == 1) {
-                        // can create highlights in the editor to separate carets
+                if (viewer.getDocument().getTextLength() > 0) {
+                    // can create highlights in the editor to separate carets
+                    final ClipboardCaretContent caretContent;
+                    final Transferable content;
+                    if (selectedIndices.length > 1) {
+                        // combine indices
+                        content = getMergedTransferable(editor, allContents, selectedIndices);
+                        caretContent = ClipboardCaretContent.studyTransferable(editor, content);
+                    } else {
                         int index = selectedIndices[0];
-                        Transferable content = allContents.get(index);
-                        final ClipboardCaretContent caretContent = getCaretContent(content);
-                        if (caretContent != null) {
-                            // convert multi caret text to \n separated ranges
-                            final String[] texts = caretContent.getTexts();
-                            if (texts != null) {
-                                int iMax = caretContent.getCaretCount();
-                                final TextRange[] textRanges = caretContent.getTextRanges();
-                                int offset = 0;
+                        content = allContents.get(index);
+                        caretContent = getCaretContent(content);
+                    }
 
-                                TextAttributes oddAttr = editor.getColorsScheme().getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
-                                TextAttributes evenAttr = editor.getColorsScheme().getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES);
-                                MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
-                                final GutterIconRenderer charLinesSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_lines_caret);
-                                final GutterIconRenderer charSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_caret);
-                                final GutterIconRenderer lineSelection = new CaretIconRenderer(PluginIcons.Clipboard_line_caret);
+                    assert caretContent != null;
 
-                                for (int i = 0; i < iMax; i++) {
-                                    final TextRange range = textRanges[i];
-                                    final int startOffset = range.getStartOffset() + offset;
-                                    final int endOffset = range.getEndOffset() + offset;
-                                    Caret caret = i == 0 ? viewer.getCaretModel().getPrimaryCaret() : viewer.getCaretModel().addCaret(viewer.offsetToVisualPosition(startOffset));
-                                    if (caret != null) {
-                                        caret.moveToOffset(startOffset);
-                                        //caret.setSelection(startOffset, endOffset);
-                                        offset += caretContent.isFullLine(i) ? showEOL : 1;
-                                    }
+                    // convert multi caret text to \n separated ranges
+                    final String[] texts = caretContent.getTexts();
+                    if (texts != null) {
+                        int iMax = caretContent.getCaretCount();
+                        final TextRange[] textRanges = caretContent.getTextRanges();
+                        int offset = 0;
 
-                                    RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, (i % 2) != 0 ? oddAttr : evenAttr);
-                                    highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
-                                }
+                        //TextAttributes oddAttr = editor == null ? null : editor.getColorsScheme().getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
+                        //TextAttributes evenAttr = editor == null ? null : editor.getColorsScheme().getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES);
+                        MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
+                        final GutterIconRenderer charLinesSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_lines_caret);
+                        final GutterIconRenderer charSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_caret);
+                        final GutterIconRenderer lineSelection = new CaretIconRenderer(PluginIcons.Clipboard_line_caret);
 
-                                viewer.getContentComponent().addFocusListener(new FocusAdapter() {
-                                    @Override
-                                    public void focusGained(final FocusEvent e) {
-                                        WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
-                                            final Document document = viewer.getDocument();
-                                            document.setReadOnly(false);
-                                            document.insertString(document.getTextLength(), "\n");
-                                            document.setReadOnly(true);
-                                        });
-                                    }
+                        for (int i = 0; i < iMax; i++) {
+                            final TextRange range = textRanges[i];
+                            final int startOffset = range.getStartOffset() + offset;
+                            final int endOffset = range.getEndOffset() + offset;
+                            Caret caret = i == 0 ? viewer.getCaretModel().getPrimaryCaret() : viewer.getCaretModel().addCaret(viewer.offsetToVisualPosition(startOffset));
+                            if (caret != null) {
+                                caret.moveToOffset(startOffset);
+                                //noinspection PointlessBooleanExpression,ConstantConditions
+                                offset += caretContent.isFullLine(i) && !settings.isMultiPasteShowEOL() ? 0 : 1;
+                            }
 
-                                    @Override
-                                    public void focusLost(final FocusEvent e) {
-                                        final Document document = viewer.getDocument();
-                                        final int textLength = document.getTextLength();
-                                        if (textLength > 0) {
-                                            WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
-                                                document.setReadOnly(false);
-                                                document.deleteString(textLength - 1, textLength);
-                                                document.setReadOnly(true);
-                                            });
-                                        }
-                                    }
+                            RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, null);
+                            highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
+                        }
+
+                        viewer.getContentComponent().addFocusListener(new FocusAdapter() {
+                            @Override
+                            public void focusGained(final FocusEvent e) {
+                                WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
+                                    final Document document = viewer.getDocument();
+                                    document.setReadOnly(false);
+                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true));
+                                    document.setReadOnly(true);
                                 });
                             }
-                        }
+
+                            @Override
+                            public void focusLost(final FocusEvent e) {
+                                final Document document = viewer.getDocument();
+                                final int textLength = document.getTextLength();
+                                if (textLength > 0) {
+                                    WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
+                                        document.setReadOnly(false);
+                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEOL(), false));
+                                        document.setReadOnly(true);
+                                    });
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -258,6 +235,23 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 return list;
             }
 
+            @NotNull
+            @Override
+            public String getSelectedText() {
+                if (choosers[0] == null) {
+                    return super.getSelectedText();
+                } else {
+                    final int[] selectedIndices = choosers[0].getSelectedIndices();
+                    if (selectedIndices.length > 1) {
+                        // combine indices
+                        Transferable content = getMergedTransferable(editor, choosers[0].getAllContents(), selectedIndices);
+                        return getStringRep(editor, content, settings.isMultiPasteShowEOL(), false);
+                    } else {
+                        return super.getSelectedText();
+                    }
+                }
+            }
+
             @Override
             protected void removeContentAt(final Transferable content) {
                 copyPasteManager.removeContent(content);
@@ -270,23 +264,179 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 if (event.getKeyCode() != 0 && chooser != null) {
                     if (event.getKeyCode() == KeyEvent.VK_UP && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
                         // move selection up
-                        final int[] indices = chooser.getSelectedIndices();
-                        final List<Transferable> allContents = chooser.getAllContents();
-                        int iMax = indices.length;
-                        for (int i = iMax; i-- > 0; ) {
-                            int index = indices[i];
-                            if (index > 0) {
-                                // can move it up
-                                copyPasteManager.moveContentToStackTop(allContents.get(index));
-                                scheduled[0].cancel();
-                            }
-                        }
+                        moveSelections(chooser, true);
                         event.consume();
-                        listUpdater.run();
                     } else if (event.getKeyCode() == KeyEvent.VK_DOWN && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
-                        // move selection down
+                        moveSelections(chooser, false);
                         event.consume();
                     }
+                }
+            }
+
+            @NotNull
+            @Override
+            protected Action[] createActions() {
+                Action[] actions = super.createActions();
+                if (canCreateMultiCarets) {
+                    Action[] multiCaretActions = new Action[actions.length + 1];
+                    System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
+                    Action createWithMultiCarets = new OkAction() {
+                        @Override
+                        protected void doAction(final ActionEvent e) {
+                            recreateCarets[0] = true;
+                            super.doAction(e);
+                        }
+                    };
+                    final String name = getCreateWithCaretsName();
+                    createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
+                    multiCaretActions[actions.length] = createWithMultiCarets;
+                    return multiCaretActions;
+                }
+                return actions;
+            }
+
+            @NotNull
+            @Override
+            protected Action[] createLeftSideActions() {
+                Action showOptionsAction = new OkAction() {
+                    @Override
+                    protected void doAction(final ActionEvent e) {
+                        final boolean showOptions = !settings.isMultiPasteShowOptions();
+                        settings.setMultiPasteShowOptions(showOptions);
+                        putValue(Action.NAME, showOptions ? Bundle.message("content-chooser.hide-options.label") : Bundle.message("content-chooser.show-options.label"));
+                        myEmptyContentDescription.myPanel.setVisible(showOptions);
+                    }
+                };
+
+                final boolean showOptions = settings.isMultiPasteShowOptions();
+                showOptionsAction.putValue(Action.NAME, showOptions ? Bundle.message("content-chooser.hide-options.label") : Bundle.message("content-chooser.show-options.label"));
+                return new Action[] { showOptionsAction };
+            }
+
+            @Nullable
+            @Override
+            protected JComponent getAboveEditorComponent() {
+                String copyShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_COPY),1);
+                String deleteShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_DELETE),1);
+                String moveLineUpShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_UP_ACTION),2);
+                String moveLineDownShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_DOWN_ACTION),2);
+                if (!copyShortcut.isEmpty()) copyShortcut = String.format(" (%s)", copyShortcut);
+                if (!deleteShortcut.isEmpty()) deleteShortcut = String.format(" (%s)", deleteShortcut);
+                if (!moveLineUpShortcut.isEmpty()) moveLineUpShortcut = String.format(" (%s)", moveLineUpShortcut);
+                if (!moveLineDownShortcut.isEmpty()) moveLineDownShortcut = String.format(" (%s)", moveLineDownShortcut);
+                String bannerSlogan = Bundle.indexedMessage("content-chooser.above-editor.description", copyShortcut, deleteShortcut, moveLineUpShortcut, moveLineDownShortcut);
+                myEmptyContentDescription.setContentBody(Utils.join(bannerSlogan.split("\n"), "<ul align='left'>", "</ul>", "<li>", "</li>"));
+                myEmptyContentDescription.setSettingsChangedRunnable(() -> {
+                    if (choosers[0] != null) {
+                        final int[] indices = choosers[0].getSelectedIndices();
+                        choosers[0].updateListContents();
+                        choosers[0].setSelectedIndices(indices);
+                    }
+                });
+
+                myEmptyContentDescription.myPanel.setVisible(settings.isMultiPasteShowOptions());
+                return myEmptyContentDescription.myPanel;
+            }
+
+            private void moveSelections(final ContentChooser<Transferable> chooser, boolean moveUp) {
+                final int[] indices = chooser.getSelectedIndices();
+                final List<Transferable> allContents = new ArrayList<>(chooser.getAllContents());
+                boolean allConsecutive = true;
+                int firstIndex = -1;
+                int lastIndex = -1;
+
+                for (int index : indices) {
+                    if (firstIndex == -1) {
+                        firstIndex = index;
+                        lastIndex = index;
+                    } else {
+                        if (lastIndex + 1 != index) {
+                            allConsecutive = false;
+                        }
+                        lastIndex = index;
+                    }
+                }
+
+                List<Transferable> moved = new ArrayList<>();
+
+                int anchorIndex = moveUp ? firstIndex : lastIndex;
+                for (int index : indices) {
+                    if (allConsecutive || index != anchorIndex) {
+                        moved.add(allContents.get(index));
+                    }
+                }
+
+                if (!allConsecutive) {
+                    allContents.removeAll(moved);
+                    allContents.addAll(anchorIndex + (moveUp ? 1 : 0), moved);
+                    reOrderContentList(allContents);
+                } else {
+                    final int size = lastIndex - firstIndex + 1;
+                    final int halfSize = size / 2;
+                    if (moveUp) {
+                        if (firstIndex <= 0) {
+                            // reverse
+                            if (halfSize > 0) {
+                                for (int i = 0; i < halfSize; i++) {
+                                    Transferable first = allContents.get(firstIndex + i);
+                                    Transferable last = allContents.get(lastIndex - i);
+                                    allContents.set(firstIndex + i, last);
+                                    allContents.set(lastIndex - i, first);
+                                }
+                                reOrderContentList(allContents);
+                            }
+                        } else {
+                            allContents.removeAll(moved);
+                            allContents.addAll(firstIndex - 1, moved);
+                            reOrderContentList(allContents);
+                            anchorIndex = firstIndex - 1;
+                        }
+                    } else {
+                        if (lastIndex + 1 >= allContents.size()) {
+                            // reverse order
+                            if (halfSize > 0) {
+                                for (int i = 0; i < halfSize; i++) {
+                                    Transferable first = allContents.get(firstIndex + i);
+                                    Transferable last = allContents.get(lastIndex - i);
+                                    allContents.set(firstIndex + i, last);
+                                    allContents.set(lastIndex - i, first);
+                                }
+                                reOrderContentList(allContents);
+                            }
+                        } else {
+                            allContents.removeAll(moved);
+                            allContents.addAll(lastIndex + 2 - moved.size(), moved);
+                            reOrderContentList(allContents);
+                            anchorIndex = lastIndex + 1;
+                        }
+                    }
+                }
+
+                chooser.updateListContents();
+                int index = 0;
+                if (moveUp) {
+                    for (int i = anchorIndex; index < indices.length; i++) indices[index++] = i;
+                } else {
+                    for (int i = anchorIndex; index < indices.length; i--) indices[index++] = i;
+                }
+                chooser.setSelectedIndices(indices);
+            }
+
+            private void reOrderContentList(@NotNull List<Transferable> allContents) {
+                inContentManipulation[0] = true;
+                try {
+                    int iMax = allContents.size();
+                    Transferable[] currentOrder = copyPasteManager.getAllContents();
+                    int i;
+                    for (i = iMax; i-- > 0; ) {
+                        if (currentOrder[i] != allContents.get(i)) break;
+                    }
+
+                    for (i++; i-- > 0; ) {
+                        copyPasteManager.moveContentToStackTop(allContents.get(i));
+                    }
+                } finally {
+                    inContentManipulation[0] = false;
                 }
             }
 
@@ -308,29 +458,15 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 }
                 return null;
             }
-
-            @Nullable
-            @Override
-            protected JComponent getAboveEditorComponent() {
-                if (showInstructions) {
-                    String copyShortcut = KeymapUtil.getFirstKeyboardShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_COPY));
-                    String deleteShortcut = KeymapUtil.getFirstKeyboardShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_DELETE));
-                    if (!copyShortcut.isEmpty()) copyShortcut = String.format(" (%s)", copyShortcut);
-                    if (!deleteShortcut.isEmpty()) deleteShortcut = String.format(" (%s)", deleteShortcut);
-                    String bannerSlogan = Bundle.message("content-chooser.above-editor.description", copyShortcut, deleteShortcut);
-                    myEmptyContentDescription.setContentBody(Utils.join(bannerSlogan.split("\n"), "<ul align='left'>", "</ul>", "<li>", "</li>"));
-                    return myEmptyContentDescription.myPanel;
-                }
-                return null;
-            }
         };
 
         final ContentChooser<Transferable> chooser = choosers[0];
         final CopyPasteManager.ContentChangedListener contentChangedListener = new CopyPasteManager.ContentChangedListener() {
             @Override
             public void contentChanged(@Nullable final Transferable oldTransferable, final Transferable newTransferable) {
-                scheduled[0].cancel();
-                scheduled[0] = OneTimeRunnable.schedule(50, listUpdater);
+                if (!inContentManipulation[0]) {
+                    listUpdater.run();
+                }
             }
         };
 
@@ -350,13 +486,13 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             if (selectedIndices.length == 1) {
                 copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
             } else {
-                copyPasteManager.setContents(new StringSelection(chooser.getSelectedText() + "\n"));
+                copyPasteManager.setContents(getMergedTransferable(editor, chooser.getAllContents(), selectedIndices));
             }
 
             if (editor != null) {
                 if (editor.isViewer()) return;
 
-                final AnAction pasteAction = getPasteAction(editor);
+                final AnAction pasteAction = getPasteAction(editor, recreateCarets[0]);
 
                 AnActionEvent newEvent = new AnActionEvent(e.getInputEvent(),
                         DataManager.getInstance().getDataContext(focusedComponent),
@@ -371,6 +507,143 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     pasteAction.actionPerformed(new ActionEvent(focusedComponent, ActionEvent.ACTION_PERFORMED, ""));
                 }
             }
+        }
+    }
+
+    @NotNull
+    private String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addFinalEOL) {
+        final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, content);
+        if (caretContent != null) {
+            // convert multi caret text to \n separated ranges
+            StringBuilder sb = new StringBuilder();
+            final String[] texts = caretContent.getTexts();
+            if (texts != null) {
+                int iMax = caretContent.getCaretCount();
+                for (int i = 0; i < iMax; i++) {
+                    //noinspection ConstantConditions
+                    if (caretContent.isFullLine(i)) {
+                        if (showEOL) {
+                            sb.append(texts[i].substring(0, texts[i].length() - 1));
+                            sb.append('⏎');
+                            sb.append('\n');
+                        } else {
+                            sb.append(texts[i]);
+                        }
+                    } else {
+                        sb.append(texts[i]);
+                        sb.append('\n');
+                    }
+                }
+
+                // remove last EOL so that line count reflects inserted lines
+                if (!addFinalEOL) {
+                    if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
+                        sb.delete(sb.length() - 1, sb.length());
+                    }
+                }
+                return sb.toString();
+            }
+        }
+        return "";
+    }
+
+    private Transferable getMergedTransferable(@Nullable Editor editor, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
+        List<ClipboardCaretContent> caretContentList = new ArrayList<>();
+
+        boolean mergeCharSelectionCarets = false;
+        boolean mergeCharLineSelectionCarets = false;
+        for (int index : selectedIndices) {
+            final Transferable transferable = allContents.get(index);
+            ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
+            caretContentList.add(caretContent);
+            assert caretContent != null;
+
+            mergeCharLineSelectionCarets |= (caretContent.hasFullLines());
+            mergeCharSelectionCarets |= (caretContent.hasFullLines() || caretContent.hasCharLines());
+        }
+
+        final List<TextRange> ranges = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
+        String sep = "\n";
+        for (ClipboardCaretContent caretContent : caretContentList) {
+            int iMax = caretContent.getCaretCount();
+            int firstCharSelectionIndex = -1;
+            final String[] texts = caretContent.getTexts();
+            assert texts != null;
+            for (int i = 0; i < iMax; i++) {
+                if (caretContent.isFullLine(i)) {
+                    if (firstCharSelectionIndex != -1) {
+                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
+                        firstCharSelectionIndex = -1;
+                    }
+
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else if (caretContent.isCharLine(i)) {
+                    if (firstCharSelectionIndex != -1) {
+                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
+                        firstCharSelectionIndex = -1;
+                    }
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    sb.append(sep);
+
+                    if (mergeCharLineSelectionCarets) ranges.add(new TextRange(startOffset, endOffset + 1));
+                    else ranges.add(new TextRange(startOffset, endOffset));
+                } else {
+                    if (mergeCharSelectionCarets) {
+                        if (firstCharSelectionIndex == -1) firstCharSelectionIndex = i;
+                    } else {
+                        int startOffset = sb.length();
+                        sb.append(texts[i]);
+                        int endOffset = sb.length();
+                        sb.append(sep);
+                        ranges.add(new TextRange(startOffset, endOffset));
+                    }
+                }
+            }
+
+            if (firstCharSelectionIndex != -1) {
+                // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, iMax, mergeCharLineSelectionCarets);
+                firstCharSelectionIndex = -1;
+            }
+        }
+
+        // if all are char selections then we can make a combined char selection, otherwise we merge all of them into a single line caret block
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[ranges.size()];
+        int[] endOffsets = new int[ranges.size()];
+        int i = 0;
+        for (TextRange range : ranges) {
+            startOffsets[i] = range.getStartOffset();
+            endOffsets[i] = range.getEndOffset();
+            i++;
+        }
+
+        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        final Transferable transferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+        return transferable;
+    }
+
+    private void mergeCharSelectionCarets(final StringBuilder content, String sep, final List<TextRange> ranges, final String[] texts, final int startIndex, final int endIndex, final boolean mergeCharLineSelectionCarets) {
+        if (startIndex < endIndex) {
+            int startOffset = content.length();
+            String useSep = "";
+            for (int i = startIndex; i < endIndex; i++) {
+                content.append(useSep);
+                useSep = sep;
+                content.append(texts[i]);
+            }
+
+            if (mergeCharLineSelectionCarets) content.append(sep);
+            int endOffset = content.length();
+            ranges.add(new TextRange(startOffset, endOffset));
         }
     }
 

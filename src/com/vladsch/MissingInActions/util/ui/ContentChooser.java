@@ -350,6 +350,10 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
     updateViewerForSelection();
   }
 
+  public void setSelectedIndices(int[] indices) {
+    myList.setSelectedIndices(indices);
+  }
+
   @NotNull
   public int[] getSelectedIndices() {
     Object[] values = myList.getSelectedValues();

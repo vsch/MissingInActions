@@ -77,6 +77,8 @@
 
 ### 0.8.1 - Bug Fixes and Enhancements
 
+- Add: second button to multi-paste dialog for paste with carets when regular paste from
+  history, and duplicate and paste when invoked from duplicate for clipboard carets.
 - Fix: paste range tracking with selection if after paste code changed indentation
 - Add: regex testing dialog and button in settings
 - Fix: after pasting non-line content, caret position should be left unmolested

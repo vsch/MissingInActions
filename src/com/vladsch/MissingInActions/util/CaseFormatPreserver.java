@@ -25,7 +25,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
-import com.vladsch.MissingInActions.settings.RemovePrefixOnPasteType;
+import com.vladsch.MissingInActions.settings.RemovePrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +69,7 @@ public class CaseFormatPreserver {
 
     public void studyFormatBefore(@NotNull EditorCaret editorCaret
             , final @Nullable String removePrefix1, final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
     ) {
         final Caret caret = editorCaret.getCaret();
         studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), removePrefix1, removePrefix2, prefixOnPasteType);
@@ -82,13 +82,13 @@ public class CaseFormatPreserver {
             , final int selectionEnd
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
     ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
         int beforeOffset = offset;
         int afterOffset = beforeOffset;
-        RemovePrefixOnPasteType prefixType = prefixOnPasteType == null ? RemovePrefixOnPasteType.DEFAULT : prefixOnPasteType;
+        RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.DEFAULT : prefixOnPasteType;
 
         clear();
 
@@ -147,7 +147,7 @@ public class CaseFormatPreserver {
             , final boolean preserveScreamingSnakeCase
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
             , final boolean addPrefix
     ) {
         InsertedRangeContext i = preserveFormatAfter(
@@ -190,7 +190,7 @@ public class CaseFormatPreserver {
             , final boolean preserveScreamingSnakeCase
             , final @Nullable String removePrefix1
             , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPasteType prefixOnPasteType
+            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
             , final boolean addPrefix
     ) {
         String prefix1 = removePrefix1 == null ? "" : removePrefix1;
@@ -205,7 +205,7 @@ public class CaseFormatPreserver {
             int caretDelta = 0;
 
             if (!i.isIsolated() || hadSelection) {
-                RemovePrefixOnPasteType prefixType = prefixOnPasteType == null ? RemovePrefixOnPasteType.DEFAULT : prefixOnPasteType;
+                RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.DEFAULT : prefixOnPasteType;
 
                 if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
                     String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);

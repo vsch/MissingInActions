@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
@@ -61,7 +60,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private JBCheckBox myRemovePrefixOnPaste;
     private JBCheckBox myAddPrefixOnPaste;
     private JBCheckBox myOverrideStandardPaste;
-    private JBCheckBox myOverrideStandardPasteShowInstructions;
+    private JBCheckBox myMultiPasteShowInstructions;
+    private JBCheckBox myMultiPasteShowEOL;
     private JBTextField myRemovePrefixOnPaste1;
     private JBTextField myRemovePrefixOnPaste2;
     private JComboBox mySelectPastedPredicate;
@@ -162,7 +162,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || myRemovePrefixOnPaste.isSelected() != mySettings.isRemovePrefixOnPaste()
                 || myAddPrefixOnPaste.isSelected() != mySettings.isAddPrefixOnPaste()
                 || myOverrideStandardPaste.isSelected() != mySettings.isOverrideStandardPaste()
-                || myOverrideStandardPasteShowInstructions.isSelected() != mySettings.isOverrideStandardPasteShowInstructions()
+                || myMultiPasteShowInstructions.isSelected() != mySettings.isMultiPasteShowInstructions()
+                || myMultiPasteShowEOL.isSelected() != mySettings.isMultiPasteShowEOL()
                 || !myRemovePrefixOnPaste1.getText().trim().equals(mySettings.getRemovePrefixOnPaste1().trim())
                 || !myRemovePrefixOnPaste2.getText().trim().equals(mySettings.getRemovePrefixOnPaste2().trim())
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
@@ -183,7 +184,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || LinePasteCaretAdjustmentType.getInt(myLinePasteCaretAdjustment) != mySettings.getLinePasteCaretAdjustment()
                 || CaretAdjustmentType.getInt(myCaretOnMoveSelectionDown) != mySettings.getCaretOnMoveSelectionDown()
                 || CaretAdjustmentType.getInt(myCaretOnMoveSelectionUp) != mySettings.getCaretOnMoveSelectionUp()
-                || RemovePrefixOnPasteType.getInt(myRemovePrefixOnPasteType) != mySettings.getRemovePrefixOnPasteType()
+                || RemovePrefixOnPastePatternType.getInt(myRemovePrefixOnPasteType) != mySettings.getRemovePrefixOnPastePattern()
 
                 || !mySample1Text.equals(mySettings.getRegexSample1Text())
                 || !mySample2Text.equals(mySettings.getRegexSample2Text())
@@ -211,7 +212,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySettings.setRemovePrefixOnPaste(myRemovePrefixOnPaste.isSelected());
         mySettings.setAddPrefixOnPaste(myAddPrefixOnPaste.isSelected());
         mySettings.setOverrideStandardPaste(myOverrideStandardPaste.isSelected());
-        mySettings.setOverrideStandardPasteShowInstructions(myOverrideStandardPasteShowInstructions.isSelected());
+        mySettings.setMultiPasteShowInstructions(myMultiPasteShowInstructions.isSelected());
+        mySettings.setMultiPasteShowEOL(myMultiPasteShowEOL.isSelected());
         mySettings.setRemovePrefixOnPaste1(myRemovePrefixOnPaste1.getText().trim());
         mySettings.setRemovePrefixOnPaste2(myRemovePrefixOnPaste2.getText().trim());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
@@ -233,7 +235,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         mySettings.setCaretOnMoveSelectionDown(CaretAdjustmentType.getInt(myCaretOnMoveSelectionDown));
         mySettings.setCaretOnMoveSelectionUp(CaretAdjustmentType.getInt(myCaretOnMoveSelectionUp));
-        mySettings.setRemovePrefixOnPasteType(RemovePrefixOnPasteType.getInt(myRemovePrefixOnPasteType));
+        mySettings.setRemovePrefixOnPastePattern(RemovePrefixOnPastePatternType.getInt(myRemovePrefixOnPasteType));
         mySettings.setRegexSample1Text(mySample1Text);
         mySettings.setRegexSample2Text(mySample2Text);
 
@@ -264,7 +266,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myRemovePrefixOnPaste.setSelected(mySettings.isRemovePrefixOnPaste());
         myAddPrefixOnPaste.setSelected(mySettings.isAddPrefixOnPaste());
         myOverrideStandardPaste.setSelected(mySettings.isOverrideStandardPaste());
-        myOverrideStandardPasteShowInstructions.setSelected(mySettings.isOverrideStandardPasteShowInstructions());
+        myMultiPasteShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
+        myMultiPasteShowEOL.setSelected(mySettings.isMultiPasteShowEOL());
         myRemovePrefixOnPaste1.setText(mySettings.getRemovePrefixOnPaste1().trim());
         myRemovePrefixOnPaste2.setText(mySettings.getRemovePrefixOnPaste2().trim());
 
@@ -273,7 +276,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         SelectionPredicateType.set(myDuplicateAtStartOrEndPredicate, mySettings.getDuplicateAtStartOrEndPredicate());
         LinePasteCaretAdjustmentType.set(myLinePasteCaretAdjustment, mySettings.getLinePasteCaretAdjustment());
         CaretAdjustmentType.set(myCaretOnMoveSelectionDown, mySettings.getCaretOnMoveSelectionDown());
-        RemovePrefixOnPasteType.set(myRemovePrefixOnPasteType, mySettings.getRemovePrefixOnPasteType());
+        RemovePrefixOnPastePatternType.set(myRemovePrefixOnPasteType, mySettings.getRemovePrefixOnPastePattern());
 
         myUnselectToggleCase.setSelected(mySettings.isUnselectToggleCase());
         myDuplicateAtStartOrEnd.setSelected(mySettings.isDuplicateAtStartOrEnd());
@@ -337,9 +340,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         mySelectPastedMultiCaretPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
-        myOverrideStandardPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteShowEOL.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
-        final boolean regexPrefixes = RemovePrefixOnPasteType.get(myRemovePrefixOnPasteType) == RemovePrefixOnPasteType.REGEX;
+        final boolean regexPrefixes = RemovePrefixOnPastePatternType.get(myRemovePrefixOnPasteType) == RemovePrefixOnPastePatternType.REGEX;
         final boolean enablePrefixes =
                 myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
                         || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled();
@@ -393,7 +397,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.createComboBox();
         myCaretOnMoveSelectionDown = CaretAdjustmentType.createComboBox();
         myCaretOnMoveSelectionUp = CaretAdjustmentType.createComboBox();
-        myRemovePrefixOnPasteType = RemovePrefixOnPasteType.createComboBox();
+        myRemovePrefixOnPasteType = RemovePrefixOnPastePatternType.createComboBox();
         myMouseModifier = MouseModifierType.createComboBox();
 
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);

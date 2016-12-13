@@ -26,9 +26,6 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.ex.util.EditorUtil;
-import com.vladsch.MissingInActions.manager.EditorCaret;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,8 +48,8 @@ abstract public class AbstractNextOrPrevWordHandler extends EditorActionHandler 
         boolean isNext = isNext();
         boolean differentHumpsMode = isInDifferentHumpsMode();
         int boundaryFlags = getBoundaryFlags();
-        
-        if (EditorUtil.isPasswordEditor(editor)) {
+
+        if (EditHelpers.isPasswordEditor(editor)) {
             int selectionStartOffset = caret.getLeadSelectionOffset();
             caret.moveToOffset(isNext ? editor.getDocument().getTextLength() : 0);
             if (withSelection) caret.setSelection(selectionStartOffset, caret.getOffset());

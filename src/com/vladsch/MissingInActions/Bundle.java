@@ -23,6 +23,8 @@ package com.vladsch.MissingInActions;
 
 import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.util.ResourceBundle;
@@ -47,6 +49,31 @@ public class Bundle {
 
     public static String message(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
         return CommonBundle.message(BUNDLE, key, params);
+    }
+
+    @Nullable
+    public static String messageOrNull(@NotNull ResourceBundle bundle, @NotNull String key,
+            @NotNull Object... params) {
+        final String value = CommonBundle.messageOrDefault(bundle, key, key, params);
+        if (key.equals(value)) return null;
+        return value;
+    }
+
+    public static String indexedMessage(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+        int index = 0;
+        while (true) {
+            String message = messageOrNull(BUNDLE, index++ > 0 ? String.format("%s-%d", key, index) : key, params);
+            if (message == null) {
+                if (index > 0) break;
+            }
+            else {
+                sb.append(sep).append(message);
+                sep = "\n";
+            }
+        }
+        return sb.toString();
     }
 
     public static String messageOrBlank(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {

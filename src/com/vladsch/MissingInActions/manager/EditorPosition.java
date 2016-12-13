@@ -258,7 +258,7 @@ public class EditorPosition extends LogicalPosition {
 
     @NotNull
     public EditorPosition atOffset(int offset) {
-        return offset == getOffset() ? this : myFactory.fromOffset(offset);
+        return offset == getOffset() && this.column <= atEndColumn().column ? this : myFactory.fromOffset(offset);
     }
 
     public EditorPosition atIndentColumn() {
