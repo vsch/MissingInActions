@@ -52,8 +52,8 @@ public class ClipboardCaretContent {
     private final @Nullable int[] myCaretColumns;          // caret logical column position before it was adjusted by CaretOffsetAdjuster
     private final boolean myHadSelection;
     private final @Nullable String[] myTexts;
-    private final @Nullable BitSet myFullLines;            // carets or caret terminated by EOL
-    private final @Nullable BitSet myCharLines;            // carets or caret not terminated by EOL but more than one line
+    private final @NotNull BitSet myFullLines;            // carets or caret terminated by EOL
+    private final @NotNull BitSet myCharLines;            // carets or caret not terminated by EOL but more than one line
     private final int myCaretCount;
     private final int myLineCount;
     private final @Nullable RangeMarker myRangeMarker;     // only set if editor supports multiple carets && caret count == 1 && !rangeAtStart && !rangeAtEnd, used to pasted text range after PasteHandler formats the data
@@ -66,8 +66,8 @@ public class ClipboardCaretContent {
             , @Nullable final String[] texts
             , final int caretCount
             , final int lineCount
-            , final @Nullable BitSet fullLines
-            , final @Nullable BitSet charLines
+            , final @NotNull BitSet fullLines
+            , final @NotNull BitSet charLines
             , final @Nullable RangeMarker rangeMarker
             , final boolean rangeAtTextStart
             , final boolean rangeAtTextEnd
@@ -138,20 +138,44 @@ public class ClipboardCaretContent {
     public String[] getTexts() { return myTexts; }
 
     public boolean hasFullLines() {
-        return myFullLines != null && myFullLines.nextSetBit(0) != -1;
+        return myFullLines.nextSetBit(0) != -1;
+    }
+
+    public boolean allFullLines() {
+        return myFullLines.nextClearBit(0) >= myCaretCount && myCharLines.nextClearBit(0) >= myCaretCount;
     }
 
     public boolean hasCharLines() {
-        return myCharLines != null && myCharLines.nextSetBit(0) != -1;
+        return myCharLines.nextSetBit(0) != -1;
+    }
+
+    public boolean allCharLines() {
+        return myFullLines.nextSetBit(0) == -1 && myCharLines.nextClearBit(0) >= myCaretCount;
+    }
+
+    public boolean hasChars() {
+        BitSet bitSet = new BitSet(myCaretCount);
+        bitSet.or(myFullLines);
+        bitSet.or(myCharLines);
+
+        return bitSet.nextClearBit(0) < myCaretCount;
+    }
+
+    public boolean allChars() {
+        BitSet bitSet = new BitSet(myCaretCount);
+        bitSet.or(myFullLines);
+        bitSet.or(myCharLines);
+
+        return bitSet.nextSetBit(0) == -1;
     }
 
     public int getCaretCount() { return myCaretCount; }
 
     public int getLineCount() { return myLineCount; }
 
-    public boolean isFullLine(int caretIndex) { return myFullLines != null && myFullLines.get(caretIndex); }
+    public boolean isFullLine(int caretIndex) { return myFullLines.get(caretIndex); }
 
-    public boolean isCharLine(int caretIndex) { return myCharLines != null && myCharLines.get(caretIndex); }
+    public boolean isCharLine(int caretIndex) { return myCharLines.get(caretIndex); }
 
     public int getCaretColumn(int caretIndex) { return myCaretColumns == null || caretIndex >= myCaretColumns.length ? -1 : myCaretColumns[caretIndex]; }
 
@@ -371,7 +395,8 @@ public class ClipboardCaretContent {
             }
 
             if (caretCount == 1) {
-                int startOffset = ranges[0].getStartOffset();
+                // have to use selection size not the range for post-paste offsets
+                int startOffset = editor.getCaretModel().getPrimaryCaret().getSelectionStart();
                 int endOffset = startOffset + selectionSize;
                 boolean rangeAtTextStart = startOffset == 0;
                 boolean rangeAtTextEnd = endOffset == editor.getDocument().getTextLength();

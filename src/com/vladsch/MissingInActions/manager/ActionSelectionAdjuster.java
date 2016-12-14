@@ -37,6 +37,7 @@ import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.settings.*;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.ValueRunnable;
@@ -52,7 +53,7 @@ import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
-public class ActionSelectionAdjuster implements AnActionListener, Disposable {
+public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
 
     final private @NotNull AfterActionList myAfterActions = new AfterActionList();
@@ -77,7 +78,13 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
         myEditor = manager.getEditor();
         myAdjustmentsMap = normalAdjustmentMap;
 
-        ActionManager.getInstance().addAnActionListener(this);
+        Plugin.getInstance().addEditorActionListener(myEditor, this, myManager);
+    }
+
+    @NotNull
+    @Override
+    public Editor getEditor() {
+        return myEditor;
     }
 
     public void recallLastSelection(boolean swapWithCurrent) {
@@ -116,7 +123,6 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
     @Override
     public void dispose() {
-        ActionManager.getInstance().removeAnActionListener(this);
         if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
         if (myTentativeSelectionMarker != null) myTentativeSelectionMarker.dispose();
         myLastSelectionMarker = null;
@@ -125,57 +131,57 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
     @Override
     public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
-        if (CommonDataKeys.EDITOR.getData(dataContext) == myEditor) {
-            int nesting = myNestingLevel.incrementAndGet();
-            myTentativeSelectionMarker = null;
+        assert CommonDataKeys.EDITOR.getData(dataContext) == myEditor;
 
-            if (nesting == 1 && canSaveAsLastSelection()) {
-                // top level, can tentatively save the current selection
-                try {
-                    myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
-                } catch (UnsupportedOperationException e) {
-                    myTentativeSelectionMarker = null;
-                }
+        int nesting = myNestingLevel.incrementAndGet();
+        myTentativeSelectionMarker = null;
+
+        if (nesting == 1 && canSaveAsLastSelection()) {
+            // top level, can tentatively save the current selection
+            try {
+                myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
+            } catch (UnsupportedOperationException e) {
+                myTentativeSelectionMarker = null;
             }
+        }
 
-            if (myManager.isLineSelectionSupported()) {
-                if (!myEditor.isColumnMode()) {
-                    if (debug) System.out.println("Before " + action + ", nesting: " + myNestingLevel.get());
-                    cancelTriggeredAction(action.getClass());
-                    if (!myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
-                        runBeforeTriggeredActions();
-                    }
-
-                    AdjustmentType adjustments = myAdjustmentsMap.getAdjustment(action.getClass());
-                    if (adjustments != null && adjustments != UNDOE_REDO___NOTHING__NOTHING) {
-                        //if (debug) System.out.println("running Before " + action);
-                        guard(() -> {
-                            ApplicationSettings settings = getSettings();
-                            try {
-                                adjustBeforeAction(settings, action, adjustments, event);
-                            } catch (Throwable e) {
-                                logger.error("adjustBeforeAction exception", e);
-
-                                // remove stuff added for after action and cleanup
-                                Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
-                                Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
-                                if (cleanup != null) cleanup.forEach(Runnable::run);
-                            }
-                        });
-                    }
-
-                    if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
-                        runAfterAction(event, () -> addTriggeredAction(action.getClass()));
-                    }
-                } else {
-                    if (debug) System.out.println("Before " + action);
-                    cancelTriggeredAction(action.getClass());
+        if (myManager.isLineSelectionSupported()) {
+            if (!myEditor.isColumnMode()) {
+                if (debug) System.out.println("Before " + action + ", nesting: " + myNestingLevel.get());
+                cancelTriggeredAction(action.getClass());
+                if (!myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
                     runBeforeTriggeredActions();
+                }
 
-                    // this is not necessarily line mode dependent
-                    if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
-                        runAfterAction(event, () -> addTriggeredAction(action.getClass()));
-                    }
+                AdjustmentType adjustments = myAdjustmentsMap.getAdjustment(action.getClass());
+                if (adjustments != null && adjustments != UNDOE_REDO___NOTHING__NOTHING) {
+                    //if (debug) System.out.println("running Before " + action);
+                    guard(() -> {
+                        ApplicationSettings settings = getSettings();
+                        try {
+                            adjustBeforeAction(settings, action, adjustments, event);
+                        } catch (Throwable e) {
+                            logger.error("adjustBeforeAction exception", e);
+
+                            // remove stuff added for after action and cleanup
+                            Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
+                            Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
+                            if (cleanup != null) cleanup.forEach(Runnable::run);
+                        }
+                    });
+                }
+
+                if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
+                    runAfterAction(event, () -> addTriggeredAction(action.getClass()));
+                }
+            } else {
+                if (debug) System.out.println("Before " + action);
+                cancelTriggeredAction(action.getClass());
+                runBeforeTriggeredActions();
+
+                // this is not necessarily line mode dependent
+                if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
+                    runAfterAction(event, () -> addTriggeredAction(action.getClass()));
                 }
             }
         }
@@ -226,19 +232,18 @@ public class ActionSelectionAdjuster implements AnActionListener, Disposable {
 
     @Override
     public void beforeEditorTyping(char c, DataContext dataContext) {
-        if (CommonDataKeys.EDITOR.getData(dataContext) == myEditor) {
-            runBeforeTriggeredActions();
+        assert CommonDataKeys.EDITOR.getData(dataContext) == myEditor;
+        runBeforeTriggeredActions();
 
-            ApplicationSettings settings = ApplicationSettings.getInstance();
+        ApplicationSettings settings = ApplicationSettings.getInstance();
 
-            // DONE: add option for typing not deleting a line selection
-            CaretModel caretModel = myEditor.getCaretModel();
-            if (!settings.isTypingDeletesLineSelection()
-                    && myEditor.getSelectionModel().hasSelection()
-                    && caretModel.getCaretCount() == 1
-                    && myManager.getEditorCaret(caretModel.getPrimaryCaret()).isLine()) {
-                myEditor.getSelectionModel().removeSelection();
-            }
+        // DONE: add option for typing not deleting a line selection
+        CaretModel caretModel = myEditor.getCaretModel();
+        if (!settings.isTypingDeletesLineSelection()
+                && myEditor.getSelectionModel().hasSelection()
+                && caretModel.getCaretCount() == 1
+                && myManager.getEditorCaret(caretModel.getPrimaryCaret()).isLine()) {
+            myEditor.getSelectionModel().removeSelection();
         }
     }
 

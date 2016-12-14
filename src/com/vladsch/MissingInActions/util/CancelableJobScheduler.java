@@ -44,7 +44,6 @@ public class CancelableJobScheduler {
     final private TimeUnit myTimeUnit = TimeUnit.MILLISECONDS;
 
     public CancelableJobScheduler() {
-
         myTickTime = new AtomicLong(Long.MIN_VALUE);
         JobScheduler.getScheduler().scheduleWithFixedDelay(this::onTimerTick, myResolution, myResolution, myTimeUnit);
     }
@@ -59,7 +58,7 @@ public class CancelableJobScheduler {
 
     private void onTimerTick() {
         long tickTime = myTickTime.addAndGet(myResolution);
-        
+
         // run all tasks whose tickTime is <= tickTime
         MyRunnable dummy = new MyRunnable(tickTime, this::onTimerTick);
         myRunnables.removeIfBefore(dummy, MyRunnable::run);

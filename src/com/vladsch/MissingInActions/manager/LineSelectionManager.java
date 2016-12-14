@@ -21,9 +21,6 @@
 
 package com.vladsch.MissingInActions.manager;
 
-import com.intellij.codeInsight.lookup.LookupManager;
-import com.intellij.codeInsight.lookup.impl.LookupImpl;
-import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
@@ -31,24 +28,17 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
-import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
-import com.vladsch.MissingInActions.util.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.DelayedRunner;
+import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
@@ -59,7 +49,7 @@ import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_ARE
 public class LineSelectionManager implements
         CaretListener
         //, SelectionListener
-        , PropertyChangeListener
+        , EditorActiveLookupListener
         , EditorMouseListener
         , EditorMouseMotionListener
         , Disposable
@@ -79,8 +69,6 @@ public class LineSelectionManager implements
     private boolean myIsSelectionStartExtended;
     private final CaretHighlighter myCaretHighlighter;
     private ApplicationSettings mySettings;
-    private AnAction myMultiPasteAction;
-    //private PasteOverrider myPasteOverrider;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -95,7 +83,7 @@ public class LineSelectionManager implements
 
     @NotNull
     public static LineSelectionManager getInstance(@NotNull Editor editor) {
-        return Plugin.getInstance().getSelectionAdjuster(editor);
+        return Plugin.getInstance().getSelectionManager(editor);
     }
 
     public LineSelectionManager(Editor editor) {
@@ -114,9 +102,6 @@ public class LineSelectionManager implements
         myCaretHighlighter = caretHighlighter;
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
 
-        myMultiPasteAction = null;
-        //myPasteOverrider = null;
-
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
 
@@ -129,6 +114,7 @@ public class LineSelectionManager implements
         return myPositionFactory;
     }
 
+    @NotNull
     public Editor getEditor() {
         return myEditor;
     }
@@ -231,49 +217,6 @@ public class LineSelectionManager implements
         }
     }
 
-    ///**
-    // * This is needed to override paste actions only if there are multiple carets
-    // * <p>
-    // * Otherwise, formatting after paste will not work right in single caret mode and
-    // * without the override multi-caret select after paste and all the smart paste
-    // * adjustments don't work because the IDE does not provide data for last pasted
-    // * ranges.
-    // */
-    //private class PasteOverrider implements IdeEventQueue.EventDispatcher {
-    //    @Override
-    //    public boolean dispatch(@NotNull AWTEvent e) {
-    //        if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-    //            Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
-    //                return component == myEditor.getComponent();
-    //            });
-    //
-    //            if (owner == myEditor.getComponent()) {
-    //                boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
-    //                if (registerPasteOverrides == (myMultiPasteAction == null)) {
-    //                    if (!registerPasteOverrides) {
-    //                        // unregister them
-    //                        unRegisterPasteOverrides();
-    //                    } else {
-    //                        // we register our own pastes to handle multi-caret
-    //                        registerPasteOverrides();
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        return false;
-    //    }
-    //}
-
-    private void registerPasteOverrides() {
-        myMultiPasteAction = new MiaMultiplePasteAction();
-        myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), myEditor.getContentComponent());
-    }
-
-    private void unRegisterPasteOverrides() {
-        if (myMultiPasteAction != null) myMultiPasteAction.unregisterCustomShortcutSet(myEditor.getContentComponent());
-        myMultiPasteAction = null;
-    }
-
     private void hookListeners(ApplicationSettings settings) {
         // wire ourselves in
         if (isLineSelectionSupported()) {
@@ -288,11 +231,7 @@ public class LineSelectionManager implements
             //});
 
             if (myEditor.getProject() != null) {
-                LookupManager.getInstance(myEditor.getProject()).addPropertyChangeListener(this);
-
-                myDelayedRunner.addRunnable("LookupManagerPropertyListener", () -> {
-                    LookupManager.getInstance(myEditor.getProject()).removePropertyChangeListener(this);
-                });
+                Plugin.getInstance().addEditorActiveLookupListener(myEditor, this);
             }
 
             if (settings.isMouseLineSelection()) {
@@ -303,45 +242,18 @@ public class LineSelectionManager implements
                     myEditor.removeEditorMouseMotionListener(this);
                 });
             }
-
-            // override standard pastes
-            if (settings.isOverrideStandardPaste()) {
-                registerPasteOverrides();
-                myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
-                //if (settings.isOverrideStandardPasteShowInstructions()) {
-                //    myPasteOverrider = new PasteOverrider();
-                //    IdeEventQueue.getInstance().addDispatcher(myPasteOverrider, this);
-                //
-                //    myDelayedRunner.addRunnable("Override Paste", () -> {
-                //        unRegisterPasteOverrides();
-                //        if (myPasteOverrider != null) IdeEventQueue.getInstance().removeDispatcher(myPasteOverrider);
-                //        myMultiPasteAction = null;
-                //    });
-                //} else {
-                //    registerPasteOverrides();
-                //    myDelayedRunner.addRunnable("Override Paste", this::unRegisterPasteOverrides);
-                //}
-            }
         }
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
-            final JComponent rootPane = myEditor.getComponent();
-            Editor newEditor = null;
-            Editor oldEditor = null;
-            if (evt.getNewValue() instanceof LookupImpl) {
-                LookupImpl lookup = (LookupImpl) evt.getNewValue();
-                newEditor = lookup.getEditor();
-            }
-            if (evt.getOldValue() instanceof LookupImpl) {
-                LookupImpl lookup = (LookupImpl) evt.getOldValue();
-                oldEditor = lookup.getEditor();
-            }
-            myIsActiveLookup = newEditor == myEditor;
-            int tmp = 0;
-        }
+    public void enterActiveLookup() {
+        myIsActiveLookup = true;
+    }
+
+    @Override
+    public void exitActiveLookup() {
+        myIsActiveLookup = false;
+
     }
 
     @SuppressWarnings("WeakerAccess")

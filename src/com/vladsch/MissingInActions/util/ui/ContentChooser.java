@@ -48,6 +48,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -295,21 +296,27 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
       shortString = fullString.trim();
     }
     else {
+      final String tooLongSuffix = getShortStringTooLongSuffix(content);
       int lastLooked = 0;
       do  {
         int nextLineIdx = fullString.indexOf("\n", lastLooked);
         if (nextLineIdx > lastLooked) {
-          shortString = fullString.substring(lastLooked, nextLineIdx).trim() + " ...";
+          shortString = fullString.substring(lastLooked, nextLineIdx).trim() + tooLongSuffix;
           break;
         }
         else if (nextLineIdx == -1) {
-          shortString = " ...";
+          shortString = tooLongSuffix;
           break;
         }
         lastLooked = nextLineIdx + 1;
       } while (true);
     }
     return shortString;
+  }
+
+  @NotNull
+  protected String getShortStringTooLongSuffix(Data content) {
+    return " ...";
   }
 
   private void rebuildListContent() {

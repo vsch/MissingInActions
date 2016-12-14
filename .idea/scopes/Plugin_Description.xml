@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Plugin Description" pattern="file[MissingInActions]:MissingInActionsAssets/markdown/*" />
+</component>

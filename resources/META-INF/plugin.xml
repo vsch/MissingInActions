@@ -19,118 +19,112 @@
   ~ under the License.
   -->
 
-<idea-plugin version="2" url="http://github.com/vsch/MissingInActions">
+<idea-plugin url="http://github.com/vsch/MissingInActions">
     <id>com.vladsch.MissingInActions</id>
     <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
     <description><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <p>Adds missing editor actions for navigation, selection and manipulation of selections and multiple carets.</p>
-            <p><strong>Plugin website: <a href="http://github.com/vsch/MissingInActions"><span
-                    style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
-            <p><strong>Bug tracking & feature requests: <a
-                    href="https://github.com/vsch/MissingInActions/issues"><span style="color:#30A0D8">Missing In Actions GitHub Issues</span></a></strong>
-            </p>
-            <!--<p><strong>Documentation: <a href="https://github.com/vsch/idea-multimarkdown/wiki"><span style="color:#30A0D8">MultiMarkdown GitHub Wiki page.</span></a></strong>--></p>
+            <h1><img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions</h1>
+            <p>Adds missing editor actions for end of word navigation but that is just the beginning:</p>
+            <ul>
+                <li>Enable Auto Indent Lines after move line/selection up or down actions to have them indented
+                    automatically.</li>
+                <li>Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
+                    match case and style of identifier at destination when you paste, undo to get results before
+                    MIA adjusted them.
+                    <p>Copy <code>myColumnData</code> and paste it over <code>DEFAULT_VALUE</code> to get <code>COLUMN_DATA</code>, reverse the
+                        order and get <code>myDefaultValue</code>.</p>
+                    <p>Works when pasting at the <strong>beginning</strong>, <strong>end</strong> and <strong>middle</strong> of identifiers.</p>
+                    <p>Supports: <strong>camelCase</strong>, <strong>PascalCase</strong>, <strong>snake_case</strong>, <strong>SCREAMING_SNAKE_CASE</strong></p>
+                </li>
+                <li>Enable Auto Line Selections and select full lines without loosing time or column position by
+                    moving the caret to the start of line when selecting or pasting.
+                    <p><strong>Choose</strong> whether you want to <strong>paste full line</strong> selections: <strong>above</strong> or <strong>below</strong> the
+                        current line regardless of the caret's column.</p>
+                </li>
+                <li>Toggle between selection and multiple carets on selected lines to save time re-selecting the
+                    same text again.</li>
+                <li>Filter multiple carets saves you time when creating multiple carets by removing carets on
+                    blank or comment lines so you can edit only code lines.</li>
+                <li>Enhanced Paste from History dialog:
+                    <ul>
+                        <li><strong>combine</strong>, <strong>arrange</strong> and <strong>reverse</strong> the order of content entries</li>
+                        <li><strong>combine multiple</strong> clipboard contents <strong>with caret information intact</strong></li>
+                        <li><strong>paste and re-create multiple carets</strong> from information already stored on the clipboard</li>
+                        <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the first
+                            line</strong> of the block, ready for multi-caret select and paste</li>
+                        <li>see caret information stored on the clipboard for each content entry</li>
+                    </ul>
+                </li>
+                <li>Many more options and adjustments to make multiple caret text editing fast, efficient and
+                    easy.</li>
+            </ul>
+            <p><strong>Plugin website:
+                <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
+            <p><strong>Bug tracking &amp; feature requests:
+                <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Issues</span></a></strong></p>
         </div>
         ]]>
     </description>
 
-    <version>0.8.0.2</version>
+    <version>0.8.1.1</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.0 - Bug Fixes and New Features</h3>
+            <h3>0.8.1.1 - Bug Fixes and Enhancements</h3>
             <ul>
-                <li>Add: pictographic of dupe for carets on clipboard</li>
-                <li>Add: adding prefixes when pasting over words with prefix to smart paste when pasting over
-                    an identifier that had a prefix.</li>
-                <li>Fix: line selecting up when line from is completely empty just moves up without selecting</li>
-                <li>Add: <code>Duplicate Line or Selection for Carets on Clipboard</code> action which will duplicate line or
-                    selection to match number of carets in the clipboard and create a caret on the first line of
-                    each copied block. No need to count how many duplicates you need for multi-caret text on
-                    clipboard or to place carets for it. Just copy multi-caret selection, then go to line or
-                    select lines to be duplicated and action!, <code>Duplicate Line or Selection for Carets on Clipboard</code> that is.
-                    <p>If the selection is a character selection within a line, will duplicate the line and carets
-                        with this selection. Makes it quick to create variants by:</p>
-                    <ol>
-                        <li>copying multi-caret selection</li>
-                        <li>select part of the line to be replaced</li>
-                        <li>dupe for clipboard carets</li>
-                        <li>paste</li>
-                    </ol>
-                </li>
-                <li>Add: smart paste functionality.
+                <li>Fix: when pasting line selections the range marker offset was setup for post-paste operation
+                    instead of pre-paste, which made it inaccurate after re-indent or re-format was applied after
+                    pasting.</li>
+                <li>Add: Trailing EOL indicator when enabled to short string in multi paste content list</li>
+                <li>Create an API for editor specific listeners in application component and forward these to
+                    the appropriate editor specific listener. For
+                    <code>beforeActionPerformed</code>/<code>afterActionPerformed</code> listeners create map entry on event in
+                    <code>beforeActionPerformed</code> to editor and use this in the <code>afterActionPerformed</code> to route to
+                    the appropriate listener.
                     <ul>
-                        <li>preserve camel/pascal case, screaming snake case and snake case on char paste based on
-                            context of where it is pasted and what is pasted.</li>
-                        <li>remove prefix on paste if pasting text next to or inside an identifier, with two
-                            configurable prefixes by default: <code>my</code> and <code>our</code></li>
+                        <li>automatically unregister on editor removal</li>
+                        <li>implement for the following:
+                            <ul>
+                                <li>ActionListener</li>
+                                <li>IdeEventQueue.EventDispatcher</li>
+                                <li>PropertyChangeListener</li>
+                            </ul>
+                        </li>
                     </ul>
-                    <p>The two combined together allow you to select a member with prefix and paste it anywhere.
-                        MIA will adjust the pasted text to match the format at destination: camel case, snake case,
-                        screaming snake case. Inserting and deleting underscores as needed, adjusting case after the
-                        pasted text if needed. 90% of the time there is no need to edit results after pasting, the
-                        other 10% hit undo and get the text as it was before MIA modified it.</p>
                 </li>
-                <li>Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
-                    caret filtering and spawning actions.</li>
-                <li>Add: select to end of file and select to beginning of file as line selection ops (with an
-                    option in settings)</li>
-                <li>Fix: Copy moves to bottom since the mark is always start anchored</li>
-                <li>Add: line comment caret remove/keep actions. Rename the others to fit in the remove/keep
-                    format. Line Comment is a line that either begins with a line comment prefix, or one that
-                    begins with a block comment prefix and ends in a block comment prefix.
+                <li>Add: second button to multi-paste dialog for paste with carets when regular paste from
+                    history, and duplicate and paste when invoked from duplicate for clipboard carets.</li>
+                <li>Fix: paste range tracking with selection if after paste code changed indentation</li>
+                <li>Add: regex testing dialog and button in settings</li>
+                <li>Fix: after pasting non-line content, caret position should be left unmolested</li>
+                <li>Fix: selection adjust after copy should not change a pre-existing multi-line char selection to
+                    a line selection.</li>
+                <li>Add: MiaMultiplePasteAction now displays extensive information about the clipboard content;
                     <ul>
-                        <li><code>MissingInActions.KeepBlankLineCarets</code>: keep only carets on blank lines</li>
-                        <li><code>MissingInActions.KeepCodeLineCarets</code>: keep only carets on lines which are not blank and not line comments</li>
-                        <li><code>MissingInActions.KeepLineCommentCarets</code>: keep only carets on line comment lines</li>
-                        <li><code>MissingInActions.RemoveBlankLineCarets</code>: remove carets which are not on blank lines</li>
-                        <li><code>MissingInActions.RemoveCodeLineCarets</code>: remove carets which are on blank or line comment lines</li>
-                        <li><code>MissingInActions.RemoveLineCommentCarets</code>: remove carets which are not on line comment lines</li>
-                        <li><code>MissingInActions.SmartKeepLineCarets</code>: useful for quickly isolating code, or comment lines. If have carets
-                            on code lines, remove non-code lines; else if have carets on line comment lines then
-                            remove non-comment lines, else nothing.</li>
-                        <li><code>MissingInActions.SmartRemoveLineCarets</code>: opposite of smart keep. Useful for isolating carets so unneeded
-                            lines can be deleted. If have carets on code lines, remove code lines; else if have carets
-                            on line comment lines then remove comment lines, else nothing.</li>
+                        <li>Whether an entry is multi-caret or single caret or text</li>
+                        <li>For each entry shows the caret lines and whether they are line selections, char selections
+                            or multi-line char selections</li>
+                        <li>Updates when the text in the preview is copied to the clipboard</li>
                     </ul>
-                    <p>In all cases if the operation would remove all carets then nothing is done.</p>
                 </li>
-            </ul>
-            <h3>0.7.2 - Refactoring and Code Cleanup</h3>
-            <ul>
-                <li>Fix: copy in multi-caret mode with selections moves the first caret to end of
-                    selection. Disable caret movement for copy in multi-caret mode.</li>
-                <li>Fix: move lines up/down looses caret column</li>
-                <li>Fix: selecting lines down gets stuck at blank lines when shrinking selection and anchor is
-                    at column 1.</li>
-                <li>Fix: toggle caret looses the original anchor column</li>
-                <li>Fix: move lines up/down with selection having anchor at column 1 moves caret to column 1
-                    instead of preserving it.</li>
-                <li>Add: options on where to move the caret on selection move: for up and for down.</li>
-                <li>Fix: check if editor has pop-up and do nothing for up/down/left/right keys. Test that
-                    left/right is needed.</li>
-                <li>Change: switch all code to use <code>EditorCaret</code> for manipulating selections</li>
-                <li>Change: completely rewritten the abstraction layer. Now much better and easier to
-                    maintain.</li>
-                <li>Add: Selection extends at start/end, 4 combinations</li>
-                <li>Add: Typing deletes line selection option</li>
-                <li>Add: options for select pasted and duplicate: always, if 1 or more, 2 or more,...,5 or
-                    more lines</li>
-                <li>Add: indent/unindent to preserve caret column position</li>
-                <li>Fix: disable trying to preserve column when soft-wraps are on. Just freezes the caret at
-                    a location since vertical movement causes horizontal in the visual position space.</li>
-                <li>Fix: disabling delete on typing for line selections would sometimes disable it for non
-                    line selections.</li>
+                <li>Fix: Mia Paste no longer need for making multi-caret select pasted text nor preserve case
+                    format, using caret listener instead</li>
+                <li>Fix: #10, Select Pasted Text wrong range selected if pasted text is adjusted by PasteHandler</li>
+                <li>Add: range marker to keep track of pasted text when caret count == 1. PasteHandler formats
+                    the code after paste and messes up the offsets.</li>
             </ul>
         </div>
         ]]></change-notes>
 
     <project-components>
         <!-- Plugin's project components -->
+        <component>
+            <implementation-class>com.vladsch.MissingInActions.PluginProjectComponent</implementation-class>
+        </component>
     </project-components>
 
     <application-components>

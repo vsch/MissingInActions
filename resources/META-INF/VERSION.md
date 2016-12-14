@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.8.1 - Bug Fixes and Enhancements](#081---bug-fixes-and-enhancements)
+- [0.8.1.1 - Bug Fixes and Enhancements](#0811---bug-fixes-and-enhancements)
 - [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
 - [0.7.2 - Refactoring and Code Cleanup](#072---refactoring-and-code-cleanup)
 - [0.7.0 - Enhancements](#070---enhancements)
@@ -73,10 +73,25 @@
       - [ ] if no caret columns changed as the result of above steps, add indent spaces to
             alignment column and repeat previous two steps.
 
+- [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 &nbsp;</details>
 
-### 0.8.1 - Bug Fixes and Enhancements
+### 0.8.1.1 - Bug Fixes and Enhancements
 
+- Fix: when pasting line selections the range marker offset was setup for post-paste operation
+  instead of pre-paste, which made it inaccurate after re-indent or re-format was applied after
+  pasting.
+- Add: Trailing EOL indicator when enabled to short string in multi paste content list
+- Create an API for editor specific listeners in application component and forward these to
+      the appropriate editor specific listener. For
+      `beforeActionPerformed`/`afterActionPerformed` listeners create map entry on event in
+      `beforeActionPerformed` to editor and use this in the `afterActionPerformed` to route to
+      the appropriate listener.
+      - automatically unregister on editor removal
+      - implement for the following:
+          - ActionListener
+          - IdeEventQueue.EventDispatcher
+          - PropertyChangeListener
 - Add: second button to multi-paste dialog for paste with carets when regular paste from
   history, and duplicate and paste when invoked from duplicate for clipboard carets.
 - Fix: paste range tracking with selection if after paste code changed indentation
@@ -97,7 +112,7 @@
 
 ### 0.8.0 - Bug Fixes and New Features
 
-- Add: pictographic of dupe for carets on clipboard
+- Add: pictographic of dupe for carets on clipboard to readme
 - Add: adding prefixes when pasting over words with prefix to smart paste when pasting over an
   identifier that had a prefix.
 - Fix: line selecting up when line from is completely empty just moves up without selecting

@@ -22,10 +22,11 @@
 package com.vladsch.MissingInActions.util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Set;
 
 public class DelayedRunner {
-    final private LinkedHashMap<Object, ArrayList<Runnable>> myRunnables = new LinkedHashMap<>();
+    final private HashMap<Object, ArrayList<Runnable>> myRunnables = new HashMap<>();
     final private Object myUnnamedKey = new Object();
 
     public DelayedRunner() {
@@ -33,13 +34,21 @@ public class DelayedRunner {
     }
 
     public void runAll() {
-        for (ArrayList<Runnable> runnableList : myRunnables.values()) {
-            for (Runnable runnable : runnableList) {
-                runnable.run();
-            }
+        final Object[] keys = myRunnables.keySet().toArray();
+        for (Object key : keys) {
+            runAllFor(key);
         }
+    }
 
-        myRunnables.clear();
+    public void runAllFor() {
+        runAllFor(myUnnamedKey);
+    }
+
+    public void runAllFor(Object key) {
+        ArrayList<Runnable> runnableList = myRunnables.remove(key);
+        for (Runnable runnable : runnableList) {
+            runnable.run();
+        }
     }
 
     public void addRunnable(Object key, Runnable runnable) {

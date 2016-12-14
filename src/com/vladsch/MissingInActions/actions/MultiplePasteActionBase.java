@@ -28,12 +28,10 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
-import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.impl.DocumentMarkupModel;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -43,7 +41,7 @@ import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.MissingInActions.util.ui.ContentChooser;
-import com.vladsch.MissingInActions.util.ui.EmptyContentPane;
+import com.vladsch.MissingInActions.settings.HintContentPane;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,9 +66,11 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
 public abstract class MultiplePasteActionBase extends AnAction implements DumbAware {
     private static final Logger LOG = getInstance("com.vladsch.MissingInActions.actions");
+    private String myEolText;
 
     public MultiplePasteActionBase() {
         setEnabledInModalContext(true);
+        myEolText = "⏎";
     }
 
     @NotNull
@@ -100,11 +100,15 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
         final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && editor.getCaretModel().getCaretCount() == 1;
-        final EmptyContentPane myEmptyContentDescription = new EmptyContentPane();
+        final HintContentPane myEmptyContentDescription = new HintContentPane();
         final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
         final boolean[] recreateCarets = new boolean[] { false };
+        final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
+
+        // Can change according to settings later
+        // myEolText = "⏎";
 
         //noinspection unchecked
         final ContentChooser<Transferable>[] choosers = new ContentChooser[] { null };
@@ -116,14 +120,26 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             @Override
             protected String getStringRepresentationFor(final Transferable content) {
                 //return (String) content.getTransferData(DataFlavor.stringFlavor);
-                return getStringRep(editor, content, settings.isMultiPasteShowEOL(), false);
+                return getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true);
             }
 
             @NotNull
             @Override
             protected String getShortStringFor(final Transferable content, final String fullString) {
                 ClipboardCaretContent caretContent = getCaretContent(content);
-                return String.format("[%d] %s", caretContent == null ? 1 : caretContent.getCaretCount(), super.getShortStringFor(content, fullString));
+                final int caretCount = caretContent == null ? 1 : caretContent.getCaretCount();
+                String contentText = getStringRep(editor, content, false, false, false);
+                String eolText = settings.isMultiPasteShowEolInList()
+                        && contentText.endsWith("\n") && (caretCount == 1 || caretContent.allFullLines()) ? myEolText : "";
+                stringTooLongSuffix.put(content, eolText);
+                return String.format("[%d] %s", caretCount, super.getShortStringFor(content, contentText));
+            }
+
+            @NotNull
+            @Override
+            protected String getShortStringTooLongSuffix(Transferable content) {
+                final String s = stringTooLongSuffix.get(content);
+                return super.getShortStringTooLongSuffix(content) + (s == null ? "" : s);
             }
 
             @Override
@@ -179,7 +195,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             if (caret != null) {
                                 caret.moveToOffset(startOffset);
                                 //noinspection PointlessBooleanExpression,ConstantConditions
-                                offset += caretContent.isFullLine(i) && !settings.isMultiPasteShowEOL() ? 0 : 1;
+                                offset += caretContent.isFullLine(i) && !settings.isMultiPasteShowEolInViewer() ? 0 : 1;
                             }
 
                             RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, null);
@@ -192,7 +208,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
                                     final Document document = viewer.getDocument();
                                     document.setReadOnly(false);
-                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true));
+                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true,false));
                                     document.setReadOnly(true);
                                 });
                             }
@@ -204,7 +220,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 if (textLength > 0) {
                                     WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
                                         document.setReadOnly(false);
-                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEOL(), false));
+                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false,true));
                                         document.setReadOnly(true);
                                     });
                                 }
@@ -245,7 +261,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     if (selectedIndices.length > 1) {
                         // combine indices
                         Transferable content = getMergedTransferable(editor, choosers[0].getAllContents(), selectedIndices);
-                        return getStringRep(editor, content, settings.isMultiPasteShowEOL(), false);
+                        return getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false,true);
                     } else {
                         return super.getSelectedText();
                     }
@@ -316,10 +332,10 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             @Nullable
             @Override
             protected JComponent getAboveEditorComponent() {
-                String copyShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_COPY),1);
-                String deleteShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_DELETE),1);
-                String moveLineUpShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_UP_ACTION),2);
-                String moveLineDownShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_DOWN_ACTION),2);
+                String copyShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_COPY), 1);
+                String deleteShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(IdeActions.ACTION_DELETE), 1);
+                String moveLineUpShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_UP_ACTION), 2);
+                String moveLineDownShortcut = CommonUIShortcuts.getNthShortcutText(ActionManager.getInstance().getAction(CommonUIShortcuts.ACTION_MOVE_LINE_DOWN_ACTION), 2);
                 if (!copyShortcut.isEmpty()) copyShortcut = String.format(" (%s)", copyShortcut);
                 if (!deleteShortcut.isEmpty()) deleteShortcut = String.format(" (%s)", deleteShortcut);
                 if (!moveLineUpShortcut.isEmpty()) moveLineUpShortcut = String.format(" (%s)", moveLineUpShortcut);
@@ -511,7 +527,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
     }
 
     @NotNull
-    private String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addFinalEOL) {
+    private String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
         final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, content);
         if (caretContent != null) {
             // convert multi caret text to \n separated ranges
@@ -524,21 +540,22 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     if (caretContent.isFullLine(i)) {
                         if (showEOL) {
                             sb.append(texts[i].substring(0, texts[i].length() - 1));
-                            sb.append('⏎');
-                            sb.append('\n');
+                            sb.append(myEolText);
+                            if (!removeFullLineEOL) {
+                                sb.append('\n');
+                            }
                         } else {
-                            sb.append(texts[i]);
+                            if (removeFullLineEOL) {
+                                sb.append(texts[i].substring(0, texts[i].length() - 1));
+                            } else {
+                                sb.append(texts[i]);
+                            }
                         }
                     } else {
                         sb.append(texts[i]);
-                        sb.append('\n');
-                    }
-                }
-
-                // remove last EOL so that line count reflects inserted lines
-                if (!addFinalEOL) {
-                    if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') {
-                        sb.delete(sb.length() - 1, sb.length());
+                        if (addCharFinalEOL || i < iMax - 1) {
+                            sb.append('\n');
+                        }
                     }
                 }
                 return sb.toString();

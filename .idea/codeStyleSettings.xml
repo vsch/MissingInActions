@@ -6,6 +6,7 @@
         <option name="FIELD_NAME_PREFIX" value="my" />
         <option name="STATIC_FIELD_NAME_PREFIX" value="our" />
         <option name="PREFER_LONGER_NAMES" value="false" />
+        <option name="GENERATE_FINAL_PARAMETERS" value="true" />
         <option name="RIGHT_MARGIN" value="140" />
         <option name="HTML_ATTRIBUTE_WRAP" value="0" />
         <option name="HTML_TEXT_WRAP" value="0" />
@@ -45,9 +46,9 @@
         </JavaCodeStyleSettings>
         <MarkdownNavigatorCodeStyleSettings>
           <option name="WRAP_ON_TYPING" value="1" />
-          <option name="SMART_EDIT_ASTERISKS" value="true" />
-          <option name="SMART_EDIT_TILDES" value="true" />
           <option name="KEEP_BLANK_LINES" value="1" />
+          <option name="KEEP_TRAILING_SPACES" value="0" />
+          <option name="FORMAT_WITH_SOFT_WRAP" value="2" />
           <option name="LIST_ALIGN_FIRST_LINE_TEXT" value="true" />
           <option name="LIST_SPACING" value="1" />
           <option name="VERBATIM_MINIMIZE_INDENT" value="true" />
@@ -64,10 +65,6 @@
           <option name="TOC_TITLE_LEVEL" value="3" />
           <option name="RIGHT_MARGIN" value="96" />
         </MarkdownNavigatorCodeStyleSettings>
-        <MultiMarkdownCodeStyleSettings>
-          <option name="LIST_ALIGN_FIRST_LINE_TEXT" value="true" />
-          <option name="LIST_RIGHT_ALIGN_NUMERIC" value="true" />
-        </MultiMarkdownCodeStyleSettings>
         <XML>
           <option name="XML_ATTRIBUTE_WRAP" value="0" />
           <option name="XML_KEEP_BLANK_LINES" value="1" />
@@ -124,17 +121,6 @@
           <indentOptions>
             <option name="INDENT_SIZE" value="4" />
           </indentOptions>
-        </codeStyleSettings>
-        <codeStyleSettings language="JavaScript">
-          <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
-          <option name="WHILE_ON_NEW_LINE" value="true" />
-          <option name="CATCH_ON_NEW_LINE" value="true" />
-          <option name="FINALLY_ON_NEW_LINE" value="true" />
-          <option name="SPECIAL_ELSE_IF_TREATMENT" value="false" />
-          <option name="IF_BRACE_FORCE" value="3" />
-          <option name="DOWHILE_BRACE_FORCE" value="3" />
-          <option name="WHILE_BRACE_FORCE" value="1" />
-          <option name="FOR_BRACE_FORCE" value="1" />
         </codeStyleSettings>
         <codeStyleSettings language="XML">
           <option name="RIGHT_MARGIN" value="999" />

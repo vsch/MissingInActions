@@ -1,4 +1,5 @@
-# Missing In Actions
+<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="41" width="62" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
+============================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
 [Download Latest 0.8.0 from this repo]
@@ -13,59 +14,45 @@
     - [Auto Line Selections](#auto-line-selections)
 
 
-A plugin that adds new editing capabilities to the IDE or makes existing ones a lot more
-powerful.
+Adds missing editor actions for end of word navigation but that is just the beginning:
 
-* Preserve Case on Paste option that will change the case style of identifier being pasted based
-  on where it is pasted. Preserves camel, pascal, snake and screaming snake case of destination
-  and optionally removes/adds prefixes like `my` or `our`. Works like magic.
+- Enable Auto Indent Lines after move line/selection up or down actions to have them indented
+  automatically.
+- Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
+  match case and style of identifier at destination when you paste, undo to get results before
+  MIA adjusted them.
+    
+    Copy `myColumnData` and paste it over `DEFAULT_VALUE` to get `COLUMN_DATA`, reverse the
+    order and get `myDefaultValue`. 
+    
+    Works when pasting at the **beginning**, **end** and **middle** of identifiers.
+    
+    Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE** 
+- Enable Auto Line Selections and select full lines without loosing time or column position by
+  moving the caret to the start of line when selecting or pasting. 
 
-    ![Mia Smart Paste Multi Caret]
+    **Choose** whether you want to **paste full line** selections: **above** or **below** the
+    current line regardless of the caret's column.
+- Toggle between selection and multiple carets on selected lines to save time re-selecting the
+  same text again.
+- Filter multiple carets saves you time when creating multiple carets by removing carets on
+  blank or comment lines so you can edit only code lines.
+- Enhanced Paste from History dialog:
+    - **combine**, **arrange** and **reverse** the order of content entries 
+    - **combine multiple** clipboard contents **with caret information intact**
+    - **paste and re-create multiple carets** from information already stored on the clipboard
+    - **duplicate line/block for each caret** in the clipboard content and **put a caret on the first
+      line** of the block, ready for multi-caret select and paste
+    - see caret information stored on the clipboard for each content entry
+- Many more options and adjustments to make multiple caret text editing fast, efficient and
+  easy. 
 
-* Duplicate line or selection for number of carets on clipboard.
+**Plugin website:
+[<span style="color:#30A0D8">Missing In Actions GitHub Repo</span>](http://github.com/vsch/MissingInActions)**
 
-    ![Mia Dupe For Clipboard Carets]
+**Bug tracking & feature requests:
+[<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-* Auto Line Selection mode and supporting actions to automatically switch selection to full line
-  mode if selection spans more than one line.
-    * Paste options so that line based clipboard content will be pasted: above or below the
-      caret line, regardless of the column position of the caret.
-    * Actions to switch from Auto Line selection to character based selection
-    * Auto line selection mode for mouse selections
-    * Auto line selection multi-caret friendly actions that will not move carets to another
-      line:
-        * Next/Prev word stops at beginning and end of line for the caret
-        * Delete to End of Line will not delete that line's EOL when , causing it to join two
-          lines
-
-* Next/Previous word Start/End variations based on what marks a word boundary:
-    * IDE version: identifier characters, spaces, lexeme boundaries
-    * Words Only: identifier characters, spaces, all the rest
-    * Identifiers Only: identifier characters, all the rest
-    * Whitespace Delimited: non-spaces, spaces
-    * Customized: select your combinations for start/end/start and end of word and more.
-
-    ![Tools Settings Custom](assets/images/ToolsSettings_Custom.png) 
-
-* Actions to delete to line indent, to clear to line indent (replace all chars from caret to
-  line indent with spaces, delete and backspace spaces only. Useful to pull jagged text straight
-  with multi-carets.
-
-* Multi-caret and selection manipulation functions:
-    * Toggle from selection to carets and back
-    * Remove carets from blank lines or non-blank lines
-    * Straighten carets
-    * Switch selection direction to change the other end of the selection
-
-* Many optional improvements to built in functions:
-    * Remove selection created by toggle case action
-    * Keep Selection of pasted text so you can edit it by switching to multi-carets with the
-      selection to carets toggle action.
-    * Allow Duplicate Selection to duplicate above selected text if the selection was made
-      bottom up.
-    * Auto Indent Lines after moving lines up or down, with a settable delay so it won't slow
-      you down.
-    * Toggle CamelHumps mode
 
 ## Version 0.8.0 - Mia has come of age!
 
@@ -82,16 +69,15 @@ IntelliJ development tools are the best of breed when it comes to language suppo
 and the rest of intelligent language features but I find they suffer in their text editing
 capabilities, especially when it comes multiple caret editing.
 
-I wrote and maintained my own editor for over two decades, on the Amiga, then PC DOS then
-Windows (3.1 to Vista), only because I could not find the functionality I needed elsewhere. When
-I started development on a Mac, I no longer wanted to maintain that old war horse which was
-getting long in the tooth. I was sure that I was not going to rewrite it for the Mac and decided
-that I will give it up and get used to IntelliJ way of editing.
+I wrote and maintained my own editor for over two decades, only because I could not find the
+functionality I needed elsewhere. When I started development on a Mac, I no longer wanted to
+maintain that old war horse which was getting long in the tooth. I was sure that I was not going
+to rewrite it for the Mac and decided that I will give it up and get used to IntelliJ way of
+editing.
 
 I made the switch but found for some bulk edits I still preferred to fire up Parallels Desktop
-with Windows 10 and do the edit in my old workhorse. It was getting harder to use every time
-because some things no longer worked under Windows 10 and then horror! The old workhorse stopped
-working after a Windows 10 upgrade.
+with Windows 10 and do the edit in my old workhorse. I am now in the process of bringing some of
+its features to JetBrains IDEs with my Mia plugin.
 
 ### What you didn't know you were missing
 

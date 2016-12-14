@@ -3,7 +3,7 @@
 &nbsp;<details id="todo"><summary>**Refactoring To Do List**</summary>
 
 - [ ] Add to `EditorPosition` class all the text testing and moving at caret position. Pass
-      these through to `EditorCaret`
+      these through from `EditorCaret`
       - tests where flags are `EditHelpers` word boundary flags:
           - [ ] `isAtBoundary(int flags)`
           - [ ] isStart/isMiddle/isEnd OfWhitespaces : to test if at start/middle/end of
@@ -13,18 +13,6 @@
           - [ ] atNext/atPrevious Word/Whitespace/NonWhitespace Start/End
           - [x] atStart/atEnd Column
           - [x] atIndent/atTrimmedEnd Column
-- [ ] Create an API for editor specific listeners in application component and forward these to
-      the appropriate editor specific listener. For
-      `beforeActionPerformed`/`afterActionPerformed` listeners create map entry on event in
-      `beforeActionPerformed` to editor and use this in the `afterActionPerformed` to route to
-      the appropriate listener.
-      - [ ] automatically unregister on editor removal
-      - [ ] implement for the following:
-          - [ ] action listeners
-          - [ ] SelectionListener
-          - [ ] PropertyChangeListener
-          - [ ] EditorMouseListener
-          - [ ] EditorMouseMotionListener
 
 &nbsp;</details>
 

@@ -40,46 +40,49 @@ import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REG
 )
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
-    private int myAutoLineMode = AutoLineSettingType.DEFAULT.getIntValue();
-    private int myMouseModifier = MouseModifierType.DEFAULT.getIntValue();
-    private boolean myMouseLineSelection = false;
-    private boolean myDeleteOperations = false;
-    private boolean myUpDownMovement = false;
-    private boolean myIndentUnindent = false;
-    private boolean myLeftRightMovement = false;
-    private boolean myUpDownSelection = false;
-    private boolean myCopyLineOrLineSelection = false;
-    private boolean myStartEndAsLineSelection = false;
-    private int myAutoIndentDelay = 300;
-    private boolean myAutoIndent = false;
-    private boolean mySelectPasted = false;
-    private int mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
-    private int mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
-    private boolean myUnselectToggleCase = false;
-    private boolean myWeSetVirtualSpace = true;
-    private boolean myDuplicateAtStartOrEnd = false;
-    private int myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
-    private int myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
-    private boolean myMouseCamelHumpsFollow = false;
-    private boolean myIsSelectionEndExtended = false;
-    private boolean myIsSelectionStartExtended = false;
-    private boolean myTypingDeletesLineSelection = false;
-    private boolean myPreserveCamelCaseOnPaste = false;
-    private boolean myPreserveScreamingSnakeCaseOnPaste = false;
-    private boolean myPreserveSnakeCaseOnPaste = false;
-    private boolean myRemovePrefixOnPaste = false;
-    private boolean myAddPrefixOnPaste = false;
-    private int myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.DEFAULT.intValue;
-    private String myRemovePrefixOnPaste1 = "my";
-    private String myRemovePrefixOnPaste2 = "our";
-    private boolean myOverrideStandardPaste = false;
-    private boolean myMultiPasteShowInstructions = true;
-    private int myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
-    private int myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
-    private String myRegexSample1Text = "myCamelCaseInstanceMember";
-    private String myRegexSample2Text = "ourCamelCaseClassMember";
-    private boolean myMultiPasteShowEOL = true;
-    private boolean myMultiPasteShowOptions = true;
+    // @formatter:off
+    private boolean     myAddPrefixOnPaste = false;
+    private boolean     myAutoIndent = false;
+    private boolean     myCopyLineOrLineSelection = false;
+    private boolean     myDeleteOperations = false;
+    private boolean     myDuplicateAtStartOrEnd = false;
+    private boolean     myIndentUnindent = false;
+    private boolean     myIsSelectionEndExtended = false;
+    private boolean     myIsSelectionStartExtended = false;
+    private boolean     myLeftRightMovement = false;
+    private boolean     myMouseCamelHumpsFollow = false;
+    private boolean     myMouseLineSelection = false;
+    private boolean     myMultiPasteShowEolInViewer = false;
+    private boolean     myMultiPasteShowEolInList = true;
+    private boolean     myMultiPasteShowInstructions = true;
+    private boolean     myMultiPasteShowOptions = true;
+    private boolean     myOverrideStandardPaste = false;
+    private boolean     myPreserveCamelCaseOnPaste = false;
+    private boolean     myPreserveScreamingSnakeCaseOnPaste = false;
+    private boolean     myPreserveSnakeCaseOnPaste = false;
+    private boolean     myRemovePrefixOnPaste = false;
+    private boolean     mySelectPasted = false;
+    private boolean     myStartEndAsLineSelection = false;
+    private boolean     myTypingDeletesLineSelection = false;
+    private boolean     myUnselectToggleCase = false;
+    private boolean     myUpDownMovement = false;
+    private boolean     myUpDownSelection = false;
+    private boolean     myWeSetVirtualSpace = true;
+    private int         myAutoIndentDelay = 300;
+    private int         myAutoLineMode = AutoLineSettingType.DEFAULT.getIntValue();
+    private int         myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
+    private int         myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
+    private int         myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
+    private int         myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
+    private int         myMouseModifier = MouseModifierType.DEFAULT.getIntValue();
+    private int         myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.DEFAULT.intValue;
+    private int         mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
+    private int         mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
+    private String      myRegexSample1Text = "myCamelCaseInstanceMember";
+    private String      myRegexSample2Text = "ourCamelCaseClassMember";
+    private String      myRemovePrefixOnPaste1 = "my";
+    private String      myRemovePrefixOnPaste2 = "our";
+    // @formatter:on
 
     // get/set enums directly
     // @formatter:off
@@ -132,13 +135,17 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         );
     }
 
+    public boolean isMultiPasteShowEolInList() { return myMultiPasteShowEolInList; }
+
+    public void setMultiPasteShowEolInList(final boolean multiPasteShowEolInList) { myMultiPasteShowEolInList = multiPasteShowEolInList; }
+
     public boolean isMultiPasteShowOptions() { return myMultiPasteShowOptions; }
 
     public void setMultiPasteShowOptions(final boolean multiPasteShowOptions) { myMultiPasteShowOptions = multiPasteShowOptions; }
 
-    public boolean isMultiPasteShowEOL() { return myMultiPasteShowEOL; }
+    public boolean isMultiPasteShowEolInViewer() { return myMultiPasteShowEolInViewer; }
 
-    public void setMultiPasteShowEOL(final boolean multiPasteShowEOL) { myMultiPasteShowEOL = multiPasteShowEOL; }
+    public void setMultiPasteShowEolInViewer(final boolean multiPasteShowEolInViewer) { myMultiPasteShowEolInViewer = multiPasteShowEolInViewer; }
 
     public String getRegexSample1Text() { return myRegexSample1Text; }
 

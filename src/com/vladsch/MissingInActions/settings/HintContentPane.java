@@ -19,27 +19,28 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util.ui;
+package com.vladsch.MissingInActions.settings;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.JBUI;
-import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class EmptyContentPane {
+public class HintContentPane {
     private final ApplicationSettings mySettings;
     public JTextPane myTextPane;
     public JPanel myPanel;
     private JBCheckBox myShowInstructions;
-    private JBCheckBox myShowTerminatingEOL;
+    private JBCheckBox myMultiPasteShowEolInViewer;
+    private JBCheckBox myMultiPasteShowEolInList;
     private Runnable mySettingsChangedRunnable;
     private String myTextContent;
 
-    public EmptyContentPane() {
+    public HintContentPane() {
         mySettingsChangedRunnable = null;
         mySettings = ApplicationSettings.getInstance();
         myTextContent = "";
@@ -48,16 +49,24 @@ public class EmptyContentPane {
             updateTextPane();
         });
 
-        myShowTerminatingEOL.addActionListener(e -> {
-            mySettings.setMultiPasteShowEOL(myShowTerminatingEOL.isSelected());
-            if (mySettingsChangedRunnable != null) {
-                mySettingsChangedRunnable.run();
+        final ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                mySettings.setMultiPasteShowEolInViewer(myMultiPasteShowEolInViewer.isSelected());
+                mySettings.setMultiPasteShowEolInList(myMultiPasteShowEolInList.isSelected());
+                if (mySettingsChangedRunnable != null) {
+                    mySettingsChangedRunnable.run();
+                }
             }
-        });
+        };
+
+        myMultiPasteShowEolInViewer.addActionListener(actionListener);
+        myMultiPasteShowEolInList.addActionListener(actionListener);
 
         myShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
         myTextPane.setVisible(myShowInstructions.isSelected());
-        myShowTerminatingEOL.setSelected(mySettings.isMultiPasteShowEOL());
+        myMultiPasteShowEolInViewer.setSelected(mySettings.isMultiPasteShowEolInViewer());
+        myMultiPasteShowEolInList.setSelected(mySettings.isMultiPasteShowEolInList());
     }
 
     private void updateTextPane() {

@@ -41,52 +41,53 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private JPanel myMainPanel;
     final private ApplicationSettings mySettings;
 
-    private HyperlinkLabel mySetVirtualSpace;
+    private CustomizedBoundaryForm myCustomizedNextWordBounds;
+    private CustomizedBoundaryForm myCustomizedNextWordEndBounds;
+    private CustomizedBoundaryForm myCustomizedNextWordStartBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
+    private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
+    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm;
     private HyperlinkLabel myPreambleLabel;
-    private JComboBox myAutoLineMode;
-    private JBCheckBox myMouseLineSelection;
-    private JBCheckBox myUpDownSelection;
-    private JBCheckBox myDeleteOperations;
-    private JBCheckBox myUpDownMovement;
-    private JBCheckBox myLeftRightMovement;
-    private JBCheckBox myCopyLineOrLineSelection;
-    private JBCheckBox myStartEndAsLineSelection;
-    private JComboBox myMouseModifier;
+    private HyperlinkLabel mySetVirtualSpace;
+    private JBCheckBox myAddPrefixOnPaste;
     private JBCheckBox myAutoIndent;
-    private JBCheckBox mySelectPasted;
+    private JBCheckBox myCopyLineOrLineSelection;
+    private JBCheckBox myDeleteOperations;
+    private JBCheckBox myDuplicateAtStartOrEnd;
+    private JBCheckBox myIndentUnindent;
+    private JBCheckBox myIsSelectionEndExtendedPastCaret;
+    private JBCheckBox myIsSelectionStartExtendedBeforeCaret;
+    private JBCheckBox myLeftRightMovement;
+    private JBCheckBox myMouseCamelHumpsFollow;
+    private JBCheckBox myMouseLineSelection;
+    private JBCheckBox myMultiPasteShowEolInViewer;
+    private JBCheckBox myMultiPasteShowEolInList;
+    private JBCheckBox myMultiPasteShowInstructions;
+    private JBCheckBox myOverrideStandardPaste;
     private JBCheckBox myPreserveCamelCaseOnPaste;
     private JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
     private JBCheckBox myPreserveSnakeCaseOnPaste;
     private JBCheckBox myRemovePrefixOnPaste;
-    private JBCheckBox myAddPrefixOnPaste;
-    private JBCheckBox myOverrideStandardPaste;
-    private JBCheckBox myMultiPasteShowInstructions;
-    private JBCheckBox myMultiPasteShowEOL;
+    private JBCheckBox mySelectPasted;
+    private JBCheckBox myStartEndAsLineSelection;
+    private JBCheckBox myTypingDeletesLineSelection;
+    private JBCheckBox myUnselectToggleCase;
+    private JBCheckBox myUpDownMovement;
+    private JBCheckBox myUpDownSelection;
     private JBTextField myRemovePrefixOnPaste1;
     private JBTextField myRemovePrefixOnPaste2;
-    private JComboBox mySelectPastedPredicate;
-    private JComboBox mySelectPastedMultiCaretPredicate;
-    private JBCheckBox myUnselectToggleCase;
-    private JSpinner myAutoIndentDelay;
-    private JBCheckBox myDuplicateAtStartOrEnd;
-    private JComboBox myDuplicateAtStartOrEndPredicate;
-    private JComboBox myLinePasteCaretAdjustment;
-    private JBCheckBox myMouseCamelHumpsFollow;
-    private CustomizedBoundaryForm myCustomizedNextWordBounds;
-    private CustomizedBoundaryForm myCustomizedNextWordStartBounds;
-    private CustomizedBoundaryForm myCustomizedNextWordEndBounds;
-    private CustomizedBoundaryForm myCustomizedPrevWordBounds;
-    private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
-    private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
-    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm;
-    private JBCheckBox myIsSelectionEndExtendedPastCaret;
-    private JBCheckBox myIsSelectionStartExtendedBeforeCaret;
-    private JBCheckBox myTypingDeletesLineSelection;
-    private JBCheckBox myIndentUnindent;
+    private JButton myEditRegExButton;
+    private JComboBox myAutoLineMode;
     private JComboBox myCaretOnMoveSelectionDown;
     private JComboBox myCaretOnMoveSelectionUp;
+    private JComboBox myDuplicateAtStartOrEndPredicate;
+    private JComboBox myLinePasteCaretAdjustment;
+    private JComboBox myMouseModifier;
     private JComboBox myRemovePrefixOnPasteType;
-    private JButton myEditRegExButton;
+    private JComboBox mySelectPastedMultiCaretPredicate;
+    private JComboBox mySelectPastedPredicate;
+    private JSpinner myAutoIndentDelay;
 
     private @NotNull String mySample1Text;
     private @NotNull String mySample2Text;
@@ -163,7 +164,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || myAddPrefixOnPaste.isSelected() != mySettings.isAddPrefixOnPaste()
                 || myOverrideStandardPaste.isSelected() != mySettings.isOverrideStandardPaste()
                 || myMultiPasteShowInstructions.isSelected() != mySettings.isMultiPasteShowInstructions()
-                || myMultiPasteShowEOL.isSelected() != mySettings.isMultiPasteShowEOL()
+                || myMultiPasteShowEolInViewer.isSelected() != mySettings.isMultiPasteShowEolInViewer()
+                || myMultiPasteShowEolInList.isSelected() != mySettings.isMultiPasteShowEolInList()
                 || !myRemovePrefixOnPaste1.getText().trim().equals(mySettings.getRemovePrefixOnPaste1().trim())
                 || !myRemovePrefixOnPaste2.getText().trim().equals(mySettings.getRemovePrefixOnPaste2().trim())
                 || myUnselectToggleCase.isSelected() != mySettings.isUnselectToggleCase()
@@ -213,7 +215,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySettings.setAddPrefixOnPaste(myAddPrefixOnPaste.isSelected());
         mySettings.setOverrideStandardPaste(myOverrideStandardPaste.isSelected());
         mySettings.setMultiPasteShowInstructions(myMultiPasteShowInstructions.isSelected());
-        mySettings.setMultiPasteShowEOL(myMultiPasteShowEOL.isSelected());
+        mySettings.setMultiPasteShowEolInViewer(myMultiPasteShowEolInViewer.isSelected());
+        mySettings.setMultiPasteShowEolInList(myMultiPasteShowEolInList.isSelected());
         mySettings.setRemovePrefixOnPaste1(myRemovePrefixOnPaste1.getText().trim());
         mySettings.setRemovePrefixOnPaste2(myRemovePrefixOnPaste2.getText().trim());
         mySettings.setUnselectToggleCase(myUnselectToggleCase.isSelected());
@@ -267,7 +270,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myAddPrefixOnPaste.setSelected(mySettings.isAddPrefixOnPaste());
         myOverrideStandardPaste.setSelected(mySettings.isOverrideStandardPaste());
         myMultiPasteShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
-        myMultiPasteShowEOL.setSelected(mySettings.isMultiPasteShowEOL());
+        myMultiPasteShowEolInViewer.setSelected(mySettings.isMultiPasteShowEolInViewer());
+        myMultiPasteShowEolInList.setSelected(mySettings.isMultiPasteShowEolInList());
         myRemovePrefixOnPaste1.setText(mySettings.getRemovePrefixOnPaste1().trim());
         myRemovePrefixOnPaste2.setText(mySettings.getRemovePrefixOnPaste2().trim());
 
@@ -341,7 +345,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         mySelectPastedMultiCaretPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         myMultiPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
-        myMultiPasteShowEOL.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
         final boolean regexPrefixes = RemovePrefixOnPastePatternType.get(myRemovePrefixOnPasteType) == RemovePrefixOnPastePatternType.REGEX;
         final boolean enablePrefixes =
