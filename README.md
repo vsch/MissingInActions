@@ -2,11 +2,12 @@
 ============================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.8.0 from this repo]
+[Download Latest 0.8.2 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
     - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
@@ -21,15 +22,15 @@ Adds missing editor actions for end of word navigation but that is just the begi
 - Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
   match case and style of identifier at destination when you paste, undo to get results before
   MIA adjusted them.
-    
+
     Copy `myColumnData` and paste it over `DEFAULT_VALUE` to get `COLUMN_DATA`, reverse the
-    order and get `myDefaultValue`. 
-    
+    order and get `myDefaultValue`.
+
     Works when pasting at the **beginning**, **end** and **middle** of identifiers.
-    
-    Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE** 
+
+    Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**
 - Enable Auto Line Selections and select full lines without loosing time or column position by
-  moving the caret to the start of line when selecting or pasting. 
+  moving the caret to the start of line when selecting or pasting.
 
     **Choose** whether you want to **paste full line** selections: **above** or **below** the
     current line regardless of the caret's column.
@@ -38,14 +39,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 - Filter multiple carets saves you time when creating multiple carets by removing carets on
   blank or comment lines so you can edit only code lines.
 - Enhanced Paste from History dialog:
-    - **combine**, **arrange** and **reverse** the order of content entries 
+    - **combine**, **arrange** and **reverse** the order of content entries
     - **combine multiple** clipboard contents **with caret information intact**
     - **paste and re-create multiple carets** from information already stored on the clipboard
     - **duplicate line/block for each caret** in the clipboard content and **put a caret on the first
       line** of the block, ready for multi-caret select and paste
     - see caret information stored on the clipboard for each content entry
 - Many more options and adjustments to make multiple caret text editing fast, efficient and
-  easy. 
+  easy.
 
 **Plugin website:
 [<span style="color:#30A0D8">Missing In Actions GitHub Repo</span>](http://github.com/vsch/MissingInActions)**
@@ -54,10 +55,16 @@ Adds missing editor actions for end of word navigation but that is just the begi
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
 
-## Version 0.8.0 - Mia has come of age!
+## Version 0.8.2 - Enhanced Paste From History
 
 [Version Notes]
-[Download Latest 0.8.0 from this repo]
+[Download Latest 0.8.2 from this repo]
+
+- Enhanced Paste From History Added
+
+![Paste From History Details](/assets/images/PasteFromHistory_Details.png) 
+
+## Version 0.8.0 - Mia has come of age!
 
 ![Screen Shot sequence](/assets/images/noload/MissingInActions.gif)
 
@@ -222,7 +229,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 0.8.0 from this repo]: ../../raw/master/dist/MissingInActions.0.8.0.zip
+[Download Latest 0.8.2 from this repo]: ../../raw/master/dist/MissingInActions.0.8.2.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

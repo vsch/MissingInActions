@@ -651,7 +651,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
     private void mergeCharSelectionCarets(final StringBuilder content, String sep, final List<TextRange> ranges, final String[] texts, final int startIndex, final int endIndex, final boolean mergeCharLineSelectionCarets) {
         if (startIndex < endIndex) {
             int startOffset = content.length();
-            String useSep = "";
+            String useSep = startIndex == 0 ? "" : sep;
             for (int i = startIndex; i < endIndex; i++) {
                 content.append(useSep);
                 useSep = sep;
