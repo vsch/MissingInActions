@@ -60,7 +60,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 [Version Notes]
 [Download Latest 0.8.2 from this repo]
 
-- Enhanced Paste From History Added
+- Enhanced Paste From History Added, [Paste From History: A Power User Feature] 
 
 ![Paste From History Details](/assets/images/PasteFromHistory_Details.png) 
 
@@ -234,4 +234,5 @@ selection when the mouse button is released.
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
 [Version Notes]: /resources/META-INF/VERSION.md
+[Paste From History: A Power User Feature]: https://vladsch.com/blog/20
 
