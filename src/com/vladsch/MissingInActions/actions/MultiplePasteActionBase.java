@@ -106,6 +106,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final boolean[] inContentManipulation = new boolean[] { false };
         final boolean[] recreateCarets = new boolean[] { false };
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
+        final DelayedRunner delayedRunner = new DelayedRunner();
 
         // Can change according to settings later
         // myEolText = "⏎";
@@ -144,6 +145,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
             @Override
             protected Editor createIdeaEditor(final String text) {
+                delayedRunner.runAll();
+
                 final Editor viewer = super.createIdeaEditor(text);
                 final EditorSettings settings = viewer.getSettings();
                 settings.setFoldingOutlineShown(false);
@@ -202,13 +205,13 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
                         }
 
-                        viewer.getContentComponent().addFocusListener(new FocusAdapter() {
+                        final FocusAdapter focusAdapter = new FocusAdapter() {
                             @Override
                             public void focusGained(final FocusEvent e) {
                                 WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
                                     final Document document = viewer.getDocument();
                                     document.setReadOnly(false);
-                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true,false));
+                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
                                     document.setReadOnly(true);
                                 });
                             }
@@ -220,11 +223,16 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 if (textLength > 0) {
                                     WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
                                         document.setReadOnly(false);
-                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false,true));
+                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
                                         document.setReadOnly(true);
                                     });
                                 }
                             }
+                        };
+
+                        viewer.getContentComponent().addFocusListener(focusAdapter);
+                        delayedRunner.addRunnable(()->{
+                            viewer.getContentComponent().removeFocusListener(focusAdapter);
                         });
                     }
                 }
@@ -261,7 +269,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     if (selectedIndices.length > 1) {
                         // combine indices
                         Transferable content = getMergedTransferable(editor, choosers[0].getAllContents(), selectedIndices);
-                        return getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false,true);
+                        return getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true);
                     } else {
                         return super.getSelectedText();
                     }
@@ -464,15 +472,12 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
             @Nullable
             private ClipboardCaretContent getCaretContent(final @NotNull Transferable content) {
-                if (editor != null) {
-                    ClipboardCaretContent caretContent = listEntryCarets.get(content);
-                    if (!listEntryCarets.containsKey(content)) {
-                        caretContent = ClipboardCaretContent.studyTransferable(editor, content);
-                        listEntryCarets.put(content, caretContent);
-                    }
-                    return caretContent;
+                ClipboardCaretContent caretContent = listEntryCarets.get(content);
+                if (!listEntryCarets.containsKey(content)) {
+                    caretContent = ClipboardCaretContent.studyTransferable(editor, content);
+                    listEntryCarets.put(content, caretContent);
                 }
-                return null;
+                return caretContent;
             }
         };
 

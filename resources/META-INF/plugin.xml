@@ -68,12 +68,16 @@
         ]]>
     </description>
 
-    <version>0.8.2</version>
+    <version>0.8.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>0.8.3 - Bug Fixes and Enhancements</h3>
+            <ul>
+                <li>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</li>
+            </ul>
             <h3>0.8.2 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>Fix: when pasting line selections the range marker offset was setup for post-paste operation

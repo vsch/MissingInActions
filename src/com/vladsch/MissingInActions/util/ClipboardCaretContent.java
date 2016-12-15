@@ -314,7 +314,7 @@ public class ClipboardCaretContent {
         } else {
             String normalizedText = editor == null ? text : TextBlockTransferable.convertLineSeparators(editor, text);
             String[] texts = new String[1];
-            texts[1] = normalizedText;
+            texts[0] = normalizedText;
             BitSet fullLines = new BitSet(1);
             BitSet charLines = new BitSet(1);
             if (normalizedText.endsWith("\n")) fullLines.set(0);

@@ -26,8 +26,10 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
@@ -35,6 +37,7 @@ import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -46,7 +49,12 @@ import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -64,6 +72,8 @@ public class Plugin implements ApplicationComponent, Disposable {
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
     final private HashSet<Editor> myPasteOverrideEditors;
     final private AnAction myMultiPasteAction;
+    private ApplicationSettings mySettings;
+    private @Nullable JComponent myPasteOverrideComponent;
 
     public Plugin() {
         myDelayedRunner = new DelayedRunner();
@@ -72,10 +82,12 @@ public class Plugin implements ApplicationComponent, Disposable {
         myMultiPasteAction = new MiaMultiplePasteAction();
         myActionEventEditorMap = new HashMap<>();
         myEditorActionListeners = new HashMap<>();
+        myPasteOverrideComponent = null;
 
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
         myDelayedRunner.addRunnable(messageBusConnection::disconnect);
+        mySettings = ApplicationSettings.getInstance();
     }
 
     @NotNull
@@ -251,6 +263,7 @@ public class Plugin implements ApplicationComponent, Disposable {
 
     private void settingsChanged(@NotNull ApplicationSettings settings) {
         myDelayedRunner.runAllFor(myMultiPasteAction);
+        mySettings = settings;
 
         if (settings.isOverrideStandardPaste()) {
             // run it for all editors
@@ -313,8 +326,10 @@ public class Plugin implements ApplicationComponent, Disposable {
             });
         }
 
-        registerPasteOverrides(editor);
-        myDelayedRunner.addRunnable(editor, () -> unRegisterPasteOverrides(editor));
+        if (mySettings.isOverrideStandardPaste()) {
+            registerPasteOverrides(editor);
+            myDelayedRunner.addRunnable(editor, () -> unRegisterPasteOverrides(editor));
+        }
     }
 
     // EditorFactoryListener
@@ -357,6 +372,43 @@ public class Plugin implements ApplicationComponent, Disposable {
     //}
 
     private boolean dispatch(@NotNull final AWTEvent e) {
+        if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
+            final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
+                return component instanceof JTextComponent;
+            });
+
+            if (owner != null && owner instanceof JComponent) {
+                // register multi-paste if no already registered and remove when focus is lost
+                for (Editor editor : myPasteOverrideEditors) {
+                    if (owner == editor.getContentComponent()) {
+                        return false;
+                    }
+                }
+
+                if (myPasteOverrideComponent == null && mySettings.isOverrideStandardPaste()) {
+                    final FocusAdapter focusAdapter = new FocusAdapter() {
+                        @Override
+                        public void focusGained(final FocusEvent e) {
+                        }
+
+                        @Override
+                        public void focusLost(final FocusEvent e) {
+                            myDelayedRunner.runAllFor(owner);
+                        }
+                    };
+
+                    owner.addFocusListener(focusAdapter);
+                    myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), (JComponent) owner);
+                    myDelayedRunner.addRunnable(owner, () -> {
+                        owner.removeFocusListener(focusAdapter);
+                        myMultiPasteAction.unregisterCustomShortcutSet((JComponent) owner);
+                        myPasteOverrideComponent = null;
+                    });
+
+                    myPasteOverrideComponent = (JComponent) owner;
+                }
+            }
+        }
         return false;
     }
 
