@@ -175,14 +175,29 @@ public class EditorCaret implements EditorCaretSnapshot {
                     }
                 } else {
                     if (mySelectionStart.line + 1 == mySelectionEnd.line && mySelectionEnd.atEndColumn().column == 0) {
-                            // on an empty line the selection end offset will always convert to 0 column regardless of the caret column
-                            // this makes it look like the selection ends on previous line, when it ends on this one
-                            // need to adjust the end to compensate for the blank line behavior
-                            mySelectionEnd = mySelectionEnd.atStartOfNextLine().atColumn(myAnchorColumn);
+                        // on an empty line the selection end offset will always convert to 0 column regardless of the caret column
+                        // this makes it look like the selection ends on previous line, when it ends on this one
+                        // need to adjust the end to compensate for the blank line behavior
+                        mySelectionEnd = mySelectionEnd.atStartOfNextLine().atColumn(myAnchorColumn);
                     }
                 }
             }
         }
+    }
+
+    private EditorCaret(@NotNull EditorCaret other) {
+        myFactory = other.myFactory;
+        myCaret = other.myCaret;
+        myCaretPosition = other.myCaretPosition.copy();
+        mySelectionStart = other.mySelectionStart.copy();
+        mySelectionEnd = other.mySelectionEnd.copy();
+        myAnchorColumn = other.myAnchorColumn;
+        myIsStartAnchor = other.myIsStartAnchor;
+        myIsLine = other.myIsLine;
+    }
+
+    public EditorCaret copy() {
+        return new EditorCaret(this);
     }
 
     @NotNull

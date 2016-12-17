@@ -66,9 +66,19 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
                 int column = editorCaret.getCaretPosition().column;
                 editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
                 if (column != 0 && editorCaret.getCaretPosition().column == 0) {
-                      editorCaret.restoreColumn(column);
+                    editorCaret.restoreColumn(column);
                 }
                 editorCaret.commit();
+            } else {
+                // swap start/end
+                int startOffset = caret.getSelectionStart();
+                int endOffset = caret.getSelectionEnd();
+                if (caret.getLeadSelectionOffset() == caret.getSelectionStart()) {
+                    caret.moveToOffset(startOffset);
+                } else {
+                    caret.moveToOffset(endOffset);
+                }
+                caret.setSelection(endOffset, startOffset);
             }
         }
     }

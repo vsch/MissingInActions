@@ -49,8 +49,8 @@ public class MiaMultiplePasteAction extends MultiplePasteActionBase {
 
     @Nullable
     @Override
-    protected String getCreateWithCaretsName() {
-        return Bundle.message("content-chooser.add-with-carets.label");
+    protected String getCreateWithCaretsName(int caretCount) {
+        return caretCount > 1 ? null : Bundle.message("content-chooser.add-with-carets.label");
     }
 
     @Nullable

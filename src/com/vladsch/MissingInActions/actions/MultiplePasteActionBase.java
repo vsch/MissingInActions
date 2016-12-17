@@ -20,8 +20,6 @@
  */
 package com.vladsch.MissingInActions.actions;
 
-import com.intellij.codeInsight.editorActions.TextBlockTransferable;
-import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -85,7 +83,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
     protected abstract boolean isEnabled(@Nullable Editor editor, @NotNull JComponent focusedComponent);
 
     @Nullable
-    protected abstract String getCreateWithCaretsName();
+    protected abstract String getCreateWithCaretsName(int caretCount);
 
     @Override
     final public void actionPerformed(final AnActionEvent e) {
@@ -99,7 +97,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final JComponent focusedComponent = (JComponent) component;
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
-        final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && editor.getCaretModel().getCaretCount() == 1;
+        final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && getCreateWithCaretsName(editor.getCaretModel().getCaretCount()) != null;
         final HintContentPane myEmptyContentDescription = new HintContentPane();
         final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
@@ -166,7 +164,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     final Transferable content;
                     if (selectedIndices.length > 1) {
                         // combine indices
-                        content = getMergedTransferable(editor, allContents, selectedIndices);
+                        content = EditHelpers.getMergedTransferable(editor, allContents, selectedIndices, true);
                         caretContent = ClipboardCaretContent.studyTransferable(editor, content);
                     } else {
                         int index = selectedIndices[0];
@@ -268,7 +266,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     final int[] selectedIndices = choosers[0].getSelectedIndices();
                     if (selectedIndices.length > 1) {
                         // combine indices
-                        Transferable content = getMergedTransferable(editor, choosers[0].getAllContents(), selectedIndices);
+                        Transferable content = EditHelpers.getMergedTransferable(editor, choosers[0].getAllContents(), selectedIndices, true);
                         return getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true);
                     } else {
                         return super.getSelectedText();
@@ -311,7 +309,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             super.doAction(e);
                         }
                     };
-                    final String name = getCreateWithCaretsName();
+                    final String name = getCreateWithCaretsName(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
                     multiCaretActions[actions.length] = createWithMultiCarets;
                     return multiCaretActions;
@@ -507,7 +505,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             if (selectedIndices.length == 1) {
                 copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
             } else {
-                copyPasteManager.setContents(getMergedTransferable(editor, chooser.getAllContents(), selectedIndices));
+                copyPasteManager.setContents(EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true));
             }
 
             if (editor != null) {
@@ -567,106 +565,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             }
         }
         return "";
-    }
-
-    private Transferable getMergedTransferable(@Nullable Editor editor, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
-        List<ClipboardCaretContent> caretContentList = new ArrayList<>();
-
-        boolean mergeCharSelectionCarets = false;
-        boolean mergeCharLineSelectionCarets = false;
-        for (int index : selectedIndices) {
-            final Transferable transferable = allContents.get(index);
-            ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
-            caretContentList.add(caretContent);
-            assert caretContent != null;
-
-            mergeCharLineSelectionCarets |= (caretContent.hasFullLines());
-            mergeCharSelectionCarets |= (caretContent.hasFullLines() || caretContent.hasCharLines());
-        }
-
-        final List<TextRange> ranges = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        String sep = "\n";
-        for (ClipboardCaretContent caretContent : caretContentList) {
-            int iMax = caretContent.getCaretCount();
-            int firstCharSelectionIndex = -1;
-            final String[] texts = caretContent.getTexts();
-            assert texts != null;
-            for (int i = 0; i < iMax; i++) {
-                if (caretContent.isFullLine(i)) {
-                    if (firstCharSelectionIndex != -1) {
-                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
-                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
-                        firstCharSelectionIndex = -1;
-                    }
-
-                    int startOffset = sb.length();
-                    sb.append(texts[i]);
-                    int endOffset = sb.length();
-                    ranges.add(new TextRange(startOffset, endOffset));
-                } else if (caretContent.isCharLine(i)) {
-                    if (firstCharSelectionIndex != -1) {
-                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
-                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
-                        firstCharSelectionIndex = -1;
-                    }
-                    int startOffset = sb.length();
-                    sb.append(texts[i]);
-                    int endOffset = sb.length();
-                    sb.append(sep);
-
-                    if (mergeCharLineSelectionCarets) ranges.add(new TextRange(startOffset, endOffset + 1));
-                    else ranges.add(new TextRange(startOffset, endOffset));
-                } else {
-                    if (mergeCharSelectionCarets) {
-                        if (firstCharSelectionIndex == -1) firstCharSelectionIndex = i;
-                    } else {
-                        int startOffset = sb.length();
-                        sb.append(texts[i]);
-                        int endOffset = sb.length();
-                        sb.append(sep);
-                        ranges.add(new TextRange(startOffset, endOffset));
-                    }
-                }
-            }
-
-            if (firstCharSelectionIndex != -1) {
-                // add these accumulated charSelectionCarets as a new block of char lines or full lines
-                mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, iMax, mergeCharLineSelectionCarets);
-                firstCharSelectionIndex = -1;
-            }
-        }
-
-        // if all are char selections then we can make a combined char selection, otherwise we merge all of them into a single line caret block
-        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
-        int[] startOffsets = new int[ranges.size()];
-        int[] endOffsets = new int[ranges.size()];
-        int i = 0;
-        for (TextRange range : ranges) {
-            startOffsets[i] = range.getStartOffset();
-            endOffsets[i] = range.getEndOffset();
-            i++;
-        }
-
-        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
-        final Transferable transferable = new TextBlockTransferable(sb.toString(), transferableData, null);
-        return transferable;
-    }
-
-    private void mergeCharSelectionCarets(final StringBuilder content, String sep, final List<TextRange> ranges, final String[] texts, final int startIndex, final int endIndex, final boolean mergeCharLineSelectionCarets) {
-        if (startIndex < endIndex) {
-            int startOffset = content.length();
-            String useSep = startIndex == 0 ? "" : sep;
-            for (int i = startIndex; i < endIndex; i++) {
-                content.append(useSep);
-                useSep = sep;
-                content.append(texts[i]);
-            }
-
-            if (mergeCharLineSelectionCarets) content.append(sep);
-            int endOffset = content.length();
-            ranges.add(new TextRange(startOffset, endOffset));
-        }
     }
 
     @Override

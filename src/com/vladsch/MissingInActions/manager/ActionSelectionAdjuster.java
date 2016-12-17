@@ -891,16 +891,16 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     caret.moveToLogicalPosition(atColumn);
                 }
             }
+            
+            final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
+                if (!caret.hasSelection() && isFullLine) {
+                    caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
+                }
+                return caret.getOffset();
+            }) : null;
+
+            ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, clipboardData);
         }
-
-        final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
-            if (!caret.hasSelection() && isFullLine) {
-                caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
-            }
-            return caret.getOffset();
-        }) : null;
-
-        ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, clipboardData);
     }
 
     private void autoIndentLines(ApplicationSettings settings, AnAction action, AnActionEvent event) {

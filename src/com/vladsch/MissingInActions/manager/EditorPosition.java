@@ -47,6 +47,10 @@ public class EditorPosition extends LogicalPosition {
         this(factory, other.line, other.column);
     }
 
+    public EditorPosition copy() {
+        return new EditorPosition(myFactory, line, column);
+    }
+
     @NotNull
     public EditorPositionFactory getFactory() {
         return myFactory;
@@ -263,5 +267,9 @@ public class EditorPosition extends LogicalPosition {
 
     public EditorPosition atIndentColumn() {
         return atColumn(getIndentColumn());
+    }
+
+    public int ensureRealSpaces() {
+        return EditHelpers.ensureRealSpaces(this);
     }
 }

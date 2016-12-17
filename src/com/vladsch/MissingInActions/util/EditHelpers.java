@@ -21,6 +21,8 @@
 
 package com.vladsch.MissingInActions.util;
 
+import com.intellij.codeInsight.editorActions.TextBlockTransferable;
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.Language;
@@ -47,6 +49,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -914,7 +918,7 @@ public class EditHelpers {
                 BasedSequence charSequence = BasedSequence.of(editor.getDocument().getCharsSequence());
                 int lineStartOffset = charSequence.startOfLine(startOffset);
                 int lineEndOffset = charSequence.endOfLine(endOffset);
-                lineStartOffset += charSequence.countLeading((String)BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
+                lineStartOffset += charSequence.countLeading((String) BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
                 lineEndOffset -= charSequence.countTrailing(BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
                 final ItemTextRange<Language> lineStartLanguage = getLanguageRangeAtOffset(file, lineStartOffset);
                 final ItemTextRange<Language> lineEndLanguage = getLanguageRangeAtOffset(file, lineEndOffset);
@@ -925,5 +929,176 @@ public class EditHelpers {
             }
         }
         return null;
+    }
+
+    /**
+     * Insert spaces to make sure position ends on real characters
+     *
+     * @param position position to which to extend real line
+     * @return number of spaces inserted to convert virtual to real spaces
+     */
+    public static int ensureRealSpaces(@NotNull EditorPosition position) {
+        int offset = position.getOffset();
+        final EditorPosition atOffset = position.atOffset(offset);
+        if (atOffset.column != position.column) {
+            // virtual spaces, add real ones
+            final int inserted = position.column - atOffset.column;
+            position.getDocument().insertString(offset, new RepeatedCharSequence(' ', inserted));
+            return inserted;
+        }
+        return 0;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
+    public static Transferable getMergedTransferable(@Nullable Editor editor, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices, boolean mergeCarets) {
+        List<ClipboardCaretContent> caretContentList = new ArrayList<>();
+
+        boolean mergeCharSelectionCarets = false;
+        boolean mergeCharLineSelectionCarets = false;
+        for (int index : selectedIndices) {
+            final Transferable transferable = allContents.get(index);
+            ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
+            caretContentList.add(caretContent);
+            assert caretContent != null;
+
+            if (mergeCarets) {
+                mergeCharLineSelectionCarets |= (caretContent.hasFullLines());
+                mergeCharSelectionCarets |= (caretContent.hasFullLines() || caretContent.hasCharLines());
+            }
+        }
+
+        final List<TextRange> ranges = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
+        String sep = "\n";
+        for (ClipboardCaretContent caretContent : caretContentList) {
+            int iMax = caretContent.getCaretCount();
+            int firstCharSelectionIndex = -1;
+            final String[] texts = caretContent.getTexts();
+            assert texts != null;
+            for (int i = 0; i < iMax; i++) {
+                if (caretContent.isFullLine(i)) {
+                    if (firstCharSelectionIndex != -1) {
+                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
+                        firstCharSelectionIndex = -1;
+                    }
+
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else if (caretContent.isCharLine(i)) {
+                    if (firstCharSelectionIndex != -1) {
+                        // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                        mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, i, mergeCharLineSelectionCarets);
+                        firstCharSelectionIndex = -1;
+                    }
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    sb.append(sep);
+
+                    if (mergeCharLineSelectionCarets) ranges.add(new TextRange(startOffset, endOffset + 1));
+                    else ranges.add(new TextRange(startOffset, endOffset));
+                } else {
+                    if (mergeCharSelectionCarets) {
+                        if (firstCharSelectionIndex == -1) firstCharSelectionIndex = i;
+                    } else {
+                        int startOffset = sb.length();
+                        sb.append(texts[i]);
+                        int endOffset = sb.length();
+                        sb.append(sep);
+                        ranges.add(new TextRange(startOffset, endOffset));
+                    }
+                }
+            }
+
+            if (firstCharSelectionIndex != -1) {
+                // add these accumulated charSelectionCarets as a new block of char lines or full lines
+                mergeCharSelectionCarets(sb, sep, ranges, texts, firstCharSelectionIndex, iMax, mergeCharLineSelectionCarets);
+                firstCharSelectionIndex = -1;
+            }
+        }
+
+        // if all are char selections then we can make a combined char selection, otherwise we merge all of them into a single line caret block
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[ranges.size()];
+        int[] endOffsets = new int[ranges.size()];
+        int i = 0;
+        for (TextRange range : ranges) {
+            startOffsets[i] = range.getStartOffset();
+            endOffsets[i] = range.getEndOffset();
+            i++;
+        }
+
+        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        final Transferable transferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+        return transferable;
+    }
+
+    private static void mergeCharSelectionCarets(final StringBuilder content, String sep, final List<TextRange> ranges, final String[] texts, final int startIndex, final int endIndex, final boolean mergeCharLineSelectionCarets) {
+        if (startIndex < endIndex) {
+            int startOffset = content.length();
+            String useSep = startIndex == 0 ? "" : sep;
+            for (int i = startIndex; i < endIndex; i++) {
+                content.append(useSep);
+                useSep = sep;
+                content.append(texts[i]);
+            }
+
+            if (mergeCharLineSelectionCarets) content.append(sep);
+            int endOffset = content.length();
+            ranges.add(new TextRange(startOffset, endOffset));
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
+    public static List<Transferable> getSplitTransferable(@Nullable Editor editor, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
+        List<ClipboardCaretContent> caretContentList = new ArrayList<>();
+
+        for (int index : selectedIndices) {
+            final Transferable transferable = allContents.get(index);
+            ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
+            caretContentList.add(caretContent);
+            assert caretContent != null;
+        }
+
+        List<Transferable> splitTransferable = new ArrayList<>();
+
+        for (ClipboardCaretContent caretContent : caretContentList) {
+            splitTransferable(splitTransferable, caretContent);
+        }
+        return splitTransferable;
+    }
+
+    public static void splitTransferable(List<Transferable> splitTransferable, ClipboardCaretContent caretContent) {
+        String sep = "\n";
+        int iMax = caretContent.getCaretCount();
+        int firstCharSelectionIndex = -1;
+        final String[] texts = caretContent.getTexts();
+        assert texts != null;
+        for (int i = 0; i < iMax; i++) {
+            if (caretContent.isFullLine(i)) {
+                splitTransferable.add(getTransferable(texts[i], 0));
+            } else if (caretContent.isCharLine(i)) {
+                splitTransferable.add(getTransferable(texts[i] + sep, -1));
+            } else {
+                splitTransferable.add(getTransferable(texts[i] + sep, -1));
+            }
+        }
+    }
+
+    private static Transferable getTransferable(String text, int lengthOffset) {
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[1];
+        int[] endOffsets = new int[1];
+        startOffsets[0] = 0;
+        endOffsets[0] = text.length() + lengthOffset;
+
+        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        final Transferable transferable = new TextBlockTransferable(text, transferableData, null);
+        return transferable;
     }
 }

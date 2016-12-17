@@ -81,7 +81,26 @@
 
 - [ ] Add: reserved list exclusion for preserve on paste. If pasting over reserved word then
       don't make any changes to the pasted content.
+
+- Add: Dupe for Clipboard carets will also handle multi-caret input:
+    
+    - duplicated block spans all carets
+    
+    - if have selections then only keep carets with selections
+    
+    - if span == 1, keep all carets
+    
+    - if have no selections then put 1 caret on first line of every block 
+    
+    - clipboard data is duplicated for every caret so that the first block will have first caret
+      content for every caret in the block, second second, etc
+      
+        If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line
+        then after dupe the clipboard will contain 9 carets:
+        text1,text1,text1,text2,text2,text2,text3,text3,text3
+        
 - Add: MultiPaste override for all editor fields to make it consistent across the IDE.
+
 - Fix: MultiPaste would override even when disabled in settings.
 
 ### 0.8.2 - Bug Fixes and Enhancements
@@ -89,7 +108,9 @@
 - Fix: when pasting line selections the range marker offset was setup for post-paste operation
   instead of pre-paste, which made it inaccurate after re-indent or re-format was applied after
   pasting.
+
 - Add: Trailing EOL indicator when enabled to short string in multi paste content list
+
 - Create an API for editor specific listeners in application component and forward these to
       the appropriate editor specific listener. For
       `beforeActionPerformed`/`afterActionPerformed` listeners create map entry on event in
@@ -100,21 +121,30 @@
           - ActionListener
           - IdeEventQueue.EventDispatcher
           - PropertyChangeListener
+
 - Add: second button to multi-paste dialog for paste with carets when regular paste from
   history, and duplicate and paste when invoked from duplicate for clipboard carets.
+
 - Fix: paste range tracking with selection if after paste code changed indentation
+
 - Add: regex testing dialog and button in settings
+
 - Fix: after pasting non-line content, caret position should be left unmolested
+
 - Fix: selection adjust after copy should not change a pre-existing multi-line char selection to
       a line selection.
+
 - Add: MiaMultiplePasteAction now displays extensive information about the clipboard content;
     - Whether an entry is multi-caret or single caret or text
     - For each entry shows the caret lines and whether they are line selections, char selections
       or multi-line char selections
     - Updates when the text in the preview is copied to the clipboard
+
 - Fix: Mia Paste no longer need for making multi-caret select pasted text nor preserve case
   format, using caret listener instead
+
 - Fix: #10, Select Pasted Text wrong range selected if pasted text is adjusted by PasteHandler
+
 - Add: range marker to keep track of pasted text when caret count == 1. PasteHandler formats
       the code after paste and messes up the offsets.
 

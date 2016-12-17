@@ -21,12 +21,17 @@
 
 package com.vladsch.MissingInActions.actions.line;
 
+import com.intellij.codeInsight.editorActions.TextBlockTransferable;
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
@@ -34,9 +39,11 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.RepeatedCharSequence;
+import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,15 +78,14 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             }
             return Couple.of(end, end + s.length());
         } else {
-            return duplicateLinesRange(editor, document, caret, caret.getVisualPosition(), caret.getVisualPosition(), moveCaret);
+            return duplicateLinesRange(editor, document, caret, caret.getOffset(), caret.getVisualPosition(), caret.getVisualPosition(), moveCaret);
         }
     }
 
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    public static Couple<Integer> duplicateLinesRange(Editor editor, Document document, @NotNull Caret caret, VisualPosition rangeStart, VisualPosition rangeEnd, boolean moveCaret) {
+    public static Couple<Integer> duplicateLinesRange(Editor editor, Document document, @Nullable Caret caret, int offset, VisualPosition rangeStart, VisualPosition rangeEnd, boolean moveCaret) {
         Pair<LogicalPosition, LogicalPosition> lines = EditorUtil.calcSurroundingRange(editor, rangeStart, rangeEnd);
-        int offset = caret.getOffset();
 
         LogicalPosition lineStart = lines.first;
         LogicalPosition nextLineStart = lines.second;
@@ -100,7 +106,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
         }
         document.insertString(end, s);
 
-        if (moveCaret) {
+        if (moveCaret && caret != null) {
             caret.moveToOffset(newOffset);
 
             editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
@@ -109,26 +115,209 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
     }
 
     @Override
-    public void executeWriteAction(Editor editor, Caret caret, DataContext dataContext) {
-        if (editor.getCaretModel().getCaretCount() > 1) {
-            // already multi-caret, just execute for each caret
-            editor.getCaretModel().runForEachCaret(caret1 -> {
-                duplicateLineOrSelectedBlockAtCaret(editor, editor.getDocument(), caret1, true);
-            });
-        } else {
-            ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyClipboard(editor, dataContext);
-            if (clipboardCaretContent == null) return;
+    public void executeWriteAction(Editor editor, Caret unusedCaret, DataContext dataContext) {
+        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyClipboard(editor, dataContext);
+        if (clipboardCaretContent == null) return;
 
-            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        EditorEx editorEx = editor instanceof EditorEx ? (EditorEx) editor : null;
+        int iMax = clipboardCaretContent.getCaretCount();
+        LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        Document doc = editor.getDocument();
+        CaretModel caretModel = editor.getCaretModel();
+        List<Couple<Integer>> copies = new ArrayList<>(iMax);
+
+        if (editor.getCaretModel().getCaretCount() > 1) {
+            // already multi-caret, use the caret span to figure out which block to copy, 
+            // span: line block from first to last caret
+            // if span == 1 line, keep all carets and all selections
+            // if span > 1 line:
+            // if have selections: keep carets with selections relative to start of block after duplication
+            // if no selections: put a caret on the first line of every block
+            boolean haveSelections = false;
+            Transferable mergedTransferable = null;
+
+            Range selRange = Range.NULL;
+            ArrayList<EditorCaret> carets = new ArrayList<>();
+            for (Caret caret : caretModel.getAllCarets()) {
+                EditorCaret editorCaret = manager.getEditorCaret(caret);
+                carets.add(editorCaret);
+
+                selRange = selRange.include(editorCaret.getCaretPosition().line);
+                if (editorCaret.hasSelection()) {
+                    haveSelections = true;
+                    if (editorCaret.hasLines()) {
+                        selRange = selRange.include(editorCaret.getSelectionStart().line);
+                        selRange = selRange.include(editorCaret.getSelectionEnd().line);
+                    }
+                }
+            }
+
+            caretModel.removeSecondaryCarets();
+            if (editorEx != null) editorEx.setColumnMode(false);
+
+            if (selRange.getSpan() == 0) {
+                // remove carets without selections
+                if (haveSelections) {
+                    // remove carets without selections
+                    carets.removeIf(caret -> !caret.hasSelection());
+                } else {
+                    // single line, keep all carets, dupe line and create carets with selections
+                }
+            } else {
+                if (haveSelections) {
+                    // remove carets without selections
+                    carets.removeIf(caret -> !caret.hasSelection());
+                } else {
+                    // just put a caret on first line of every block, take the first caret that is on the line, 
+                    // if none are then take first one from the list and use its column position and offset
+                    EditorCaret bestCaret = null;
+                    for (EditorCaret editorCaret : carets) {
+                        if (editorCaret.getCaretPosition().line == selRange.getStart()) {
+                            if (bestCaret == null || bestCaret.getCaretPosition().column > editorCaret.getCaretPosition().column) {
+                                bestCaret = editorCaret;
+                            }
+                        }
+                    }
+
+                    if (bestCaret == null) {
+                        bestCaret = carets.get(0).onLine(selRange.getStart());
+                    }
+
+                    carets.clear();
+                    carets.add(bestCaret);
+                }
+            }
+
+            // we need to duplicate the content, each caret in content duplicated for number of caret copies
+            if (carets.size() > 1) {
+                // make dupes so that the block carets are duped
+                List<Transferable> list = new ArrayList<>(clipboardCaretContent.getCaretCount());
+                String sep = "\n";
+                int iMax1 = clipboardCaretContent.getCaretCount();
+                final String[] texts = clipboardCaretContent.getTexts();
+                assert texts != null;
+
+                StringBuilder sb = new StringBuilder();
+                List<TextRange> ranges = new ArrayList<>();
+
+                for (int i = 0; i < iMax1; i++) {
+                    for (int j = 0; j < carets.size(); j++) {
+                        if (clipboardCaretContent.isFullLine(i)) {
+                            int startOffset = sb.length();
+                            sb.append(texts[i]);
+                            int endOffset = sb.length();
+                            ranges.add(new TextRange(startOffset, endOffset));
+                        } else if (clipboardCaretContent.isCharLine(i)) {
+                            int startOffset = sb.length();
+                            sb.append(texts[i]);
+                            int endOffset = sb.length();
+                            sb.append(sep);
+
+                            ranges.add(new TextRange(startOffset, endOffset));
+                        } else {
+                            int startOffset = sb.length();
+                            sb.append(texts[i]);
+                            int endOffset = sb.length();
+                            sb.append(sep);
+                            ranges.add(new TextRange(startOffset, endOffset));
+                        }
+                    }
+                }
+
+                final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+                int[] startOffsets = new int[ranges.size()];
+                int[] endOffsets = new int[ranges.size()];
+                int i = 0;
+                for (TextRange range : ranges) {
+                    startOffsets[i] = range.getStartOffset();
+                    endOffsets[i] = range.getEndOffset();
+                    i++;
+                }
+
+                transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+                mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+            }
+
+            // now we are ready to duplicate selRange block, and put carets on each duplicate relative to the first block which will not be included 
+            EditorCaret editorCaret = carets.get(0).copy();
+            EditorPosition startPosition = editorCaret.getCaretPosition().onLine(selRange.getStart()).atStartOfLine();
+            EditorPosition endPosition = editorCaret.getCaretPosition().onLine(selRange.getEnd()).atStartOfNextLine();
+            editorCaret.setCaretPosition(startPosition);
+            int offset = startPosition.getOffset();
+
+            // do it in reverse order so as not to affect the offset
+            String s = doc.getCharsSequence().subSequence(startPosition.getOffset(), endPosition.getOffset()).toString();
+            int inserted = 0;
+            int span = selRange.getSpan() + 1;
+            for (int i = iMax; i-- > 0; ) {
+                doc.insertString(startPosition.getOffset(), s);
+                inserted += span;
+                Couple<Integer> couple = new Couple<>(selRange.getStart() + inserted, selRange.getEnd() + inserted);
+                copies.add(couple);
+            }
+
+            // create multiple carets, copies from carets, but relative to start of original selection
+            editorCaret.removeSelection();
+            caretModel.removeSecondaryCarets();
+
+            // build the carets
+            int accumulatedOffset = 0;
+            boolean firstCaret = true;
+            for (int i = 0; i < iMax; i++) {
+                Couple<Integer> couple = copies.get(i);
+
+                int firstLine = couple.first;
+
+                for (EditorCaret copyCaret : carets) {
+                    EditorPosition editorPosition = copyCaret.getCaretPosition().onLine(copyCaret.getCaretPosition().line - selRange.getStart() + firstLine).copy();
+                    EditorPosition selectionStart = copyCaret.getSelectionStart().onLine(copyCaret.getSelectionStart().line - selRange.getStart() + firstLine).copy();
+                    EditorPosition selectionEnd = copyCaret.getSelectionEnd().onLine(copyCaret.getSelectionEnd().line - selRange.getStart() + firstLine).copy();
+
+                    Caret caret = firstCaret ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
+                    if (caret != null) {
+                        firstCaret = false;
+                        accumulatedOffset += editorPosition.ensureRealSpaces();
+                        accumulatedOffset += selectionStart.ensureRealSpaces();
+                        accumulatedOffset += selectionEnd.ensureRealSpaces();
+
+                        // replicate selection to this position
+                        int selectionSize = selectionEnd.getOffset() - selectionStart.getOffset();
+                        if (selectionSize > 0) {
+                            caret.moveToOffset(selectionEnd.getOffset());
+                            caret.setSelection(selectionStart.getOffset(), selectionEnd.getOffset());
+                            manager.resetSelectionState(caret);
+                        } else {
+                            caret.moveToLogicalPosition(editorPosition);
+                        }
+                    }
+                }
+            }
+
+            ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
+            
+            if (myDoPaste) {
+                // clear last pasted information, it is no good and will be cleared by running our action
+                if (mergedTransferable != null) {
+                    CopyPasteManager.getInstance().setContents(mergedTransferable);
+                }
+
+                // now we paste
+                final AnAction pasteAction = ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
+                LineSelectionManager.getInstance(editor).runActionWithAdjustments(pasteAction);
+                //AnActionEvent newEvent = AnActionEvent.createFromDataContext("MiaMultiPaste Recreate Carets",null,dataContext);
+                //pasteAction.actionPerformed(newEvent);
+            } else {
+                if (mergedTransferable != null) {
+                    CopyPasteManager.getInstance().setContents(mergedTransferable);
+                }
+            }
+
+            EditHelpers.scrollToCaret(editor);
+        } else {
             EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
-            int iMax = clipboardCaretContent.getCaretCount();
-            List<Couple<Integer>> copies = new ArrayList<>(iMax);
 
             int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();
             boolean isStartAnchor = editorCaret.isStartAnchor();
-            Document doc = editor.getDocument();
-            CaretModel caretModel = editor.getCaretModel();
-
 
             if (myInsertBlankLine) {
                 // we create a line above/below and recreate carets
@@ -164,8 +353,6 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 Couple<Integer> couple = copies.get(i);
 
                 int lineNumber = doc.getLineNumber(couple.first + accumulatedOffset);
-                int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
                 EditorPosition editorPosition = pos.onLine(lineNumber);
                 Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());

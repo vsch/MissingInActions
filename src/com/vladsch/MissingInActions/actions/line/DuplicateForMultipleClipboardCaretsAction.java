@@ -52,7 +52,7 @@ public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActi
 
     @Nullable
     @Override
-    protected String getCreateWithCaretsName() {
+    protected String getCreateWithCaretsName(int caretCount) {
         return Bundle.message("content-chooser.duplicate-and-paste.label");
     }
 
@@ -70,6 +70,6 @@ public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActi
 
     @Override
     protected boolean isEnabled(@Nullable final Editor editor, @NotNull final JComponent focusedComponent) {
-        return editor != null && editor.getCaretModel().getCaretCount() == 1;
+        return editor != null /*&& editor.getCaretModel().getCaretCount() == 1*/;
     }
 }
