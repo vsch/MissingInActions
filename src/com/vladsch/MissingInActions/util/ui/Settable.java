@@ -21,19 +21,35 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+public interface Settable {
+    void reset();
+    void apply();
+    boolean isModified();
 
-public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
-    boolean isAdaptable(ComboBoxAdaptable type);
-    boolean onFirst(int intValue, OnMap map);
-    boolean onAll(int intValue, OnMap map);
-    void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
-    E findEnum(int intValue);
-    E findEnum(String displayName);
-    E get(JComboBox comboBox);
-    E valueOf(String name);
-    E getDefault();
-    boolean isBoolean();
+    class Configurable<T> implements Settable {
+        private final SettingsConfigurable<T> myComponents;
+        private final @NotNull T myInstance;
+
+        public Configurable(SettingsConfigurable<T> components, @NotNull T instance) {
+            myComponents = components;
+            myInstance = instance;
+        }
+
+        @Override
+        public void reset() {
+            myComponents.reset(myInstance);
+        }
+
+        @Override
+        public void apply() {
+            myComponents.apply(myInstance);
+        }
+
+        @Override
+        public boolean isModified() {
+            return myComponents.isModified(myInstance);
+        }
+    }
 }

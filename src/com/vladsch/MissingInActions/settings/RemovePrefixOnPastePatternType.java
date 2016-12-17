@@ -23,11 +23,9 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,18 +33,6 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
     ANY(0, Bundle.message("settings.remove-prefix-on-paste-type.any")),
     CAMEL(1, Bundle.message("settings.line-settings.remove-prefix-on-paste-type.camel")),
     REGEX(2, Bundle.message("settings.remove-prefix-on-paste-type.regex"));
-
-    public final String displayName;
-    public final int intValue;
-
-    RemovePrefixOnPastePatternType(int intValue, String displayName) {
-        this.intValue = intValue;
-        this.displayName = displayName;
-    }
-
-    public boolean isEnabled(int lineCount) {
-        return lineCount >= intValue;
-    }
 
     /**
      * Convert to caret position for paste depending on where the caret is relative
@@ -110,49 +96,25 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
         return "";
     }
 
-    public static final RemovePrefixOnPastePatternType DEFAULT = CAMEL;
-    public static final ComboBoxAdapter<RemovePrefixOnPastePatternType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
+    public final int intValue;
+    public final @NotNull String displayName;
 
-    public static RemovePrefixOnPastePatternType get(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    RemovePrefixOnPastePatternType(int intValue, @NotNull String displayName) {
+        this.intValue = intValue;
+        this.displayName = displayName;
     }
 
-    public static RemovePrefixOnPastePatternType get(int value) {
-        return ADAPTER.findEnum(value);
-    }
-
-    public static int getInt(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
-    }
-
-    static void set(JComboBox comboBox, int intValue) {
-        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
-    }
-
-    public static JComboBox createComboBox() {
-        JComboBox comboBox = new JComboBox();
-        ADAPTER.fillComboBox(comboBox);
-        return comboBox;
-    }
-
-    public static RemovePrefixOnPastePatternType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
-
-    public RemovePrefixOnPastePatternType findEnum(String displayName) { return ADAPTER.findEnum(displayName); }
+    public static Static<RemovePrefixOnPastePatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CAMEL));
 
     @Override
-    public RemovePrefixOnPastePatternType[] getEnumValues() {
-        return values();
-    }
+    public int getIntValue() { return intValue; }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    @NotNull
+    public String getDisplayName() { return displayName; }
 
-    public boolean isDefault() {
-        return this == DEFAULT;
-    }
+    @NotNull
+    public RemovePrefixOnPastePatternType[] getValues() { return values(); }
 
-    public int getIntValue() {
-        return intValue;
-    }
+    @Override
+    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

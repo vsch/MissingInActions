@@ -69,13 +69,13 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean     myUpDownSelection = false;
     private boolean     myWeSetVirtualSpace = true;
     private int         myAutoIndentDelay = 300;
-    private int         myAutoLineMode = AutoLineSettingType.DEFAULT.getIntValue();
-    private int         myCaretOnMoveSelectionDown = CaretAdjustmentType.DEFAULT.intValue;
-    private int         myCaretOnMoveSelectionUp = CaretAdjustmentType.DEFAULT.intValue;
+    private int         myAutoLineMode = AutoLineModeType.ADAPTER.getDefault().getIntValue();
+    private int         myCaretOnMoveSelectionDown = CaretAdjustmentType.ADAPTER.getDefault().intValue;
+    private int         myCaretOnMoveSelectionUp = CaretAdjustmentType.ADAPTER.getDefault().intValue;
     private int         myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private int         myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
-    private int         myMouseModifier = MouseModifierType.DEFAULT.getIntValue();
-    private int         myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.DEFAULT.intValue;
+    private int         myMouseModifier = MouseModifierType.ADAPTER.getDefault().getIntValue();
+    private int         myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.ADAPTER.getDefault().intValue;
     private int         mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private int         mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
     private String      myRegexSample1Text = "myCamelCaseInstanceMember";
@@ -86,13 +86,13 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     // get/set enums directly
     // @formatter:off
-    public RemovePrefixOnPastePatternType getRemovePrefixOnPastePatternType() { return RemovePrefixOnPastePatternType.get(myRemovePrefixOnPastePattern); }
-    public CaretAdjustmentType getCaretOnMoveSelectionDownType() { return CaretAdjustmentType.get(myCaretOnMoveSelectionDown); }
-    public CaretAdjustmentType getCaretOnMoveSelectionUpType() { return CaretAdjustmentType.get(myCaretOnMoveSelectionUp); }
-    public SelectionPredicateType getDuplicateAtStartOrEndPredicateType() { return SelectionPredicateType.get(myDuplicateAtStartOrEndPredicate); }
-    public LinePasteCaretAdjustmentType getLinePasteCaretAdjustmentType() { return LinePasteCaretAdjustmentType.get(myLinePasteCaretAdjustment); }
-    public SelectionPredicateType getSelectPastedPredicateType() { return SelectionPredicateType.get(mySelectPastedPredicate); }
-    public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.get(mySelectPastedMultiCaretPredicate); }
+    public RemovePrefixOnPastePatternType getRemovePrefixOnPastePatternType() { return RemovePrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern); }
+    public CaretAdjustmentType getCaretOnMoveSelectionDownType() { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionDown); }
+    public CaretAdjustmentType getCaretOnMoveSelectionUpType() { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionUp); }
+    public SelectionPredicateType getDuplicateAtStartOrEndPredicateType() { return SelectionPredicateType.ADAPTER.get(myDuplicateAtStartOrEndPredicate); }
+    public LinePasteCaretAdjustmentType getLinePasteCaretAdjustmentType() { return LinePasteCaretAdjustmentType.ADAPTER.get(myLinePasteCaretAdjustment); }
+    public SelectionPredicateType getSelectPastedPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedPredicate); }
+    public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedMultiCaretPredicate); }
     public void setRemovePrefixOnPastePatternType(RemovePrefixOnPastePatternType removePrefixOnPastePatternType) { myRemovePrefixOnPastePattern = removePrefixOnPastePatternType.intValue; }
     public void setCaretOnMoveSelectionDownType(CaretAdjustmentType caretOnMoveSelectionDownType) { myCaretOnMoveSelectionDown = caretOnMoveSelectionDownType.intValue; }
     public void setCaretOnMoveSelectionUpType(CaretAdjustmentType caretOnMoveSelectionUpType) { myCaretOnMoveSelectionUp = caretOnMoveSelectionUpType.intValue; }
@@ -126,7 +126,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int myCustomizedPrevWordEndBounds = CUSTOMIZED_DEFAULTS | END_OF_WORD;
 
     public boolean isLineModeEnabled() {
-        return myAutoLineMode != AutoLineSettingType.DISABLED.getIntValue() && (
+        return myAutoLineMode != AutoLineModeType.DISABLED.getIntValue() && (
                 myMouseLineSelection
                         || myUpDownSelection
                 //|| myDeleteOperations

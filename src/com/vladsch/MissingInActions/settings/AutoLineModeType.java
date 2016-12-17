@@ -26,31 +26,20 @@ import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
-public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredicateType> {
-    WHEN_HAS_ANY(0, Bundle.message("settings.selection-predicate.always")),
-    WHEN_HAS_1_PLUS_LINES(1, Bundle.message("settings.selection-predicate.has-lines")),
-    WHEN_HAS_2_PLUS_LINES(2, Bundle.message("settings.selection-predicate.has-2-plus-lines")),
-    WHEN_HAS_3_PLUS_LINES(2, Bundle.message("settings.selection-predicate.has-3-plus-lines")),
-    WHEN_HAS_4_PLUS_LINES(2, Bundle.message("settings.selection-predicate.has-4-plus-lines")),
-    WHEN_HAS_5_PLUS_LINES(2, Bundle.message("settings.selection-predicate.has-5-plus-lines"));
-
-    public boolean isEnabled(int lineCount) {
-        return lineCount >= intValue;
-    }
-
-    public static boolean isEnabled(int value, int lineCount) {
-        return ADAPTER.findEnum(value).isEnabled(lineCount);
-    }
+public enum AutoLineModeType implements ComboBoxAdaptable<AutoLineModeType> {
+    DISABLED(0, Bundle.message("settings.auto-line.types.disabled")),
+    ENABLED(1, Bundle.message("settings.auto-line.types.enabled")),
+    EXPERT(2, Bundle.message("settings.auto-line.types.expert"));
 
     public final int intValue;
     public final @NotNull String displayName;
 
-    SelectionPredicateType(int intValue, @NotNull String displayName) {
+    AutoLineModeType(int intValue, @NotNull String displayName) {
         this.intValue = intValue;
         this.displayName = displayName;
     }
 
-    public static Static<SelectionPredicateType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(WHEN_HAS_1_PLUS_LINES));
+    public static Static<AutoLineModeType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(DISABLED));
 
     @Override
     public int getIntValue() { return intValue; }
@@ -59,7 +48,7 @@ public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredica
     public String getDisplayName() { return displayName; }
 
     @NotNull
-    public SelectionPredicateType[] getValues() { return values(); }
+    public AutoLineModeType[] getValues() { return values(); }
 
     @Override
     public boolean isDefault() { return this == ADAPTER.getDefault(); }

@@ -21,34 +21,17 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
 
 public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteCaretAdjustmentType> {
     NONE(0, Bundle.message("settings.line-paste-adjust.none")),
     ABOVE(1, Bundle.message("settings.line-paste-adjust.above")),
     INDENT_ABOVE(2, Bundle.message("settings.line-paste-adjust.at-indent.above")),
     BELOW(3, Bundle.message("settings.line-paste-adjust.below"));
-
-    public final String displayName;
-    public final int intValue;
-
-    LinePasteCaretAdjustmentType(int intValue, String displayName) {
-        this.intValue = intValue;
-        this.displayName = displayName;
-    }
-
-    public boolean isEnabled(int lineCount) {
-        return lineCount >= intValue;
-    }
 
     /**
      * Convert to caret position for paste depending on where the caret is relative
@@ -67,49 +50,25 @@ public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteC
         return position;
     }
 
-    public static final LinePasteCaretAdjustmentType DEFAULT = NONE;
-    public static final ComboBoxAdapter<LinePasteCaretAdjustmentType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
+    public final int intValue;
+    public final @NotNull String displayName;
 
-    public static LinePasteCaretAdjustmentType get(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
+    LinePasteCaretAdjustmentType(int intValue, @NotNull String displayName) {
+        this.intValue = intValue;
+        this.displayName = displayName;
     }
 
-    public static LinePasteCaretAdjustmentType get(int value) {
-        return ADAPTER.findEnum(value);
-    }
-
-    public static int getInt(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
-    }
-
-    static void set(JComboBox comboBox, int intValue) {
-        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
-    }
-
-    public static JComboBox createComboBox() {
-        JComboBox comboBox = new JComboBox();
-        ADAPTER.fillComboBox(comboBox);
-        return comboBox;
-    }
-
-    public static LinePasteCaretAdjustmentType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
-
-    public LinePasteCaretAdjustmentType findEnum(String displayName) { return ADAPTER.findEnum(displayName); }
+    public static Static<LinePasteCaretAdjustmentType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NONE));
 
     @Override
-    public LinePasteCaretAdjustmentType[] getEnumValues() {
-        return values();
-    }
+    public int getIntValue() { return intValue; }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    @NotNull
+    public String getDisplayName() { return displayName; }
 
-    public boolean isDefault() {
-        return this == DEFAULT;
-    }
+    @NotNull
+    public LinePasteCaretAdjustmentType[] getValues() { return values(); }
 
-    public int getIntValue() {
-        return intValue;
-    }
+    @Override
+    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

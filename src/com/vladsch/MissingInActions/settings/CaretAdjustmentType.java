@@ -21,14 +21,10 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.openapi.util.Pair;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
-import com.vladsch.MissingInActions.util.ui.OnMap;
-
-import javax.swing.*;
+import org.jetbrains.annotations.NotNull;
 
 public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType> {
     NONE(0, Bundle.message("settings.line-selection.caret-adjustment.none")),
@@ -37,65 +33,25 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
     TO_ANCHOR(3, Bundle.message("settings.line-selection.caret-adjustment.to-anchor")),
     TO_ANTI_ANCHOR(4, Bundle.message("settings.line-selection.caret-adjustment.to-anti-anchor")),;
 
-    public final String displayName;
     public final int intValue;
+    public final @NotNull String displayName;
 
-    CaretAdjustmentType(int intValue, String displayName) {
+    CaretAdjustmentType(int intValue, @NotNull String displayName) {
         this.intValue = intValue;
         this.displayName = displayName;
     }
 
-    public boolean isEnabled(int lineCount) {
-        return lineCount >= intValue;
-    }
-
-    public static final CaretAdjustmentType DEFAULT = NONE;
-    public static final ComboBoxAdapter<CaretAdjustmentType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
-
-    public static CaretAdjustmentType get(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
-    }
-
-    public static CaretAdjustmentType get(int value) {
-        return ADAPTER.findEnum(value);
-    }
-
-    public static int getInt(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
-    }
-
-    static void set(JComboBox comboBox, int intValue) {
-        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
-    }
-
-    public static JComboBox createComboBox() {
-        JComboBox comboBox = new JComboBox();
-        ADAPTER.fillComboBox(comboBox);
-        return comboBox;
-    }
-
-    public static CaretAdjustmentType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
-
-    public static boolean onFirst(int intValue, OnMap map) { return ComboBoxAdapter.onFirst(ADAPTER, intValue, map); }
-
-    public static boolean onAll(int intValue, OnMap map) { return ComboBoxAdapter.onAll(ADAPTER, intValue, map); }
-
-    public CaretAdjustmentType findEnum(String displayName) { return ADAPTER.findEnum(displayName); }
+    public static Static<CaretAdjustmentType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NONE));
 
     @Override
-    public CaretAdjustmentType[] getEnumValues() {
-        return values();
-    }
+    public int getIntValue() { return intValue; }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    @NotNull
+    public String getDisplayName() { return displayName; }
 
-    public boolean isDefault() {
-        return this == DEFAULT;
-    }
+    @NotNull
+    public CaretAdjustmentType[] getValues() { return values(); }
 
-    public int getIntValue() {
-        return intValue;
-    }
+    @Override
+    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

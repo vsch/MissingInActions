@@ -79,7 +79,10 @@
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
+- [ ] Add: reserved list exclusion for preserve on paste. If pasting over reserved word then
+      don't make any changes to the pasted content.
 - Add: MultiPaste override for all editor fields to make it consistent across the IDE.
+- Fix: MultiPaste would override even when disabled in settings.
 
 ### 0.8.2 - Bug Fixes and Enhancements
 

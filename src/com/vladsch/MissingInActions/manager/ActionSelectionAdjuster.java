@@ -47,6 +47,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
@@ -130,7 +131,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     @Override
     public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
-        assert CommonDataKeys.EDITOR.getData(dataContext) == myEditor;
+        if (EDITOR.getData(dataContext) != myEditor) {
+            assert EDITOR.getData(dataContext) == myEditor;
+        }
 
         int nesting = myNestingLevel.incrementAndGet();
         myTentativeSelectionMarker = null;
@@ -231,7 +234,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     @Override
     public void beforeEditorTyping(char c, DataContext dataContext) {
-        assert CommonDataKeys.EDITOR.getData(dataContext) == myEditor;
+        assert EDITOR.getData(dataContext) == myEditor;
         runBeforeTriggeredActions();
 
         ApplicationSettings settings = ApplicationSettings.getInstance();
@@ -327,9 +330,12 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     @SuppressWarnings("WeakerAccess")
     public void runAction(AnAction action, boolean autoTriggered) {
         AnActionEvent event = createAnEvent(action, autoTriggered);
-        beforeActionPerformed(action, event.getDataContext(), event);
-        ActionUtil.performActionDumbAware(action, event);
-        afterActionPerformed(action, event.getDataContext(), event);
+        Editor editor = EDITOR.getData(event.getDataContext());
+        if (editor == myEditor) {
+            beforeActionPerformed(action, event.getDataContext(), event);
+            ActionUtil.performActionDumbAware(action, event);
+            afterActionPerformed(action, event.getDataContext(), event);
+        }
     }
 
     /**
@@ -654,7 +660,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     }
 
                     if (value != -1) {
-                        boolean doneIt = CaretAdjustmentType.onFirst(value, map -> map
+                        boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
                                 .to(CaretAdjustmentType.TO_START, () -> {
                                     editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
                                 })
@@ -703,7 +709,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
                 if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.DUPLICATE_ACTION)) {
                     if (settings.isDuplicateAtStartOrEnd()) {
-                        if (SelectionPredicateType.ADAPTER.findEnum(settings.getDuplicateAtStartOrEndPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
+                        if (SelectionPredicateType.ADAPTER.get(settings.getDuplicateAtStartOrEndPredicate()).isEnabled(editorCaret.getSelectionLineCount())) {
                             if (!editorCaret.isStartAnchor()) {
                                 saveSnapshot = true;
                             }

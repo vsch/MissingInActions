@@ -21,19 +21,6 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.util.Pair;
-
-import javax.swing.*;
-
-public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
-    boolean isAdaptable(ComboBoxAdaptable type);
-    boolean onFirst(int intValue, OnMap map);
-    boolean onAll(int intValue, OnMap map);
-    void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
-    E findEnum(int intValue);
-    E findEnum(String displayName);
-    E get(JComboBox comboBox);
-    E valueOf(String name);
-    E getDefault();
-    boolean isBoolean();
+public interface Mutable<M extends Mutable<M, I>, I extends Immutable<M, I>> {
+    I toImmutable();
 }

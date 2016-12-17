@@ -169,7 +169,7 @@
                     <properties/>
                     <border type="etched" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.selections-extend.title"/>
                     <children>
-                      <component id="5f709" class="com.intellij.ui.components.JBCheckBox" binding="myIsSelectionStartExtendedBeforeCaret">
+                      <component id="5f709" class="com.intellij.ui.components.JBCheckBox" binding="mySelectionStartExtended">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -178,7 +178,7 @@
                           <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.selection-start-at-caret-start.description"/>
                         </properties>
                       </component>
-                      <component id="c632c" class="com.intellij.ui.components.JBCheckBox" binding="myIsSelectionEndExtendedPastCaret">
+                      <component id="c632c" class="com.intellij.ui.components.JBCheckBox" binding="mySelectionEndExtended">
                         <constraints>
                           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -764,7 +764,7 @@
                                 <properties/>
                                 <border type="none"/>
                                 <children>
-                                  <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPasteType" custom-create="true">
+                                  <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPastePattern" custom-create="true">
                                     <constraints>
                                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                                     </constraints>

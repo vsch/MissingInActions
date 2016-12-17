@@ -19,21 +19,30 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util.ui;
+package com.vladsch.MissingInActions.util;
 
-import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.TextRange;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+class ItemTextRange<T> extends TextRange {
+    private T myItem;
 
-public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
-    boolean isAdaptable(ComboBoxAdaptable type);
-    boolean onFirst(int intValue, OnMap map);
-    boolean onAll(int intValue, OnMap map);
-    void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
-    E findEnum(int intValue);
-    E findEnum(String displayName);
-    E get(JComboBox comboBox);
-    E valueOf(String name);
-    E getDefault();
-    boolean isBoolean();
+    public ItemTextRange(final T item, final @NotNull TextRange other) {
+        super(other.getStartOffset(), other.getEndOffset());
+        myItem = item;
+    }
+
+    public ItemTextRange(final T item, final int startOffset, final int endOffset) {
+        super(startOffset, endOffset);
+        myItem = item;
+    }
+
+    public ItemTextRange(final T item, final int startOffset, final int endOffset, final boolean checkForProperTextRange) {
+        super(startOffset, endOffset, checkForProperTextRange);
+        myItem = item;
+    }
+
+    public T getItem() {
+        return myItem;
+    }
 }

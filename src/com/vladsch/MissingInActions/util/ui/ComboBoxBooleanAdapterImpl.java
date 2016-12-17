@@ -35,11 +35,12 @@ public class ComboBoxBooleanAdapterImpl<E extends ComboBoxAdaptable<E>> extends 
     }
 
     @Override
-    public void fillComboBox(JComboBox comboBox, E... exclude) {
-        Set<E> excluded = new HashSet<E>(Arrays.asList(exclude));
+    public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude) {
+        Set<ComboBoxAdaptable> excluded = new HashSet<>(Arrays.asList(exclude));
 
-        for (E item : myDefault.getEnumValues()) {
+        for (E item : myDefault.getValues()) {
             if (item == myDefault || item == myNonDefault) {
+                //noinspection unchecked
                 comboBox.addItem(item.getDisplayName());
             }
         }
@@ -48,5 +49,10 @@ public class ComboBoxBooleanAdapterImpl<E extends ComboBoxAdaptable<E>> extends 
     @Override
     public E getNonDefault() {
         return myNonDefault;
+    }
+
+    @Override
+    public boolean isBoolean() {
+        return true;
     }
 }

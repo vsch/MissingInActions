@@ -46,8 +46,10 @@ public class DelayedRunner {
 
     public void runAllFor(Object key) {
         ArrayList<Runnable> runnableList = myRunnables.remove(key);
-        for (Runnable runnable : runnableList) {
-            runnable.run();
+        if (runnableList != null) {
+            for (Runnable runnable : runnableList) {
+                runnable.run();
+            }
         }
     }
 

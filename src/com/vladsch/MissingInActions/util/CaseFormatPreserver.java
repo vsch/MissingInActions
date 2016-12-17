@@ -88,7 +88,7 @@ public class CaseFormatPreserver {
         String prefix2 = removePrefix2 == null ? "" : removePrefix2;
         int beforeOffset = offset;
         int afterOffset = beforeOffset;
-        RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.DEFAULT : prefixOnPasteType;
+        RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.ADAPTER.getDefault() : prefixOnPasteType;
 
         clear();
 
@@ -205,7 +205,7 @@ public class CaseFormatPreserver {
             int caretDelta = 0;
 
             if (!i.isIsolated() || hadSelection) {
-                RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.DEFAULT : prefixOnPasteType;
+                RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.ADAPTER.getDefault() : prefixOnPasteType;
 
                 if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
                     String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);

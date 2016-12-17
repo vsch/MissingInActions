@@ -29,29 +29,20 @@
  */
 package com.vladsch.MissingInActions.actions.carets;
 
-import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
-import com.intellij.lang.Commenter;
-import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.impl.AbstractFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.SubSequence;
-import org.jetbrains.annotations.Nullable;
+import com.vladsch.MissingInActions.util.CommentProcessor;
+import com.vladsch.MissingInActions.util.EditHelpers;
 
 import static com.vladsch.MissingInActions.actions.carets.RemoveLineCaretsActionBase.OpType.*;
 
@@ -120,22 +111,23 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
         if (caretModel.getCaretCount() > 1) {
             OpType opType = myOpType;
-            Project project = editor.getProject();
-            PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
+            final Project project = editor.getProject();
+            final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
+            final CommentProcessor commentProcessor = psiFile == null ? null : new CommentProcessor(editor, psiFile);
 
             boolean hadCodeLine = false;
             boolean hadLineComment = false;
             boolean hadBlankLine = false;
 
             for (Caret caret : caretModel.getAllCarets()) {
-                int lineNumber = doc.getLineNumber(caret.getOffset());
-                int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                int lineStartOffset = doc.getLineStartOffset(lineNumber);
+                final int lineNumber = doc.getLineNumber(caret.getOffset());
+                final int lineEndOffset = doc.getLineEndOffset(lineNumber);
+                final int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
                 if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
                     hadBlankLine = true;
                 } else {
-                    if (isLineCommented(findCommenter(editor, psiFile, lineNumber), doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
+                    if (commentProcessor != null && commentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
                         hadLineComment = true;
                     } else {
                         hadCodeLine = true;
@@ -167,16 +159,16 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
             if (!allRemoved && (opType.removeBlankLines && hadBlankLine || opType.removeLineComments && hadLineComment || opType.removeCodeLines && hadCodeLine)) {
                 for (Caret caret : caretModel.getAllCarets()) {
-                    int lineNumber = doc.getLineNumber(caret.getOffset());
-                    int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                    int lineStartOffset = doc.getLineStartOffset(lineNumber);
+                    final int lineNumber = doc.getLineNumber(caret.getOffset());
+                    final int lineEndOffset = doc.getLineEndOffset(lineNumber);
+                    final int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
                     if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
                         if (opType.removeBlankLines) {
                             editor.getCaretModel().removeCaret(caret);
                         }
                     } else {
-                        if (isLineCommented(findCommenter(editor, psiFile, lineNumber), doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
+                        if (commentProcessor != null && commentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
                             if (opType.removeLineComments) {
                                 editor.getCaretModel().removeCaret(caret);
                             }
@@ -193,43 +185,5 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
     private static EditorEx getEditor(AnActionEvent e) {
         return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
-    }
-
-    public static boolean isLineCommented(@Nullable Commenter commenter, CharSequence charSequence, int lineStartOffset, int lineEndOffset) {
-        if (commenter != null) {
-            String lineCommentPrefix = commenter.getLineCommentPrefix();
-            String blockCommentPrefix = commenter.getCommentedBlockCommentPrefix();
-            if (blockCommentPrefix == null) blockCommentPrefix = commenter.getBlockCommentPrefix();
-            String blockCommentSuffix = commenter.getCommentedBlockCommentSuffix();
-            if (blockCommentSuffix == null) blockCommentSuffix = commenter.getBlockCommentSuffix();
-            BasedSequence chars = new SubSequence(charSequence, lineStartOffset, lineEndOffset);
-            BasedSequence trimmed = chars.trim();
-
-            return lineCommentPrefix != null && trimmed.startsWith(lineCommentPrefix) || blockCommentPrefix != null && blockCommentSuffix != null && trimmed.startsWith(blockCommentPrefix) && trimmed.endsWith(blockCommentSuffix);
-        } else {
-            return false;
-        }
-    }
-
-    @Nullable
-    public static Commenter findCommenter(Editor editor, @Nullable PsiFile file, final int line) {
-        if (file != null) {
-            final FileType fileType = file.getFileType();
-            if (fileType instanceof AbstractFileType) {
-                return ((AbstractFileType) fileType).getCommenter();
-            }
-
-            Document document = editor.getDocument();
-            int lineStartOffset = document.getLineStartOffset(line);
-            int lineEndOffset = document.getLineEndOffset(line) - 1;
-            final CharSequence charSequence = document.getCharsSequence();
-            lineStartOffset = Math.max(0, CharArrayUtil.shiftForward(charSequence, lineStartOffset, " \t"));
-            lineEndOffset = Math.max(0, CharArrayUtil.shiftBackward(charSequence, lineEndOffset < 0 ? 0 : lineEndOffset, " \t"));
-            final Language lineStartLanguage = PsiUtilCore.getLanguageAtOffset(file, lineStartOffset);
-            final Language lineEndLanguage = PsiUtilCore.getLanguageAtOffset(file, lineEndOffset);
-            return CommentByBlockCommentHandler.getCommenter(file, editor, lineStartLanguage, lineEndLanguage);
-        } else {
-            return null;
-        }
     }
 }

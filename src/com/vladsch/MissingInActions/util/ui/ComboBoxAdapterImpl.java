@@ -21,25 +21,55 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
+import com.intellij.openapi.util.Pair;
+
 import javax.swing.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements ComboBoxAdapter<E> {
-    protected final E myDefault;
+    final E myDefault;
 
     public ComboBoxAdapterImpl(E defaultValue) {
         this.myDefault = defaultValue;
     }
 
     @Override
-    public void fillComboBox(JComboBox comboBox, E... exclude) {
-        Set<E> excluded = new HashSet<E>(Arrays.asList(exclude));
+    public boolean onFirst(int intValue, OnMap map) {
+        OnIt on = map.on(new OnIt());
 
-        for (E item : myDefault.getEnumValues()) {
+        for (Pair<ComboBoxAdaptable, Runnable> doRun : on.getList()) {
+            if (doRun.getFirst().getIntValue() == intValue && isAdaptable(doRun.getFirst())) {
+                doRun.getSecond().run();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onAll(int intValue, OnMap map) {
+        boolean ran = false;
+        OnIt on = map.on(new OnIt());
+
+        for (Pair<ComboBoxAdaptable, Runnable> doRun : on.getList()) {
+            if (doRun.getFirst().getIntValue() == intValue && isAdaptable(doRun.getFirst())) {
+                doRun.getSecond().run();
+                ran = true;
+            }
+        }
+        return ran;
+    }
+
+    @Override
+    public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude) {
+        Set<ComboBoxAdaptable> excluded = new HashSet<>(Arrays.asList(exclude));
+
+        for (E item : myDefault.getValues()) {
             if (!excluded.contains(item)) {
                 String displayName = item.getDisplayName();
+                //noinspection unchecked
                 comboBox.addItem(displayName);
             }
         }
@@ -52,7 +82,7 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
 
     @Override
     public E findEnum(int intValue) {
-        for (E item : myDefault.getEnumValues()) {
+        for (E item : myDefault.getValues()) {
             if (item.getIntValue() == intValue) {
                 return item;
             }
@@ -67,7 +97,7 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
 
     @Override
     public E findEnum(String displayName) {
-        for (E item : myDefault.getEnumValues()) {
+        for (E item : myDefault.getValues()) {
             if (item.getDisplayName().equals(displayName)) {
                 return item;
             }
@@ -77,7 +107,7 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
 
     @Override
     public E valueOf(String name) {
-        for (E item : myDefault.getEnumValues()) {
+        for (E item : myDefault.getValues()) {
             if (item.name().equals(name)) {
                 return item;
             }
@@ -90,4 +120,8 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
         return myDefault;
     }
 
+    @Override
+    public boolean isBoolean() {
+        return false;
+    }
 }

@@ -21,25 +21,42 @@
 
 package com.vladsch.MissingInActions.util;
 
+import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
+import com.intellij.lang.Commenter;
+import com.intellij.lang.Language;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.impl.AbstractFileType;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.vladsch.MissingInActions.manager.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.EditorPosition;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
-import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static java.lang.Character.*;
 
 @SuppressWarnings({ "SameParameterValue", "WeakerAccess" })
 public class EditHelpers {
+    private static final Logger LOG = getInstance("com.vladsch.MissingInActions");
+
     public static final int START_OF_WORD = 0x0001;
     public static final int END_OF_WORD = 0x0002;
     public static final int START_OF_TRAILING_BLANKS = 0x0004;
@@ -396,8 +413,8 @@ public class EditHelpers {
         char prev = offset > 0 ? text.charAt(offset - 1) : 0;
         char current = offset < text.length() ? text.charAt(offset) : 0;
 
-        final boolean firstIsIdentifierPart =prev != 0 &&  Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart =current != 0 &&  Character.isJavaIdentifierPart(current);
+        final boolean firstIsIdentifierPart = prev != 0 && Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = current != 0 && Character.isJavaIdentifierPart(current);
         if (!firstIsIdentifierPart && secondIsIdentifierPart) {
             return true;
         }
@@ -415,8 +432,8 @@ public class EditHelpers {
         char current = offset < text.length() ? text.charAt(offset) : 0;
         char next = offset + 1 < text.length() ? text.charAt(offset + 1) : 0;
 
-        final boolean firstIsIdentifierPart =prev != 0 &&  Character.isJavaIdentifierPart(prev);
-        final boolean secondIsIdentifierPart =current != 0 &&  Character.isJavaIdentifierPart(current);
+        final boolean firstIsIdentifierPart = prev != 0 && Character.isJavaIdentifierPart(prev);
+        final boolean secondIsIdentifierPart = current != 0 && Character.isJavaIdentifierPart(current);
         if (firstIsIdentifierPart && !secondIsIdentifierPart) {
             return true;
         }
@@ -715,7 +732,7 @@ public class EditHelpers {
             if (isWordTypeStart(wordType, charSequence, newOffset, isCamel)) {
                 return newOffset;
             }
-            if (stopIfNonWord && !isWordTypeEnd(wordType,charSequence,newOffset,false) && !isWordType(wordType, charSequence, newOffset)) break;
+            if (stopIfNonWord && !isWordTypeEnd(wordType, charSequence, newOffset, false) && !isWordType(wordType, charSequence, newOffset)) break;
             newOffset--;
         } while (newOffset >= 0);
 
@@ -782,13 +799,13 @@ public class EditHelpers {
 
         // trim to word
         while (startOffset < endOffset && !isWordType(wordType, charSequence, startOffset)) startOffset++;
-        while (startOffset < endOffset && !isWordType(wordType, charSequence, endOffset-1)) endOffset--;
+        while (startOffset < endOffset && !isWordType(wordType, charSequence, endOffset - 1)) endOffset--;
         if (stopIfNonWord) {
             if (startOffset > end) startOffset = end;
             if (endOffset < start) endOffset = start;
         }
 
-        return startOffset > endOffset ? new TextRange(start,end) : new TextRange(startOffset, endOffset);
+        return startOffset > endOffset ? new TextRange(start, end) : new TextRange(startOffset, endOffset);
     }
 
     public static String getWordAtOffsets(String charSequence, int start, int end, int wordType, boolean isCamel, boolean stopIfNonWord) {
@@ -817,5 +834,96 @@ public class EditHelpers {
 
     public static boolean isPasswordEditor(@Nullable Editor editor) {
         return editor != null && editor.getContentComponent() instanceof JPasswordField;
+    }
+
+    @NotNull
+    public static String getFormatterOnTag(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).FORMATTER_ON_TAG;
+    }
+
+    @NotNull
+    public static String getFormatterOffTag(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).FORMATTER_OFF_TAG;
+    }
+
+    public static boolean getFormatterTagsEnabled(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).FORMATTER_TAGS_ENABLED;
+    }
+
+    public static boolean getFormatterRegExEnabled(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).FORMATTER_TAGS_ACCEPT_REGEXP;
+    }
+
+    @Nullable
+    public static Pattern getFormatterOnPattern(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).getFormatterOnPattern();
+    }
+
+    @Nullable
+    public static Pattern getFormatterOffPattern(@NotNull Project project) {
+        return CodeStyleSettingsManager.getSettings(project).getFormatterOffPattern();
+    }
+
+    public static int getStartOfLineOffset(@NotNull CharSequence charSequence, int offset) {
+        return BasedSequence.of(charSequence).startOfLine(offset);
+    }
+
+    public static int getEndOfLineOffset(@NotNull CharSequence charSequence, int offset) {
+        return BasedSequence.of(charSequence).endOfLine(offset);
+    }
+
+    @NotNull
+    public static ItemTextRange<Language> findLanguageRangeFromElement(final PsiElement elt) {
+        if (!(elt instanceof PsiFile) && elt.getFirstChild() == null) { //is leaf
+            final PsiElement parent = elt.getParent();
+            if (parent != null) {
+                return new ItemTextRange<>(parent.getLanguage(), parent.getNode().getTextRange());
+            }
+        }
+
+        return new ItemTextRange<>(elt.getLanguage(), elt.getNode().getTextRange());
+    }
+
+    @NotNull
+    public static ItemTextRange<Language> getLanguageRangeAtOffset(@NotNull PsiFile file, int offset) {
+        final PsiElement elt = file.findElementAt(offset);
+        if (elt == null) return new ItemTextRange<Language>(file.getLanguage(), 0, file.getTextLength());
+        if (elt instanceof PsiWhiteSpace) {
+            TextRange textRange = elt.getTextRange();
+            if (!textRange.contains(offset)) {
+                LOG.error("PSI corrupted: in file " + file + " (" + file.getViewProvider().getVirtualFile() + ") offset=" + offset + " returned element " + elt + " with text range " + textRange);
+            }
+            final int decremented = textRange.getStartOffset() - 1;
+            if (decremented >= 0) {
+                return getLanguageRangeAtOffset(file, decremented);
+            }
+        }
+        return findLanguageRangeFromElement(elt);
+    }
+
+    @Nullable
+    public static ItemTextRange<Commenter> getCommenterRange(final @NotNull Editor editor, final @Nullable PsiFile file, final int startOffset, final int endOffset) {
+        if (file != null) {
+            final FileType fileType = file.getFileType();
+            if (fileType instanceof AbstractFileType) {
+                final Commenter commenter = ((AbstractFileType) fileType).getCommenter();
+                if (commenter != null) {
+                    return new ItemTextRange<>(commenter, 0, file.getTextLength());
+                }
+            } else {
+                BasedSequence charSequence = BasedSequence.of(editor.getDocument().getCharsSequence());
+                int lineStartOffset = charSequence.startOfLine(startOffset);
+                int lineEndOffset = charSequence.endOfLine(endOffset);
+                lineStartOffset += charSequence.countLeading((String)BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
+                lineEndOffset -= charSequence.countTrailing(BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
+                final ItemTextRange<Language> lineStartLanguage = getLanguageRangeAtOffset(file, lineStartOffset);
+                final ItemTextRange<Language> lineEndLanguage = getLanguageRangeAtOffset(file, lineEndOffset);
+                Commenter commenter = CommentByBlockCommentHandler.getCommenter(file, editor, lineStartLanguage.getItem(), lineEndLanguage.getItem());
+                if (commenter != null) {
+                    return new ItemTextRange<>(commenter, lineStartLanguage.getStartOffset(), lineEndLanguage.getEndOffset());
+                }
+            }
+        }
+        return null;
     }
 }

@@ -26,10 +26,8 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
@@ -55,10 +53,8 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 public class Plugin implements ApplicationComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
@@ -121,7 +117,8 @@ public class Plugin implements ApplicationComponent, Disposable {
 
         EditorFactory.getInstance().addEditorFactoryListener(editorFactoryListener, this);
         myDelayedRunner.addRunnable(() -> {
-            final Set<Editor> editors = myLineSelectionManagers.keySet();
+            Set<Editor> editorSet = myLineSelectionManagers.keySet();
+            Editor[] editors = editorSet.toArray(new Editor[editorSet.size()]);
             for (Editor editor : editors) {
                 LineSelectionManager manager = myLineSelectionManagers.remove(editor);
                 if (manager != null) {
@@ -194,7 +191,8 @@ public class Plugin implements ApplicationComponent, Disposable {
 
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                for (EditorActionListener listener : listeners) {
+                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.beforeActionPerformed(action, dataContext, event);
                     } catch (Throwable e) {
@@ -211,7 +209,8 @@ public class Plugin implements ApplicationComponent, Disposable {
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                for (EditorActionListener listener : listeners) {
+                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.afterActionPerformed(action, dataContext, event);
                     } catch (Throwable e) {
@@ -228,7 +227,8 @@ public class Plugin implements ApplicationComponent, Disposable {
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                for (EditorActionListener listener : listeners) {
+                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.beforeEditorTyping(c, dataContext);
                     } catch (Throwable e) {
@@ -267,7 +267,9 @@ public class Plugin implements ApplicationComponent, Disposable {
 
         if (settings.isOverrideStandardPaste()) {
             // run it for all editors
-            for (Editor editor : myLineSelectionManagers.keySet()) {
+            Set<Editor> editorSet = myLineSelectionManagers.keySet();
+            Editor[] editors = editorSet.toArray(new Editor[editorSet.size()]);
+            for (Editor editor : editors) {
                 registerPasteOverrides(editor);
             }
         }

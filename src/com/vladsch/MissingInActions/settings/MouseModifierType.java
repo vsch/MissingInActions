@@ -23,66 +23,32 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
-
-import javax.swing.*;
+import org.jetbrains.annotations.NotNull;
 
 public enum MouseModifierType implements ComboBoxAdaptable<MouseModifierType> {
     CTRL_CHAR(0, Bundle.message("settings.auto-line.modifier.ctrl-chars")),
     CTRL_LINE(1, Bundle.message("settings.auto-line.modifier.ctrl-line"));
 
-    public final String displayName;
     public final int intValue;
+    public final @NotNull String displayName;
 
-    MouseModifierType(int intValue, String displayName) {
+    MouseModifierType(int intValue, @NotNull String displayName) {
         this.intValue = intValue;
         this.displayName = displayName;
     }
 
-    public static final MouseModifierType DEFAULT = CTRL_CHAR;
-    public static final ComboBoxAdapter<MouseModifierType> ADAPTER = new ComboBoxAdapterImpl<>(DEFAULT);
-
-    public static MouseModifierType get(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem());
-    }
-
-    public static MouseModifierType get(int value) {
-        return ADAPTER.findEnum(value);
-    }
-
-    public static int getInt(JComboBox comboBox) {
-        return ADAPTER.findEnum((String) comboBox.getSelectedItem()).intValue;
-    }
-
-    static void set(JComboBox comboBox, int intValue) {
-        comboBox.setSelectedItem(ADAPTER.findEnum(intValue).displayName);
-    }
-
-    public static JComboBox createComboBox() {
-        JComboBox comboBox = new JComboBox();
-        ADAPTER.fillComboBox(comboBox);
-        return comboBox;
-    }
-
-    public static MouseModifierType findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
-
-    public MouseModifierType findEnum(String displayName) { return ADAPTER.findEnum(displayName); }
+    public static Static<MouseModifierType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CTRL_CHAR));
 
     @Override
-    public MouseModifierType[] getEnumValues() {
-        return values();
-    }
+    public int getIntValue() { return intValue; }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    @NotNull
+    public String getDisplayName() { return displayName; }
 
-    public boolean isDefault() {
-        return this == DEFAULT;
-    }
+    @NotNull
+    public MouseModifierType[] getValues() { return values(); }
 
-    public int getIntValue() {
-        return intValue;
-    }
+    @Override
+    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

@@ -23,8 +23,8 @@ package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.RemovePrefixOnPastePatternType;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.SubSequence;
-import com.vladsch.flexmark.util.sequence.Substring;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -63,12 +63,12 @@ public class CaseFormatPreserverTest {
         }
 
         CaseFormatPreserver preserver = new CaseFormatPreserver();
-        final SubSequence chars = new SubSequence(Substring.of(template));
+        final BasedSequence chars = BasedSequence.of(template);
         preserver.studyFormatBefore(chars, offset, start, end, prefix1, prefix2, null);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
-        final SubSequence chars1 = new SubSequence(Substring.of(edited));
+        final BasedSequence chars1 = BasedSequence.of(edited);
         InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, prefix1, prefix2, null, addPrefix);
 
         String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
@@ -109,13 +109,13 @@ public class CaseFormatPreserverTest {
         String regexPrefix1 = "^\\Q" + prefix1 + "\\E";
         String regexPrefix2 = "^\\Q" + prefix2 + "\\E";
         CaseFormatPreserver preserver = new CaseFormatPreserver();
-        final SubSequence chars = new SubSequence(Substring.of(template));
+        final BasedSequence chars = BasedSequence.of(template);
         final RemovePrefixOnPastePatternType type = RemovePrefixOnPastePatternType.REGEX;
         preserver.studyFormatBefore(chars, offset, start, end, regexPrefix1, regexPrefix2, type);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
-        final SubSequence chars1 = new SubSequence(Substring.of(edited));
+        final BasedSequence chars1 = BasedSequence.of(edited);
 
         InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, regexPrefix1, regexPrefix2, type, addPrefix);
 
