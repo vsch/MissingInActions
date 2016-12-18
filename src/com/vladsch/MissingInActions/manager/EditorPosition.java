@@ -272,4 +272,8 @@ public class EditorPosition extends LogicalPosition {
     public int ensureRealSpaces() {
         return EditHelpers.ensureRealSpaces(this);
     }
+
+    public boolean isBlankLine() {
+        return atIndentColumn().column >= atEndColumn().column;
+    }
 }

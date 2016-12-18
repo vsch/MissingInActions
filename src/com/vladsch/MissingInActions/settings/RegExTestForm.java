@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 public class RegExTestForm extends DialogWrapper {
     JPanel myMainPanel;
     private JTextField myPattern1;
-    private JTextField myPattern2;
     JTextField mySample1;
     JTextField mySample2;
     private JTextPane myExtractedPrefix1;
@@ -53,16 +52,13 @@ public class RegExTestForm extends DialogWrapper {
     private @NotNull String mySample1Text;
     private @NotNull String mySample2Text;
     private @NotNull String myPattern1Text;
-    private @NotNull String myPattern2Text;
 
     static class RegExSampleSet {
-        final JTextField pattern;
         final JTextField sample;
         final JTextPane extractedPrefix;
         final JPanel extractedPrefixWrapper;
 
-        public RegExSampleSet(final JTextField pattern, final JTextField sample, final JTextPane extractedPrefix, final JPanel extractedPrefixWrapper) {
-            this.pattern = pattern;
+        public RegExSampleSet(final JTextField sample, final JTextPane extractedPrefix, final JPanel extractedPrefixWrapper) {
             this.sample = sample;
             this.extractedPrefix = extractedPrefix;
             this.extractedPrefixWrapper = extractedPrefixWrapper;
@@ -97,15 +93,11 @@ public class RegExTestForm extends DialogWrapper {
 
         if (!onlySamples) {
             mySettingsHolder.setPattern1(myPattern1.getText().trim());
-            mySettingsHolder.setPattern2(myPattern2.getText().trim());
+            //mySettingsHolder.setPattern2(myPattern2.getText().trim());
         }
 
-        if (!myPattern1.getText().trim().isEmpty() && !myPattern2.getText().trim().isEmpty()) {
-            return !checkRegEx(myPattern1, mySampleSet1).isEmpty() || !checkRegEx(myPattern2, mySampleSet2).isEmpty();
-        } else if (!myPattern1.getText().trim().isEmpty()) {
-            return !checkRegEx(myPattern1, mySampleSet1).isEmpty() || !checkRegEx(myPattern1, mySampleSet2).isEmpty();
-        } else if (!myPattern2.getText().trim().isEmpty()) {
-            return !checkRegEx(myPattern2, mySampleSet1).isEmpty() || !checkRegEx(myPattern2, mySampleSet2).isEmpty();
+        if (!myPattern1.getText().trim().isEmpty()) {
+            return checkRegEx(myPattern1, mySampleSet1).isEmpty() || checkRegEx(myPattern1, mySampleSet2).isEmpty();
         }
         return true;
     }
@@ -115,18 +107,16 @@ public class RegExTestForm extends DialogWrapper {
 
         mySettingsHolder = settingsHolder;
 
-        mySampleSet1 = new RegExSampleSet(myPattern1, mySample1, myExtractedPrefix1, myExtractedPrefixWrapper1);
-        mySampleSet2 = new RegExSampleSet(myPattern2, mySample2, myExtractedPrefix2, myExtractedPrefixWrapper2);
+        mySampleSet1 = new RegExSampleSet(mySample1, myExtractedPrefix1, myExtractedPrefixWrapper1);
+        mySampleSet2 = new RegExSampleSet(mySample2, myExtractedPrefix2, myExtractedPrefixWrapper2);
 
         mySample1Text = settingsHolder.getSample1();
         mySample2Text = settingsHolder.getSample2();
         myPattern1Text = settingsHolder.getPattern1();
-        myPattern2Text = settingsHolder.getPattern2();
 
         mySample1.setText(mySample1Text);
         mySample2.setText(mySample2Text);
         myPattern1.setText(myPattern1Text);
-        myPattern2.setText(myPattern2Text);
 
         final DocumentAdapter listener = new DocumentAdapter() {
             @Override
@@ -136,7 +126,6 @@ public class RegExTestForm extends DialogWrapper {
         };
 
         myPattern1.getDocument().addDocumentListener(listener);
-        myPattern2.getDocument().addDocumentListener(listener);
         mySample1.getDocument().addDocumentListener(listener);
         mySample2.getDocument().addDocumentListener(listener);
 
@@ -150,17 +139,9 @@ public class RegExTestForm extends DialogWrapper {
     }
 
     private void updateResult() {
-        if (!myPattern1.getText().trim().isEmpty() && !myPattern2.getText().trim().isEmpty()) {
+        if (!myPattern1.getText().trim().isEmpty()) {
             checkRegEx(myPattern1, mySampleSet1);
             checkRegEx(myPattern1, mySampleSet2);
-            checkRegEx(myPattern2, mySampleSet1);
-            checkRegEx(myPattern2, mySampleSet2);
-        } else if (!myPattern1.getText().trim().isEmpty()) {
-            checkRegEx(myPattern1, mySampleSet1, true);
-            checkRegEx(myPattern1, mySampleSet2, true);
-        } else if (!myPattern2.getText().trim().isEmpty()) {
-            checkRegEx(myPattern2, mySampleSet1, true);
-            checkRegEx(myPattern2, mySampleSet2, true);
         }
     }
 
@@ -188,30 +169,16 @@ public class RegExTestForm extends DialogWrapper {
     protected ValidationInfo doValidate() {
         String err1 = "";
         String err2 = "";
-        String err3 = "";
-        String err4 = "";
-        if (!myPattern1.getText().trim().isEmpty() && !myPattern2.getText().trim().isEmpty()) {
+        if (!myPattern1.getText().trim().isEmpty()) {
             err1 = checkRegEx(myPattern1, mySampleSet1);
             err2 = checkRegEx(myPattern1, mySampleSet2);
-            err3 = checkRegEx(myPattern2, mySampleSet1);
-            err4 = checkRegEx(myPattern2, mySampleSet2);
-        } else if (!myPattern1.getText().trim().isEmpty()) {
-            err1 = checkRegEx(myPattern1, mySampleSet1);
-            err2 = checkRegEx(myPattern1, mySampleSet2);
-        } else if (!myPattern2.getText().trim().isEmpty()) {
-            err3 = checkRegEx(myPattern2, mySampleSet1);
-            err4 = checkRegEx(myPattern2, mySampleSet2);
         }
 
         String err = err1;
         if (!err2.isEmpty()) err += (err.isEmpty() ? "" : "\n") + err2;
-        if (!err3.isEmpty()) err += (err.isEmpty() ? "" : "\n") + err3;
-        if (!err4.isEmpty()) err += (err.isEmpty() ? "" : "\n") + err4;
 
         if (!err1.isEmpty() || !err2.isEmpty()) {
             return new ValidationInfo(err, myPattern1);
-        } else if (!err3.isEmpty() || !err4.isEmpty()) {
-            return new ValidationInfo(err, myPattern2);
         }
         return super.doValidate();
     }
@@ -229,7 +196,7 @@ public class RegExTestForm extends DialogWrapper {
     }
 
     private String checkRegEx(final JTextField pattern, RegExSampleSet sampleSet) {
-        return checkRegEx(pattern, sampleSet, false);
+        return checkRegEx(pattern, sampleSet, true);
     }
 
     private String checkRegEx(final JTextField pattern, RegExSampleSet sampleSet, boolean showResults) {
@@ -266,7 +233,7 @@ public class RegExTestForm extends DialogWrapper {
                             warning = "also matches pattern not at the beginning of text. Add ^ prefix to pattern";
                         }
                     }
-                } else if (pattern == sampleSet.pattern || showResults) {
+                } else if (showResults) {
                     error = "not matched";
                 }
             } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
@@ -274,7 +241,7 @@ public class RegExTestForm extends DialogWrapper {
                 badRegEx = true;
             }
 
-            if (pattern == sampleSet.pattern || showResults) {
+            if (showResults) {
                 if (error.isEmpty() && matcher != null) {
                     // have match
                     HtmlStringBuilder html = new HtmlStringBuilder();
@@ -311,6 +278,7 @@ public class RegExTestForm extends DialogWrapper {
                 } else {
                     HtmlStringBuilder html = new HtmlStringBuilder();
                     html.tag("html").tag("body", "style='margin: 2px'");
+                    //noinspection ConstantConditions
                     html.append(HelpersKt.toHtmlError(error, true));
 
                     html.closeTag("body");

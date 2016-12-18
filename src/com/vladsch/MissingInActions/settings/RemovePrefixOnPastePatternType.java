@@ -34,31 +34,31 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
     CAMEL(1, Bundle.message("settings.line-settings.remove-prefix-on-paste-type.camel")),
     REGEX(2, Bundle.message("settings.remove-prefix-on-paste-type.regex"));
 
-    /**
-     * Convert to caret position for paste depending on where the caret is relative
-     * to indent column and setting
-     *
-     * @param text   text which is to match to the prefix
-     * @param prefix prefix pattern
-     * @return true if text has matching prefix
-     */
-    public boolean isMatched(@NotNull String text, @NotNull String prefix) {
-        if (this == ANY) return text.startsWith(prefix) && text.length() > prefix.length();
-        if (this == CAMEL) return text.startsWith(prefix) && text.length() > prefix.length() && Character.isLowerCase(text.charAt(prefix.length() - 1));
-        if (this == REGEX) {
-            try {
-                Pattern pattern;
-                Matcher matcher;
-
-                pattern = Pattern.compile(prefix);
-                matcher = pattern.matcher(text);
-                return matcher.find() && matcher.start() == 0;
-            } catch (Throwable ignored) {
-
-            }
-        }
-        return false;
-    }
+    ///**
+    // * Convert to caret position for paste depending on where the caret is relative
+    // * to indent column and setting
+    // *
+    // * @param text   text which is to match to the prefix
+    // * @param prefix prefix pattern
+    // * @return true if text has matching prefix
+    // */
+    //public boolean isMatched(@NotNull String text, @NotNull String prefix) {
+    //    if (this == ANY) return text.startsWith(prefix) && text.length() > prefix.length();
+    //    if (this == CAMEL) return text.startsWith(prefix) && text.length() > prefix.length() && Character.isLowerCase(text.charAt(prefix.length() - 1));
+    //    if (this == REGEX) {
+    //        try {
+    //            Pattern pattern;
+    //            Matcher matcher;
+    //
+    //            pattern = Pattern.compile(prefix);
+    //            matcher = pattern.matcher(text);
+    //            return matcher.find() && matcher.start() == 0;
+    //        } catch (Throwable ignored) {
+    //
+    //        }
+    //    }
+    //    return false;
+    //}
 
     /**
      * Convert to caret position for paste depending on where the caret is relative
@@ -86,9 +86,9 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
                 matcher = pattern.matcher(text);
                 if (matcher.find() && matcher.start() == 0) return matcher.group();
 
-                pattern = Pattern.compile(prefix2);
-                matcher = pattern.matcher(text);
-                if (matcher.find() && matcher.start() == 0) return matcher.group();
+                //pattern = Pattern.compile(prefix2);
+                //matcher = pattern.matcher(text);
+                //if (matcher.find() && matcher.start() == 0) return matcher.group();
             } catch (Throwable ignored) {
 
             }

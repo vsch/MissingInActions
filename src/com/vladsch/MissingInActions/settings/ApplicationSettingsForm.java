@@ -66,6 +66,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myMultiPasteShowEolInViewer;
     JBCheckBox myMultiPasteShowEolInList;
     JBCheckBox myMultiPasteShowInstructions;
+    JBCheckBox myMultiPastePreserveOriginal;
     JBCheckBox myOverrideStandardPaste;
     JBCheckBox myPreserveCamelCaseOnPaste;
     JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
@@ -121,6 +122,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myMultiPasteShowEolInList, i::isMultiPasteShowEolInList, i::setMultiPasteShowEolInList),
                         component(myMultiPasteShowEolInViewer, i::isMultiPasteShowEolInViewer, i::setMultiPasteShowEolInViewer),
                         component(myMultiPasteShowInstructions, i::isMultiPasteShowInstructions, i::setMultiPasteShowInstructions),
+                        component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),
                         component(myPreserveCamelCaseOnPaste, i::isPreserveCamelCaseOnPaste, i::setPreserveCamelCaseOnPaste),
                         component(myPreserveScreamingSnakeCaseOnPaste, i::isPreserveScreamingSnakeCaseOnPaste, i::setPreserveScreamingSnakeCaseOnPaste),
@@ -200,7 +202,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || (myCustomizedPrevWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
                 || !mySample1Text.equals(mySettings.getRegexSample1Text())
                 || !mySample2Text.equals(mySettings.getRegexSample2Text())
-                
+
                 || components.isModified(mySettings)
                 ;
     }
@@ -285,16 +287,18 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         mySelectPastedMultiCaretPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         myMultiPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPastePreserveOriginal.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
         final boolean regexPrefixes = RemovePrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == RemovePrefixOnPastePatternType.REGEX;
-        final boolean enablePrefixes =
-                myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
-                        || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled();
+        final boolean enablePrefixes = !regexPrefixes && 
+                (myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
+                        || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled());
 
         myRemovePrefixOnPaste1.setEnabled(enablePrefixes);
         myRemovePrefixOnPaste2.setEnabled(enablePrefixes);
+        myRemovePrefixOnPaste2.setVisible(!regexPrefixes);
         myEditRegExButton.setVisible(regexPrefixes);
 
         myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());

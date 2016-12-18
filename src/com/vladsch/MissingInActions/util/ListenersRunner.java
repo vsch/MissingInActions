@@ -19,8 +19,40 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util.ui;
+package com.vladsch.MissingInActions.util;
 
-public interface Immutable<I extends Immutable<I, M>, M extends Mutable<M, I>> {
-    M toMutable();
+import com.vladsch.flexmark.util.ValueRunnable;
+
+import java.util.LinkedHashSet;
+
+public class ListenersRunner<L> {
+    final private LinkedHashSet<L> myListeners = new LinkedHashSet<L>();
+
+    public ListenersRunner() {
+    }
+
+    public void fire(ValueRunnable<L> runnable) {
+        for (L listener : myListeners) {
+            runnable.run(listener);
+        }
+    }
+
+    public void addListener(L listener) {
+        myListeners.add(listener);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ListenersRunner)) return false;
+
+        ListenersRunner runner = (ListenersRunner) o;
+
+        return myListeners.equals(runner.myListeners);
+    }
+
+    @Override
+    public int hashCode() {
+        return myListeners.hashCode();
+    }
 }

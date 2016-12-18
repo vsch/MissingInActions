@@ -25,6 +25,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.ui.JBColor
+import org.jetbrains.annotations.Contract
 import java.awt.Color
 
 inline fun Logger.debug(lazyMessage: () -> String) {
@@ -45,6 +46,7 @@ fun String.withContext(context: String, pos: Int, prefix: String = "", suffix: S
 }
 
 @JvmOverloads
+@Contract("!null->!null, null->null")
 fun String?.toHtmlError(withContext: Boolean = true): String? {
     var err = this ?: return null
     if (withContext) {

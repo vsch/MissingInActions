@@ -217,7 +217,6 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
 
         addActionSet(ActionSetType.DUPLICATE_ACTION
                 , DuplicateAction.class
-                , DuplicateForClipboardCaretsAction.class
                 , DuplicateLinesAction.class
         );
 

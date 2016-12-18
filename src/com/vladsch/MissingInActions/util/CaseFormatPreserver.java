@@ -105,11 +105,14 @@ public class CaseFormatPreserver {
         InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset);
 
         if (!w.isEmpty()) {
-            if (!prefix1.isEmpty() || !prefix2.isEmpty()) {
-                hadStartOfWord = w.isIdentifierStartBefore(false);
-                if (hadStartOfWord) {
-                    startOfWordWithPrefix = w.getMatchedPrefix(prefixType, prefix1, prefix2);
-                }
+            hadStartOfWord = w.isIdentifierStartBefore(false);
+            if (hadStartOfWord) {
+                startOfWordWithPrefix = w.getMatchedPrefix(prefixType, prefix1, prefix2);
+            }
+        } else {
+            hadStartOfWord = w.isWordStartAtStart;
+            if (hadStartOfWord) {
+                // TODO: add ability to test if following has prefix and delete the prefix after pasting
             }
         }
 
@@ -207,15 +210,14 @@ public class CaseFormatPreserver {
             if (!i.isIsolated() || hadSelection) {
                 RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.ADAPTER.getDefault() : prefixOnPasteType;
 
-                if (!(prefix1.isEmpty() && prefix2.isEmpty())) {
-                    String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);
-                    if (!matchedPrefix.isEmpty()) {
-                        if (hadStartOfWord && startOfWordWithPrefix.equals(matchedPrefix)) {
-                            // leave the prefix
-                        } else {
-                            if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
-                                i.removePrefixesOnce(prefixType, prefix1, prefix2);
-                            }
+                String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);
+                if (!matchedPrefix.isEmpty()) {
+                    if (hadStartOfWord && startOfWordWithPrefix.equals(matchedPrefix)) {
+                        // leave the prefix
+                    } else {
+                        // won't be replaced by add, we remove it here
+                        if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
+                            i.removePrefixesOnce(prefixType, prefix1, prefix2);
                         }
                     }
                 }

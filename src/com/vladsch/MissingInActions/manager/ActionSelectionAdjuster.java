@@ -599,9 +599,14 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                         .toLineSelection();
                             }
 
-                            editorCaret
-                                    .restoreColumn(snapshot)
-                                    .normalizeCaretPosition()
+                            editorCaret.restoreColumn(snapshot);
+
+                            if (!editorCaret.isStartAnchor()) {
+                                // one line selection, flip anchor
+                                editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                            }
+
+                            editorCaret.normalizeCaretPosition()
                                     .commit();
                         }
                     });
@@ -659,22 +664,24 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                         value = settings.getCaretOnMoveSelectionDown();
                     }
 
-                    if (value != -1) {
-                        boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
-                                .to(CaretAdjustmentType.TO_START, () -> {
-                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
-                                })
-                                .to(CaretAdjustmentType.TO_END, () -> {
-                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
-                                })
-                                .to(CaretAdjustmentType.TO_ANCHOR, () -> {
-                                })
-                                .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
-                                    editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-                                })
-                        );
+                    if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER, MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
+                        if (value != -1) {
+                            boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
+                                    .to(CaretAdjustmentType.TO_START, () -> {
+                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                    })
+                                    .to(CaretAdjustmentType.TO_END, () -> {
+                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                    })
+                                    .to(CaretAdjustmentType.TO_ANCHOR, () -> {
+                                    })
+                                    .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
+                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
+                                    })
+                            );
 
-                        editorCaret.commit();
+                            editorCaret.commit();
+                        }
                     }
                 }
             });
@@ -773,14 +780,14 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
 
         final LinePasteCaretAdjustmentType adjustment = LinePasteCaretAdjustmentType.ADAPTER.findEnum(settings.getLinePasteCaretAdjustment());
-        updateLastPastedClipboardCarets(ClipboardCaretContent.getTransferable(myEditor, event.getDataContext()), adjustment);
+        updateLastPastedClipboardCarets(ClipboardCaretContent.getTransferable(myEditor, event.getDataContext()), adjustment, true);
         myAfterActionsCleanup.addAfterAction(event, () -> {
             ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, null);
             myEditor.putUserData(EditorEx.LAST_PASTED_REGION, null);
         });
 
         final CopyPasteManager.ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> {
-            updateLastPastedClipboardCarets(newTransferable, adjustment);
+            updateLastPastedClipboardCarets(newTransferable, adjustment, false);
         };
 
         final CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
@@ -802,7 +809,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             params.preserver.studyFormatBefore(editorCaret
                     , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
                     , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
-                    , null
+                    , settings.getRemovePrefixOnPastePatternType()
             );
 
             Caret caret = editorCaret.getCaret();
@@ -843,7 +850,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                             , settings.isPreserveScreamingSnakeCaseOnPaste()
                                             , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
                                             , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
-                                            , RemovePrefixOnPastePatternType.ADAPTER.findEnum(settings.getRemovePrefixOnPastePattern())
+                                            , settings.getRemovePrefixOnPastePatternType()
                                             , settings.isAddPrefixOnPaste()
                                     );
                                 } else {
@@ -878,7 +885,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         });
     }
 
-    private void updateLastPastedClipboardCarets(final Transferable transferable, final LinePasteCaretAdjustmentType adjustment) {
+    private void updateLastPastedClipboardCarets(final Transferable transferable, final LinePasteCaretAdjustmentType adjustment, boolean setIfNone) {
         // if we already saved state, it means we might have adjusted caret position for line selections of the clipboard content at the time
         // we need to restore caret column positions to undo adjustments made for clipboard content that no longer applies
         final ClipboardCaretContent lastClipboardData = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
@@ -891,7 +898,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     caret.moveToLogicalPosition(atColumn);
                 }
             }
-            
+
+        }
+        
+        if (lastClipboardData != null || setIfNone) {
             final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
                 if (!caret.hasSelection() && isFullLine) {
                     caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());

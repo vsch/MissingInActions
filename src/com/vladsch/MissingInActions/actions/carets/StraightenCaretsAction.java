@@ -56,7 +56,7 @@ public class StraightenCaretsAction extends AnAction  implements LineSelectionAw
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(false);
         } else {
-            e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1);
+            e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1 && !editor.getSelectionModel().hasSelection());
             e.getPresentation().setVisible(true);
             super.update(e);
         }
@@ -68,7 +68,7 @@ public class StraightenCaretsAction extends AnAction  implements LineSelectionAw
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();
 
-        if (caretModel.getCaretCount() > 1) {
+        if (caretModel.getCaretCount() > 1 && !editor.getSelectionModel().hasSelection()) {
             // move all carets to column of primary
             int column = caretModel.getPrimaryCaret().getLogicalPosition().column; 
             for (Caret caret : caretModel.getAllCarets()) {

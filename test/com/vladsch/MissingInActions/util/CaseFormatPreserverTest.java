@@ -106,18 +106,16 @@ public class CaseFormatPreserverTest {
             end = offset;
         }
 
-        String regexPrefix1 = "^\\Q" + prefix1 + "\\E";
-        String regexPrefix2 = "^\\Q" + prefix2 + "\\E";
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         final BasedSequence chars = BasedSequence.of(template);
         final RemovePrefixOnPastePatternType type = RemovePrefixOnPastePatternType.REGEX;
-        preserver.studyFormatBefore(chars, offset, start, end, regexPrefix1, regexPrefix2, type);
+        preserver.studyFormatBefore(chars, offset, start, end, prefix1, prefix2, type);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
         final BasedSequence chars1 = BasedSequence.of(edited);
 
-        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, regexPrefix1, regexPrefix2, type, addPrefix);
+        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, prefix1, prefix2, type, addPrefix);
 
         String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
         return result;
@@ -206,74 +204,77 @@ public class CaseFormatPreserverTest {
 
     @Test
     public void test_Regex() throws Exception {
-        String s = preservedRegex("   int |\n", "myName", "my", "our", true, true, true, true);
+        String s = preservedRegex("   int |\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int myName\n", s);
 
-        s = preservedRegex("   int | abc\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int | abc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int myName abc\n", s);
 
-        s = preservedRegex("   int |abc\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int |abc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int nameAbc\n", s);
 
-        s = preservedRegex("   int a|bc\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int a|bc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int aNameBc\n", s);
 
-        s = preservedRegex("   int ab|c\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int ab|c\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int abNameC\n", s);
 
-        s = preservedRegex("   int abc|\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int abc|\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int abcName\n", s);
 
-        s = preservedRegex("   int [abc]|\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int [abc]|\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int name\n", s);
 
-        s = preservedRegex("   int |[abc]\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int |[abc]\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int name\n", s);
 
-        s = preservedRegex("   int abc |\n", "myName", "my", "our", true, true, true, true);
+        s = preservedRegex("   int abc |\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int abc myName\n", s);
 
-        s = preservedRegex("   int [new WordStudy]|(\n", "WordStudy.of", "my", "our", true, true, true, true);
+        s = preservedRegex("   int [new WordStudy]|(\n", "WordStudy.of", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("   int WordStudy.of(\n", s);
 
-        s = preservedRegex("  [int]| WordStudy(\n", "myCaret", "my", "our", true, true, true, true);
+        s = preservedRegex("  [int]| WordStudy(\n", "myCaret", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("  caret WordStudy(\n", s);
 
-        s = preservedRegex("[WORK_PLAY]|(\n", "myWordStudy", "my", "our", true, true, true, true);
+        s = preservedRegex("[WORK_PLAY]|(\n", "myWordStudy", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("WORD_STUDY(\n", s);
 
-        s = preservedRegex("[work_play]|(\n", "myWordStudy", "my", "our", true, true, true, true);
+        s = preservedRegex("[work_play]|(\n", "myWordStudy", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("word_study(\n", s);
 
-        s = preservedRegex("static [void]| duplicateLine\n", "Couple<Integer> ", "my", "our", true, true, true, true);
+        s = preservedRegex("static [void]| duplicateLine\n", "Couple<Integer> ", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("static Couple<Integer>  duplicateLine\n", s);
 
-        s = preservedRegex("  [Class]| myManager;\n", "myManager", "my", "our", true, true, true, true);
+        s = preservedRegex("  [Class]| myManager;\n", "myManager", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("  Manager myManager;\n", s);
 
-        s = preservedRegex("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", "my", "our", true, true, true, true);
+        s = preservedRegex("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("  private boolean myRemovePrefixOnPasteType = removePrefixOnPasteType;\n", s);
 
-        s = preservedRegex("FLAGS[_SOME_NAME]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preservedRegex("FLAGS[_SOME_NAME]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("FLAGS_CLASS_MEMBER_NAME\n", s);
 
-        s = preservedRegex("flags[_some_name]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preservedRegex("flags[_some_name]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("flags_class_member_name\n", s);
 
-        s = preservedRegex("[myClassMemberName]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preservedRegex("[myClassMemberName]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("myClassMemberName\n", s);
 
-        s = preservedRegex("boolean [myClassMemberName]|\n", "disableGifImages", "my", "our", true, true, true, true);
+        s = preservedRegex("boolean [myClassMemberName]|\n", "disableGifImages", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("boolean myDisableGifImages\n", s);
 
-        s = preservedRegex("boolean [ourClassMemberName]|\n", "disableGifImages", "my", "our", true, true, true, true);
+        s = preservedRegex("boolean [ourClassMemberName]|\n", "disableGifImages", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preservedRegex("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", "my", "our", true, true, true, true);
+        s = preservedRegex("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preservedRegex("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", "my", "our", true, true, true, true);
+        s = preservedRegex("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
+
+        s = preservedRegex("editor.[getTestString]|()\n", "myReplacement", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        assertEquals("editor.getReplacement()\n", s);
     }
 
     @Test

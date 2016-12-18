@@ -29,14 +29,19 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.AbstractFileType;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Couple;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.vladsch.MissingInActions.manager.EditorCaret;
@@ -51,6 +56,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -1100,5 +1106,256 @@ public class EditHelpers {
         transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
         final Transferable transferable = new TextBlockTransferable(text, transferableData, null);
         return transferable;
+    }
+
+    public static Couple<Integer> duplicateLineOrSelectedBlockAtCaret(Editor editor, final Document document, @NotNull Caret caret, final boolean moveCaret) {
+        if (caret.hasSelection()) {
+            int start = caret.getSelectionStart();
+            int end = caret.getSelectionEnd();
+            String s = document.getCharsSequence().subSequence(start, end).toString();
+            document.insertString(end, s);
+            if (moveCaret) {
+                // select newly copied lines and move there
+                caret.moveToOffset(end + s.length());
+                editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+                caret.removeSelection();
+                caret.setSelection(end, end + s.length());
+            }
+            return Couple.of(end, end + s.length());
+        } else {
+            return duplicateLinesRange(editor, document, caret, caret.getOffset(), caret.getVisualPosition(), caret.getVisualPosition(), moveCaret);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    public static Couple<Integer> duplicateLinesRange(Editor editor, Document document, @Nullable Caret caret, int offset, VisualPosition rangeStart, VisualPosition rangeEnd, boolean moveCaret) {
+        Pair<LogicalPosition, LogicalPosition> lines = EditorUtil.calcSurroundingRange(editor, rangeStart, rangeEnd);
+
+        LogicalPosition lineStart = lines.first;
+        LogicalPosition nextLineStart = lines.second;
+        int start = editor.logicalPositionToOffset(lineStart);
+        int end = editor.logicalPositionToOffset(nextLineStart);
+        if (end <= start) {
+            return null;
+        }
+        String s = document.getCharsSequence().subSequence(start, end).toString();
+        final int lineToCheck = nextLineStart.line - 1;
+
+        int newOffset = end + offset - start;
+        if (lineToCheck == document.getLineCount() /* empty document */
+                || lineStart.line == document.getLineCount() - 1 /* last line*/
+                || document.getLineSeparatorLength(lineToCheck) == 0) {
+            s = "\n" + s;
+            newOffset++;
+        }
+        document.insertString(end, s);
+
+        if (moveCaret && caret != null) {
+            caret.moveToOffset(newOffset);
+
+            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        }
+        return Couple.of(end, end + s.length());
+    }
+
+    @NotNull
+    public static Transferable getSplitRepeatedTransferable(@NotNull Editor editor, Transferable content, int repeatCount) {
+        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, content);
+        if (clipboardCaretContent != null) {
+              return getSplitRepeatedTransferable(clipboardCaretContent,repeatCount);
+        }
+        return content;
+    }
+
+    @NotNull
+    public static Transferable getSplitRepeatedTransferable(ClipboardCaretContent clipboardCaretContent, int repeatCount) {
+        Transferable mergedTransferable;
+        List<Transferable> list = new ArrayList<>(clipboardCaretContent.getCaretCount());
+        String sep = "\n";
+        int iMax1 = clipboardCaretContent.getCaretCount();
+        final String[] texts = clipboardCaretContent.getTexts();
+        assert texts != null;
+
+        StringBuilder sb = new StringBuilder();
+        List<TextRange> ranges = new ArrayList<>();
+
+        for (int i = 0; i < iMax1; i++) {
+            for (int j = 0; j < repeatCount; j++) {
+                if (clipboardCaretContent.isFullLine(i)) {
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else if (clipboardCaretContent.isCharLine(i)) {
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    sb.append(sep);
+
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else {
+                    int startOffset = sb.length();
+                    sb.append(texts[i]);
+                    int endOffset = sb.length();
+                    sb.append(sep);
+                    ranges.add(new TextRange(startOffset, endOffset));
+                }
+            }
+        }
+
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[ranges.size()];
+        int[] endOffsets = new int[ranges.size()];
+        int i = 0;
+        for (TextRange range : ranges) {
+            startOffsets[i] = range.getStartOffset();
+            endOffsets[i] = range.getEndOffset();
+            i++;
+        }
+
+        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+        return mergedTransferable;
+    }
+
+    @NotNull
+    public static StudiedCarets studyCarets(@NotNull Editor editor, @NotNull List<Caret> allCarets) {
+        StudiedCarets studiedCarets = new StudiedCarets();
+        if (!allCarets.isEmpty()) {
+            @NotNull LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            final Project project = editor.getProject();
+            final PsiFile psiFile = project == null || !(editor instanceof EditorEx) ? null : PsiManager.getInstance(project).findFile(((EditorEx) editor).getVirtualFile());
+            final LineCommentProcessor lineCommentProcessor = psiFile == null ? null : new LineCommentProcessor(editor, psiFile);
+            HashMap<Integer, EachLineCarets> lineStats = new HashMap<>();
+            studiedCarets.lineCommentProcessor = lineCommentProcessor;
+
+            for (Caret caret : allCarets) {
+                EditorCaret editorCaret = manager.getEditorCaret(caret);
+                studiedCarets.carets.add(editorCaret);
+                studiedCarets.range = studiedCarets.range.include(editorCaret.getCaretPosition().line);
+
+                EachLineCarets eachLineCarets = lineStats.computeIfAbsent(editorCaret.getCaretPosition().line, (integer) -> new EachLineCarets());
+                eachLineCarets.carets++;
+                if (editorCaret.hasSelection()) eachLineCarets.caretSelections++;
+            }
+
+            EditorPosition position = studiedCarets.carets.get(0).getCaretPosition();
+            ByLineType eachLineCarets = studiedCarets.eachLineCarets;
+
+            for (int line : lineStats.keySet()) {
+                EachLineCarets lineCarets = lineStats.get(line);
+                position = position.onLine(line);
+
+                studiedCarets.lineCount.total++;
+                studiedCarets.caretCount.total += lineCarets.carets;
+                studiedCarets.caretSelections.total += lineCarets.caretSelections;
+                if (eachLineCarets.total == 0) eachLineCarets.total = lineCarets.carets;
+                else if (eachLineCarets.total > 0 && eachLineCarets.total != lineCarets.carets) eachLineCarets.total = -1;
+                
+                if (position.isBlankLine()) {
+                    studiedCarets.lineCount.blank++;
+                    studiedCarets.caretCount.blank += lineCarets.carets;
+                    studiedCarets.caretSelections.blank += lineCarets.caretSelections;
+                    if (eachLineCarets.blank == 0) eachLineCarets.blank = lineCarets.carets;
+                    else if (eachLineCarets.blank > 0 && eachLineCarets.blank != lineCarets.carets) eachLineCarets.blank = -1;
+                } else if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(position.getOffset())) {
+                    studiedCarets.lineCount.comment++;
+                    studiedCarets.caretCount.comment += lineCarets.carets;
+                    studiedCarets.caretSelections.comment += lineCarets.caretSelections;
+                    if (eachLineCarets.comment == 0) eachLineCarets.comment = lineCarets.carets;
+                    else if (eachLineCarets.comment > 0 && eachLineCarets.comment != lineCarets.carets) eachLineCarets.comment = -1;
+                } else {
+                    studiedCarets.lineCount.code++;
+                    studiedCarets.caretCount.code += lineCarets.carets;
+                    studiedCarets.caretSelections.code += lineCarets.caretSelections;
+                    if (eachLineCarets.code == 0) eachLineCarets.code = lineCarets.carets;
+                    else if (eachLineCarets.code > 0 && eachLineCarets.code != lineCarets.carets) eachLineCarets.code = -1;
+                }
+            }
+        }
+
+        EditorCaret firstCaret = null;
+        EditorCaret lastCaret = null;
+        for (EditorCaret editorCaret : studiedCarets.carets) {
+            if (editorCaret.getCaretPosition().line == studiedCarets.range.getStart()) {
+                if (firstCaret == null || firstCaret.getCaretPosition().column > editorCaret.getCaretPosition().column) {
+                    firstCaret = editorCaret;
+                }
+            }
+            if (editorCaret.getCaretPosition().line == studiedCarets.range.getEnd()) {
+                if (lastCaret == null || lastCaret.getCaretPosition().column > editorCaret.getCaretPosition().column) {
+                    lastCaret = editorCaret;
+                }
+            }
+        }
+
+        if (firstCaret == null) {
+            firstCaret = studiedCarets.carets.get(0).onLine(studiedCarets.range.getStart());
+        }
+        
+        if (lastCaret == null) {
+            lastCaret = studiedCarets.carets.get(studiedCarets.carets.size()-1).onLine(studiedCarets.range.getEnd());
+        }
+        
+        studiedCarets.firstLineCaret = firstCaret;
+        studiedCarets.lastLineCaret = lastCaret;
+        return studiedCarets;
+    }
+
+    public static class ByLineType {
+        public int blank;
+        public int comment;
+        public int code;
+        public int total;
+
+        public ByLineType() {
+            blank = 0;
+            comment = 0;
+            code = 0;
+            total = 0;
+        }
+
+        public ByLineType(int blank, int comment, int code, int total) {
+            this.blank = blank;
+            this.comment = comment;
+            this.code = code;
+            this.total = total;
+        }
+    }
+
+    public static class EachLineCarets {
+        public int carets;
+        public int caretSelections;
+
+        public EachLineCarets() {
+            carets = 0;
+            caretSelections = 0;
+        }
+    }
+
+    public static class StudiedCarets {
+        public @Nullable LineCommentProcessor lineCommentProcessor;
+        public @NotNull ArrayList<EditorCaret> carets;
+        public @NotNull ByLineType lineCount;
+        public @NotNull ByLineType caretCount;
+        public @NotNull ByLineType eachLineCarets;
+        public @NotNull ByLineType caretSelections;
+        public @NotNull Range range;
+        public @Nullable EditorCaret firstLineCaret;
+        public @Nullable EditorCaret lastLineCaret;
+
+        public StudiedCarets() {
+            lineCommentProcessor = null;
+            carets = new ArrayList<>();
+            lineCount = new ByLineType();
+            caretCount = new ByLineType();
+            eachLineCarets = new ByLineType();
+            caretSelections = new ByLineType();
+            range = Range.NULL;
+
+            firstLineCaret = null;
+            lastLineCaret = null;
+        }
     }
 }

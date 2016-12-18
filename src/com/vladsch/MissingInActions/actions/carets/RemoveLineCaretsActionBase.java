@@ -41,8 +41,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.MissingInActions.util.CommentProcessor;
-import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.LineCommentProcessor;
 
 import static com.vladsch.MissingInActions.actions.carets.RemoveLineCaretsActionBase.OpType.*;
 
@@ -113,7 +112,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             OpType opType = myOpType;
             final Project project = editor.getProject();
             final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
-            final CommentProcessor commentProcessor = psiFile == null ? null : new CommentProcessor(editor, psiFile);
+            final LineCommentProcessor lineCommentProcessor = psiFile == null ? null : new LineCommentProcessor(editor, psiFile);
 
             boolean hadCodeLine = false;
             boolean hadLineComment = false;
@@ -127,7 +126,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                 if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
                     hadBlankLine = true;
                 } else {
-                    if (commentProcessor != null && commentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
+                    if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
                         hadLineComment = true;
                     } else {
                         hadCodeLine = true;
@@ -168,7 +167,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                             editor.getCaretModel().removeCaret(caret);
                         }
                     } else {
-                        if (commentProcessor != null && commentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
+                        if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
                             if (opType.removeLineComments) {
                                 editor.getCaretModel().removeCaret(caret);
                             }

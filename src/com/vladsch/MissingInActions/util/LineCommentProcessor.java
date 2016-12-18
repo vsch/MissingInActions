@@ -28,13 +28,13 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CommentProcessor {
+public class LineCommentProcessor {
     private final @NotNull Editor myEditor;
     private final @NotNull PsiFile myPsiFile;
     private final @NotNull BasedSequence myChars;
     private @Nullable ItemTextRange<Commenter> myCommenterRange;
 
-    public CommentProcessor(@NotNull Editor editor, @NotNull final PsiFile psiFile) {
+    public LineCommentProcessor(@NotNull Editor editor, @NotNull final PsiFile psiFile) {
         myEditor = editor;
         myPsiFile = psiFile;
         myChars = BasedSequence.of(myEditor.getDocument().getCharsSequence());

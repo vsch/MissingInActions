@@ -39,7 +39,7 @@ import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.MissingInActions.util.ui.ContentChooser;
-import com.vladsch.MissingInActions.settings.HintContentPane;
+import com.vladsch.MissingInActions.settings.MultiPasteOptionsPane;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -98,7 +98,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
         final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && getCreateWithCaretsName(editor.getCaretModel().getCaretCount()) != null;
-        final HintContentPane myEmptyContentDescription = new HintContentPane();
+        final MultiPasteOptionsPane myEmptyContentDescription = new MultiPasteOptionsPane();
         final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
@@ -177,31 +177,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     // convert multi caret text to \n separated ranges
                     final String[] texts = caretContent.getTexts();
                     if (texts != null) {
-                        int iMax = caretContent.getCaretCount();
-                        final TextRange[] textRanges = caretContent.getTextRanges();
-                        int offset = 0;
-
-                        //TextAttributes oddAttr = editor == null ? null : editor.getColorsScheme().getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
-                        //TextAttributes evenAttr = editor == null ? null : editor.getColorsScheme().getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES);
-                        MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
-                        final GutterIconRenderer charLinesSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_lines_caret);
-                        final GutterIconRenderer charSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_caret);
-                        final GutterIconRenderer lineSelection = new CaretIconRenderer(PluginIcons.Clipboard_line_caret);
-
-                        for (int i = 0; i < iMax; i++) {
-                            final TextRange range = textRanges[i];
-                            final int startOffset = range.getStartOffset() + offset;
-                            final int endOffset = range.getEndOffset() + offset;
-                            Caret caret = i == 0 ? viewer.getCaretModel().getPrimaryCaret() : viewer.getCaretModel().addCaret(viewer.offsetToVisualPosition(startOffset));
-                            if (caret != null) {
-                                caret.moveToOffset(startOffset);
-                                //noinspection PointlessBooleanExpression,ConstantConditions
-                                offset += caretContent.isFullLine(i) && !settings.isMultiPasteShowEolInViewer() ? 0 : 1;
-                            }
-
-                            RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, null);
-                            highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
-                        }
+                        updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
 
                         final FocusAdapter focusAdapter = new FocusAdapter() {
                             @Override
@@ -211,6 +187,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                     document.setReadOnly(false);
                                     document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
                                     document.setReadOnly(true);
+                                    updateEditorHighlightRegions(viewer, caretContent, false);
                                 });
                             }
 
@@ -223,16 +200,37 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                         document.setReadOnly(false);
                                         document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
                                         document.setReadOnly(true);
+                                        updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
                                     });
                                 }
                             }
                         };
 
                         viewer.getContentComponent().addFocusListener(focusAdapter);
-                        delayedRunner.addRunnable(()->{
+                        delayedRunner.addRunnable(() -> {
                             viewer.getContentComponent().removeFocusListener(focusAdapter);
                         });
                     }
+                }
+            }
+
+            private void updateEditorHighlightRegions(@NotNull Editor viewer, ClipboardCaretContent caretContent, boolean multiPasteShowEolInViewer) {
+                final TextRange[] textRanges = caretContent.getTextRanges();
+                final int iMax = textRanges.length;
+                MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
+                final GutterIconRenderer charLinesSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_lines_caret);
+                final GutterIconRenderer charSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_caret);
+                final GutterIconRenderer lineSelection = new CaretIconRenderer(PluginIcons.Clipboard_line_caret);
+                int offset = 0;
+
+                markupModel.removeAllHighlighters();
+                
+                for (int i = 0; i < iMax; i++) {
+                    final TextRange range = textRanges[i];
+                    final int startOffset = range.getStartOffset() + offset;
+                    offset += caretContent.isFullLine(i) && !multiPasteShowEolInViewer && i == iMax - 1 ? 0 : 1;
+                    RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, null);
+                    highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
                 }
             }
 
@@ -544,11 +542,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         if (showEOL) {
                             sb.append(texts[i].substring(0, texts[i].length() - 1));
                             sb.append(myEolText);
-                            if (!removeFullLineEOL) {
+                            if (!removeFullLineEOL || i < iMax - 1) {
                                 sb.append('\n');
                             }
                         } else {
-                            if (removeFullLineEOL) {
+                            if (removeFullLineEOL && i == iMax - 1) {
                                 sb.append(texts[i].substring(0, texts[i].length() - 1));
                             } else {
                                 sb.append(texts[i]);

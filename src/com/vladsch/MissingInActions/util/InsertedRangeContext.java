@@ -53,6 +53,8 @@ public class InsertedRangeContext {
     public final String sBefore;
     public final String sAfter;
     public final boolean isWordStartAtStart;
+    public final boolean isWordStartAtEnd;
+    public final boolean isWordEndAtStart;
     public final boolean isWordEndAtEnd;
 
     private String myWord;
@@ -85,6 +87,8 @@ public class InsertedRangeContext {
         this.sBefore = String.valueOf(charBefore);
         this.sAfter = String.valueOf(charAfter);
         this.isWordStartAtStart = isWordStart(charSequence, beforeOffset, false);
+        this.isWordEndAtStart = isWordEnd(charSequence, beforeOffset, false);
+        this.isWordStartAtEnd = isWordStart(charSequence, afterOffset, false);
         this.isWordEndAtEnd = isWordEnd(charSequence, afterOffset, false);
 
         myWord = inserted;
@@ -205,16 +209,22 @@ public class InsertedRangeContext {
     }
 
     public boolean addPrefixOrReplaceMismatchedPrefix(final RemovePrefixOnPastePatternType prefixType, final String prefix, final String prefix1, final String prefix2) {
-        if (!myPrefixRemoved && !prefix.isEmpty()) {
+        if (!prefix.isEmpty()) {
             RemovePrefixOnPastePatternType type = prefixType == null ? RemovePrefixOnPastePatternType.CAMEL : prefixType;
-            String matched = type.getMatched(myWord, prefix1, prefix2);
-            if (matched.isEmpty()) {
-                // no prefix, we add
-                prefixWithCamelCase(prefix);
-                return true;
-            } else if (!matched.equals(prefix)) {
-                // we remove then add
-                removePrefix(matched);
+            if (!myPrefixRemoved) {
+                String matched = type.getMatched(myWord, prefix1, prefix2);
+                if (matched.isEmpty()) {
+                    // no prefix, we add
+                    prefixWithCamelCase(prefix);
+                    return true;
+                } else if (!matched.equals(prefix)) {
+                    // we remove then add
+                    removePrefix(matched);
+                    prefixWithCamelCase(prefix);
+                    return true;
+                }
+            } else {
+                // add, old one was removed
                 prefixWithCamelCase(prefix);
                 return true;
             }

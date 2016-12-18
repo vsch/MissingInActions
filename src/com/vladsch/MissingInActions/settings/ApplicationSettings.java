@@ -56,6 +56,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean     myMultiPasteShowEolInList = true;
     private boolean     myMultiPasteShowInstructions = true;
     private boolean     myMultiPasteShowOptions = true;
+    private boolean     myMultiPastePreserveOriginal = true;
     private boolean     myOverrideStandardPaste = false;
     private boolean     myPreserveCamelCaseOnPaste = false;
     private boolean     myPreserveScreamingSnakeCaseOnPaste = false;
@@ -134,6 +135,10 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
                 //|| myLeftRightMovement
         );
     }
+
+    public boolean isMultiPastePreserveOriginal() { return myMultiPastePreserveOriginal; } 
+    
+    public void setMultiPastePreserveOriginal(boolean multiPastePreserveOriginal) { myMultiPastePreserveOriginal = multiPastePreserveOriginal; }
 
     public boolean isMultiPasteShowEolInList() { return myMultiPasteShowEolInList; }
 

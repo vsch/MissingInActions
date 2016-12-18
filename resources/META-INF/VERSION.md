@@ -79,26 +79,39 @@
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
-- [ ] Add: reserved list exclusion for preserve on paste. If pasting over reserved word then
-      don't make any changes to the pasted content.
+- [ ] Add: reserved word list exclusion for preserve on paste. If pasting over reserved word
+      then don't make any changes to the pasted content.
+
+- Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
+  remove the original prefix from pasted word but not add the prefix that existed in the word
+  being pasted over.
+
+- Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
+  prefix instead.
+
+- Change: when RegEx remove/add prefix pattern is selected only one string is used since it can
+  represent all prefixes.
+
+- Fix: `StraightenCarets` action now disabled if there are selections
 
 - Add: Dupe for Clipboard carets will also handle multi-caret input:
-    
+
     - duplicated block spans all carets
-    
-    - if have selections then only keep carets with selections
-    
-    - if span == 1, keep all carets
-    
-    - if have no selections then put 1 caret on first line of every block 
-    
+    - if have selections 
+        - then only keep carets with selections
+    - otherwise
+        - if span == 1, keep all carets
+        - if have no selections 
+            - if same number of carets on each type of line:code, comment, blank, of the block
+              then keep all carets
+            - otherwise, assume that the first and last caret were used to mark the span of
+              lines to duplicate, and remove them, duplicating the rest of the carets
     - clipboard data is duplicated for every caret so that the first block will have first caret
       content for every caret in the block, second second, etc
       
         If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line
-        then after dupe the clipboard will contain 9 carets:
+        then after dupe, the clipboard will contain 9 carets:
         text1,text1,text1,text2,text2,text2,text3,text3,text3
-        
 - Add: MultiPaste override for all editor fields to make it consistent across the IDE.
 
 - Fix: MultiPaste would override even when disabled in settings.
