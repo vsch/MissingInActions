@@ -322,7 +322,7 @@ public class NumberSequenceGeneratorTest {
         int base;
         long min;
         base = 3;
-        min = -NumberSequenceGenerator.COMPLEMENT_BASE[base];
+        min = -NumberSequenceGenerator.COMPLEMENT_BASE[base]*2;
         assertEquals("0", convertNumber(0, base, true).toString());
         assertEquals("1", convertNumber(1, base, true).toString());
         assertEquals("2", convertNumber(2, base, true).toString());
@@ -342,11 +342,49 @@ public class NumberSequenceGeneratorTest {
         assertEquals("22222222222222222222222222222222222222220", convertNumber(-3, base, true).toString());
         assertEquals("22222222222222222222222222222222222222212", convertNumber(-4, base, true).toString());
         assertEquals("22222222222222222222222222222222222222211", convertNumber(-5, base, true).toString());
-        assertEquals("22000000000000000000000000000000000000000", convertNumber(min, base, true).toString());
-        assertEquals("22000000000000000000000000000000000000001", convertNumber(min+1, base, true).toString());
-        assertEquals("22000000000000000000000000000000000000002", convertNumber(min+2, base, true).toString());
-        assertEquals("22000000000000000000000000000000000000010", convertNumber(min+3, base, true).toString());
-        assertEquals("22000000000000000000000000000000000000011", convertNumber(min+4, base, true).toString());
+        assertEquals("21000000000000000000000000000000000000000", convertNumber(min, base, true).toString());
+        assertEquals("21000000000000000000000000000000000000001", convertNumber(min+1, base, true).toString());
+        assertEquals("21000000000000000000000000000000000000002", convertNumber(min+2, base, true).toString());
+        assertEquals("21000000000000000000000000000000000000010", convertNumber(min+3, base, true).toString());
+        assertEquals("21000000000000000000000000000000000000011", convertNumber(min+4, base, true).toString());
+    }
+
+    @Test
+    public void test_convertNumber_base9() {
+        int base;
+        long min;
+        base = 9;
+        min = -NumberSequenceGenerator.COMPLEMENT_BASE[base];
+        assertEquals("0", convertNumber(0, base, true).toString());
+        assertEquals("1", convertNumber(1, base, true).toString());
+        assertEquals("2", convertNumber(2, base, true).toString());
+        assertEquals("3", convertNumber(3, base, true).toString());
+        assertEquals("4", convertNumber(4, base, true).toString());
+        assertEquals("5", convertNumber(5, base, true).toString());
+        assertEquals("6", convertNumber(6, base, true).toString());
+        assertEquals("7", convertNumber(7, base, true).toString());
+        assertEquals("8", convertNumber(8, base, true).toString());
+        assertEquals("10", convertNumber(9, base, true).toString());
+        assertEquals("67404283172107811826", convertNumber(Long.MAX_VALUE-1, base, true).toString());
+        assertEquals("67404283172107811827", convertNumber(Long.MAX_VALUE, base, true).toString());
+        // ((BASE^N - 1) - (MAX_VALUE + 1)) + 1 == MIN_VALUE complement representation
+        // 67404283172107811827 + 1 
+        // 67404283172107811828 -
+        // 88888888888888888888 
+        // 21484605716781077060 + 1
+        // 21484605716781077061
+        assertEquals("21484605716781077061", convertNumber(Long.MIN_VALUE, base, true).toString());
+        assertEquals("21484605716781077062", convertNumber(Long.MIN_VALUE+1, base, true).toString());
+        assertEquals("88888888888888888888", convertNumber(-1, base, true).toString());
+        assertEquals("88888888888888888887", convertNumber(-2, base, true).toString());
+        assertEquals("88888888888888888886", convertNumber(-3, base, true).toString());
+        assertEquals("88888888888888888885", convertNumber(-4, base, true).toString());
+        assertEquals("88888888888888888884", convertNumber(-5, base, true).toString());
+        assertEquals("80000000000000000000", convertNumber(min, base, true).toString());
+        assertEquals("80000000000000000001", convertNumber(min+1, base, true).toString());
+        assertEquals("80000000000000000002", convertNumber(min+2, base, true).toString());
+        assertEquals("80000000000000000003", convertNumber(min+3, base, true).toString());
+        assertEquals("80000000000000000004", convertNumber(min+4, base, true).toString());
     }
 
     private static long maxPositive(int base) {

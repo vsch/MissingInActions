@@ -319,32 +319,18 @@ public class NumberSequenceGenerator {
                     i = sb.length;
                     int c;
 
-                    if (base == 2) {
-                        while (i > 0) {
-                            c = (int) (remainder % base);
-                            if (c < 0) c += base;
+                    while (i > 0) {
+                        c = (int) (remainder % base);
+                        if (c < 0) c += base;
+                        if (remainder >= Long.MIN_VALUE + c) {
                             remainder -= c; // ensure we have -ve extension shifted in
                             remainder = remainder / base;
-                            if (c <= 9) sb[--i] = (char) (c + '0');
-                            else sb[--i] = (char) (c - 10 + 'A');
+                        } else {
+                            remainder = remainder / base;
+                            remainder--;
                         }
-                    } else {
-                        while (i > 0) {
-                            c = (int) (remainder % base);
-                            if (c < 0) c += base;
-                            if (i == 1) {
-                                int tmp = 0;
-                            }
-                            if (remainder >= Long.MIN_VALUE + c) {
-                                remainder -= c; // ensure we have -ve extension shifted in
-                                remainder = remainder / base;
-                            } else {
-                                remainder = remainder / base;
-                                remainder--; 
-                            }
-                            if (c <= 9) sb[--i] = (char) (c + '0');
-                            else sb[--i] = (char) (c - 10 + 'A');
-                        }
+                        if (c <= 9) sb[--i] = (char) (c + '0');
+                        else sb[--i] = (char) (c - 10 + 'A');
                     }
                 }
             } else {
