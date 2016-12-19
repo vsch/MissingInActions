@@ -282,7 +282,7 @@ public class NumberSequenceGenerator {
     /**
      * Convert a number to a sequence for given numbering base
      *
-     * @param number number to convert
+     * @param number               number to convert
      * @param alwaysBaseComplement
      * @return character sequence of that number in selected base
      */
@@ -335,8 +335,13 @@ public class NumberSequenceGenerator {
                             if (i == 1) {
                                 int tmp = 0;
                             }
-                            if (remainder >= Long.MIN_VALUE+c) remainder -= c; // ensure we have -ve extension shifted in
-                            remainder = remainder / base;
+                            if (remainder >= Long.MIN_VALUE + c) {
+                                remainder -= c; // ensure we have -ve extension shifted in
+                                remainder = remainder / base;
+                            } else {
+                                remainder = remainder / base;
+                                remainder--; 
+                            }
                             if (c <= 9) sb[--i] = (char) (c + '0');
                             else sb[--i] = (char) (c - 10 + 'A');
                         }
