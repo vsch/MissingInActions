@@ -24,9 +24,9 @@ package com.vladsch.MissingInActions.settings;
 import org.jetbrains.annotations.NotNull;
 
 public class NumberingOptions extends NumberingBaseOptions {
-    protected String myFirst;
-    protected String myLast;
-    protected int myNumberingBase;
+    private String myFirst;
+    private String myLast;
+    private int myNumberingBase;
 
     public NumberingOptions() {
         super();

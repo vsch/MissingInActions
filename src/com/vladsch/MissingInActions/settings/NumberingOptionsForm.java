@@ -43,10 +43,11 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     private JTextField myStep;
     private JComboBox myNumberingBase;
     private JCheckBox myBitShift;
-    private JCheckBox mySameLineRepeat;
+    private JCheckBox myRepeatSameLine;
     private JRadioButton myUpperCase;
     private JComboBox mySeparatorFrequency;
     private JTextField mySeparator;
+    private JTextField myDecimalPoint;
     private JTextField myPrefix;
     private JTextField mySuffix;
     private JRadioButton myLowerCase;
@@ -111,9 +112,10 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
                         component(myStep, i::getStep, i::setStep),
                         component(NumberingBaseType.ADAPTER, myNumberingBase, i::getNumberingBase, i::setNumberingBase),
                         component(myBitShift, i::isBitShift, i::setBitShift),
-                        component(mySameLineRepeat, i::isRepeatSameLine, i::setRepeatSameLine),
+                        component(myRepeatSameLine, i::isRepeatSameLine, i::setRepeatSameLine),
                         component(SeparatorFrequencyType.ADAPTER, mySeparatorFrequency, i::getSeparatorFrequency, i::setSeparatorFrequency),
                         component(mySeparator, i::getSeparator, i::setSeparator),
+                        component(myDecimalPoint, i::getDecimalPoint, i::setDecimalPoint),
                         component(myPrefix, i::getPrefix, i::setPrefix),
                         component(mySuffix, i::getSuffix, i::setSuffix),
                         component(myUpperCase, i::isUpperCase, i::setUpperCase),
@@ -141,7 +143,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         });
 
         myBitShift.addActionListener(actionListener);
-        mySameLineRepeat.addActionListener(actionListener);
+        myRepeatSameLine.addActionListener(actionListener);
         mySeparatorFrequency.addActionListener(actionListener);
 
         myFirst.getDocument().addDocumentListener(documentAdapter);
@@ -149,8 +151,12 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         myTemplate.getDocument().addDocumentListener(documentAdapter);
         myStep.getDocument().addDocumentListener(documentAdapter);
         mySeparator.getDocument().addDocumentListener(documentAdapter);
+        myDecimalPoint.getDocument().addDocumentListener(documentAdapter);
         myPrefix.getDocument().addDocumentListener(documentAdapter);
         mySuffix.getDocument().addDocumentListener(documentAdapter);
+
+        reset();
+        updateOptions();
     }
 
     private void unguarded_BaseChanged() {
@@ -182,10 +188,15 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     private void unguarded_UpdateOptions() {
         // add update code here
         apply(myOptions);
-        
-        int base = myOptions.myNumberingBase; 
-        myUpperCase.setEnabled(base > 10);
-        myLowerCase.setEnabled(base > 10);
+
+        int base = myOptions.getNumberingBase();
+        if (base <= 10) {
+            myUpperCase.setVisible(false);
+            myLowerCase.setVisible(false);
+        } else {
+            myUpperCase.setVisible(true);
+            myLowerCase.setVisible(true);
+        }
         mySeparatorFrequency.setEnabled(!mySeparator.getText().isEmpty());
 
         myChangeListeners.fire(listener -> listener.optionsChanged(myOptions.copy()));

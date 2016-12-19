@@ -49,8 +49,7 @@ public class RenumberingDialog extends DialogWrapper {
         super(parent, false);
 
         mySettings = ApplicationSettings.getInstance();
-        myNumberingOptionsForm.setOptions(mySettings.getLastNumberingOptions());
-        
+
         myEditor = editor;
         myViewer = createIdeaEditor("");
         myViewPanel.add(myViewer.getComponent(), BorderLayout.CENTER);
@@ -58,8 +57,8 @@ public class RenumberingDialog extends DialogWrapper {
         myNumberingOptionsForm.addBaseChangeListener((oldOptions, newOptions) -> {
             // save the old base numbering options
             mySettings.setLastNumberingOptions(oldOptions);
-            
-            NumberingOptions newBaseOptions = new NumberingOptions(mySettings.getNumberingBaseOptions(newOptions.myNumberingBase), newOptions);
+
+            NumberingOptions newBaseOptions = new NumberingOptions(mySettings.getNumberingBaseOptions(newOptions.getNumberingBase()), newOptions);
             mySettings.setLastNumberingOptions(newBaseOptions);
             myNumberingOptionsForm.setOptions(newBaseOptions);
         });
@@ -73,7 +72,8 @@ public class RenumberingDialog extends DialogWrapper {
     }
 
     private void saveSettings() {
-        mySettings.setLastNumberingOptions(myNumberingOptionsForm.getOptions());
+        NumberingOptions options = myNumberingOptionsForm.getOptions();
+        mySettings.setLastNumberingOptions(options);
     }
 
     private String updateResults() {
@@ -145,9 +145,9 @@ public class RenumberingDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here 
-        myNumberingOptionsForm = new NumberingOptionsForm();
+        myNumberingOptionsForm = new NumberingOptionsForm(ApplicationSettings.getInstance().getLastNumberingOptions());
     }
+
     private void ignoreErrors(Runnable runnable) {
         try {
             runnable.run();
@@ -241,5 +241,4 @@ public class RenumberingDialog extends DialogWrapper {
         ignoreErrors(() -> { myViewerSettings.setTabSize(myEditorSettings.getTabSize(myEditorProject)); });
         // @formatter:on
     }
-
 }

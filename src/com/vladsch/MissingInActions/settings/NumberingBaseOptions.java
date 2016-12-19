@@ -24,15 +24,16 @@ package com.vladsch.MissingInActions.settings;
 import org.jetbrains.annotations.NotNull;
 
 public class NumberingBaseOptions {
-    protected String myStep;
-    protected boolean myBitShift;
-    protected boolean myRepeatSameLine;
-    protected String myTemplate;
-    protected String myPrefix;
-    protected String mySuffix;
-    protected String mySeparator;
-    protected int mySeparatorFrequency;
-    protected boolean myUpperCase;
+    private String myStep;
+    private boolean myBitShift;
+    private boolean myRepeatSameLine;
+    private String myTemplate;
+    private String myPrefix;
+    private String mySuffix;
+    private String mySeparator;
+    private String myDecimalPoint;
+    private int mySeparatorFrequency;
+    private boolean myUpperCase;
 
     public NumberingBaseOptions() {
         myStep = "1";
@@ -42,6 +43,7 @@ public class NumberingBaseOptions {
         myPrefix = "";
         mySuffix = "";
         mySeparator = "";
+        myDecimalPoint = "";
         mySeparatorFrequency = SeparatorFrequencyType.NONE.getIntValue();
         myUpperCase = true;
     }
@@ -54,6 +56,7 @@ public class NumberingBaseOptions {
         myPrefix = other.myPrefix;
         mySuffix = other.mySuffix;
         mySeparator = other.mySeparator;
+        myDecimalPoint = other.myDecimalPoint;
         mySeparatorFrequency = other.mySeparatorFrequency;
         myUpperCase = other.myUpperCase;
     }
@@ -70,6 +73,7 @@ public class NumberingBaseOptions {
     public String getPrefix() { return myPrefix; }
     public String getSuffix() { return mySuffix; }
     public String getSeparator() { return mySeparator; }
+    public String getDecimalPoint() { return myDecimalPoint; }
     public boolean isUpperCase() { return myUpperCase; } 
     public int getSeparatorFrequency() { return mySeparatorFrequency; }
     public void setStep(String step) { myStep = step; }
@@ -79,6 +83,7 @@ public class NumberingBaseOptions {
     public void setPrefix(String prefix) { myPrefix = prefix; }
     public void setSuffix(String suffix) { mySuffix = suffix; }
     public void setSeparator(String separator) { mySeparator = separator; }
+    public void setDecimalPoint(String decimalPoint) { myDecimalPoint = decimalPoint; }
     public void setSeparatorFrequency(int separatorFrequency) { mySeparatorFrequency = separatorFrequency; }
     public void setUpperCase(boolean upperCase) { myUpperCase = upperCase; } 
     // @formatter:on
@@ -97,7 +102,9 @@ public class NumberingBaseOptions {
         if (!myTemplate.equals(options.myTemplate)) return false;
         if (!myPrefix.equals(options.myPrefix)) return false;
         if (!mySuffix.equals(options.mySuffix)) return false;
-        return mySeparator.equals(options.mySeparator);
+        if (!mySeparator.equals(options.mySeparator)) return false;
+        if (!myDecimalPoint.equals(options.myDecimalPoint)) return false;
+        return true;
     }
 
     @Override
@@ -109,6 +116,7 @@ public class NumberingBaseOptions {
         result = 31 * result + myPrefix.hashCode();
         result = 31 * result + mySuffix.hashCode();
         result = 31 * result + mySeparator.hashCode();
+        result = 31 * result + myDecimalPoint.hashCode();
         result = 31 * result + mySeparatorFrequency;
         return result;
     }

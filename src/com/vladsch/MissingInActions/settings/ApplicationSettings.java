@@ -293,7 +293,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myLastNumberingOptions = lastNumberingOptions.copy();
 
         // save these base options with the actual base last used
-        int numberingBase = myLastNumberingOptions.myNumberingBase;
+        int numberingBase = myLastNumberingOptions.getNumberingBase();
         assert numberingBase >= NumberingBaseType.MIN_BASE && numberingBase <= NumberingBaseType.MAX_BASE;
         
         // copy out 
