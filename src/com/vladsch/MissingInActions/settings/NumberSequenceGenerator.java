@@ -42,7 +42,7 @@ public class NumberSequenceGenerator {
             23, // 7
             22, // 8
             20, // 9
-            19, // 10
+            20, // 10
             19, // 11
             18, // 12
             18, // 13
@@ -283,10 +283,11 @@ public class NumberSequenceGenerator {
      * Convert a number to a sequence for given numbering base
      *
      * @param number number to convert
+     * @param alwaysBaseComplement
      * @return character sequence of that number in selected base
      */
     @NotNull
-    public static BasedSequence convertNumber(long number, long base) {
+    public static BasedSequence convertNumber(long number, long base, boolean alwaysBaseComplement) {
         assert base >= NumberingBaseType.MIN_BASE && base <= NumberingBaseType.MAX_BASE;
 
         char[] sb;
@@ -296,7 +297,7 @@ public class NumberSequenceGenerator {
             i = 0;
         } else {
             if (number < 0) {
-                if (base == 10) {
+                if (base == 10 && !alwaysBaseComplement) {
                     if (number == MIN_VALUE) {
                         sb = String.valueOf(MIN_VALUE).toCharArray();
                         i = 0;
