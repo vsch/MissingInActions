@@ -27,6 +27,7 @@ import com.vladsch.MissingInActions.util.ReEntryGuard;
 import com.vladsch.MissingInActions.util.ui.Settable;
 import com.vladsch.MissingInActions.util.ui.SettingsComponents;
 import com.vladsch.MissingInActions.util.ui.SettingsConfigurable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -34,7 +35,8 @@ import javax.swing.event.DocumentEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptions.AsMutable>, Settable {
+public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptions>, Settable {
+    private JPanel myMainPanel;
     private JTextField myFirst;
     private JTextField myLast;
     private JTextField myTemplate;
@@ -42,39 +44,66 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     private JComboBox myNumberingBase;
     private JCheckBox myBitShift;
     private JCheckBox mySameLineRepeat;
+    private JRadioButton myUpperCase;
+    private JComboBox mySeparatorFrequency;
     private JTextField mySeparator;
-    private JComboBox myComboBox1;
+    private JTextField myPrefix;
+    private JTextField mySuffix;
+    private JRadioButton myLowerCase;
 
     private NumberingOptions myOriginalOptions;
-    private NumberingOptions.AsMutable myOptions;
-    private final SettingsComponents<NumberingOptions.AsMutable> myComponents;
+    private NumberingOptions myOptions;
+    private final SettingsComponents<NumberingOptions> myComponents;
     private final ReEntryGuard myGuard;
-    private final ListenersRunner<ChangeListener> myListeners;
+    private final ListenersRunner<ChangeListener> myChangeListeners;
+    private final ListenersRunner<BaseChangeListener> myBaseChangeListeners;
 
     public static interface ChangeListener {
         void optionsChanged(NumberingOptions options);
-    } 
-    
+    }
+
+    public static interface BaseChangeListener {
+        void baseChanged(NumberingOptions oldOptions, NumberingOptions newOptions);
+    }
+
     public NumberingOptionsForm() {
-        this(new NumberingOptions.AsMutable());
+        this(new NumberingOptions());
     }
 
     @SuppressWarnings("WeakerAccess")
-    public NumberingOptionsForm(NumberingOptions.AsMutable options) {
-        this(options, null);
+    public NumberingOptionsForm(NumberingOptions options) {
+        this(options, null, null);
     }
-    
+
+    public void addChangeListener(@NotNull ChangeListener changeListener) {
+        myChangeListeners.addListener(changeListener);
+    }
+
+    public void removeChangeListener(@NotNull ChangeListener changeListener) {
+        myChangeListeners.removeListener(changeListener);
+    }
+
+    public void addBaseChangeListener(@NotNull BaseChangeListener changeListener) {
+        myBaseChangeListeners.addListener(changeListener);
+    }
+
+    public void removeBaseChangeListener(@NotNull BaseChangeListener changeListener) {
+        myBaseChangeListeners.removeListener(changeListener);
+    }
+
     @SuppressWarnings("WeakerAccess")
-    public NumberingOptionsForm(NumberingOptions.AsMutable options, @Nullable ChangeListener changeListener) {
-        myOriginalOptions = options.toImmutable();
-        myOptions = options;
+    public NumberingOptionsForm(NumberingOptions options, @Nullable ChangeListener changeListener, @Nullable BaseChangeListener baseChangeListener) {
+        myOriginalOptions = options.copy();
+        myOptions = options.copy();
         myGuard = new ReEntryGuard();
-        myListeners = new ListenersRunner<>();
-        if (changeListener != null) myListeners.addListener(changeListener);
+        myChangeListeners = new ListenersRunner<>();
+        myBaseChangeListeners = new ListenersRunner<>();
+        if (changeListener != null) myChangeListeners.addListener(changeListener);
+        if (baseChangeListener != null) myBaseChangeListeners.addListener(baseChangeListener);
 
-        myComponents = new SettingsComponents<NumberingOptions.AsMutable>() {
+        myComponents = new SettingsComponents<NumberingOptions>() {
             @Override
-            protected Settable[] getComponents(NumberingOptions.AsMutable i) {
+            protected Settable[] getComponents(NumberingOptions i) {
                 return new Settable[] {
                         component(myFirst, i::getFirst, i::setFirst),
                         component(myLast, i::getLast, i::setLast),
@@ -83,6 +112,12 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
                         component(NumberingBaseType.ADAPTER, myNumberingBase, i::getNumberingBase, i::setNumberingBase),
                         component(myBitShift, i::isBitShift, i::setBitShift),
                         component(mySameLineRepeat, i::isRepeatSameLine, i::setRepeatSameLine),
+                        component(SeparatorFrequencyType.ADAPTER, mySeparatorFrequency, i::getSeparatorFrequency, i::setSeparatorFrequency),
+                        component(mySeparator, i::getSeparator, i::setSeparator),
+                        component(myPrefix, i::getPrefix, i::setPrefix),
+                        component(mySuffix, i::getSuffix, i::setSuffix),
+                        component(myUpperCase, i::isUpperCase, i::setUpperCase),
+                        component(myLowerCase, () -> !i.isUpperCase(), (upperCase) -> i.setUpperCase(!upperCase)),
                 };
             }
         };
@@ -90,7 +125,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                myGuard.ifUnguarded(() -> updateOptions());
+                myGuard.ifUnguarded(() -> unguarded_UpdateOptions());
             }
         };
 
@@ -101,18 +136,43 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
             }
         };
 
-        myNumberingBase.addActionListener(actionListener);
+        myNumberingBase.addActionListener((event) -> {
+            myGuard.ifUnguarded(this::unguarded_BaseChanged);
+        });
+
         myBitShift.addActionListener(actionListener);
         mySameLineRepeat.addActionListener(actionListener);
+        mySeparatorFrequency.addActionListener(actionListener);
 
         myFirst.getDocument().addDocumentListener(documentAdapter);
         myLast.getDocument().addDocumentListener(documentAdapter);
         myTemplate.getDocument().addDocumentListener(documentAdapter);
         myStep.getDocument().addDocumentListener(documentAdapter);
+        mySeparator.getDocument().addDocumentListener(documentAdapter);
+        myPrefix.getDocument().addDocumentListener(documentAdapter);
+        mySuffix.getDocument().addDocumentListener(documentAdapter);
+    }
+
+    private void unguarded_BaseChanged() {
+        int oldNumberingBase = myOptions.getNumberingBase();
+        NumberingOptions oldOptions = myOptions.copy();
+        NumberingOptions newOptions = myOptions.copy();
+
+        // need to save the numbering base options
+        apply(oldOptions);
+        oldOptions.setNumberingBase(oldNumberingBase);
+
+        apply(newOptions);
+
+        myBaseChangeListeners.fire(listener -> listener.baseChanged(oldOptions.copy(), newOptions.copy()));
+
+        // now update options
+        unguarded_UpdateOptions();
     }
 
     private void createUIComponents() {
         myNumberingBase = NumberingBaseType.ADAPTER.createComboBox();
+        mySeparatorFrequency = SeparatorFrequencyType.ADAPTER.createComboBox();
     }
 
     private void updateOptions() {
@@ -121,57 +181,66 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
     private void unguarded_UpdateOptions() {
         // add update code here
+        apply(myOptions);
         
-        final NumberingOptions value = myOptions.toImmutable();
-        myListeners.fire(listener -> listener.optionsChanged(value));
+        int base = myOptions.myNumberingBase; 
+        myUpperCase.setEnabled(base > 10);
+        myLowerCase.setEnabled(base > 10);
+        mySeparatorFrequency.setEnabled(!mySeparator.getText().isEmpty());
+
+        myChangeListeners.fire(listener -> listener.optionsChanged(myOptions.copy()));
     }
 
     public NumberingOptions getOptions() {
-        return myOptions;
-    }
-
-    public void setOptions(NumberingOptions.AsMutable options) {
-        myOptions = options;
-        myOriginalOptions = options.toImmutable();
-        reset();
+        apply(myOptions);
+        return myOptions.copy();
     }
 
     public void setOptions(NumberingOptions options) {
-        myOriginalOptions = options;
-        myOptions = myOriginalOptions.toMutable();
+        myOptions = options.copy();
+        myOriginalOptions = options.copy();
         reset();
     }
 
     @Override
-    public void reset(NumberingOptions.AsMutable instance) {
+    public void reset(NumberingOptions instance) {
         setOptions(instance);
     }
 
     @Override
-    public NumberingOptions.AsMutable apply(NumberingOptions.AsMutable instance) {
-        myOptions = instance;
-        apply();
+    public NumberingOptions apply(NumberingOptions instance) {
+        myComponents.apply(instance);
         return instance;
     }
 
     @Override
-    public boolean isModified(NumberingOptions.AsMutable instance) {
+    public boolean isModified(NumberingOptions instance) {
         return myComponents.isModified(instance);
     }
 
     @Override
     public void reset() {
-        myComponents.reset(myOriginalOptions.toMutable());
+        myComponents.reset(myOriginalOptions);
     }
 
     @Override
     public void apply() {
         myComponents.apply(myOptions);
-        myOriginalOptions = myOptions.toImmutable();
+        myOriginalOptions = myOptions.copy();
     }
 
     @Override
     public boolean isModified() {
-        return myComponents.isModified(myOriginalOptions.toMutable());
+        return myComponents.isModified(myOriginalOptions);
+    }
+
+    public JComponent getComponent() {
+        return myMainPanel;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    public JComponent getPreferredFocusedComponent() {
+        return myFirst;
     }
 }

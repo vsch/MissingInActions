@@ -62,6 +62,42 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
     BASE_35(35, "35 - 0-9, A-Y"),
     BASE_36(36, "36 - 0-9, A-Z");
 
+    public static final int MAX_BASE = 36;
+    public static final int MIN_BASE = 2;
+
+    public SeparatorFrequencyType getSeparatorFrequencyType() {
+        switch (intValue) {
+            case 10: return SeparatorFrequencyType.EVERY_3;
+            case 16: return SeparatorFrequencyType.EVERY_4;
+            case 2: return SeparatorFrequencyType.EVERY_8;
+            case 8: return SeparatorFrequencyType.EVERY_3;
+            default:
+                return SeparatorFrequencyType.NONE;
+        }
+    }
+    
+    public String getDefaultSeparator() {
+        switch (intValue) {
+            case 10: return ",";
+            case 16: return "_";
+            case 2: return "_";
+            case 8: return "_";
+            default:
+                return "";
+        }
+    }
+    
+    public String getDefaultTemplate() {
+        switch (intValue) {
+            case 10: return "0";
+            case 16: return "0x0";
+            case 2: return "0b0";
+            case 8: return "00";
+            default:
+                return "";
+        }
+    }
+    
     public final int intValue;
     public final @NotNull String displayName;
 

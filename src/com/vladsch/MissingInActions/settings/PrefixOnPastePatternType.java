@@ -25,11 +25,12 @@ import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePrefixOnPastePatternType> {
+public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPastePatternType> {
     ANY(0, Bundle.message("settings.remove-prefix-on-paste-type.any")),
     CAMEL(1, Bundle.message("settings.line-settings.remove-prefix-on-paste-type.camel")),
     REGEX(2, Bundle.message("settings.remove-prefix-on-paste-type.regex"));
@@ -65,24 +66,28 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
      * to indent column and setting
      *
      * @param text    text which is to match to the prefix
-     * @param prefix1 prefix pattern, if regex this is the match pattern
-     * @param prefix2 prefix pattern. if regex this is the replace pattern to extract the prefix
+     * @param prefixes prefix patterns, if regex then only the first entry is used an it is the match pattern
      * @return matched prefix or empty string if text does not match prefix
      */
-    public String getMatched(@NotNull String text, @NotNull String prefix1, @NotNull String prefix2) {
+    public String getMatched(@NotNull String text, @Nullable String[] prefixes) {
+        if (prefixes == null || prefixes.length == 0) return "";
+
         if (this == ANY) {
-            if (text.startsWith(prefix1) && text.length() > prefix1.length()) return prefix1;
-            if (text.startsWith(prefix2) && text.length() > prefix2.length()) return prefix2;
+            for (String prefix : prefixes) {
+                if (text.startsWith(prefix) && text.length() > prefix.length()) return prefix;
+            }
         } else if (this == CAMEL) {
-            if (text.startsWith(prefix1) && text.length() > prefix1.length() && Character.isLowerCase(text.charAt(prefix1.length() - 1))) return prefix1;
-            if (text.startsWith(prefix2) && text.length() > prefix2.length() && Character.isLowerCase(text.charAt(prefix2.length() - 1))) return prefix2;
+            for (String prefix : prefixes) {
+                if (text.startsWith(prefix) && text.length() > prefix.length()) return prefix;
+                if (text.startsWith(prefix) && text.length() > prefix.length() && Character.isLowerCase(text.charAt(prefix.length() - 1))) return prefix;
+            }
         }
         if (this == REGEX) {
             try {
                 Pattern pattern;
                 Matcher matcher;
 
-                pattern = Pattern.compile(prefix1);
+                pattern = Pattern.compile(prefixes[0]);
                 matcher = pattern.matcher(text);
                 if (matcher.find() && matcher.start() == 0) return matcher.group();
 
@@ -99,12 +104,12 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
     public final int intValue;
     public final @NotNull String displayName;
 
-    RemovePrefixOnPastePatternType(int intValue, @NotNull String displayName) {
+    PrefixOnPastePatternType(int intValue, @NotNull String displayName) {
         this.intValue = intValue;
         this.displayName = displayName;
     }
 
-    public static Static<RemovePrefixOnPastePatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CAMEL));
+    public static Static<PrefixOnPastePatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CAMEL));
 
     @Override
     public int getIntValue() { return intValue; }
@@ -113,7 +118,7 @@ public enum RemovePrefixOnPastePatternType implements ComboBoxAdaptable<RemovePr
     public String getDisplayName() { return displayName; }
 
     @NotNull
-    public RemovePrefixOnPastePatternType[] getValues() { return values(); }
+    public PrefixOnPastePatternType[] getValues() { return values(); }
 
     @Override
     public boolean isDefault() { return this == ADAPTER.getDefault(); }

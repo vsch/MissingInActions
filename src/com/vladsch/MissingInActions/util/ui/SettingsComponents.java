@@ -63,6 +63,7 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
 
     // @formatter:off
     @NotNull public CheckBoxSetter component(JCheckBox component, Getter<Boolean> getter, Setter<Boolean> setter) { return new CheckBoxSetter(component, getter, setter); }
+    @NotNull public RadioButtonSetter component(JRadioButton component, Getter<Boolean> getter, Setter<Boolean> setter) { return new RadioButtonSetter(component, getter, setter); }
     @NotNull public <V> SpinnerSetter<V> component(JSpinner component, Getter<V> getter, Setter<V> setter) { return new SpinnerSetter<V>(component, getter, setter); }
     @NotNull public TextBoxSetter component(JTextComponent component, Getter<String> getter, Setter<String> setter) { return new TextBoxSetter(component, getter, setter); }
     // @formatter:on
@@ -75,6 +76,12 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
 
     public static class CheckBoxSetter extends JComponentSettable<Boolean> {
         public CheckBoxSetter(@NotNull JCheckBox component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
+            super(component::isSelected, component::setSelected, getter, setter);
+        }
+    }
+
+    public static class RadioButtonSetter extends JComponentSettable<Boolean> {
+        public RadioButtonSetter(@NotNull JRadioButton component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
             super(component::isSelected, component::setSelected, getter, setter);
         }
     }

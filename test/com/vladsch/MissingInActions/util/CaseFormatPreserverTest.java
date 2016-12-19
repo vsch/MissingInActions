@@ -22,16 +22,18 @@
 package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.util.TextRange;
-import com.vladsch.MissingInActions.settings.RemovePrefixOnPastePatternType;
+import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.SubSequence;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class CaseFormatPreserverTest {
+    private static final String[] prefixes = new String[] { "my", "our", "is", "get", "set" };
+    private static final String[] regexPrefixes = new String[] { "^(?:my|our|is|get|set)(?=[A-Z])" };
 
-    String preserved(String template, String pasted, String prefix1, String prefix2, boolean camelCase, boolean snakeCase, boolean screamingSnakeCase, boolean addPrefix) {
+    private String preserved(String template, String pasted, boolean camelCase, boolean snakeCase, boolean screamingSnakeCase, boolean addPrefix, @Nullable PrefixOnPastePatternType patternType, String[] prefixes) {
         // template: [ ] marks the selection range, | marks caret position
         // pasted is what is pasted,
         // prefix1 & prefix2 prefixes to remove
@@ -64,58 +66,12 @@ public class CaseFormatPreserverTest {
 
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         final BasedSequence chars = BasedSequence.of(template);
-        preserver.studyFormatBefore(chars, offset, start, end, prefix1, prefix2, null);
+        preserver.studyFormatBefore(chars, offset, start, end, patternType, prefixes);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
         final BasedSequence chars1 = BasedSequence.of(edited);
-        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, prefix1, prefix2, null, addPrefix);
-
-        String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
-        return result;
-    }
-
-    String preservedRegex(String template, String pasted, String prefix1, String prefix2, boolean camelCase, boolean snakeCase, boolean screamingSnakeCase, boolean addPrefix) {
-        // template: [ ] marks the selection range, | marks caret position
-        // pasted is what is pasted,
-        // prefix1 & prefix2 prefixes to remove
-        // camelCase, snakeCase and screamingSnakeCase are options
-        int offset = template.indexOf("|");
-        int start = template.indexOf("[");
-        int end = template.indexOf("]");
-
-        assert offset != -1;
-        assert start <= end;
-        assert start == -1 && end == -1 || start != -1 && end != -1;
-
-        if (start != -1) {
-            // need to remove it
-            template = template.substring(0, start) + template.substring(start + 1);
-            if (offset > start) offset--;
-            if (end > start) end--;
-
-            template = template.substring(0, offset) + template.substring(offset + 1);
-            if (start > offset) start--;
-            if (end > offset) end--;
-
-            template = template.substring(0, end) + template.substring(end + 1);
-            if (offset > end) offset--;
-        } else {
-            template = template.substring(0, offset) + template.substring(offset + 1);
-            start = offset;
-            end = offset;
-        }
-
-        CaseFormatPreserver preserver = new CaseFormatPreserver();
-        final BasedSequence chars = BasedSequence.of(template);
-        final RemovePrefixOnPastePatternType type = RemovePrefixOnPastePatternType.REGEX;
-        preserver.studyFormatBefore(chars, offset, start, end, prefix1, prefix2, type);
-        String edited = template.substring(0, start) + pasted + template.substring(end);
-        final TextRange range = new TextRange(start, start + pasted.length());
-        String ranged = range.substring(edited);
-        final BasedSequence chars1 = BasedSequence.of(edited);
-
-        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, prefix1, prefix2, type, addPrefix);
+        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, addPrefix, patternType, prefixes);
 
         String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
         return result;
@@ -123,157 +79,160 @@ public class CaseFormatPreserverTest {
 
     @Test
     public void test_Basic() throws Exception {
-        String s = preserved("   int |\n", "myName", "my", "our", true, true, true, true);
+        String s = preserved("   int |\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int myName\n", s);
 
-        s = preserved("   int | abc\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int | abc\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int myName abc\n", s);
 
-        s = preserved("   int |abc\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int |abc\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int nameAbc\n", s);
 
-        s = preserved("   int a|bc\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int a|bc\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int aNameBc\n", s);
 
-        s = preserved("   int ab|c\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int ab|c\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int abNameC\n", s);
 
-        s = preserved("   int abc|\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int abc|\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int abcName\n", s);
 
-        s = preserved("   int [abc]|\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int [abc]|\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int |[abc]\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int |[abc]\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int [abcDef]|\n", "myNameAnd", "my", "our", true, true, true, true);
+        s = preserved("   int [abcDef]|\n", "myNameAnd", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int nameAnd\n", s);
 
-        s = preserved("   int |[abcDef]\n", "myNameAnd", "my", "our", true, true, true, true);
+        s = preserved("   int |[abcDef]\n", "myNameAnd", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int nameAnd\n", s);
 
-        s = preserved("   int abc |\n", "myName", "my", "our", true, true, true, true);
+        s = preserved("   int abc |\n", "myName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int abc myName\n", s);
 
-        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", "my", "our", true, true, true, true);
+        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("   int WordStudy.of(\n", s);
 
-        s = preserved("  [int]| WordStudy(\n", "myCaret", "my", "our", true, true, true, true);
+        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("  caret WordStudy(\n", s);
 
-        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", "my", "our", true, true, true, true);
+        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("WORD_STUDY(\n", s);
 
-        s = preserved("[work_play]|(\n", "myWordStudy", "my", "our", true, true, true, true);
+        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("word_study(\n", s);
 
-        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", "my", "our", true, true, true, true);
+        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("static Couple<Integer>  duplicateLine\n", s);
 
-        s = preserved("  [Class]| myManager;\n", "myManager", "my", "our", true, true, true, true);
+        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("  Manager myManager;\n", s);
 
-        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", "my", "our", true, true, true, true);
+        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("  private boolean myRemovePrefixOnPasteType = removePrefixOnPasteType;\n", s);
 
-        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("FLAGS_CLASS_MEMBER_NAME\n", s);
 
-        s = preserved("flags[_some_name]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("flags_class_member_name\n", s);
 
-        s = preserved("[myClassMemberName]|\n", "myClassMemberName", "my", "our", true, true, true, true);
+        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("myClassMemberName\n", s);
 
-        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", "my", "our", true, true, true, true);
+        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("boolean myDisableGifImages\n", s);
 
-        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", "my", "our", true, true, true, true);
+        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", "my", "our", true, true, true, true);
+        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", "my", "our", true, true, true, true);
+        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", "my", "our", true, true, true, true);
+        s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
         assertEquals("       LastSelectionMarker\n", s);
+
+        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, PrefixOnPastePatternType.CAMEL, prefixes);
+        assertEquals("editor.getReplacement()\n", s);
     }
 
     @Test
     public void test_Regex() throws Exception {
-        String s = preservedRegex("   int |\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        String s = preserved("   int |\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int myName\n", s);
 
-        s = preservedRegex("   int | abc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int | abc\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int myName abc\n", s);
 
-        s = preservedRegex("   int |abc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int |abc\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int nameAbc\n", s);
 
-        s = preservedRegex("   int a|bc\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int a|bc\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int aNameBc\n", s);
 
-        s = preservedRegex("   int ab|c\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int ab|c\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int abNameC\n", s);
 
-        s = preservedRegex("   int abc|\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int abc|\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int abcName\n", s);
 
-        s = preservedRegex("   int [abc]|\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int [abc]|\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int name\n", s);
 
-        s = preservedRegex("   int |[abc]\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int |[abc]\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int name\n", s);
 
-        s = preservedRegex("   int abc |\n", "myName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int abc |\n", "myName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int abc myName\n", s);
 
-        s = preservedRegex("   int [new WordStudy]|(\n", "WordStudy.of", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("   int WordStudy.of(\n", s);
 
-        s = preservedRegex("  [int]| WordStudy(\n", "myCaret", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("  caret WordStudy(\n", s);
 
-        s = preservedRegex("[WORK_PLAY]|(\n", "myWordStudy", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("WORD_STUDY(\n", s);
 
-        s = preservedRegex("[work_play]|(\n", "myWordStudy", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("word_study(\n", s);
 
-        s = preservedRegex("static [void]| duplicateLine\n", "Couple<Integer> ", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("static Couple<Integer>  duplicateLine\n", s);
 
-        s = preservedRegex("  [Class]| myManager;\n", "myManager", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("  Manager myManager;\n", s);
 
-        s = preservedRegex("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("  private boolean myRemovePrefixOnPasteType = removePrefixOnPasteType;\n", s);
 
-        s = preservedRegex("FLAGS[_SOME_NAME]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("FLAGS_CLASS_MEMBER_NAME\n", s);
 
-        s = preservedRegex("flags[_some_name]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("flags_class_member_name\n", s);
 
-        s = preservedRegex("[myClassMemberName]|\n", "myClassMemberName", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("myClassMemberName\n", s);
 
-        s = preservedRegex("boolean [myClassMemberName]|\n", "disableGifImages", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("boolean myDisableGifImages\n", s);
 
-        s = preservedRegex("boolean [ourClassMemberName]|\n", "disableGifImages", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preservedRegex("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preservedRegex("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preservedRegex("editor.[getTestString]|()\n", "myReplacement", "^(?:my|our|is|get|set)(?=[A-Z])", "our", true, true, true, true);
+        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, PrefixOnPastePatternType.REGEX, regexPrefixes);
         assertEquals("editor.getReplacement()\n", s);
     }
 

@@ -26,32 +26,24 @@ import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
-public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredicateType> {
-    WHEN_HAS_ANY(0, Bundle.message("settings.selection-predicate.always")),
-    WHEN_CHAR_ONLY(-1, Bundle.message("settings.selection-predicate.char-only")),
-    WHEN_HAS_1_PLUS_LINES(1, Bundle.message("settings.selection-predicate.has-lines")),
-    WHEN_HAS_2_PLUS_LINES(2, Bundle.message("settings.selection-predicate.has-2-plus-lines")),
-    WHEN_HAS_3_PLUS_LINES(3, Bundle.message("settings.selection-predicate.has-3-plus-lines")),
-    WHEN_HAS_4_PLUS_LINES(4, Bundle.message("settings.selection-predicate.has-4-plus-lines")),
-    WHEN_HAS_5_PLUS_LINES(5, Bundle.message("settings.selection-predicate.has-5-plus-lines"));
-
-    public boolean isEnabled(int lineCount) {
-        return lineCount >= intValue || lineCount == 0 && intValue == -1;
-    }
-
-    public static boolean isEnabled(int value, int lineCount) {
-        return ADAPTER.findEnum(value).isEnabled(lineCount);
-    }
+public enum SeparatorFrequencyType implements ComboBoxAdaptable<SeparatorFrequencyType> {
+    NONE(0, Bundle.message("renumber.separator-frequency.none")),
+    EVERY_2(2, Bundle.message("renumber.separator-frequency.2")),
+    EVERY_3(3, Bundle.message("renumber.separator-frequency.3")),
+    EVERY_4(4, Bundle.message("renumber.separator-frequency.4")),
+    EVERY_8(8, Bundle.message("renumber.separator-frequency.8")),
+    EVERY_12(12, Bundle.message("renumber.separator-frequency.12")),
+    EVERY_16(16, Bundle.message("renumber.separator-frequency.16"));
 
     public final int intValue;
     public final @NotNull String displayName;
 
-    SelectionPredicateType(int intValue, @NotNull String displayName) {
+    SeparatorFrequencyType(int intValue, @NotNull String displayName) {
         this.intValue = intValue;
         this.displayName = displayName;
     }
 
-    public static Static<SelectionPredicateType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(WHEN_HAS_1_PLUS_LINES));
+    public static Static<SeparatorFrequencyType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EVERY_3));
 
     @Override
     public int getIntValue() { return intValue; }
@@ -60,8 +52,15 @@ public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredica
     public String getDisplayName() { return displayName; }
 
     @NotNull
-    public SelectionPredicateType[] getValues() { return values(); }
+    public SeparatorFrequencyType[] getValues() { return values(); }
 
     @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
+    public boolean isDefault() {
+        return this == ADAPTER.getDefault();
+    }
+
+    public boolean isDefault(NumberingBaseType baseType) {
+
+        return this == ADAPTER.getDefault();
+    }
 }

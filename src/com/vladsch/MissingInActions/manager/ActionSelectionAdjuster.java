@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
@@ -37,6 +38,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
 import com.vladsch.MissingInActions.settings.*;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.ValueRunnable;
@@ -54,7 +56,8 @@ import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AU
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
 public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
-    private static final Logger logger = getInstance("com.vladsch.MissingInActions.manager");
+    private static final Logger LOG = getInstance("com.vladsch.MissingInActions.manager");
+    private static final AnActionEvent LAST_CLEANUP_EVENT = null;
 
     final private @NotNull AfterActionList myAfterActions = new AfterActionList();
     final private @NotNull AfterActionList myAfterActionsCleanup = new AfterActionList();
@@ -163,7 +166,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                         try {
                             adjustBeforeAction(settings, action, adjustments, event);
                         } catch (Throwable e) {
-                            logger.error("adjustBeforeAction exception", e);
+                            LOG.error("adjustBeforeAction exception", e);
 
                             // remove stuff added for after action and cleanup
                             Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
@@ -198,37 +201,50 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
         Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
 
-        if (runnable != null) {
-            try {
+        try {
+            if (runnable != null) {
                 if (debug) System.out.println("running After " + action + ", nesting: " + myNestingLevel.get() + "\n");
                 // after actions should not check for support, that was done in before, just do what is in the queue
                 guard(() -> runnable.forEach(Runnable::run));
                 if (cleanup != null) cleanup.forEach(Runnable::run);
-            } finally {
-                myNestingLevel.decrementAndGet();
+            } else if (cleanup != null) {
+                cleanup.forEach(Runnable::run);
             }
+        } catch (Throwable e) {
+            LOG.error("lastActionCleanup error", e);
+        } finally {
+            myNestingLevel.decrementAndGet();
+        }
 
-            int nesting = myNestingLevel.get();
+        int nesting = myNestingLevel.get();
 
-            if (myLastSelectionMarker != null && !myLastSelectionMarker.isValid()) {
-                myLastSelectionMarker.dispose();
-                myLastSelectionMarker = null;
-            }
-
-            if (myTentativeSelectionMarker != null && !myTentativeSelectionMarker.isValid()) {
-                myTentativeSelectionMarker.dispose();
-                myTentativeSelectionMarker = null;
-            }
-
-            if (nesting == 0) {
-                if (myTentativeSelectionMarker != null) {
-                    if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
-                    myLastSelectionMarker = myTentativeSelectionMarker;
-                    myTentativeSelectionMarker = null;
+        if (nesting == 0) {
+            Collection<Runnable> lastActionCleanup = myAfterActionsCleanup.getAfterAction(LAST_CLEANUP_EVENT);
+            if (lastActionCleanup != null) {
+                try {
+                    lastActionCleanup.forEach(Runnable::run);
+                } catch (Throwable e) {
+                    LOG.error("lastActionCleanup error", e);
                 }
             }
-        } else if (cleanup != null) {
-            cleanup.forEach(Runnable::run);
+        }
+
+        if (myLastSelectionMarker != null && !myLastSelectionMarker.isValid()) {
+            myLastSelectionMarker.dispose();
+            myLastSelectionMarker = null;
+        }
+
+        if (myTentativeSelectionMarker != null && !myTentativeSelectionMarker.isValid()) {
+            myTentativeSelectionMarker.dispose();
+            myTentativeSelectionMarker = null;
+        }
+
+        if (nesting == 0) {
+            if (myTentativeSelectionMarker != null) {
+                if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
+                myLastSelectionMarker = myTentativeSelectionMarker;
+                myTentativeSelectionMarker = null;
+            }
         }
     }
 
@@ -418,6 +434,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     }
 
     private void forAllEditorCaretsInWriteAction(@NotNull AnActionEvent event, boolean inWriteAction, @NotNull EditorCaretBeforeAction runnable, @NotNull EditorCaretAfterAction afterAction) {
+        forAllEditorCaretsInWriteAction(event, inWriteAction, runnable, afterAction, null);
+    }
+
+    private void forAllEditorCaretsInWriteAction(@NotNull AnActionEvent event, boolean inWriteAction, @NotNull EditorCaretBeforeAction runnable, @NotNull EditorCaretAfterAction afterAction, final @Nullable Runnable afterAllCaretsAction) {
         final ActionContext context = new ActionContext();
         forAllEditorCarets(context, runnable);
 
@@ -433,6 +453,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             myAfterActions.addAfterAction(event, () -> {
                 for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                     afterAction.run(myManager.getEditorCaret(caret), context.get(caret));
+                }
+
+                if (afterAllCaretsAction != null) {
+                    afterAllCaretsAction.run();
                 }
             });
         }
@@ -781,23 +805,36 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         final LinePasteCaretAdjustmentType adjustment = LinePasteCaretAdjustmentType.ADAPTER.findEnum(settings.getLinePasteCaretAdjustment());
         updateLastPastedClipboardCarets(ClipboardCaretContent.getTransferable(myEditor, event.getDataContext()), adjustment, true);
-        myAfterActionsCleanup.addAfterAction(event, () -> {
-            ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, null);
-            myEditor.putUserData(EditorEx.LAST_PASTED_REGION, null);
-        });
-
         final CopyPasteManager.ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> {
             updateLastPastedClipboardCarets(newTransferable, adjustment, false);
         };
 
-        final CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
+        final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         copyPasteManager.addContentChangedListener(contentChangedListener);
-        myAfterActionsCleanup.addAfterAction(event, () -> copyPasteManager.removeContentChangedListener(contentChangedListener));
+
+        myAfterActionsCleanup.addAfterAction(event, () -> {
+            copyPasteManager.removeContentChangedListener(contentChangedListener);
+
+            ClipboardCaretContent caretContent = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
+            if (caretContent != null && settings.isMultiPasteDeleteRepeatedCaretData()) {
+                Transferable[] allContents = copyPasteManager.getAllContents();
+                final Transferable transferable = allContents.length > 0 ? allContents[0] : null;
+                if (transferable != null && transferable.isDataFlavorSupported(SplitMergedTransferableData.FLAVOR)) {
+                    // we delete this one, it is a repeat and only useful for exact copy of duped lines, but on after action of all nested actions are done
+                    myAfterActionsCleanup.addAfterAction(LAST_CLEANUP_EVENT, () -> {
+                        copyPasteManager.removeContent(transferable);
+                    });
+                }
+            }
+
+            ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, null);
+            myEditor.putUserData(EditorEx.LAST_PASTED_REGION, null);
+        });
 
         final boolean inWriteAction = (settings.isPreserveCamelCaseOnPaste()
                 || settings.isPreserveSnakeCaseOnPaste()
                 || settings.isPreserveScreamingSnakeCaseOnPaste()
-                || settings.isRemovePrefixOnPaste() && !(settings.getRemovePrefixOnPaste1().isEmpty() && settings.getRemovePrefixOnPaste2().isEmpty()))
+                || settings.isRemovePrefixOnPaste() && !(settings.getPrefixesOnPasteText().isEmpty()))
                 && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION);
 
         final int[] cumulativeCaretDelta = new int[] { 0 };
@@ -807,8 +844,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             params.timestamp = myEditor.getDocument().getModificationStamp();
 
             params.preserver.studyFormatBefore(editorCaret
-                    , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
-                    , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
+                    , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
                     , settings.getRemovePrefixOnPastePatternType()
             );
 
@@ -842,14 +878,13 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
                                 if (!editorCaret.hasLines()) {
                                     cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                            , settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue()
-                                                    || myEditor.getCaretModel().getCaretCount() > 1
-                                                    && SelectionPredicateType.isEnabled(settings.getSelectPastedMultiCaretPredicate(), editorCaret.getSelectionLineCount())
-                                            , settings.isPreserveCamelCaseOnPaste()
+                                            , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
+                                                    || (myEditor.getCaretModel().getCaretCount() > 1
+                                                    && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
+                                            ), settings.isPreserveCamelCaseOnPaste()
                                             , settings.isPreserveSnakeCaseOnPaste()
                                             , settings.isPreserveScreamingSnakeCaseOnPaste()
-                                            , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste1() : ""
-                                            , settings.isRemovePrefixOnPaste() ? settings.getRemovePrefixOnPaste2() : ""
+                                            , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
                                             , settings.getRemovePrefixOnPastePatternType()
                                             , settings.isAddPrefixOnPaste()
                                     );
@@ -898,9 +933,8 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     caret.moveToLogicalPosition(atColumn);
                 }
             }
-
         }
-        
+
         if (lastClipboardData != null || setIfNone) {
             final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
                 if (!caret.hasSelection() && isFullLine) {
@@ -1074,7 +1108,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         final private AtomicInteger count = new AtomicInteger(0);
         final private HashMap<AnActionEvent, AfterAction> myEventMap = new HashMap<>();
 
-        public void addAfterAction(@NotNull AnActionEvent event, @NotNull Runnable runnable) {
+        public void addAfterAction(@Nullable AnActionEvent event, @NotNull Runnable runnable) {
             AfterAction item = myEventMap.computeIfAbsent(event, e -> new AfterAction(event, count.incrementAndGet()));
             item.add(runnable);
         }

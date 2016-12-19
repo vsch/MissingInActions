@@ -38,6 +38,7 @@ public class MultiPasteOptionsPane {
     private JBCheckBox myMultiPasteShowEolInViewer;
     private JBCheckBox myMultiPasteShowEolInList;
     private JBCheckBox myMultiPastePreserveOriginal;
+    private JBCheckBox myMultiPasteDeleteRepeatedCaretData;
     private Runnable mySettingsChangedRunnable;
     private String myTextContent;
 
@@ -50,6 +51,7 @@ public class MultiPasteOptionsPane {
         myMultiPasteShowEolInViewer.setSelected(mySettings.isMultiPasteShowEolInViewer());
         myMultiPasteShowEolInList.setSelected(mySettings.isMultiPasteShowEolInList());
         myMultiPastePreserveOriginal.setSelected(mySettings.isMultiPastePreserveOriginal());
+        myMultiPasteDeleteRepeatedCaretData.setSelected(mySettings.isMultiPasteDeleteRepeatedCaretData());
 
         myShowInstructions.addActionListener(event -> {
             updateTextPane();
@@ -61,6 +63,7 @@ public class MultiPasteOptionsPane {
                 mySettings.setMultiPasteShowEolInViewer(myMultiPasteShowEolInViewer.isSelected());
                 mySettings.setMultiPasteShowEolInList(myMultiPasteShowEolInList.isSelected());
                 mySettings.setMultiPastePreserveOriginal(myMultiPastePreserveOriginal.isSelected());
+                mySettings.setMultiPasteDeleteRepeatedCaretData(myMultiPasteDeleteRepeatedCaretData.isSelected());
                 
                 if (mySettingsChangedRunnable != null) {
                     mySettingsChangedRunnable.run();
@@ -71,6 +74,7 @@ public class MultiPasteOptionsPane {
         myMultiPasteShowEolInViewer.addActionListener(actionListener);
         myMultiPasteShowEolInList.addActionListener(actionListener);
         myMultiPastePreserveOriginal.addActionListener(actionListener);
+        myMultiPasteDeleteRepeatedCaretData.addActionListener(actionListener);
 
         myTextPane.setVisible(myShowInstructions.isSelected());
     }

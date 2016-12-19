@@ -29,6 +29,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
     Works when pasting at the **beginning**, **end** and **middle** of identifiers.
 
     Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**
+    
+    Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields,
+    static fields, getters and setters.
 - Enable Auto Line Selections and select full lines without loosing time or column position by
   moving the caret to the start of line when selecting or pasting.
 

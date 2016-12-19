@@ -37,6 +37,8 @@
                         order and get <code>myDefaultValue</code>.</p>
                     <p>Works when pasting at the <strong>beginning</strong>, <strong>end</strong> and <strong>middle</strong> of identifiers.</p>
                     <p>Supports: <strong>camelCase</strong>, <strong>PascalCase</strong>, <strong>snake_case</strong>, <strong>SCREAMING_SNAKE_CASE</strong></p>
+                    <p>Default prefixes: <code>my</code>, <code>our</code>, <code>is</code>, <code>get</code>, <code>set</code> to allow pasting over member fields,
+                        static fields, getters and setters.</p>
                 </li>
                 <li>Enable Auto Line Selections and select full lines without loosing time or column position by
                     moving the caret to the start of line when selecting or pasting.
@@ -52,8 +54,8 @@
                         <li><strong>combine</strong>, <strong>arrange</strong> and <strong>reverse</strong> the order of content entries</li>
                         <li><strong>combine multiple</strong> clipboard contents <strong>with caret information intact</strong></li>
                         <li><strong>paste and re-create multiple carets</strong> from information already stored on the clipboard</li>
-                        <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the first
-                            line</strong> of the block, ready for multi-caret select and paste</li>
+                        <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the
+                            first line</strong> of the block, ready for multi-caret select and paste</li>
                         <li>see caret information stored on the clipboard for each content entry</li>
                     </ul>
                 </li>
@@ -68,58 +70,62 @@
         ]]>
     </description>
 
-    <version>0.8.3.1</version>
+    <version>0.8.2.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.2.3 - Bug Fixes and Enhancements</h3>
             <ul>
-                <li>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</li>
-            </ul>
-            <h3>0.8.2 - Bug Fixes and Enhancements</h3>
-            <ul>
-                <li>Fix: when pasting line selections the range marker offset was setup for post-paste operation
-                    instead of pre-paste, which made it inaccurate after re-indent or re-format was applied after
-                    pasting.</li>
-                <li>Add: Trailing EOL indicator when enabled to short string in multi paste content list</li>
-                <li>Create an API for editor specific listeners in application component and forward these to
-                    the appropriate editor specific listener. For
-                    <code>beforeActionPerformed</code>/<code>afterActionPerformed</code> listeners create map entry on event in
-                    <code>beforeActionPerformed</code> to editor and use this in the <code>afterActionPerformed</code> to route to
-                    the appropriate listener.
+                <li>Fix: nested action tracking would get off count and some triggered actions and cleanup would
+                    not be performed.</li>
+                <li>Add: option, enabled by default, to delete repeated content created for duplicate for
+                    clipboard carets, after it is pasted. The content has many carets and is useful for a
+                    particular combination of lines and carets that are duplicated. Keeping it in history is a
+                    waste of resources and can be confusing when you thought you were pasting the content you
+                    selected for duplication, but instead are getting the split/repeated content created for
+                    pasting into duplicated lines.</li>
+                <li>Add: select on paste multi-caret enable predicate separate from non-multi-caret</li>
+                <li>Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
+                    remove the original prefix from pasted word but not add the prefix that existed in the word
+                    being pasted over.</li>
+                <li>Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
+                    prefix instead.</li>
+                <li>Change: only one string is used for regex and regular prefixes, regex since it can represent
+                    all prefixes and regular string is now | separated list of prefixes.</li>
+                <li>Fix: <code>StraightenCarets</code> action now disabled if there are selections</li>
+                <li>Add: Dupe for Clipboard carets will also handle multi-caret input:
                     <ul>
-                        <li>automatically unregister on editor removal</li>
-                        <li>implement for the following:
+                        <li>duplicated block spans all carets</li>
+                        <li>if have selections
                             <ul>
-                                <li>ActionListener</li>
-                                <li>IdeEventQueue.EventDispatcher</li>
-                                <li>PropertyChangeListener</li>
+                                <li>then only keep carets with selections</li>
                             </ul>
+                        </li>
+                        <li>otherwise
+                            <ul>
+                                <li>if span == 1, keep all carets</li>
+                                <li>if have no selections
+                                    <ul>
+                                        <li>if same number of carets on each type of line:code, comment, blank, of the block
+                                            then keep all carets</li>
+                                        <li>otherwise, assume that the first and last caret were used to mark the span of
+                                            lines to duplicate, and remove them, duplicating the rest of the carets</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>clipboard data is duplicated for every caret so that the first block will have first caret
+                            content for every caret in the block, second second, etc
+                            <p>If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line
+                                then after dupe, the clipboard will contain 9 carets:
+                                text1,text1,text1,text2,text2,text2,text3,text3,text3</p>
                         </li>
                     </ul>
                 </li>
-                <li>Add: second button to multi-paste dialog for paste with carets when regular paste from
-                    history, and duplicate and paste when invoked from duplicate for clipboard carets.</li>
-                <li>Fix: paste range tracking with selection if after paste code changed indentation</li>
-                <li>Add: regex testing dialog and button in settings</li>
-                <li>Fix: after pasting non-line content, caret position should be left unmolested</li>
-                <li>Fix: selection adjust after copy should not change a pre-existing multi-line char selection to
-                    a line selection.</li>
-                <li>Add: MiaMultiplePasteAction now displays extensive information about the clipboard content;
-                    <ul>
-                        <li>Whether an entry is multi-caret or single caret or text</li>
-                        <li>For each entry shows the caret lines and whether they are line selections, char selections
-                            or multi-line char selections</li>
-                        <li>Updates when the text in the preview is copied to the clipboard</li>
-                    </ul>
-                </li>
-                <li>Fix: Mia Paste no longer need for making multi-caret select pasted text nor preserve case
-                    format, using caret listener instead</li>
-                <li>Fix: #10, Select Pasted Text wrong range selected if pasted text is adjusted by PasteHandler</li>
-                <li>Add: range marker to keep track of pasted text when caret count == 1. PasteHandler formats
-                    the code after paste and messes up the offsets.</li>
+                <li>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</li>
+                <li>Fix: MultiPaste would override even when disabled in settings.</li>
             </ul>
         </div>
         ]]></change-notes>
@@ -305,12 +311,6 @@
                     text='Delete to Word End in Different "CamelHumps" Mode not EOL'
                     description='Delete to Word End in Different "CamelHumps" Mode not EOL'>
             </action>
-
-            <action class="com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction"
-                    id="MissingInActions.MultiplePaste"
-                    text="Paste from history ..."
-                    description="Paste from history ...">
-            </action>
         </group>
 
         <group id="MissingInActions.MultiCaretShapersFilters" text="Multi Caret Modifiers">
@@ -441,6 +441,12 @@
                 id="MissingInActions.DuplicateForMultipleClipboardCarets"
                 text="Duplicate Line or Selection for Carets from Clipboard History"
                 description="Duplicate Line or Selection for Carets from Clipboard History">
+        </action>
+        
+        <action class="com.vladsch.MissingInActions.actions.line.NumberAction"
+                id="MissingInActions.Number"
+                text="Generate Number Sequence for Caret or Selection"
+                description="Generate Number Sequence for Caret or Selection">
         </action>
     </actions>
 </idea-plugin>

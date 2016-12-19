@@ -19,6 +19,10 @@
 
 ##### Next Release To Do
 
+- [ ] Add: status bar with information about selection: lines, code, comment and blank line
+      count.
+- [ ] Add: reserved word list exclusion for preserve on paste. If pasting over reserved word
+      then don't make any changes to the pasted content.
 - [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
       already on code lines then remove those whose code lines contain nothing but brackets,
       parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
@@ -73,27 +77,29 @@
                 alignment column
       - [ ] if no caret columns changed as the result of above steps, add indent spaces to
             alignment column and repeat previous two steps.
-
 - [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
+
 &nbsp;</details>
 
-### 0.8.3 - Bug Fixes and Enhancements
+### 0.8.2.3 - Bug Fixes and Enhancements
 
-- [ ] Add: reserved word list exclusion for preserve on paste. If pasting over reserved word
-      then don't make any changes to the pasted content.
-
+- Fix: nested action tracking would get off count and some triggered actions and cleanup would
+  not be performed.
+- Add: option, enabled by default, to delete repeated content created for duplicate for
+  clipboard carets, after it is pasted. The content has many carets and is useful for a
+  particular combination of lines and carets that are duplicated. Keeping it in history is a
+  waste of resources and can be confusing when you thought you were pasting the content you
+  selected for duplication, but instead are getting the split/repeated content created for
+  pasting into duplicated lines.
+- Add: select on paste multi-caret enable predicate separate from non-multi-caret
 - Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
   remove the original prefix from pasted word but not add the prefix that existed in the word
   being pasted over.
-
 - Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
   prefix instead.
-
-- Change: when RegEx remove/add prefix pattern is selected only one string is used since it can
-  represent all prefixes.
-
+- Change: only one string is used for regex and regular prefixes, regex since it can represent
+  all prefixes and regular string is now | separated list of prefixes.
 - Fix: `StraightenCarets` action now disabled if there are selections
-
 - Add: Dupe for Clipboard carets will also handle multi-caret input:
 
     - duplicated block spans all carets
@@ -113,7 +119,6 @@
         then after dupe, the clipboard will contain 9 carets:
         text1,text1,text1,text2,text2,text2,text3,text3,text3
 - Add: MultiPaste override for all editor fields to make it consistent across the IDE.
-
 - Fix: MultiPaste would override even when disabled in settings.
 
 ### 0.8.2 - Bug Fixes and Enhancements
@@ -121,9 +126,7 @@
 - Fix: when pasting line selections the range marker offset was setup for post-paste operation
   instead of pre-paste, which made it inaccurate after re-indent or re-format was applied after
   pasting.
-
 - Add: Trailing EOL indicator when enabled to short string in multi paste content list
-
 - Create an API for editor specific listeners in application component and forward these to
       the appropriate editor specific listener. For
       `beforeActionPerformed`/`afterActionPerformed` listeners create map entry on event in
@@ -134,30 +137,21 @@
           - ActionListener
           - IdeEventQueue.EventDispatcher
           - PropertyChangeListener
-
 - Add: second button to multi-paste dialog for paste with carets when regular paste from
   history, and duplicate and paste when invoked from duplicate for clipboard carets.
-
 - Fix: paste range tracking with selection if after paste code changed indentation
-
 - Add: regex testing dialog and button in settings
-
 - Fix: after pasting non-line content, caret position should be left unmolested
-
 - Fix: selection adjust after copy should not change a pre-existing multi-line char selection to
       a line selection.
-
 - Add: MiaMultiplePasteAction now displays extensive information about the clipboard content;
     - Whether an entry is multi-caret or single caret or text
     - For each entry shows the caret lines and whether they are line selections, char selections
       or multi-line char selections
     - Updates when the text in the preview is copied to the clipboard
-
 - Fix: Mia Paste no longer need for making multi-caret select pasted text nor preserve case
   format, using caret listener instead
-
 - Fix: #10, Select Pasted Text wrong range selected if pasted text is adjusted by PasteHandler
-
 - Add: range marker to keep track of pasted text when caret count == 1. PasteHandler formats
       the code after paste and messes up the offsets.
 

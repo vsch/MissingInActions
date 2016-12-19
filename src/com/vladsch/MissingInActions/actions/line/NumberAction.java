@@ -19,14 +19,22 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.settings;
+/*
+ * Created by IntelliJ IDEA.
+ * User: max
+ * Date: May 14, 2002
+ * Time: 7:40:40 PM
+ * To change template for new class use
+ * Code Style | Class Templates options (Tools | IDE Options).
+ */
+package com.vladsch.MissingInActions.actions.line;
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.vladsch.MissingInActions.actions.DumbAwareEditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import com.vladsch.MissingInActions.actions.NumberActionHandler;
 
-public interface RegExSettingsHolder {
-    @NotNull String getPatternText();
-    @NotNull String getSampleText();
-    void setPatternText(String pattern1);
-    void setSampleText(String sampleText);
+public class NumberAction extends DumbAwareEditorAction implements LineSelectionAware {
+    public NumberAction() {
+        super(new NumberActionHandler());
+    }
 }

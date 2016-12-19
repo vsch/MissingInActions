@@ -44,6 +44,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
@@ -1215,6 +1216,7 @@ public class EditHelpers {
         }
 
         transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        transferableData.add(new SplitMergedTransferableData(startOffsets, endOffsets));
         mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
         return mergedTransferable;
     }

@@ -27,6 +27,7 @@ import javafx.scene.text.FontWeight
 import java.awt.Color
 import java.awt.Font
 import java.io.Serializable
+import java.util.regex.Pattern
 
 class HtmlStringBuilder(initialSize: Int = 1024) : Appendable, CharSequence, Serializable {
     private val out = StringBuilder(initialSize)
@@ -52,43 +53,61 @@ class HtmlStringBuilder(initialSize: Int = 1024) : Appendable, CharSequence, Ser
     }
 
     @JvmOverloads fun span(text: String, foreground: Color? = null, background: Color? = null, fontStyle: Int? = null, fontWeight: FontWeight? = null, font: Font? = null): HtmlStringBuilder {
-        return span(foreground, background, fontStyle, fontWeight, font, { text })
+        return tag("span", "", foreground, background, fontStyle, fontWeight, font, { text })
     }
 
-    @JvmOverloads fun span(foreground: Color? = null, background: Color? = null, fontStyle: Int? = null, fontWeight: FontWeight? = null, font: Font? = null, content: (() -> String)?): HtmlStringBuilder {
+    @JvmOverloads fun tag(tagName:String, attributes:String = "", foreground: Color? = null, background: Color? = null, fontStyle: Int? = null, fontWeight: FontWeight? = null, font: Font? = null, content: (() -> String)? = null): HtmlStringBuilder {
+        if (tagName[0] == '/') throw IllegalStateException("Open tag called with $tagName")
+        
         @Suppress("NAME_SHADOWING")
         var fontStyle = fontStyle
+        val attr = StringBuilder()
+        val extraStyle:String
 
-        out.append("<span")
+        if (!attributes.isEmpty()) {
+            val pattern = Pattern.compile("\\bstyle=('|\")(.*)\\1")
+            val matcher = pattern.matcher(attributes)
+            if (matcher.find()) {
+                extraStyle = matcher.group(2)
+                attr.append(attributes.substring(0, matcher.start()))
+                attr.append(attributes.substring(matcher.end()))
+            } else {
+                extraStyle = ""
+                attr.append(attributes)
+            }
+        } else {
+            extraStyle = ""
+        }
+        
         if (font != null || foreground != null || background != null || fontStyle != null && fontStyle != 0 || fontWeight != null) {
-            out.append(" style='");
+            attr.append(" style='");
+            attr.append(extraStyle.suffixWith(';'))
 
             if (font != null) {
-                out.append("font-family:").append(font.fontName).append(";").append("font-size:").append(font.size).append("pt;")
+                attr.append("font-family:").append(font.fontName).append(";").append("font-size:").append(font.size).append("pt;")
                 if (fontStyle == null) fontStyle = font.style
             }
 
-            if (foreground != null) out.append("color:").append(foreground.toRgbString()).append(";")
-            if (background != null) out.append("background-color:").append(background.toRgbString()).append(";")
+            if (foreground != null) attr.append("color:").append(foreground.toRgbString()).append(";")
+            if (background != null) attr.append("background-color:").append(background.toRgbString()).append(";")
             if (fontStyle != null && fontStyle != 0) {
-                out.append("font-style:")
-                if (fontStyle and Font.ITALIC != 0) out.append("italic;")
+                attr.append("font-style:")
+                if (fontStyle and Font.ITALIC != 0) attr.append("italic;")
             }
             if (fontWeight != null || (fontStyle != null && fontStyle and Font.BOLD != 0)) {
-                out.append("font-weight:").append((fontWeight ?: FontWeight.BOLD).weight).append(";")
+                attr.append("font-weight:").append((fontWeight ?: FontWeight.BOLD).weight).append(";")
             }
-            out.append("'")
+            attr.append("'")
         }
 
-        out.append(">")
+        rawTag(tagName, attr.toString())
 
         if (content != null) {
             out.append(content())
-            out.append("</span>")
+            rawTag("/$tagName")
         } else {
-            pushTag("span")
+            pushTag(tagName)
         }
-
         return this
     }
 
@@ -105,13 +124,6 @@ class HtmlStringBuilder(initialSize: Int = 1024) : Appendable, CharSequence, Ser
         return this
     }
 
-    @JvmOverloads fun tag(tagName: String, attributes:String = ""): HtmlStringBuilder {
-        if (tagName[0] == '/') throw IllegalStateException("Open tag called with $tagName")
-        rawTag(tagName, attributes)
-        pushTag(tagName)
-        return this
-    }
-
     fun closeTag(tagName: String): HtmlStringBuilder {
         if (tagName[0] == '/') {
             rawTag(tagName)
@@ -119,17 +131,6 @@ class HtmlStringBuilder(initialSize: Int = 1024) : Appendable, CharSequence, Ser
         } else {
             rawTag("/$tagName")
             popTag(tagName)
-        }
-        return this
-    }
-
-    @JvmOverloads fun tag(tagName: String, attributes:String = "", content: (() -> String)?): HtmlStringBuilder {
-        rawTag(tagName, attributes)
-        if (content != null) {
-            out.append(content())
-            rawTag("/$tagName")
-        } else {
-            pushTag(tagName)
         }
         return this
     }

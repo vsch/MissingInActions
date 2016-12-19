@@ -139,44 +139,46 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 copies.add(couple);
             }
 
-            // create multiple carets, copies from carets, but relative to start of original selection
-            editorCaret.removeSelection();
-            caretModel.removeSecondaryCarets();
+            manager.guard(()->{
+                // create multiple carets, copies from carets, but relative to start of original selection
+                editorCaret.removeSelection();
+                caretModel.removeSecondaryCarets();
 
-            // build the carets
-            int accumulatedOffset = 0;
-            boolean firstCaret = true;
-            for (int i = 0; i < iMax; i++) {
-                Couple<Integer> couple = copies.get(i);
+                // build the carets
+                int accumulatedOffset = 0;
+                boolean firstCaret = true;
+                for (int i = 0; i < iMax; i++) {
+                    Couple<Integer> couple = copies.get(i);
 
-                int firstLine = couple.first;
+                    int firstLine = couple.first;
 
-                for (EditorCaret copyCaret : carets) {
-                    EditorPosition editorPosition = copyCaret.getCaretPosition().onLine(copyCaret.getCaretPosition().line - selRange.getStart() + firstLine).copy();
-                    EditorPosition selectionStart = copyCaret.getSelectionStart().onLine(copyCaret.getSelectionStart().line - selRange.getStart() + firstLine).copy();
-                    EditorPosition selectionEnd = copyCaret.getSelectionEnd().onLine(copyCaret.getSelectionEnd().line - selRange.getStart() + firstLine).copy();
+                    for (EditorCaret copyCaret : carets) {
+                        EditorPosition editorPosition = copyCaret.getCaretPosition().onLine(copyCaret.getCaretPosition().line - selRange.getStart() + firstLine).copy();
+                        EditorPosition selectionStart = copyCaret.getSelectionStart().onLine(copyCaret.getSelectionStart().line - selRange.getStart() + firstLine).copy();
+                        EditorPosition selectionEnd = copyCaret.getSelectionEnd().onLine(copyCaret.getSelectionEnd().line - selRange.getStart() + firstLine).copy();
 
-                    Caret caret = firstCaret ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
-                    if (caret != null) {
-                        firstCaret = false;
-                        accumulatedOffset += editorPosition.ensureRealSpaces();
-                        accumulatedOffset += selectionStart.ensureRealSpaces();
-                        accumulatedOffset += selectionEnd.ensureRealSpaces();
+                        Caret caret = firstCaret ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
+                        if (caret != null) {
+                            firstCaret = false;
+                            accumulatedOffset += editorPosition.ensureRealSpaces();
+                            accumulatedOffset += selectionStart.ensureRealSpaces();
+                            accumulatedOffset += selectionEnd.ensureRealSpaces();
 
-                        // replicate selection to this position
-                        int selectionSize = selectionEnd.getOffset() - selectionStart.getOffset();
-                        if (selectionSize > 0) {
-                            caret.moveToOffset(selectionEnd.getOffset());
-                            caret.setSelection(selectionStart.getOffset(), selectionEnd.getOffset());
-                            manager.resetSelectionState(caret);
-                        } else {
-                            caret.moveToLogicalPosition(editorPosition);
+                            // replicate selection to this position
+                            int selectionSize = selectionEnd.getOffset() - selectionStart.getOffset();
+                            if (selectionSize > 0) {
+                                caret.moveToOffset(selectionEnd.getOffset());
+                                caret.setSelection(selectionStart.getOffset(), selectionEnd.getOffset());
+                                manager.resetSelectionState(caret);
+                            } else {
+                                caret.moveToLogicalPosition(editorPosition);
+                            }
                         }
                     }
                 }
-            }
 
-            ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
+                ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
+            });
 
             if (myDoPaste) {
                 // clear last pasted information, it is no good and will be cleared by running our action
@@ -197,72 +199,74 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
 
             EditHelpers.scrollToCaret(editor);
         } else {
-            EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
+            manager.guard(()->{
+                EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
 
-            int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();
-            boolean isStartAnchor = editorCaret.isStartAnchor();
+                int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();
+                boolean isStartAnchor = editorCaret.isStartAnchor();
 
-            if (myInsertBlankLine) {
-                // we create a line above/below and recreate carets
-                final ApplicationSettings settings = ApplicationSettings.getInstance();
+                if (myInsertBlankLine) {
+                    // we create a line above/below and recreate carets
+                    final ApplicationSettings settings = ApplicationSettings.getInstance();
 
-                final EditorPosition pastePosition = settings.getLinePasteCaretAdjustmentType().getPastePosition(editorCaret.getCaretPosition());
-                doc.insertString(pastePosition.atColumn(0).getOffset(), "\n");
-                editorCaret.setCaretPosition(pastePosition.atColumn(editorCaret.getColumn()));
-                editorCaret.commit();
-            }
+                    final EditorPosition pastePosition = settings.getLinePasteCaretAdjustmentType().getPastePosition(editorCaret.getCaretPosition());
+                    doc.insertString(pastePosition.atColumn(0).getOffset(), "\n");
+                    editorCaret.setCaretPosition(pastePosition.atColumn(editorCaret.getColumn()));
+                    editorCaret.commit();
+                }
 
-            if (editorCaret.hasLines() || editorCaret.isLine()) {
-                editorCaret.trimOrExpandToFullLines();
-                selectionSize = 0;
-            } else {
-                // dupe the line with selection replicated for each caret
-                editorCaret.removeSelection();
-                editor.getSelectionModel().removeSelection();
-            }
-
-            boolean useFirstLine = myInsertBlankLine || !duplicateForCaretsPreserveOriginal;
-            for (int i = 0; i < iMax; i++) {
-                final Couple<Integer> couple;
-                if (useFirstLine) {
-                    useFirstLine =false;
-                    EditorPosition position = editorCaret.getCaretPosition();
-                    couple = new Couple<>(position.atStartOfLine().getOffset(), position.atStartOfNextLine().getOffset());
+                if (editorCaret.hasLines() || editorCaret.isLine()) {
+                    editorCaret.trimOrExpandToFullLines();
+                    selectionSize = 0;
                 } else {
-                    couple = EditHelpers.duplicateLineOrSelectedBlockAtCaret(editor, editor.getDocument(), editor.getCaretModel().getPrimaryCaret(), true);
+                    // dupe the line with selection replicated for each caret
+                    editorCaret.removeSelection();
+                    editor.getSelectionModel().removeSelection();
                 }
 
-                if (couple != null) copies.add(couple);
-            }
-
-            // create multiple carets on first line of every copy
-            EditorPosition pos = editorCaret.getCaretPosition();
-            editorCaret.removeSelection();
-
-            // build the carets                             
-            int accumulatedOffset = 0;
-            for (int i = 0; i < iMax; i++) {
-                Couple<Integer> couple = copies.get(i);
-
-                int lineNumber = doc.getLineNumber(couple.first + accumulatedOffset);
-
-                EditorPosition editorPosition = pos.onLine(lineNumber);
-                Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
-                if (caret1 != null) {
-                    accumulatedOffset += editorPosition.ensureRealSpaces();
-                    int offset = editorPosition.getOffset();
-
-                    caret1.moveToLogicalPosition(editorPosition);
-
-                    // replicate selection to this position
-                    if (isStartAnchor) {
-                        caret1.setSelection(offset - selectionSize, offset);
+                boolean useFirstLine = myInsertBlankLine || !duplicateForCaretsPreserveOriginal;
+                for (int i = 0; i < iMax; i++) {
+                    final Couple<Integer> couple;
+                    if (useFirstLine) {
+                        useFirstLine = false;
+                        EditorPosition position = editorCaret.getCaretPosition();
+                        couple = new Couple<>(position.atStartOfLine().getOffset(), position.atStartOfNextLine().getOffset());
                     } else {
-                        caret1.setSelection(offset, offset + selectionSize);
+                        couple = EditHelpers.duplicateLineOrSelectedBlockAtCaret(editor, editor.getDocument(), editor.getCaretModel().getPrimaryCaret(), true);
                     }
-                    manager.resetSelectionState(caret1);
+
+                    if (couple != null) copies.add(couple);
                 }
-            }
+
+                // create multiple carets on first line of every copy
+                EditorPosition pos = editorCaret.getCaretPosition();
+                editorCaret.removeSelection();
+
+                // build the carets                             
+                int accumulatedOffset = 0;
+                for (int i = 0; i < iMax; i++) {
+                    Couple<Integer> couple = copies.get(i);
+
+                    int lineNumber = doc.getLineNumber(couple.first + accumulatedOffset);
+
+                    EditorPosition editorPosition = pos.onLine(lineNumber);
+                    Caret caret1 = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
+                    if (caret1 != null) {
+                        accumulatedOffset += editorPosition.ensureRealSpaces();
+                        int offset = editorPosition.getOffset();
+
+                        caret1.moveToLogicalPosition(editorPosition);
+
+                        // replicate selection to this position
+                        if (isStartAnchor) {
+                            caret1.setSelection(offset - selectionSize, offset);
+                        } else {
+                            caret1.setSelection(offset, offset + selectionSize);
+                        }
+                        manager.resetSelectionState(caret1);
+                    }
+                }
+            });
 
             if (myDoPaste) {
                 // clear last pasted information, it is no good and will be cleared by running our action

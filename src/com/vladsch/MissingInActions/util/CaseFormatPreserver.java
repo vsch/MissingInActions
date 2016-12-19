@@ -25,7 +25,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
-import com.vladsch.MissingInActions.settings.RemovePrefixOnPastePatternType;
+import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,11 +68,11 @@ public class CaseFormatPreserver {
     }
 
     public void studyFormatBefore(@NotNull EditorCaret editorCaret
-            , final @Nullable String removePrefix1, final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
+            , final @Nullable String[] prefixList
+            , final @Nullable PrefixOnPastePatternType prefixType
     ) {
         final Caret caret = editorCaret.getCaret();
-        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), removePrefix1, removePrefix2, prefixOnPasteType);
+        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList);
     }
 
     public void studyFormatBefore(
@@ -80,15 +80,11 @@ public class CaseFormatPreserver {
             , final int offset
             , final int selectionStart
             , final int selectionEnd
-            , final @Nullable String removePrefix1
-            , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
+            , final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList
     ) {
-        String prefix1 = removePrefix1 == null ? "" : removePrefix1;
-        String prefix2 = removePrefix2 == null ? "" : removePrefix2;
         int beforeOffset = offset;
         int afterOffset = beforeOffset;
-        RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.ADAPTER.getDefault() : prefixOnPasteType;
+        PrefixOnPastePatternType patternType = prefixType == null ? PrefixOnPastePatternType.ADAPTER.getDefault() : prefixType;
 
         clear();
 
@@ -107,7 +103,7 @@ public class CaseFormatPreserver {
         if (!w.isEmpty()) {
             hadStartOfWord = w.isIdentifierStartBefore(false);
             if (hadStartOfWord) {
-                startOfWordWithPrefix = w.getMatchedPrefix(prefixType, prefix1, prefix2);
+                startOfWordWithPrefix = w.getMatchedPrefix(patternType, prefixList);
             }
         } else {
             hadStartOfWord = w.isWordStartAtStart;
@@ -148,17 +144,15 @@ public class CaseFormatPreserver {
             , final boolean preserveCamelCase
             , final boolean preserveSnakeCase
             , final boolean preserveScreamingSnakeCase
-            , final @Nullable String removePrefix1
-            , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
+            , final @Nullable String[] prefixList
+            , final @Nullable PrefixOnPastePatternType prefixType
             , final boolean addPrefix
     ) {
         InsertedRangeContext i = preserveFormatAfter(
                 editorCaret.getDocumentChars()
                 , range
                 , preserveCamelCase, preserveSnakeCase, preserveScreamingSnakeCase
-                , removePrefix1, removePrefix2
-                , prefixOnPasteType, addPrefix
+                , addPrefix, prefixType, prefixList
         );
 
         if (i != null) {
@@ -191,13 +185,8 @@ public class CaseFormatPreserver {
             , final boolean preserveCamelCase
             , final boolean preserveSnakeCase
             , final boolean preserveScreamingSnakeCase
-            , final @Nullable String removePrefix1
-            , final @Nullable String removePrefix2
-            , final @Nullable RemovePrefixOnPastePatternType prefixOnPasteType
-            , final boolean addPrefix
+            , final boolean addPrefix, final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList
     ) {
-        String prefix1 = removePrefix1 == null ? "" : removePrefix1;
-        String prefix2 = removePrefix2 == null ? "" : removePrefix2;
         BasedSequence insertedRange = (BasedSequence) range.subSequence(chars);
         boolean isSingleLineChar = insertedRange.indexOf('\n') == -1;
         InsertedRangeContext i = null;
@@ -208,16 +197,16 @@ public class CaseFormatPreserver {
             int caretDelta = 0;
 
             if (!i.isIsolated() || hadSelection) {
-                RemovePrefixOnPastePatternType prefixType = prefixOnPasteType == null ? RemovePrefixOnPastePatternType.ADAPTER.getDefault() : prefixOnPasteType;
+                PrefixOnPastePatternType patternType = prefixType == null ? PrefixOnPastePatternType.ADAPTER.getDefault() : prefixType;
 
-                String matchedPrefix = i.getMatchedPrefix(prefixType, prefix1, prefix2);
+                String matchedPrefix = i.getMatchedPrefix(patternType, prefixList);
                 if (!matchedPrefix.isEmpty()) {
                     if (hadStartOfWord && startOfWordWithPrefix.equals(matchedPrefix)) {
                         // leave the prefix
                     } else {
                         // won't be replaced by add, we remove it here
                         if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
-                            i.removePrefixesOnce(prefixType, prefix1, prefix2);
+                            i.removePrefixesOnce(patternType, prefixList);
                         }
                     }
                 }
@@ -226,11 +215,11 @@ public class CaseFormatPreserver {
                 if (i.studiedWord().only(UPPER | LOWER | UNDER | DIGITS) && (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase)) {
                     if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
                         // remove prefix if converting to snake case
-                        i.removePrefixesOnce(prefixType, prefix1, prefix2);
+                        i.removePrefixesOnce(patternType, prefixList);
                         i.makeScreamingSnakeCase();
                     } else if (preserveSnakeCase && toSnakeCase) {
                         // remove prefix if converting to snake case
-                        i.removePrefixesOnce(prefixType, prefix1, prefix2);
+                        i.removePrefixesOnce(patternType, prefixList);
                         i.makeSnakeCase();
                     } else if (preserveCamelCase) {
                         if (toPascalCase) {
@@ -239,10 +228,10 @@ public class CaseFormatPreserver {
                             i.makeCamelCase();
                         }
 
-                        if (addPrefix && hadStartOfWord && !startOfWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(prefixType, startOfWordWithPrefix, prefix1, prefix2)) {
+                        if (addPrefix && hadStartOfWord && !startOfWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(patternType, startOfWordWithPrefix, prefixList)) {
                             // prefix replaced
                         } else if (startWasUpperCase && i.isLowerCaseAtStart()) {
-                            i.removePrefixesOnce(prefixType, prefix1, prefix2);
+                            i.removePrefixesOnce(patternType, prefixList);
                             i.prefixToUpperCase(1);
                         } else {
                             if (startWasLowerCase && i.isUpperCaseAtStart() && !i.hasNoLowerCaseAfterPrefix(1)) {

@@ -18,45 +18,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package com.vladsch.MissingInActions.actions;
 
-package com.vladsch.MissingInActions.util;
+import com.intellij.openapi.editor.CaretStateTransferableData;
 
-import com.vladsch.flexmark.util.ValueRunnable;
+import java.awt.datatransfer.DataFlavor;
 
-import java.util.LinkedHashSet;
+public class SplitMergedTransferableData extends CaretStateTransferableData {
+    public static final DataFlavor FLAVOR = new DataFlavor(SplitMergedTransferableData.class, "Split, Merged Caret state");
 
-public class ListenersRunner<L> {
-    final private LinkedHashSet<L> myListeners = new LinkedHashSet<L>();
-
-    public ListenersRunner() {
-    }
-
-    public void fire(ValueRunnable<L> runnable) {
-        for (L listener : myListeners) {
-            runnable.run(listener);
-        }
-    }
-
-    public void addListener(L listener) {
-        myListeners.add(listener);
-    }
-
-    public void removeListener(L listener) {
-        myListeners.remove(listener);
+    public SplitMergedTransferableData(int[] startOffsets, int[] endOffsets) {
+        super(startOffsets, endOffsets);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ListenersRunner)) return false;
-
-        ListenersRunner runner = (ListenersRunner) o;
-
-        return myListeners.equals(runner.myListeners);
-    }
-
-    @Override
-    public int hashCode() {
-        return myListeners.hashCode();
+    public DataFlavor getFlavor() {
+        return FLAVOR;
     }
 }

@@ -21,11 +21,13 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.ui.Settable;
@@ -35,8 +37,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder {
@@ -67,19 +72,20 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myMultiPasteShowEolInList;
     JBCheckBox myMultiPasteShowInstructions;
     JBCheckBox myMultiPastePreserveOriginal;
+    JBCheckBox myMultiPasteDeleteRepeatedCaretData;
     JBCheckBox myOverrideStandardPaste;
     JBCheckBox myPreserveCamelCaseOnPaste;
     JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
     JBCheckBox myPreserveSnakeCaseOnPaste;
     JBCheckBox myRemovePrefixOnPaste;
     JBCheckBox mySelectPasted;
+    JBCheckBox mySelectPastedMultiCaret;
     JBCheckBox myStartEndAsLineSelection;
     JBCheckBox myTypingDeletesLineSelection;
     JBCheckBox myUnselectToggleCase;
     JBCheckBox myUpDownMovement;
     JBCheckBox myUpDownSelection;
-    JBTextField myRemovePrefixOnPaste1;
-    JBTextField myRemovePrefixOnPaste2;
+    JBTextField myPrefixOnPasteText;
     JButton myEditRegExButton;
     JComboBox myAutoLineMode;
     JComboBox myCaretOnMoveSelectionDown;
@@ -92,8 +98,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox mySelectPastedPredicate;
     JSpinner myAutoIndentDelay;
 
-    private @NotNull String mySample1Text;
-    private @NotNull String mySample2Text;
+    private @NotNull String myRegexSampleText;
+    private final EditingCommitter myEditingCommitter;
 
     private final SettingsComponents<ApplicationSettings> components;
 
@@ -123,22 +129,23 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myMultiPasteShowEolInViewer, i::isMultiPasteShowEolInViewer, i::setMultiPasteShowEolInViewer),
                         component(myMultiPasteShowInstructions, i::isMultiPasteShowInstructions, i::setMultiPasteShowInstructions),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
+                        component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),
                         component(myPreserveCamelCaseOnPaste, i::isPreserveCamelCaseOnPaste, i::setPreserveCamelCaseOnPaste),
                         component(myPreserveScreamingSnakeCaseOnPaste, i::isPreserveScreamingSnakeCaseOnPaste, i::setPreserveScreamingSnakeCaseOnPaste),
                         component(myPreserveSnakeCaseOnPaste, i::isPreserveSnakeCaseOnPaste, i::setPreserveSnakeCaseOnPaste),
                         component(myRemovePrefixOnPaste, i::isRemovePrefixOnPaste, i::setRemovePrefixOnPaste),
-                        component(myRemovePrefixOnPaste1, i::getRemovePrefixOnPaste1, i::setRemovePrefixOnPaste1),
-                        component(myRemovePrefixOnPaste2, i::getRemovePrefixOnPaste2, i::setRemovePrefixOnPaste2),
+                        component(myPrefixOnPasteText, i::getPrefixesOnPasteText, i::setPrefixesOnPasteText),
                         component(mySelectionEndExtended, i::isSelectionEndExtended, i::setSelectionEndExtended),
                         component(mySelectionStartExtended, i::isSelectionStartExtended, i::setSelectionStartExtended),
                         component(mySelectPasted, i::isSelectPasted, i::setSelectPasted),
+                        component(mySelectPastedMultiCaret, i::isSelectPastedMultiCaret, i::setSelectPastedMultiCaret),
                         component(myStartEndAsLineSelection, i::isStartEndAsLineSelection, i::setStartEndAsLineSelection),
                         component(myTypingDeletesLineSelection, i::isTypingDeletesLineSelection, i::setTypingDeletesLineSelection),
                         component(myUnselectToggleCase, i::isUnselectToggleCase, i::setUnselectToggleCase),
                         component(myUpDownMovement, i::isUpDownMovement, i::setUpDownMovement),
                         component(myUpDownSelection, i::isUpDownSelection, i::setUpDownSelection),
-                        component(RemovePrefixOnPastePatternType.ADAPTER, myRemovePrefixOnPastePattern, i::getRemovePrefixOnPastePattern, i::setRemovePrefixOnPastePattern),
+                        component(PrefixOnPastePatternType.ADAPTER, myRemovePrefixOnPastePattern, i::getPrefixOnPastePattern, i::setPrefixOnPastePattern),
                         component(SelectionPredicateType.ADAPTER, myDuplicateAtStartOrEndPredicate, i::getDuplicateAtStartOrEndPredicate, i::setDuplicateAtStartOrEndPredicate),
                         component(SelectionPredicateType.ADAPTER, mySelectPastedMultiCaretPredicate, i::getSelectPastedMultiCaretPredicate, i::setSelectPastedMultiCaretPredicate),
                         component(SelectionPredicateType.ADAPTER, mySelectPastedPredicate, i::getSelectPastedPredicate, i::setSelectPastedPredicate),
@@ -146,8 +153,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             }
         };
 
-        mySample1Text = settings.getRegexSample1Text();
-        mySample2Text = settings.getRegexSample2Text();
+        myRegexSampleText = settings.getRegexSampleText();
 
         final ActionListener actionListener = new ActionListener() {
             @Override
@@ -158,6 +164,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myUpDownSelection.addActionListener(actionListener);
         myAutoIndent.addActionListener(actionListener);
         mySelectPasted.addActionListener(actionListener);
+        mySelectPastedMultiCaret.addActionListener(actionListener);
         myDuplicateAtStartOrEnd.addActionListener(actionListener);
         myMouseCamelHumpsFollow.addActionListener(actionListener);
         myRemovePrefixOnPaste.addActionListener(actionListener);
@@ -167,23 +174,22 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myAutoLineMode.addActionListener(e -> updateOptions(true));
 
         myEditRegExButton.addActionListener(e -> {
-            boolean valid = RegExTestForm.showDialog(myMainPanel, this);
+            boolean valid = RegExTestDialog.showDialog(myMainPanel, this);
             myRemovePrefixOnPaste.setSelected(valid);
             myAddPrefixOnPaste.setSelected(valid);
         });
+
+        myEditingCommitter = new EditingCommitter();
+        IdeEventQueue.getInstance().addDispatcher(myEditingCommitter, this);
 
         updateOptions(true);
     }
 
     // @formatter:off
-    @NotNull @Override public String getPattern1() { return myRemovePrefixOnPaste1.getText().trim(); }
-    @NotNull @Override public String getPattern2() { return myRemovePrefixOnPaste2.getText().trim(); }
-    @NotNull @Override public String getSample1() { return mySample1Text; }
-    @NotNull @Override public String getSample2() { return mySample2Text; }
-    @Override public void setPattern1(final String pattern1) { myRemovePrefixOnPaste1.setText(pattern1); }
-    @Override public void setPattern2(final String pattern2) { myRemovePrefixOnPaste2.setText(pattern2); }
-    @Override public void setSample1(final String sample1) { mySample1Text = sample1; }
-    @Override public void setSample2(final String sample2) { mySample2Text = sample2; }
+    @NotNull @Override public String getPatternText() { return myPrefixOnPasteText.getText().trim(); }
+    @NotNull @Override public String getSampleText() { return myRegexSampleText; }
+    @Override public void setPatternText(final String patternText) { myPrefixOnPasteText.setText(patternText); }
+    @Override public void setSampleText(final String sampleText) { myRegexSampleText = sampleText; }
     // @formatter:on
 
     public JComponent getComponent() {
@@ -200,8 +206,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || (myCustomizedPrevWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
                 || (myCustomizedPrevWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
                 || (myCustomizedPrevWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
-                || !mySample1Text.equals(mySettings.getRegexSample1Text())
-                || !mySample2Text.equals(mySettings.getRegexSample2Text())
+                || !myRegexSampleText.equals(mySettings.getRegexSampleText())
 
                 || components.isModified(mySettings)
                 ;
@@ -214,8 +219,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
         mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
         mySettings.setCustomizedPrevWordStartBounds(myCustomizedPrevWordStartBounds.getValue());
-        mySettings.setRegexSample1Text(mySample1Text);
-        mySettings.setRegexSample2Text(mySample2Text);
+        mySettings.setRegexSampleText(myRegexSampleText);
 
         components.apply(mySettings);
 
@@ -232,8 +236,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
         myCustomizedPrevWordEndBounds.setValue(mySettings.getCustomizedPrevWordEndBounds());
         myCustomizedPrevWordStartBounds.setValue(mySettings.getCustomizedPrevWordStartBounds());
-        mySample1Text = mySettings.getRegexSample1Text();
-        mySample2Text = mySettings.getRegexSample2Text();
+        myRegexSampleText = mySettings.getRegexSampleText();
 
         components.reset(mySettings);
 
@@ -242,7 +245,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
     @Override
     public void dispose() {
-
+        IdeEventQueue.getInstance().removeDispatcher(myEditingCommitter);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -285,24 +288,24 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myLeftRightMovement.setEnabled(enabled && modeEnabled);
         myCopyLineOrLineSelection.setEnabled(enabled && modeEnabled);
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
-        mySelectPastedMultiCaretPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
+        mySelectPastedMultiCaretPredicate.setEnabled(mySelectPastedMultiCaret.isEnabled() && mySelectPastedMultiCaret.isSelected());
         myMultiPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPastePreserveOriginal.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteDeleteRepeatedCaretData.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
 
-        final boolean regexPrefixes = RemovePrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == RemovePrefixOnPastePatternType.REGEX;
-        final boolean enablePrefixes = !regexPrefixes && 
+        final boolean regexPrefixes = PrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == PrefixOnPastePatternType.REGEX;
+        final boolean enablePrefixes = !regexPrefixes &&
                 (myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
                         || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled());
 
-        myRemovePrefixOnPaste1.setEnabled(enablePrefixes);
-        myRemovePrefixOnPaste2.setEnabled(enablePrefixes);
-        myRemovePrefixOnPaste2.setVisible(!regexPrefixes);
+        myPrefixOnPasteText.setEnabled(enablePrefixes);
         myEditRegExButton.setVisible(regexPrefixes);
 
         myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
-        myLinePasteCaretAdjustment.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        // no longer needed, using clipboard listener
+        //myLinePasteCaretAdjustment.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myAutoIndentDelay.setEnabled(myAutoIndent.isEnabled() && myAutoIndent.isSelected());
 
         boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
@@ -346,7 +349,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.ADAPTER.createComboBox();
         myCaretOnMoveSelectionDown = CaretAdjustmentType.ADAPTER.createComboBox();
         myCaretOnMoveSelectionUp = CaretAdjustmentType.ADAPTER.createComboBox();
-        myRemovePrefixOnPastePattern = RemovePrefixOnPastePatternType.ADAPTER.createComboBox();
+        myRemovePrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.createComboBox();
         myMouseModifier = MouseModifierType.ADAPTER.createComboBox();
 
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);
@@ -371,5 +374,22 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 }
             }
         });
+    }
+
+    private class EditingCommitter implements IdeEventQueue.EventDispatcher {
+        @Override
+        public boolean dispatch(AWTEvent e) {
+            if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_ENTER) {
+                if ((((KeyEvent) e).getModifiers() & ~(InputEvent.CTRL_DOWN_MASK | InputEvent.CTRL_MASK)) == 0) {
+                    Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTable);
+
+                    if (owner instanceof JTable && ((JTable) owner).isEditing()) {
+                        ((JTable) owner).editingStopped(null);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

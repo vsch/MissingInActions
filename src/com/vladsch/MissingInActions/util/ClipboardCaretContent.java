@@ -45,6 +45,7 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 public class ClipboardCaretContent {
     private static Key<ClipboardCaretContent> LAST_PASTED_CLIPBOARD_CARETS = Key.create("LAST_PASTED_CLIPBOARD_CONTEXT");
     private static Key<CaretOffsetAdjuster> LAST_CARET_OFFSET_ADJUSTER = Key.create("LAST_CARET_OFFSET_ADJUSTER");
+    private static Key<Transferable> LAST_SPLIT_PERMUTED_TRANSFERABLE = Key.create("LAST_CARET_OFFSET_ADJUSTER");
     private static final Logger logger = getInstance("com.vladsch.MissingInActions.util.clipboard_context");
 
     private final @NotNull Transferable myContent;
