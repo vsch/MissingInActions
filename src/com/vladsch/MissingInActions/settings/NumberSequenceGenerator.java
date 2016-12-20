@@ -170,50 +170,90 @@ public class NumberSequenceGenerator {
      * then each part is processed separately
      *
      * @param number number to format
-     * @return character sequence of the number
+     * @return string of the number
      */
     @NotNull
-    public BasedSequence templateNumber(@NotNull CharSequence number) {
+    public String templateNumber(@NotNull CharSequence number) {
+        return templateNumber(number,
+                myOptions.getPrefix(),
+                myOptions.getTemplate(),
+                myOptions.getDecimalPoint(),
+                myOptions.getSeparator(),
+                myOptions.getSeparatorFrequency(),
+                myOptions.getSuffix());
+    }
+
+    @NotNull
+    public static String templateNumber(@NotNull CharSequence number, @Nullable String prefix, @Nullable String template, @Nullable String decimalPoint, @Nullable String separator, int separatorFrequency, @Nullable String suffix) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(myOptions.getPrefix());
+        if (prefix != null && !prefix.isEmpty()) sb.append(prefix);
 
-        if (!myOptions.getTemplate().isEmpty()) {
-            BasedSequence template = BasedSequence.of(myOptions.getTemplate());
-            BasedSequence wholePart = template;
+        if (template != null && !template.isEmpty()) {
+            BasedSequence templateSeq = BasedSequence.of(template);
+            BasedSequence wholePart = templateSeq;
             BasedSequence fractionPart = BasedSequence.NULL;
 
-            if (!myOptions.getDecimalPoint().isEmpty()) {
-                int pos = template.lastIndexOf(myOptions.getDecimalPoint());
+            if (decimalPoint != null && !decimalPoint.isEmpty()) {
+                int pos = templateSeq.lastIndexOf(decimalPoint);
 
-                int base = myOptions.getNumberingBase();
                 if (pos >= 0) {
-                    wholePart = template.subSequence(0, pos);
-                    fractionPart = template.subSequence(pos + myOptions.getDecimalPoint().length());
+                    wholePart = templateSeq.subSequence(0, pos);
+                    fractionPart = templateSeq.subSequence(pos + decimalPoint.length());
 
                     StringBuilder frac = new StringBuilder();
 
-                    int digitPos = templatePart(base, frac, number, false, fractionPart, 0, null, 0);
-                    templatePart(base, sb, number, true, wholePart, digitPos, myOptions.getSeparator(), myOptions.getSeparatorFrequency());
+                    int digitPos = templatePart(frac, number, false, fractionPart, 0, null, 0);
+                    if (!wholePart.isEmpty()) {
+                        templatePart(sb, number, true, wholePart, digitPos, separator, separatorFrequency);
+                    } else {
+                        if (separator != null && !separator.isEmpty()) {
+                            insertSeparators(sb, number, digitPos, separator, separatorFrequency);
+                        } else {
+                            sb.append(number.subSequence(0, number.length() - digitPos));
+                        }
+                    }
 
-                    sb.append(myOptions.getDecimalPoint());
+                    sb.append(decimalPoint);
                     sb.append(frac);
                 } else {
-                    templatePart(base, sb, number, true, wholePart, 0, myOptions.getSeparator(), myOptions.getSeparatorFrequency());
+                    templatePart(sb, number, true, wholePart, 0, separator, separatorFrequency);
                 }
+            } else {
+                templatePart(sb, number, true, wholePart, 0, separator, separatorFrequency);
             }
         } else {
-            sb.append(number);
+            if (separator != null && !separator.isEmpty()) {
+                insertSeparators(sb, number, 0, separator, separatorFrequency);
+            } else {
+                sb.append(number.subSequence(0, number.length()));
+            }
         }
 
-        sb.append(myOptions.getSuffix());
-        return BasedSequence.of(number);
+        if (suffix != null && !suffix.isEmpty()) sb.append(suffix);
+        return sb.toString();
     }
 
-    public static int templatePart(int base, StringBuilder sb, CharSequence numberChars, boolean wholePart, BasedSequence part, int digitPos, @Nullable String separator, int separatorFrequency) {
+    private static void insertSeparators(StringBuilder sb, @NotNull CharSequence number, int digitPos, @Nullable String separator, int separatorFrequency) {
+        int pos;
+        pos = number.length() - digitPos;
+        String out = "";
+        while (pos > separatorFrequency) {
+            out = number.subSequence(pos - separatorFrequency, pos) + out;
+            out = separator + out;
+            pos -= separatorFrequency;
+        }
+
+        if (pos > 0) {
+            out = number.subSequence(0, pos) + out;
+        }
+        sb.append(out);
+    }
+
+    public static int templatePart(StringBuilder out, CharSequence number, boolean wholePart, CharSequence part, int digitPos, @Nullable String separator, int separatorFrequency) {
         // here we apply the part template to digits of the number, proceeding from the digitPos offset from last digit of number
-        BasedSequence number = BasedSequence.of(numberChars);
         // first we need to know how many digit places will be used 
+        StringBuilder sb = new StringBuilder();
         BitSet digits = new BitSet(sb.length() + part.length());
         int iMax = part.length();
         for (int i = 0; i < iMax; i++) {
@@ -245,37 +285,39 @@ public class NumberSequenceGenerator {
 
         // now we replace digit positions with digits from the number, in reverse order
         int lastPos = sb.length();
-        int sepCount = 0;
-        while (digitPos++ < number.length()) {
+        while (digitPos < number.length()) {
             int pos = digits.previousSetBit(lastPos);
-            if (pos < 0 || digitPos == number.length() - 1 && number.charAt(digitPos) == '-') break;
-            if (wholePart && separator != null && !separator.isEmpty() && separatorFrequency > 0 && ++sepCount >= separatorFrequency && (separatorFrequency > 1 || lastPos < sb.length())) {
-                // add separator and digit
-                sb.replace(pos, pos + 1, String.valueOf(number.charAt(number.length() - digitPos)) + separator);
-                sepCount = 0;
-            } else {
-                sb.replace(pos, pos + 1, String.valueOf(number.charAt(number.length() - digitPos)));
-            }
+            if (pos < 0 || digitPos + 1 == number.length() && number.charAt(0) == '-') break;
+            sb.replace(pos, pos + 1, String.valueOf(number.charAt(number.length() - ++digitPos)));
 
             lastPos = pos - 1;
         }
 
-        if (wholePart && digitPos == number.length() - 1 && number.charAt(digitPos) == '-') {
+        if (wholePart && digitPos + 1 == number.length() && number.charAt(0) == '-') {
             // have a -ve sign, we put it in the first position if 0 filled or last pos if space filled, if there is room
             int pos = digits.previousSetBit(lastPos);
             if (pos >= 0) {
                 if (sb.charAt(pos) == '0') {
                     while (pos >= 0 && sb.charAt(pos) == '0') pos--;
                     pos++;
-                    if (sb.charAt(pos) == '0' && pos + 1 < sb.length() && sb.charAt(pos + 1) == '0') {
-                        sb.replace(pos + 1, pos + 2, "-");
+                    if (sb.charAt(pos) == '0') {
+                        sb.replace(pos, pos + 1, "-");
+                        digitPos++;
                     }
                 } else {
                     // space filled, put it here
                     sb.replace(pos, pos + 1, "-");
+                    digitPos++;
                 }
             }
         }
+
+        if (wholePart && separator != null && !separator.isEmpty() && separatorFrequency > 0) {
+            insertSeparators(out, sb, 0, separator, separatorFrequency);
+        } else {
+            out.append(sb);
+        }
+
         return digitPos;
     }
 
