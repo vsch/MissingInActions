@@ -22,7 +22,8 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.CharBasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
+import com.vladsch.flexmark.util.sequence.CharSubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,7 +128,7 @@ public class NumberSequenceGenerator {
      */
     @Nullable
     public Long extractNumber(@NotNull CharSequence charSequence) {
-        BasedSequence chars = BasedSequence.of(charSequence);
+        BasedSequence chars = BasedSequenceImpl.of(charSequence);
 
         if (!myOptions.getPrefix().isEmpty()) chars = chars.removePrefix(myOptions.getPrefix());
         if (!myOptions.getSuffix().isEmpty()) chars = chars.removeSuffix(myOptions.getSuffix());
@@ -190,7 +191,7 @@ public class NumberSequenceGenerator {
         if (prefix != null && !prefix.isEmpty()) sb.append(prefix);
 
         if (template != null && !template.isEmpty()) {
-            BasedSequence templateSeq = BasedSequence.of(template);
+            BasedSequence templateSeq = BasedSequenceImpl.of(template);
             BasedSequence wholePart = templateSeq;
             BasedSequence fractionPart = BasedSequence.NULL;
 
@@ -252,7 +253,7 @@ public class NumberSequenceGenerator {
 
     public static int templatePart(StringBuilder out, CharSequence number, boolean wholePart, CharSequence part, int digitPos, @Nullable String separator, int separatorFrequency) {
         // here we apply the part template to digits of the number, proceeding from the digitPos offset from last digit of number
-        // first we need to know how many digit places will be used 
+        // first we need to know how many digit places will be used
         StringBuilder sb = new StringBuilder();
         BitSet digits = new BitSet(sb.length() + part.length());
         int iMax = part.length();
@@ -387,6 +388,7 @@ public class NumberSequenceGenerator {
                 }
             }
         }
-        return new CharBasedSequence(sb).subSequence(i, sb.length);
+
+        return CharSubSequence.of(sb, i, sb.length);
     }
 }

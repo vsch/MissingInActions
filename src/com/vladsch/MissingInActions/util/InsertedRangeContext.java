@@ -299,6 +299,9 @@ public class InsertedRangeContext {
     public InsertedRangeContext prefixToUpperCase(int count) { return replacePrefix(count, String::toUpperCase); }
 
     @NotNull
+    public InsertedRangeContext toUpperCase() { return replace(0, myWord.length(), String::toUpperCase); }
+
+    @NotNull
     public InsertedRangeContext toUpperCase(int start, int end) { return replace(start, end, String::toUpperCase); }
 
     @NotNull
@@ -306,6 +309,9 @@ public class InsertedRangeContext {
 
     @NotNull
     public InsertedRangeContext prefixToLowerCase(int count) { return replacePrefix(count, String::toLowerCase); }
+
+    @NotNull
+    public InsertedRangeContext toLowerCase() { return replace(0, myWord.length(), String::toLowerCase); }
 
     @NotNull
     public InsertedRangeContext toLowerCase(int start, int end) { return replace(start, end, String::toLowerCase); }
@@ -420,6 +426,7 @@ public class InsertedRangeContext {
     public boolean canBeExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).canBeCamelCase(); }
 
     @NotNull public InsertedRangeContext makeCamelCase() { myWord = studiedWord().makeCamelCase(); return this; }
+    @NotNull public InsertedRangeContext makeProperCamelCase() { myWord = studiedWord().makeProperCamelCase(); return this; }
     @NotNull public InsertedRangeContext makePascalCase() { myWord = studiedWord().makePascalCase(); return this; }
     @NotNull public InsertedRangeContext makeSnakeCase() { myWord = studiedWord().makeSnakeCase(); fixSnakeCase(); return this; }
     @NotNull public InsertedRangeContext makeScreamingSnakeCase() { myWord = studiedWord().makeScreamingSnakeCase(); fixSnakeCase(); return this; }
@@ -431,10 +438,10 @@ public class InsertedRangeContext {
     public boolean isEmpty() { return myWord.isEmpty(); }
     public boolean isNotEmpty() { return !myWord.isEmpty(); }
 
-    public boolean has(final int flags) { return myStudiedWord.has(flags); }
-    public boolean not(final int flags) { return myStudiedWord.not(flags); }
+    public boolean some(final int flags) { return myStudiedWord.some(flags); }
+    public boolean none(final int flags) { return myStudiedWord.none(flags); }
     public boolean only(final int flags) { return myStudiedWord.only(flags); }
-    public boolean just(final int flags) { return myStudiedWord.just(flags); }
+    public boolean is(final int flags) { return myStudiedWord.is(flags); }
     public boolean all(final int flags) { return myStudiedWord.all(flags); }
     public boolean first(final int flags) { return myStudiedWord.first(flags); }
     public boolean second(final int flags) { return myStudiedWord.second(flags); }

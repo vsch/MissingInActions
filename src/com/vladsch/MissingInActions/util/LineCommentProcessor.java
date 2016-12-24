@@ -25,6 +25,7 @@ import com.intellij.lang.Commenter;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +38,7 @@ public class LineCommentProcessor {
     public LineCommentProcessor(@NotNull Editor editor, @NotNull final PsiFile psiFile) {
         myEditor = editor;
         myPsiFile = psiFile;
-        myChars = BasedSequence.of(myEditor.getDocument().getCharsSequence());
+        myChars = BasedSequenceImpl.of(myEditor.getDocument().getCharsSequence());
 
         myCommenterRange = null;
     }

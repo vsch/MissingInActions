@@ -27,8 +27,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
-import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,7 +72,7 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
 
     protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets) {
         Editor editor = caret.getEditor();
-        SubSequence chars = new SubSequence(editor.getDocument().getCharsSequence());
+        final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
         boolean keepCaret = false;
 
         T matcher = prepareMatcher(manager, caret, range, chars);

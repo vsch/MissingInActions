@@ -11,7 +11,6 @@ out/
 /libprep
 /MissingInActions.iws
 /BEDIT_README.md
-/update-plugin.sh
 /release.sh
 /MissingInActions.zip
 /lib/kotlin-runtime-sources.jar

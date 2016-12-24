@@ -50,6 +50,7 @@ import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -876,11 +877,11 @@ public class EditHelpers {
     }
 
     public static int getStartOfLineOffset(@NotNull CharSequence charSequence, int offset) {
-        return BasedSequence.of(charSequence).startOfLine(offset);
+        return BasedSequenceImpl.of(charSequence).startOfLine(offset);
     }
 
     public static int getEndOfLineOffset(@NotNull CharSequence charSequence, int offset) {
-        return BasedSequence.of(charSequence).endOfLine(offset);
+        return BasedSequenceImpl.of(charSequence).endOfLine(offset);
     }
 
     @NotNull
@@ -922,7 +923,7 @@ public class EditHelpers {
                     return new ItemTextRange<>(commenter, 0, file.getTextLength());
                 }
             } else {
-                BasedSequence charSequence = BasedSequence.of(editor.getDocument().getCharsSequence());
+                BasedSequence charSequence = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
                 int lineStartOffset = charSequence.startOfLine(startOffset);
                 int lineEndOffset = charSequence.endOfLine(endOffset);
                 lineStartOffset += charSequence.countLeading((String) BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
@@ -1254,7 +1255,7 @@ public class EditHelpers {
                 studiedCarets.caretSelections.total += lineCarets.caretSelections;
                 if (eachLineCarets.total == 0) eachLineCarets.total = lineCarets.carets;
                 else if (eachLineCarets.total > 0 && eachLineCarets.total != lineCarets.carets) eachLineCarets.total = -1;
-                
+
                 if (position.isBlankLine()) {
                     studiedCarets.lineCount.blank++;
                     studiedCarets.caretCount.blank += lineCarets.carets;
@@ -1295,11 +1296,11 @@ public class EditHelpers {
         if (firstCaret == null) {
             firstCaret = studiedCarets.carets.get(0).onLine(studiedCarets.range.getStart());
         }
-        
+
         if (lastCaret == null) {
             lastCaret = studiedCarets.carets.get(studiedCarets.carets.size()-1).onLine(studiedCarets.range.getEnd());
         }
-        
+
         studiedCarets.firstLineCaret = firstCaret;
         studiedCarets.lastLineCaret = lastCaret;
         return studiedCarets;

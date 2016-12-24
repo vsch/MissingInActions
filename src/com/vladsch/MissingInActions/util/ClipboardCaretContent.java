@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.datatransfer.Transferable;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -353,6 +354,10 @@ public class ClipboardCaretContent {
             }
 
             // save it so it can be re-used by MiaMultiplePaste
+            if (caretData == null) {
+                // we make one for a single caret
+
+            }
             editor.putUserData(LAST_CARET_OFFSET_ADJUSTER, offsetAdjuster);
 
             final TextRange[] ranges = new TextRange[caretCount];

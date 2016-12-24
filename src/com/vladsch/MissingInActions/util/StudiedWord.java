@@ -90,20 +90,20 @@ public class StudiedWord {
         return myWord;
     }
 
-    public boolean has(int flags) {
-        return has(myWordFlags, flags);
+    public boolean some(int flags) {
+        return some(myWordFlags, flags);
     }
 
-    public boolean not(int flags) {
-        return not(myWordFlags, flags);
+    public boolean none(int flags) {
+        return none(myWordFlags, flags);
     }
 
     public boolean only(int flags) {
         return only(myWordFlags, flags);
     }
 
-    public boolean just(int flags) {
-        return just(myWordFlags, flags);
+    public boolean is(int flags) {
+        return is(myWordFlags, flags);
     }
 
     public boolean all(int flags) {
@@ -111,15 +111,15 @@ public class StudiedWord {
     }
 
     public boolean first(int flags) {
-        return has(myFirstFlags, flags) && only(myFirstFlags, flags);
+        return some(myFirstFlags, flags) && only(myFirstFlags, flags);
     }
 
     public boolean second(int flags) {
-        return has(mySecondFlags, flags) && only(mySecondFlags, flags);
+        return some(mySecondFlags, flags) && only(mySecondFlags, flags);
     }
 
     public boolean last(int flags) {
-        return has(myLastFlags, flags) && only(myLastFlags, flags);
+        return some(myLastFlags, flags) && only(myLastFlags, flags);
     }
 
     public boolean identifier() {
@@ -168,19 +168,19 @@ public class StudiedWord {
         return flags;
     }
 
-    public static boolean has(int wordFlags, int flags) {
+    public static boolean some(int wordFlags, int flags) {
         return (wordFlags & flags) != 0;
     }
 
-    public static boolean not(int wordFlags, int flags) {
+    public static boolean none(int wordFlags, int flags) {
         return (wordFlags & flags) == 0;
     }
 
     public static boolean only(int wordFlags, int flags) {
-        return (wordFlags & ~flags) == 0;
+        return some(wordFlags, flags) && none(wordFlags, ~flags);
     }
 
-    public static boolean just(int wordFlags, int flags) {
+    public static boolean is(int wordFlags, int flags) {
         return wordFlags == flags;
     }
 
@@ -193,13 +193,13 @@ public class StudiedWord {
     public boolean isScreamingSnakeCase()       { return only(UNDER | UPPER | DIGITS) && all(UNDER | UPPER) && first(UNDER|UPPER); }
     public boolean isSnakeCase()                { return only(UNDER | LOWER | DIGITS) && all(UNDER | LOWER) && first(UNDER|LOWER); }
     public boolean isCamelCase()                { return only(LOWER | UPPER | DIGITS) && all(LOWER | UPPER) && first(LOWER|UPPER); }
-    public boolean hasNoUpperCase()             { return not(UPPER | EMPTY); }
-    public boolean hasNoLowerCase()             { return not(LOWER | EMPTY); }
-    public boolean hasUpperCase()               { return has(UPPER); }
-    public boolean hasLowerCase()               { return has(LOWER); }
-    public boolean hasLowerCaseOrUpperCase()    { return has(LOWER | UPPER); }
-    public boolean isLowerCase()                { return just(LOWER); }
-    public boolean isUpperCase()                { return just(UPPER); }
+    public boolean hasNoUpperCase()             { return none(UPPER | EMPTY); }
+    public boolean hasNoLowerCase()             { return none(LOWER | EMPTY); }
+    public boolean hasUpperCase()               { return some(UPPER); }
+    public boolean hasLowerCase()               { return some(LOWER); }
+    public boolean hasLowerCaseOrUpperCase()    { return some(LOWER | UPPER); }
+    public boolean isLowerCase()                { return is(LOWER); }
+    public boolean isUpperCase()                { return is(UPPER); }
     public boolean isProperCamelCase()          { return isCamelCase() && first(LOWER); }
     public boolean isPascalCase()               { return isCamelCase() && first(UPPER) && second(LOWER); }
     // @formatter:on
@@ -221,7 +221,7 @@ public class StudiedWord {
 
     public String makeCamelCase() {
         StringBuilder sb = new StringBuilder();
-        if (has(UNDER)) {
+        if (some(UNDER)) {
             int iMax = myWord.length();
             boolean toUpper = false;
 
@@ -263,7 +263,7 @@ public class StudiedWord {
     }
 
     public boolean canBeMixedSnakeCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeMixedSnakeCase();
             return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
         }
@@ -271,7 +271,7 @@ public class StudiedWord {
     }
 
     public boolean canBeScreamingSnakeCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeScreamingSnakeCase();
             return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
         }
@@ -279,7 +279,7 @@ public class StudiedWord {
     }
 
     public boolean canBeSnakeCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeSnakeCase();
             return !word.equals(myWord) && StudiedWord.of(word).isSnakeCase();
         }
@@ -287,7 +287,7 @@ public class StudiedWord {
     }
 
     public boolean canBeCamelCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeCamelCase();
             return !word.equals(myWord) && StudiedWord.of(word).isCamelCase();
         }
@@ -295,7 +295,7 @@ public class StudiedWord {
     }
 
     public boolean canBeProperCamelCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeProperCamelCase();
             return !word.equals(myWord) && StudiedWord.of(word).isProperCamelCase();
         }
@@ -303,7 +303,7 @@ public class StudiedWord {
     }
 
     public boolean canBePascalCase() {
-        if (only(UNDER | UPPER | LOWER | DIGITS) && has(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
+        if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makePascalCase();
             return !word.equals(myWord) && StudiedWord.of(word).isPascalCase();
         }
