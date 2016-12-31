@@ -52,6 +52,7 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
+import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -629,7 +630,7 @@ public class EditHelpers {
     public static void delete(@NotNull Editor editor, @NotNull Caret caret, int start, int end, boolean clearOnly) {
         CopyPasteManager.getInstance().stopKillRings();
         if (clearOnly) {
-            editor.getDocument().replaceString(start, end, new RepeatedCharSequence(' ', end - start));
+            editor.getDocument().replaceString(start, end, RepeatedCharSequence.of(" ", end - start));
         } else {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             manager.guard(() -> {
@@ -951,7 +952,7 @@ public class EditHelpers {
         if (atOffset.column != position.column) {
             // virtual spaces, add real ones
             final int inserted = position.column - atOffset.column;
-            position.getDocument().insertString(offset, new RepeatedCharSequence(' ', inserted));
+            position.getDocument().insertString(offset, RepeatedCharSequence.of(" ", inserted));
             return inserted;
         }
         return 0;

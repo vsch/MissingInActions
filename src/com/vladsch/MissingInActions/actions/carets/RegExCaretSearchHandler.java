@@ -24,10 +24,10 @@ package com.vladsch.MissingInActions.actions.carets;
 import com.intellij.openapi.editor.Caret;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.util.IndexMapper;
-import com.vladsch.MissingInActions.util.ReversedCharSequence;
+import com.vladsch.flexmark.util.mappers.IndexMapper;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
+import com.vladsch.flexmark.util.sequence.ReversedCharSequence;
 import org.apache.commons.lang.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,7 +108,7 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
                 Matcher matcher = pattern.matcher(chars);
                 myMatcher = new MyMatcher(matcher, IndexMapper.NULL);
             } else {
-                ReversedCharSequence reversed = new ReversedCharSequence(chars);
+                ReversedCharSequence reversed = ReversedCharSequence.of(chars);
                 Matcher matcher = pattern.matcher(reversed);
                 myMatcher = new MyMatcher(matcher, reversed.getIndexMapper());
             }
