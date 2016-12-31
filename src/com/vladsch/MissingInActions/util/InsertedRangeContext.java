@@ -31,9 +31,7 @@ import java.util.function.Function;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
 import static com.vladsch.MissingInActions.util.StudiedWord.UPPER;
-import static java.lang.Character.isAlphabetic;
-import static java.lang.Character.isLowerCase;
-import static java.lang.Character.isUpperCase;
+import static java.lang.Character.*;
 
 @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue", "SameParameterValue" })
 public class InsertedRangeContext {

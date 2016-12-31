@@ -24,7 +24,10 @@ package com.vladsch.MissingInActions.util;
 import org.intellij.lang.annotations.Flow;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("WeakerAccess")
@@ -51,13 +54,13 @@ public class SortedArrayList<T> extends ArrayList<T> {
         for (T i : this) {
             index++;
             if (myComparator.compare(i, t) >= 0) continue;
-            
+
             super.add(index, t);
             return true;
         }
         return super.add(t);
     }
-    
+
     private boolean isBefore(int i) {
         return i < 0;
     }

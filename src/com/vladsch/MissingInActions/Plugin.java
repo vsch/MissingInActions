@@ -53,8 +53,10 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.util.*;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Plugin implements ApplicationComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");

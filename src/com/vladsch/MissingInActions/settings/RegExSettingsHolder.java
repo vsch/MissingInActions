@@ -21,7 +21,6 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public interface RegExSettingsHolder {

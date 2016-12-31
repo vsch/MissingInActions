@@ -23,14 +23,13 @@ package com.vladsch.MissingInActions.actions;
 
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.actions.TextComponentEditorAction;
-import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import org.jetbrains.annotations.NotNull;
 
 abstract public class DumbAwareTextComponentEditorAction extends TextComponentEditorAction implements LineSelectionAware {
     public DumbAwareTextComponentEditorAction(@NotNull EditorActionHandler defaultHandler) {
         super(defaultHandler);
     }
-    
+
     @Override
     public boolean isDumbAware() {
         return true;

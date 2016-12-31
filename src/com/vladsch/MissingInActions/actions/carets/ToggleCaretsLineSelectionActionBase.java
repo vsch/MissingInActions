@@ -31,8 +31,11 @@ import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.MissingInActions.manager.*;
-import com.vladsch.MissingInActions.util.*;
+import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.EditorPosition;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.Range;
 
 abstract public class ToggleCaretsLineSelectionActionBase extends AnAction implements LineSelectionAware {

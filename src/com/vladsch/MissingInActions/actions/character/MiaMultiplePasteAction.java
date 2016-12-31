@@ -17,7 +17,6 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 package com.vladsch.MissingInActions.actions.character;
 
@@ -29,7 +28,6 @@ import com.intellij.ui.UIBundle;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.actions.MultiplePasteActionBase;
 import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
-import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

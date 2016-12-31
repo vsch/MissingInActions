@@ -30,8 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
-import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGION;
-import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REGION;
 
 @State(
         name = "MissingInActions",
@@ -295,8 +293,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         // save these base options with the actual base last used
         int numberingBase = myLastNumberingOptions.getNumberingBase();
         assert numberingBase >= NumberingBaseType.MIN_BASE && numberingBase <= NumberingBaseType.MAX_BASE;
-        
-        // copy out 
+
+        // copy out
         NumberingBaseOptions numberingBaseOptions = new NumberingBaseOptions(myLastNumberingOptions);
         if (numberingBase == 0) myLastNumberingBaseOptions_0 = numberingBaseOptions;
         else if (numberingBase == 1) myLastNumberingBaseOptions_1 = numberingBaseOptions;
@@ -338,84 +336,84 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     }
 
     // @formatter:off
-    public NumberingBaseOptions getLastNumberingBaseOptions_0() { return myLastNumberingBaseOptions_0.copy(); } 
-    public void setLastNumberingBaseOptions_0(NumberingBaseOptions lastNumberingBaseOptions_0) { myLastNumberingBaseOptions_0 = lastNumberingBaseOptions_0.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_1() { return myLastNumberingBaseOptions_1.copy(); } 
-    public void setLastNumberingBaseOptions_1(NumberingBaseOptions lastNumberingBaseOptions_1) { myLastNumberingBaseOptions_1 = lastNumberingBaseOptions_1.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_2() { return myLastNumberingBaseOptions_2.copy(); } 
-    public void setLastNumberingBaseOptions_2(NumberingBaseOptions lastNumberingBaseOptions_2) { myLastNumberingBaseOptions_2 = lastNumberingBaseOptions_2.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_3() { return myLastNumberingBaseOptions_3.copy(); } 
-    public void setLastNumberingBaseOptions_3(NumberingBaseOptions lastNumberingBaseOptions_3) { myLastNumberingBaseOptions_3 = lastNumberingBaseOptions_3.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_4() { return myLastNumberingBaseOptions_4.copy(); } 
-    public void setLastNumberingBaseOptions_4(NumberingBaseOptions lastNumberingBaseOptions_4) { myLastNumberingBaseOptions_4 = lastNumberingBaseOptions_4.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_5() { return myLastNumberingBaseOptions_5.copy(); } 
-    public void setLastNumberingBaseOptions_5(NumberingBaseOptions lastNumberingBaseOptions_5) { myLastNumberingBaseOptions_5 = lastNumberingBaseOptions_5.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_6() { return myLastNumberingBaseOptions_6.copy(); } 
-    public void setLastNumberingBaseOptions_6(NumberingBaseOptions lastNumberingBaseOptions_6) { myLastNumberingBaseOptions_6 = lastNumberingBaseOptions_6.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_7() { return myLastNumberingBaseOptions_7.copy(); } 
-    public void setLastNumberingBaseOptions_7(NumberingBaseOptions lastNumberingBaseOptions_7) { myLastNumberingBaseOptions_7 = lastNumberingBaseOptions_7.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_8() { return myLastNumberingBaseOptions_8.copy(); } 
-    public void setLastNumberingBaseOptions_8(NumberingBaseOptions lastNumberingBaseOptions_8) { myLastNumberingBaseOptions_8 = lastNumberingBaseOptions_8.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_9() { return myLastNumberingBaseOptions_9.copy(); } 
-    public void setLastNumberingBaseOptions_9(NumberingBaseOptions lastNumberingBaseOptions_9) { myLastNumberingBaseOptions_9 = lastNumberingBaseOptions_9.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_10() { return myLastNumberingBaseOptions_10.copy(); } 
-    public void setLastNumberingBaseOptions_10(NumberingBaseOptions lastNumberingBaseOptions_10) { myLastNumberingBaseOptions_10 = lastNumberingBaseOptions_10.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_11() { return myLastNumberingBaseOptions_11.copy(); } 
-    public void setLastNumberingBaseOptions_11(NumberingBaseOptions lastNumberingBaseOptions_11) { myLastNumberingBaseOptions_11 = lastNumberingBaseOptions_11.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_12() { return myLastNumberingBaseOptions_12.copy(); } 
-    public void setLastNumberingBaseOptions_12(NumberingBaseOptions lastNumberingBaseOptions_12) { myLastNumberingBaseOptions_12 = lastNumberingBaseOptions_12.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_13() { return myLastNumberingBaseOptions_13.copy(); } 
-    public void setLastNumberingBaseOptions_13(NumberingBaseOptions lastNumberingBaseOptions_13) { myLastNumberingBaseOptions_13 = lastNumberingBaseOptions_13.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_14() { return myLastNumberingBaseOptions_14.copy(); } 
-    public void setLastNumberingBaseOptions_14(NumberingBaseOptions lastNumberingBaseOptions_14) { myLastNumberingBaseOptions_14 = lastNumberingBaseOptions_14.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_15() { return myLastNumberingBaseOptions_15.copy(); } 
-    public void setLastNumberingBaseOptions_15(NumberingBaseOptions lastNumberingBaseOptions_15) { myLastNumberingBaseOptions_15 = lastNumberingBaseOptions_15.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_16() { return myLastNumberingBaseOptions_16.copy(); } 
-    public void setLastNumberingBaseOptions_16(NumberingBaseOptions lastNumberingBaseOptions_16) { myLastNumberingBaseOptions_16 = lastNumberingBaseOptions_16.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_17() { return myLastNumberingBaseOptions_17.copy(); } 
-    public void setLastNumberingBaseOptions_17(NumberingBaseOptions lastNumberingBaseOptions_17) { myLastNumberingBaseOptions_17 = lastNumberingBaseOptions_17.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_18() { return myLastNumberingBaseOptions_18.copy(); } 
-    public void setLastNumberingBaseOptions_18(NumberingBaseOptions lastNumberingBaseOptions_18) { myLastNumberingBaseOptions_18 = lastNumberingBaseOptions_18.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_19() { return myLastNumberingBaseOptions_19.copy(); } 
-    public void setLastNumberingBaseOptions_19(NumberingBaseOptions lastNumberingBaseOptions_19) { myLastNumberingBaseOptions_19 = lastNumberingBaseOptions_19.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_20() { return myLastNumberingBaseOptions_20.copy(); } 
-    public void setLastNumberingBaseOptions_20(NumberingBaseOptions lastNumberingBaseOptions_20) { myLastNumberingBaseOptions_20 = lastNumberingBaseOptions_20.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_21() { return myLastNumberingBaseOptions_21.copy(); } 
-    public void setLastNumberingBaseOptions_21(NumberingBaseOptions lastNumberingBaseOptions_21) { myLastNumberingBaseOptions_21 = lastNumberingBaseOptions_21.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_22() { return myLastNumberingBaseOptions_22.copy(); } 
-    public void setLastNumberingBaseOptions_22(NumberingBaseOptions lastNumberingBaseOptions_22) { myLastNumberingBaseOptions_22 = lastNumberingBaseOptions_22.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_23() { return myLastNumberingBaseOptions_23.copy(); } 
-    public void setLastNumberingBaseOptions_23(NumberingBaseOptions lastNumberingBaseOptions_23) { myLastNumberingBaseOptions_23 = lastNumberingBaseOptions_23.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_24() { return myLastNumberingBaseOptions_24.copy(); } 
-    public void setLastNumberingBaseOptions_24(NumberingBaseOptions lastNumberingBaseOptions_24) { myLastNumberingBaseOptions_24 = lastNumberingBaseOptions_24.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_25() { return myLastNumberingBaseOptions_25.copy(); } 
-    public void setLastNumberingBaseOptions_25(NumberingBaseOptions lastNumberingBaseOptions_25) { myLastNumberingBaseOptions_25 = lastNumberingBaseOptions_25.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_26() { return myLastNumberingBaseOptions_26.copy(); } 
-    public void setLastNumberingBaseOptions_26(NumberingBaseOptions lastNumberingBaseOptions_26) { myLastNumberingBaseOptions_26 = lastNumberingBaseOptions_26.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_27() { return myLastNumberingBaseOptions_27.copy(); } 
-    public void setLastNumberingBaseOptions_27(NumberingBaseOptions lastNumberingBaseOptions_27) { myLastNumberingBaseOptions_27 = lastNumberingBaseOptions_27.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_28() { return myLastNumberingBaseOptions_28.copy(); } 
-    public void setLastNumberingBaseOptions_28(NumberingBaseOptions lastNumberingBaseOptions_28) { myLastNumberingBaseOptions_28 = lastNumberingBaseOptions_28.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_29() { return myLastNumberingBaseOptions_29.copy(); } 
-    public void setLastNumberingBaseOptions_29(NumberingBaseOptions lastNumberingBaseOptions_29) { myLastNumberingBaseOptions_29 = lastNumberingBaseOptions_29.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_30() { return myLastNumberingBaseOptions_30.copy(); } 
-    public void setLastNumberingBaseOptions_30(NumberingBaseOptions lastNumberingBaseOptions_30) { myLastNumberingBaseOptions_30 = lastNumberingBaseOptions_30.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_31() { return myLastNumberingBaseOptions_31.copy(); } 
-    public void setLastNumberingBaseOptions_31(NumberingBaseOptions lastNumberingBaseOptions_31) { myLastNumberingBaseOptions_31 = lastNumberingBaseOptions_31.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_32() { return myLastNumberingBaseOptions_32.copy(); } 
-    public void setLastNumberingBaseOptions_32(NumberingBaseOptions lastNumberingBaseOptions_32) { myLastNumberingBaseOptions_32 = lastNumberingBaseOptions_32.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_33() { return myLastNumberingBaseOptions_33.copy(); } 
-    public void setLastNumberingBaseOptions_33(NumberingBaseOptions lastNumberingBaseOptions_33) { myLastNumberingBaseOptions_33 = lastNumberingBaseOptions_33.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_34() { return myLastNumberingBaseOptions_34.copy(); } 
-    public void setLastNumberingBaseOptions_34(NumberingBaseOptions lastNumberingBaseOptions_34) { myLastNumberingBaseOptions_34 = lastNumberingBaseOptions_34.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_35() { return myLastNumberingBaseOptions_35.copy(); } 
-    public void setLastNumberingBaseOptions_35(NumberingBaseOptions lastNumberingBaseOptions_35) { myLastNumberingBaseOptions_35 = lastNumberingBaseOptions_35.copy(); } 
-    public NumberingBaseOptions getLastNumberingBaseOptions_36() { return myLastNumberingBaseOptions_36.copy(); } 
-    public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); } 
+    public NumberingBaseOptions getLastNumberingBaseOptions_0() { return myLastNumberingBaseOptions_0.copy(); }
+    public void setLastNumberingBaseOptions_0(NumberingBaseOptions lastNumberingBaseOptions_0) { myLastNumberingBaseOptions_0 = lastNumberingBaseOptions_0.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_1() { return myLastNumberingBaseOptions_1.copy(); }
+    public void setLastNumberingBaseOptions_1(NumberingBaseOptions lastNumberingBaseOptions_1) { myLastNumberingBaseOptions_1 = lastNumberingBaseOptions_1.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_2() { return myLastNumberingBaseOptions_2.copy(); }
+    public void setLastNumberingBaseOptions_2(NumberingBaseOptions lastNumberingBaseOptions_2) { myLastNumberingBaseOptions_2 = lastNumberingBaseOptions_2.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_3() { return myLastNumberingBaseOptions_3.copy(); }
+    public void setLastNumberingBaseOptions_3(NumberingBaseOptions lastNumberingBaseOptions_3) { myLastNumberingBaseOptions_3 = lastNumberingBaseOptions_3.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_4() { return myLastNumberingBaseOptions_4.copy(); }
+    public void setLastNumberingBaseOptions_4(NumberingBaseOptions lastNumberingBaseOptions_4) { myLastNumberingBaseOptions_4 = lastNumberingBaseOptions_4.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_5() { return myLastNumberingBaseOptions_5.copy(); }
+    public void setLastNumberingBaseOptions_5(NumberingBaseOptions lastNumberingBaseOptions_5) { myLastNumberingBaseOptions_5 = lastNumberingBaseOptions_5.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_6() { return myLastNumberingBaseOptions_6.copy(); }
+    public void setLastNumberingBaseOptions_6(NumberingBaseOptions lastNumberingBaseOptions_6) { myLastNumberingBaseOptions_6 = lastNumberingBaseOptions_6.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_7() { return myLastNumberingBaseOptions_7.copy(); }
+    public void setLastNumberingBaseOptions_7(NumberingBaseOptions lastNumberingBaseOptions_7) { myLastNumberingBaseOptions_7 = lastNumberingBaseOptions_7.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_8() { return myLastNumberingBaseOptions_8.copy(); }
+    public void setLastNumberingBaseOptions_8(NumberingBaseOptions lastNumberingBaseOptions_8) { myLastNumberingBaseOptions_8 = lastNumberingBaseOptions_8.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_9() { return myLastNumberingBaseOptions_9.copy(); }
+    public void setLastNumberingBaseOptions_9(NumberingBaseOptions lastNumberingBaseOptions_9) { myLastNumberingBaseOptions_9 = lastNumberingBaseOptions_9.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_10() { return myLastNumberingBaseOptions_10.copy(); }
+    public void setLastNumberingBaseOptions_10(NumberingBaseOptions lastNumberingBaseOptions_10) { myLastNumberingBaseOptions_10 = lastNumberingBaseOptions_10.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_11() { return myLastNumberingBaseOptions_11.copy(); }
+    public void setLastNumberingBaseOptions_11(NumberingBaseOptions lastNumberingBaseOptions_11) { myLastNumberingBaseOptions_11 = lastNumberingBaseOptions_11.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_12() { return myLastNumberingBaseOptions_12.copy(); }
+    public void setLastNumberingBaseOptions_12(NumberingBaseOptions lastNumberingBaseOptions_12) { myLastNumberingBaseOptions_12 = lastNumberingBaseOptions_12.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_13() { return myLastNumberingBaseOptions_13.copy(); }
+    public void setLastNumberingBaseOptions_13(NumberingBaseOptions lastNumberingBaseOptions_13) { myLastNumberingBaseOptions_13 = lastNumberingBaseOptions_13.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_14() { return myLastNumberingBaseOptions_14.copy(); }
+    public void setLastNumberingBaseOptions_14(NumberingBaseOptions lastNumberingBaseOptions_14) { myLastNumberingBaseOptions_14 = lastNumberingBaseOptions_14.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_15() { return myLastNumberingBaseOptions_15.copy(); }
+    public void setLastNumberingBaseOptions_15(NumberingBaseOptions lastNumberingBaseOptions_15) { myLastNumberingBaseOptions_15 = lastNumberingBaseOptions_15.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_16() { return myLastNumberingBaseOptions_16.copy(); }
+    public void setLastNumberingBaseOptions_16(NumberingBaseOptions lastNumberingBaseOptions_16) { myLastNumberingBaseOptions_16 = lastNumberingBaseOptions_16.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_17() { return myLastNumberingBaseOptions_17.copy(); }
+    public void setLastNumberingBaseOptions_17(NumberingBaseOptions lastNumberingBaseOptions_17) { myLastNumberingBaseOptions_17 = lastNumberingBaseOptions_17.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_18() { return myLastNumberingBaseOptions_18.copy(); }
+    public void setLastNumberingBaseOptions_18(NumberingBaseOptions lastNumberingBaseOptions_18) { myLastNumberingBaseOptions_18 = lastNumberingBaseOptions_18.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_19() { return myLastNumberingBaseOptions_19.copy(); }
+    public void setLastNumberingBaseOptions_19(NumberingBaseOptions lastNumberingBaseOptions_19) { myLastNumberingBaseOptions_19 = lastNumberingBaseOptions_19.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_20() { return myLastNumberingBaseOptions_20.copy(); }
+    public void setLastNumberingBaseOptions_20(NumberingBaseOptions lastNumberingBaseOptions_20) { myLastNumberingBaseOptions_20 = lastNumberingBaseOptions_20.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_21() { return myLastNumberingBaseOptions_21.copy(); }
+    public void setLastNumberingBaseOptions_21(NumberingBaseOptions lastNumberingBaseOptions_21) { myLastNumberingBaseOptions_21 = lastNumberingBaseOptions_21.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_22() { return myLastNumberingBaseOptions_22.copy(); }
+    public void setLastNumberingBaseOptions_22(NumberingBaseOptions lastNumberingBaseOptions_22) { myLastNumberingBaseOptions_22 = lastNumberingBaseOptions_22.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_23() { return myLastNumberingBaseOptions_23.copy(); }
+    public void setLastNumberingBaseOptions_23(NumberingBaseOptions lastNumberingBaseOptions_23) { myLastNumberingBaseOptions_23 = lastNumberingBaseOptions_23.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_24() { return myLastNumberingBaseOptions_24.copy(); }
+    public void setLastNumberingBaseOptions_24(NumberingBaseOptions lastNumberingBaseOptions_24) { myLastNumberingBaseOptions_24 = lastNumberingBaseOptions_24.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_25() { return myLastNumberingBaseOptions_25.copy(); }
+    public void setLastNumberingBaseOptions_25(NumberingBaseOptions lastNumberingBaseOptions_25) { myLastNumberingBaseOptions_25 = lastNumberingBaseOptions_25.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_26() { return myLastNumberingBaseOptions_26.copy(); }
+    public void setLastNumberingBaseOptions_26(NumberingBaseOptions lastNumberingBaseOptions_26) { myLastNumberingBaseOptions_26 = lastNumberingBaseOptions_26.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_27() { return myLastNumberingBaseOptions_27.copy(); }
+    public void setLastNumberingBaseOptions_27(NumberingBaseOptions lastNumberingBaseOptions_27) { myLastNumberingBaseOptions_27 = lastNumberingBaseOptions_27.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_28() { return myLastNumberingBaseOptions_28.copy(); }
+    public void setLastNumberingBaseOptions_28(NumberingBaseOptions lastNumberingBaseOptions_28) { myLastNumberingBaseOptions_28 = lastNumberingBaseOptions_28.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_29() { return myLastNumberingBaseOptions_29.copy(); }
+    public void setLastNumberingBaseOptions_29(NumberingBaseOptions lastNumberingBaseOptions_29) { myLastNumberingBaseOptions_29 = lastNumberingBaseOptions_29.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_30() { return myLastNumberingBaseOptions_30.copy(); }
+    public void setLastNumberingBaseOptions_30(NumberingBaseOptions lastNumberingBaseOptions_30) { myLastNumberingBaseOptions_30 = lastNumberingBaseOptions_30.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_31() { return myLastNumberingBaseOptions_31.copy(); }
+    public void setLastNumberingBaseOptions_31(NumberingBaseOptions lastNumberingBaseOptions_31) { myLastNumberingBaseOptions_31 = lastNumberingBaseOptions_31.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_32() { return myLastNumberingBaseOptions_32.copy(); }
+    public void setLastNumberingBaseOptions_32(NumberingBaseOptions lastNumberingBaseOptions_32) { myLastNumberingBaseOptions_32 = lastNumberingBaseOptions_32.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_33() { return myLastNumberingBaseOptions_33.copy(); }
+    public void setLastNumberingBaseOptions_33(NumberingBaseOptions lastNumberingBaseOptions_33) { myLastNumberingBaseOptions_33 = lastNumberingBaseOptions_33.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_34() { return myLastNumberingBaseOptions_34.copy(); }
+    public void setLastNumberingBaseOptions_34(NumberingBaseOptions lastNumberingBaseOptions_34) { myLastNumberingBaseOptions_34 = lastNumberingBaseOptions_34.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_35() { return myLastNumberingBaseOptions_35.copy(); }
+    public void setLastNumberingBaseOptions_35(NumberingBaseOptions lastNumberingBaseOptions_35) { myLastNumberingBaseOptions_35 = lastNumberingBaseOptions_35.copy(); }
+    public NumberingBaseOptions getLastNumberingBaseOptions_36() { return myLastNumberingBaseOptions_36.copy(); }
+    public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); }
     // @formatter:on
 
     public boolean isMultiPasteDeleteRepeatedCaretData() { return myMultiPasteDeleteRepeatedCaretData; }
-    
+
     public void setMultiPasteDeleteRepeatedCaretData(boolean multiPasteDeleteRepeatedCaretData) { myMultiPasteDeleteRepeatedCaretData = multiPasteDeleteRepeatedCaretData; }
 
     public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }

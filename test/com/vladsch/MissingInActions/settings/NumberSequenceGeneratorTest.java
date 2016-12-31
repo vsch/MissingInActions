@@ -23,8 +23,8 @@ package com.vladsch.MissingInActions.settings;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static com.vladsch.MissingInActions.settings.NumberSequenceGenerator.*;
+import static org.junit.Assert.assertEquals;
 
 public class NumberSequenceGeneratorTest {
     @Test
@@ -73,7 +73,7 @@ public class NumberSequenceGeneratorTest {
         sb = new StringBuilder();
         assertEquals(5, templatePart(sb, "-1234", true, "######", 0, "", 0));
         assertEquals(" -1234", sb.toString());
-        
+
         sb = new StringBuilder();
         assertEquals(4, templatePart(sb, "1234", true, "00####", 0, "", 0));
         assertEquals("001234", sb.toString());
@@ -228,9 +228,9 @@ public class NumberSequenceGeneratorTest {
         assertEquals("41A792678515120366", convertNumber(Long.MAX_VALUE - 1, base, true).toString());
         assertEquals("41A792678515120367", convertNumber(Long.MAX_VALUE, base, true).toString());
         // ((BASE^N - 1) - (MAX_VALUE + 1)) + 1 == MIN_VALUE complement representation
-        // 41A792678515120367 + 1 
+        // 41A792678515120367 + 1
         // 41A792678515120368 -
-        // BBBBBBBBBBBBBBBBBB 
+        // BBBBBBBBBBBBBBBBBB
         // 7A14295436A6A9B853 + 1
         // 7A14295436A6A9B854
         assertEquals("7A14295436A6A9B854", convertNumber(Long.MIN_VALUE, base, true).toString());
@@ -266,8 +266,8 @@ public class NumberSequenceGeneratorTest {
         assertEquals("-9223372036854775808", convertNumber(Long.MIN_VALUE, base, false).toString());
         // 09999999999999999999
         // 09223372036854775807 -
-        // 90776627963145224192 + 1  
-        // 90776627963145224193   
+        // 90776627963145224192 + 1
+        // 90776627963145224193
         assertEquals("-9223372036854775807", convertNumber(Long.MIN_VALUE + 1, base, false).toString());
         assertEquals("-1", convertNumber(-1, base, false).toString());
         assertEquals("-2", convertNumber(-2, base, false).toString());
@@ -330,7 +330,7 @@ public class NumberSequenceGeneratorTest {
         assertEquals("1104332401304422434310311211", convertNumber(Long.MAX_VALUE - 1, base, true).toString());
 
         // : BASE^N - 1 - (MAX_VALUE + 1) + 1 == MIN_VALUE complement representation
-        // 1104332401304422434310311212 + 1 
+        // 1104332401304422434310311212 + 1
         // 1104332401304422434310311213 -
         // 4444444444444444444444444444
         // 3340112043140022010134133231 + 1
@@ -384,9 +384,9 @@ public class NumberSequenceGeneratorTest {
         assertEquals("2021110011022210012102010021220101220220", convertNumber(Long.MAX_VALUE - 1, base, true).toString());
         assertEquals("2021110011022210012102010021220101220221", convertNumber(Long.MAX_VALUE, base, true).toString());
         // ((BASE^N - 1) - (MAX_VALUE + 1)) + 1 == MIN_VALUE complement representation
-        // 02021110011022210012102010021220101220221 + 1 
+        // 02021110011022210012102010021220101220221 + 1
         // 02021110011022210012102010021220101220222 -
-        // 22222222222222222222222222222222222222222 
+        // 22222222222222222222222222222222222222222
         // 20201112211200012210120212201002121002000 + 1
         // 20201112211200012210120212201002121002001
         assertEquals("20201112211200012210120212201002121002001", convertNumber(Long.MIN_VALUE, base, true).toString());
@@ -422,9 +422,9 @@ public class NumberSequenceGeneratorTest {
         assertEquals("67404283172107811826", convertNumber(Long.MAX_VALUE - 1, base, true).toString());
         assertEquals("67404283172107811827", convertNumber(Long.MAX_VALUE, base, true).toString());
         // ((BASE^N - 1) - (MAX_VALUE + 1)) + 1 == MIN_VALUE complement representation
-        // 67404283172107811827 + 1 
+        // 67404283172107811827 + 1
         // 67404283172107811828 -
-        // 88888888888888888888 
+        // 88888888888888888888
         // 21484605716781077060 + 1
         // 21484605716781077061
         assertEquals("21484605716781077061", convertNumber(Long.MIN_VALUE, base, true).toString());

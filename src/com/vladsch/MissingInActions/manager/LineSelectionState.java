@@ -21,8 +21,6 @@
 
 package com.vladsch.MissingInActions.manager;
 
-import org.jetbrains.annotations.Nullable;
-
 @SuppressWarnings("WeakerAccess")
 public class LineSelectionState {
     final public int anchorColumn;

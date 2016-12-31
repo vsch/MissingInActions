@@ -21,8 +21,6 @@
 
 package com.vladsch.MissingInActions.actions.character.custom;
 
-import static com.vladsch.MissingInActions.util.EditHelpers.*;
-
 public class NextOrPrevWordHandler extends NextOrPrevWordStartOrEndHandler {
     public NextOrPrevWordHandler(boolean next, boolean withSelection, boolean inDifferentHumpsMode) {
         super(next, withSelection, inDifferentHumpsMode, BoundaryActionType.WORD);

@@ -23,7 +23,7 @@ package com.vladsch.MissingInActions.util.ui;
 
 import org.junit.Test;
 
-import java.awt.Font;
+import java.awt.*;
 
 import static org.junit.Assert.assertEquals;
 

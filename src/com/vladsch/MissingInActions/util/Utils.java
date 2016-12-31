@@ -26,9 +26,8 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.JBColor;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Collection;
-import java.util.List;
 
 @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
 public class Utils {

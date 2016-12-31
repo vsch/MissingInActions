@@ -41,8 +41,6 @@ import gnu.trove.TIntIntHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
-import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGION;
-import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REGION;
 
 public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHandler {
     /**

@@ -30,7 +30,7 @@ import com.vladsch.flexmark.util.html.HtmlFormattingAppendableBase;
 import com.vladsch.flexmark.util.sequence.CharSubSequence;
 
 import javax.swing.plaf.FontUIResource;
-import java.awt.Font;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Stack;
 

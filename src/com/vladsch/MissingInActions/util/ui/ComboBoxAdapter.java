@@ -21,8 +21,6 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.openapi.util.Pair;
-
 import javax.swing.*;
 
 public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {

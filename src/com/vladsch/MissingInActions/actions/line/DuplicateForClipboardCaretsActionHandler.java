@@ -21,8 +21,14 @@
 
 package com.vladsch.MissingInActions.actions.line;
 
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.IdeActions;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -70,7 +76,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
         boolean duplicateForCaretsPreserveOriginal = ApplicationSettings.getInstance().isMultiPastePreserveOriginal();
 
         if (editor.getCaretModel().getCaretCount() > 1) {
-            // already multi-caret, use the caret span to figure out which block to copy, 
+            // already multi-caret, use the caret span to figure out which block to copy,
             // span: line block from first to last caret
             // if span == 1 line, keep all carets and all selections
             // if span > 1 line:
@@ -115,7 +121,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 mergedTransferable = EditHelpers.getSplitRepeatedTransferable(clipboardCaretContent, carets.size());
             }
 
-            // now we are ready to duplicate selRange block, and put carets on each duplicate relative to the first block which will not be included 
+            // now we are ready to duplicate selRange block, and put carets on each duplicate relative to the first block which will not be included
             EditorCaret editorCaret = carets.get(0).copy();
             EditorPosition startPosition = editorCaret.getCaretPosition().onLine(selRange.getStart()).atStartOfLine();
             EditorPosition endPosition = editorCaret.getCaretPosition().onLine(selRange.getEnd()).atStartOfNextLine();
@@ -242,7 +248,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 EditorPosition pos = editorCaret.getCaretPosition();
                 editorCaret.removeSelection();
 
-                // build the carets                             
+                // build the carets
                 int accumulatedOffset = 0;
                 for (int i = 0; i < iMax; i++) {
                     Couple<Integer> couple = copies.get(i);

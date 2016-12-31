@@ -23,7 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class ReversedCharSequenceTest {

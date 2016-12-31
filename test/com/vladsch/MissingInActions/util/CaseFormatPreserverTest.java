@@ -28,7 +28,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class CaseFormatPreserverTest {
     private static final String[] prefixes = new String[] { "my", "our", "is", "get", "set" };

@@ -32,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
 import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
-import static com.vladsch.MissingInActions.util.EditHelpers.isWordTypeEnd;
 import static com.vladsch.MissingInActions.util.StudiedWord.*;
 
 @SuppressWarnings("WeakerAccess")

@@ -21,8 +21,7 @@
 
 package com.vladsch.MissingInActions.util;
 
-import static java.lang.Character.*;
-import static java.lang.Character.isLetterOrDigit;
+import static java.lang.Character.isDigit;
 
 @SuppressWarnings("WeakerAccess")
 public class StudiedWord {

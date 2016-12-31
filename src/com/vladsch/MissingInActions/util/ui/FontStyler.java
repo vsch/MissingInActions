@@ -21,7 +21,7 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import java.awt.Font;
+import java.awt.*;
 
 public class FontStyler extends HtmlStylerBase<Font> {
     @Override

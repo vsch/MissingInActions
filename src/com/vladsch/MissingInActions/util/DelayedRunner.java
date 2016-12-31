@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 public class DelayedRunner {
     final private HashMap<Object, ArrayList<Runnable>> myRunnables = new HashMap<>();

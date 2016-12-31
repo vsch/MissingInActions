@@ -21,8 +21,8 @@
 
 package com.vladsch.MissingInActions.actions.line;
 
-import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.DumbAwareEditorAction;
+import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
 public class DeleteToLineEndNotEolAction extends DumbAwareEditorAction implements LineSelectionAware {
     public DeleteToLineEndNotEolAction() {

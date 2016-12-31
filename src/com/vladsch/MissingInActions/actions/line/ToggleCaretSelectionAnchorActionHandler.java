@@ -33,7 +33,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.vladsch.MissingInActions.manager.*;
+import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.Nullable;
 
 public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler {
