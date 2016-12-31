@@ -32,6 +32,8 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.*;
+import com.vladsch.MissingInActions.util.ui.BackgroundColor;
+import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,28 +86,28 @@ public class RegExTestDialog extends DialogWrapper {
 
     private final RegExSettingsHolder mySettingsHolder;
 
-    private Color getInvalidTextFieldBackground() {
-        return Utils.errorColor(UIUtil.getTextFieldBackground());
+    private BackgroundColor getInvalidTextFieldBackground() {
+        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
     }
 
-    private Color getWarningTextFieldBackground() {
-        return Utils.warningColor(UIUtil.getTextFieldBackground());
+    private BackgroundColor getWarningTextFieldBackground() {
+        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
     }
 
-    private Color getValidTextFieldBackground() {
-        return UIUtil.getTextFieldBackground();
+    private BackgroundColor getValidTextFieldBackground() {
+        return BackgroundColor.of(UIUtil.getTextFieldBackground());
     }
 
-    private Color getSelectedTextFieldBackground() {
-        return mySampleText.getSelectionColor();
+    private BackgroundColor getSelectedTextFieldBackground() {
+        return BackgroundColor.of(mySampleText.getSelectionColor());
     }
 
-    Color getInvalidTableBackground(boolean isSelected) {
-        return HelpersKt.errorColor(UIUtil.getTableBackground(isSelected));
+    private BackgroundColor getInvalidTableBackground(boolean isSelected) {
+        return BackgroundColor.of(HelpersKt.errorColor(UIUtil.getTableBackground(isSelected)));
     }
 
-    Color getTableBackground(boolean isSelected) {
-        return UIUtil.getTableBackground(isSelected);
+    BackgroundColor getTableBackground(boolean isSelected) {
+        return BackgroundColor.of(UIUtil.getTableBackground(isSelected));
     }
 
     public boolean saveSettings(boolean onlySamples) {
@@ -162,7 +164,6 @@ public class RegExTestDialog extends DialogWrapper {
                 }
             }
             myTextModel.setItems(sampleSets);
-            
         } else {
             sampleSets = new ArrayList<>(myTextModel.getItems());
         }
@@ -171,7 +172,7 @@ public class RegExTestDialog extends DialogWrapper {
             checkRegEx(myPattern, sampleSet);
             if (myIsBadRegEx) break;
         }
-        
+
         myTextTable.repaint();
     }
 
@@ -275,39 +276,39 @@ public class RegExTestDialog extends DialogWrapper {
 
         if (error.isEmpty() && matcher != null) {
             // have match
-            HtmlStringBuilder html = new HtmlStringBuilder();
-            html.tag("html").tag("body", "style='margin:2px'", null, getValidTextFieldBackground(), null, null, mySampleText.getFont());
-            html.span(FastEncoder.encode(text.substring(0, matcher.end())), null, warning.isEmpty() ? selectedBackground : warningBackground);
-            html.span(FastEncoder.encode(text.substring(matcher.end())), null, null);
+            HtmlBuilder html = new HtmlBuilder();
+            html.tag("html").style("margin:2px").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
+            html.attr(warning.isEmpty() ? selectedBackground : warningBackground).span(text.substring(0, matcher.end()));
+            html.span(text.substring(matcher.end()));
             html.closeTag("body");
             html.closeTag("html");
 
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
-            sampleSet.resultHtml = html.toHtml();
+            sampleSet.resultHtml = html.toString();
             sampleSet.toolTipText = warning;
         } else if (!myIsBadRegEx) {
-            HtmlStringBuilder html = new HtmlStringBuilder();
-            html.tag("html").tag("body", "style='margin:2px'; vertical-align: middle;", null, getValidTextFieldBackground(), null, null, mySampleText.getFont());
+            HtmlBuilder html = new HtmlBuilder();
+            html.tag("html").style("margin:2px;vertical-align:middle;").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
             if (matcher == null || error.equals("not matched")) {
-                html.span(FastEncoder.encode(text), null, error.equals("not matched") ? invalidBackground : warningBackground);
+                html.attr(error.equals("not matched") ? invalidBackground : warningBackground).span(text);
             } else {
-                html.span(FastEncoder.encode(text.substring(0, matcher.start())), null, null);
-                html.span(FastEncoder.encode(text.substring(matcher.start(), matcher.end())), null, invalidBackground);
-                html.span(FastEncoder.encode(text.substring(matcher.end())), null, null);
+                html.span(text.substring(0, matcher.start()));
+                html.attr(invalidBackground).span(text.substring(matcher.start(), matcher.end()));
+                html.span(text.substring(matcher.end()));
             }
             html.closeTag("body");
             html.closeTag("html");
 
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
-            sampleSet.resultHtml = html.toHtml();
+            sampleSet.resultHtml = html.toString();
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
-            HtmlStringBuilder html = new HtmlStringBuilder();
-            html.tag("html").tag("body", "style='margin:2px; vertical-align: middle;'", null, getValidTextFieldBackground(), null, null, mySampleText.getFont());
+            HtmlBuilder html = new HtmlBuilder();
+            html.tag("html").style("margin:2px;vertical-align:middle;").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
             //noinspection ConstantConditions
-            html.tag("div", "", null, warningBackground);
+            html.attr(warningBackground).tag("div");
             html.append(HelpersKt.toHtmlError(error, true));
             html.closeTag("div");
             html.closeTag("body");
@@ -315,7 +316,7 @@ public class RegExTestDialog extends DialogWrapper {
 
             myViewPanel.setVisible(false);
             myTextPane.setVisible(true);
-            myTextPane.setText(html.toHtml());
+            myTextPane.setText(html.toString());
             myTextPane.revalidate();
             myTextPane.getParent().revalidate();
             myTextPane.getParent().getParent().revalidate();
@@ -378,14 +379,13 @@ public class RegExTestDialog extends DialogWrapper {
 
         @Override
         public TableCellRenderer getRenderer(final RegExSampleSet item) {
-            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            return new DefaultTableCellRenderer() {
                 public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                     final Component rendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                     setText(item.sample);
                     return rendererComponent;
                 }
             };
-            return cellRenderer;
         }
 
         @Override

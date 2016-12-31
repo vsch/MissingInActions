@@ -18,7 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.vladsch.MissingInActions.util.ui;
+package com.vladsch.MissingInActions.util;
 
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
@@ -47,8 +47,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.datatransfer.Transferable;
+import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;

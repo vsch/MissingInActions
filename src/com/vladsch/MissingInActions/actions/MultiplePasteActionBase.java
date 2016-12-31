@@ -38,7 +38,7 @@ import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.*;
-import com.vladsch.MissingInActions.util.ui.ContentChooser;
+import com.vladsch.MissingInActions.util.ContentChooser;
 import com.vladsch.MissingInActions.settings.MultiPasteOptionsPane;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
@@ -224,7 +224,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 int offset = 0;
 
                 markupModel.removeAllHighlighters();
-                
+
                 for (int i = 0; i < iMax; i++) {
                     final TextRange range = textRanges[i];
                     final int startOffset = range.getStartOffset() + offset;
