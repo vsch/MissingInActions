@@ -1,12 +1,13 @@
 <img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
-============================================================================================================================================================
+=================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.8.2 from this repo]
+[Download Latest 0.8.3 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
@@ -23,31 +24,33 @@ Adds missing editor actions for end of word navigation but that is just the begi
   match case and style of identifier at destination when you paste, undo to get results before
   MIA adjusted them.
 
-    Copy `myColumnData` and paste it over `DEFAULT_VALUE` to get `COLUMN_DATA`, reverse the
-    order and get `myDefaultValue`.
+  Copy `myColumnData` and paste it over `DEFAULT_VALUE` to get `COLUMN_DATA`, reverse the order
+  and get `myDefaultValue`.
 
-    Works when pasting at the **beginning**, **end** and **middle** of identifiers.
+  Works when pasting at the **beginning**, **end** and **middle** of identifiers.
 
-    Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**
-    
-    Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields,
-    static fields, getters and setters.
+  Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**
+
+  Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields, static
+  fields, getters and setters.
 - Enable Auto Line Selections and select full lines without loosing time or column position by
   moving the caret to the start of line when selecting or pasting.
 
-    **Choose** whether you want to **paste full line** selections: **above** or **below** the
-    current line regardless of the caret's column.
+  **Choose** whether you want to **paste full line** selections: **above** or **below** the
+  current line regardless of the caret's column.
 - Toggle between selection and multiple carets on selected lines to save time re-selecting the
   same text again.
 - Filter multiple carets saves you time when creating multiple carets by removing carets on
   blank or comment lines so you can edit only code lines.
 - Enhanced Paste from History dialog:
-    - **combine**, **arrange** and **reverse** the order of content entries
-    - **combine multiple** clipboard contents **with caret information intact**
-    - **paste and re-create multiple carets** from information already stored on the clipboard
-    - **duplicate line/block for each caret** in the clipboard content and **put a caret on the first
-      line** of the block, ready for multi-caret select and paste
-    - see caret information stored on the clipboard for each content entry
+  - **combine**, **arrange** and **reverse** the order of content entries
+  - **combine multiple** clipboard contents **with caret information intact**
+  - **paste and re-create multiple carets** from information already stored on the clipboard
+  - **duplicate line/block for each caret** in the clipboard content and **put a caret on the
+    first line** of the block, ready for multi-caret select and paste
+  - **duplicate line/block for each caret** in the clipboard content for multiple caret
+    selections and paste content into each selection
+  - see caret information stored on the clipboard for each content entry
 - Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
@@ -57,15 +60,37 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
+## Version 0.8.3 - Bug Fix and Improvement Release
+
+[Version Notes] [Download Latest 0.8.3 from this repo]
+
+- Add: Dupe for Clipboard carets to handle multi-caret input:
+  - duplicated block spans all carets
+    - if have selections
+      - then only keep carets with selections
+    - otherwise
+      - if span == 1, keep all carets
+      - if have no selections
+        - if same number of carets on each type of line:code, comment, blank, of the block then
+          keep all carets
+        - otherwise, assume that the first and last caret were used to mark the span of lines to
+          duplicate, and remove them, duplicating the rest of the carets
+    - clipboard data is duplicated for every caret so that the first block will have first caret
+      content for every caret in the block, second second, etc
+
+    If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
+    after dupe, the clipboard will contain 9 carets:
+    text1,text1,text1,text2,text2,text2,text3,text3,text3
+
+- Fix: improve smart paste and preserve case and prefix
+
+- Fix: on paste add/remove/preserve prefixes now unlimited whether regex or text versions.
 
 ## Version 0.8.2 - Enhanced Paste From History
 
-[Version Notes]
-[Download Latest 0.8.2 from this repo]
+- Enhanced Paste From History Added, [Paste From History: A Power User Feature]
 
-- Enhanced Paste From History Added, [Paste From History: A Power User Feature] 
-
-![Paste From History Details](/assets/images/PasteFromHistory_Details.png) 
+![Paste From History Details](/assets/images/PasteFromHistory_Details.png)
 
 ## Version 0.8.0 - Mia has come of age!
 
@@ -120,11 +145,14 @@ between selection and multiple carets:
 5. Paste of full line selections now behaves like line selections should. These can be made to
    paste:
 
-    - IDE default, where you left your caret last
-    - always above the caret line (my new favourite),
-    - above the caret line if caret is between left margin/indent position and below it
-      otherwise,
-    - always below the caret line
+   - IDE default, where you left your caret last
+
+   - always above the caret line (my new favourite),
+
+   - above the caret line if caret is between left margin/indent position and below it
+     otherwise,
+
+   - always below the caret line
 
 6. Auto Line Indent on move line or selection up or down. With every other editing operation,
    the IDE seems to remember to adjust indentation automatically, at least as an option. This
@@ -176,14 +204,14 @@ especially in multi-caret mode, a joy:
    member variable name on the clipboard can now be pasted in many places without needing a
    follow up edit, not even a case change. It is like having a mind reading clipboard.
 
-    ![Mia Smart Paste Multi Caret]
+   ![Mia Smart Paste Multi Caret]
 
-    In all cases if you feel that Mia's help was no help, hit undo and you will have results as
-    the IDE provided. I don't know if you do these case changes and prefix editing often but I
-    found myself doing them ad nauseam. Copy once, use it everywhere is here.
+   In all cases if you feel that Mia's help was no help, hit undo and you will have results as
+   the IDE provided. I don't know if you do these case changes and prefix editing often but I
+   found myself doing them ad nauseam. Copy once, use it everywhere is here.
 
-    Every time I use it feels like magic. I know it isn't, I had to write debug the code, but it
-    still feels that way.
+   Every time I use it feels like magic. I know it isn't, I had to write debug the code, but it
+   still feels that way.
 
 6. Duplicate Line or Selection for Carets on Clipboard action is a multiple caret user's dream.
    It makes modifying a line or lines for repeated variations an effortless joy. A live example
@@ -193,7 +221,7 @@ especially in multi-caret mode, a joy:
    Easy, take existing lines with the case names and use multi-select, copy, select case name in
    destination line, dupe for clipboard, paste.
 
-    ![Mia Dupe For Clipboard Carets]
+   ![Mia Dupe For Clipboard Carets]
 
 ### Auto Indent Lines after Move Lines Up/Down
 
@@ -232,10 +260,10 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 0.8.2 from this repo]: ../../raw/master/dist/MissingInActions.0.8.2.zip
+[Download Latest 0.8.3 from this repo]: ../../raw/master/dist/MissingInActions.0.8.2.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
-[Version Notes]: /resources/META-INF/VERSION.md
 [Paste From History: A Power User Feature]: https://vladsch.com/blog/20
+[Version Notes]: /resources/META-INF/VERSION.md
 

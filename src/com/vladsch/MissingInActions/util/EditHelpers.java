@@ -215,7 +215,6 @@ public class EditHelpers {
         SelectionModel selectionModel = editor.getSelectionModel();
         int selectionStart = selectionModel.getLeadSelectionOffset();
         CaretModel caretModel = editor.getCaretModel();
-        LogicalPosition blockSelectionStart = caretModel.getLogicalPosition();
         boolean haveMultiCarets = caretModel.getCaretCount() > 1;
 
         int offset = caretModel.getOffset();
@@ -238,14 +237,19 @@ public class EditHelpers {
 
         // have to stop at start of character if caret is not at or before first non-blank
         int lineStartOffset = document.getLineStartOffset(lineNumber);
+        int lineEndOffset = document.getLineEndOffset(lineNumber);
 
-        if (stopAtTrailingBlanks) {
-            int lineEndOffset = document.getLineEndOffset(lineNumber);
+        if (stopAtEndOfLine && position.column > editor.offsetToLogicalPosition(lineEndOffset).column) {
+            stopAtIndent = lineEndOffset;
+        }
+
+        if (stopAtIndent == 0 && stopAtTrailingBlanks) {
             int trailingBlanks = countWhiteSpaceReversed(document.getCharsSequence(), lineStartOffset, lineEndOffset);
             if (offset > lineEndOffset - trailingBlanks) {
                 stopAtIndent = lineEndOffset - trailingBlanks;
             }
         }
+
         if (stopAtIndent == 0 && (stopAtLeadingBlanks || stopAtStartOfLine)) {
             int firstNonBlank = countWhiteSpace(document.getCharsSequence(), lineStartOffset, document.getLineEndOffset(lineNumber));
             if (stopAtLeadingBlanks && position.column > firstNonBlank) {
@@ -260,7 +264,7 @@ public class EditHelpers {
                 (stopAtEndOfLine && lineNumber > minLineNumber ? document.getLineEndOffset(minLineNumber) : document.getLineStartOffset(minLineNumber));
 
         // if virtual spaces are enabled the caret can be after the end so we should pretend it is on the next char after the end
-        int newOffset = blockSelectionStart.column > offset - lineStartOffset ? offset : offset - 1;
+        int newOffset = stopAtIndent > offset - 1 ? stopAtIndent : offset - 1;
         if (newOffset < minOffset) return;
 
         boolean done = false;
@@ -273,11 +277,11 @@ public class EditHelpers {
         int wordType = getWordType(flags);
         while (!done) {
             for (; newOffset > minOffset; newOffset--) {
-                if (stopAtStartOfWord && isWordTypeEnd(wordType, editor, newOffset, camel)) {
+                if (stopAtEndOfWord && isWordTypeEnd(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
-                if (stopAtEndOfWord && isWordTypeStart(wordType, editor, newOffset, camel)) {
+                if (stopAtStartOfWord && isWordTypeStart(wordType, editor, newOffset, camel)) {
                     done = true;
                     break;
                 }
@@ -306,7 +310,7 @@ public class EditHelpers {
         }
 
         EditorModificationUtil.scrollToCaret(editor);
-        setupSelection(editor, isWithSelection, selectionStart, blockSelectionStart);
+        setupSelection(editor, isWithSelection, selectionStart, position);
     }
 
     public static boolean isWordTypeStart(int wordType, @NotNull Editor editor, int offset, boolean isCamel) {
@@ -1046,7 +1050,15 @@ public class EditHelpers {
         return transferable;
     }
 
-    private static void mergeCharSelectionCarets(final StringBuilder content, String sep, final List<TextRange> ranges, final String[] texts, final int startIndex, final int endIndex, final boolean mergeCharLineSelectionCarets) {
+    private static void mergeCharSelectionCarets(
+            final StringBuilder content,
+            String sep,
+            final List<TextRange> ranges,
+            final String[] texts,
+            final int startIndex,
+            final int endIndex,
+            final boolean mergeCharLineSelectionCarets
+    ) {
         if (startIndex < endIndex) {
             int startOffset = content.length();
             String useSep = startIndex == 0 ? "" : sep;
@@ -1132,7 +1144,15 @@ public class EditHelpers {
 
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    public static Couple<Integer> duplicateLinesRange(Editor editor, Document document, @Nullable Caret caret, int offset, VisualPosition rangeStart, VisualPosition rangeEnd, boolean moveCaret) {
+    public static Couple<Integer> duplicateLinesRange(
+            Editor editor,
+            Document document,
+            @Nullable Caret caret,
+            int offset,
+            VisualPosition rangeStart,
+            VisualPosition rangeEnd,
+            boolean moveCaret
+    ) {
         Pair<LogicalPosition, LogicalPosition> lines = EditorUtil.calcSurroundingRange(editor, rangeStart, rangeEnd);
 
         LogicalPosition lineStart = lines.first;
@@ -1166,7 +1186,7 @@ public class EditHelpers {
     public static Transferable getSplitRepeatedTransferable(@NotNull Editor editor, Transferable content, int repeatCount) {
         ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, content);
         if (clipboardCaretContent != null) {
-              return getSplitRepeatedTransferable(clipboardCaretContent,repeatCount);
+            return getSplitRepeatedTransferable(clipboardCaretContent, repeatCount);
         }
         return content;
     }
@@ -1299,7 +1319,7 @@ public class EditHelpers {
         }
 
         if (lastCaret == null) {
-            lastCaret = studiedCarets.carets.get(studiedCarets.carets.size()-1).onLine(studiedCarets.range.getEnd());
+            lastCaret = studiedCarets.carets.get(studiedCarets.carets.size() - 1).onLine(studiedCarets.range.getEnd());
         }
 
         studiedCarets.firstLineCaret = firstCaret;

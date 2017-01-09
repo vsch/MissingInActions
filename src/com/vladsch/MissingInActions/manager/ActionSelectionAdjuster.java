@@ -1012,7 +1012,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     final boolean endOnBlank = editorCaret.getSelectionEnd().atEndColumn().column == 0;
                     final boolean startOnBlank = editorCaret.getSelectionStart().atEndColumn().column == 0;
 
-                    if (!snapshot.isLine() && snapshot.getCaretPosition().line == editorCaret.getCaretPosition().line + 1 && endOnBlank) {
+                    if (!snapshot.isLine() && snapshot.getCaretPosition().line == editorCaret.getCaretPosition().line + 1 && endOnBlank && editorCaret.getCaretPosition().column > 0) {
                         // line completely empty, we need to move the bottom of the selection down to next start of line
                         editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(1).atColumn(0));
                     }
@@ -1043,7 +1043,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                         editorCaret.setSelectionStart(editorCaret.getSelectionStart().addLine(1));
                                         oneLine = !snapshot.hasSelection();
                                     }
-                                } else if (endOnBlank) {
+                                } else if (endOnBlank && editorCaret.getCaretPosition().column > 0) {
                                     // move end one line up
                                     editorCaret.setSelectionEnd(editorCaret.getSelectionEnd().addLine(-1));
                                 }
