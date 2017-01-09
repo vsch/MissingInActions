@@ -70,62 +70,95 @@
         ]]>
     </description>
 
-    <version>0.8.2.3</version>
+    <version>0.8.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.2.3 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3 - Bug Fixes and Enhancements</h3>
             <ul>
-                <li>Fix: nested action tracking would get off count and some triggered actions and cleanup would
-                    not be performed.</li>
-                <li>Add: option, enabled by default, to delete repeated content created for duplicate for
-                    clipboard carets, after it is pasted. The content has many carets and is useful for a
-                    particular combination of lines and carets that are duplicated. Keeping it in history is a
-                    waste of resources and can be confusing when you thought you were pasting the content you
-                    selected for duplication, but instead are getting the split/repeated content created for
-                    pasting into duplicated lines.</li>
-                <li>Add: select on paste multi-caret enable predicate separate from non-multi-caret</li>
-                <li>Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
-                    remove the original prefix from pasted word but not add the prefix that existed in the word
-                    being pasted over.</li>
-                <li>Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
-                    prefix instead.</li>
-                <li>Change: only one string is used for regex and regular prefixes, regex since it can represent
-                    all prefixes and regular string is now | separated list of prefixes.</li>
-                <li>Fix: <code>StraightenCarets</code> action now disabled if there are selections</li>
-                <li>Add: Dupe for Clipboard carets will also handle multi-caret input:
+                <li>
+                    <p>Fix: select up at left edge when line is blank selects the current line instead of just the
+                        above line (start/end not extended).</p>
+                </li>
+                <li>
+                    <p>Fix: #12, Previous Word does not move caret if line contains tabs</p>
+                </li>
+                <li>
+                    <p>Fix: when doing on paste fix ups of snake case don't convert to camelCase if pasted prefix has
+                        an underscore at the end or pasted suffix has one at the start.</p>
+                </li>
+                <li>
+                    <p>Fix: nested action tracking would get off count and some triggered actions and cleanup would
+                        not be performed.</p>
+                </li>
+                <li>
+                    <p>Add: option, enabled by default, to delete repeated content created for duplicate for
+                        clipboard carets, after it is pasted. The content has many carets and is useful for a
+                        particular combination of lines and carets that are duplicated. Keeping it in history is a
+                        waste of resources and can be confusing when you thought you were pasting the content you
+                        selected for duplication, but instead are getting the split/repeated content created for
+                        pasting into duplicated lines.</p>
+                </li>
+                <li>
+                    <p>Add: select on paste multi-caret enable predicate separate from non-multi-caret</p>
+                </li>
+                <li>
+                    <p>Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
+                        remove the original prefix from pasted word but not add the prefix that existed in the word
+                        being pasted over.</p>
+                </li>
+                <li>
+                    <p>Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
+                        prefix instead.</p>
+                </li>
+                <li>
+                    <p>Change: only one string is used for regex and regular prefixes, regex since it can represent
+                        all prefixes and regular string is now | separated list of prefixes.</p>
+                </li>
+                <li>
+                    <p>Fix: <code>StraightenCarets</code> action now disabled if there are selections</p>
+                </li>
+                <li>
+                    <p>Add: Dupe for Clipboard carets will also handle multi-caret input:</p>
                     <ul>
-                        <li>duplicated block spans all carets</li>
-                        <li>if have selections
+                        <li>
+                            <p>duplicated block spans all carets</p>
                             <ul>
-                                <li>then only keep carets with selections</li>
-                            </ul>
-                        </li>
-                        <li>otherwise
-                            <ul>
-                                <li>if span == 1, keep all carets</li>
-                                <li>if have no selections
+                                <li>if have selections
                                     <ul>
-                                        <li>if same number of carets on each type of line:code, comment, blank, of the block
-                                            then keep all carets</li>
-                                        <li>otherwise, assume that the first and last caret were used to mark the span of
-                                            lines to duplicate, and remove them, duplicating the rest of the carets</li>
+                                        <li>then only keep carets with selections</li>
                                     </ul>
                                 </li>
+                                <li>otherwise
+                                    <ul>
+                                        <li>if span == 1, keep all carets</li>
+                                        <li>if have no selections
+                                            <ul>
+                                                <li>if same number of carets on each type of line:code, comment, blank, of the block then
+                                                    keep all carets</li>
+                                                <li>otherwise, assume that the first and last caret were used to mark the span of lines to
+                                                    duplicate, and remove them, duplicating the rest of the carets</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>clipboard data is duplicated for every caret so that the first block will have first caret
+                                    content for every caret in the block, second second, etc</li>
                             </ul>
-                        </li>
-                        <li>clipboard data is duplicated for every caret so that the first block will have first caret
-                            content for every caret in the block, second second, etc
-                            <p>If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line
-                                then after dupe, the clipboard will contain 9 carets:
+                            <p>If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
+                                after dupe, the clipboard will contain 9 carets:
                                 text1,text1,text1,text2,text2,text2,text3,text3,text3</p>
                         </li>
                     </ul>
                 </li>
-                <li>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</li>
-                <li>Fix: MultiPaste would override even when disabled in settings.</li>
+                <li>
+                    <p>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</p>
+                </li>
+                <li>
+                    <p>Fix: MultiPaste would override even when disabled in settings.</p>
+                </li>
             </ul>
         </div>
         ]]></change-notes>
@@ -442,7 +475,7 @@
                 text="Duplicate Line or Selection for Carets from Clipboard History"
                 description="Duplicate Line or Selection for Carets from Clipboard History">
         </action>
-        
+
         <action class="com.vladsch.MissingInActions.actions.line.NumberAction"
                 id="MissingInActions.Number"
                 text="Generate Number Sequence for Caret or Selection"
