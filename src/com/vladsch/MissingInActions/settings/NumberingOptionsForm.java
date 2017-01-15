@@ -145,6 +145,8 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         myBitShift.addActionListener(actionListener);
         myRepeatSameLine.addActionListener(actionListener);
         mySeparatorFrequency.addActionListener(actionListener);
+        myUpperCase.addActionListener(actionListener);
+        myLowerCase.addActionListener(actionListener);
 
         myFirst.getDocument().addDocumentListener(documentAdapter);
         myLast.getDocument().addDocumentListener(documentAdapter);

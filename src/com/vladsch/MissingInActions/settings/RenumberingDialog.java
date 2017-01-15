@@ -21,20 +21,26 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.util.CaretOffsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RenumberingDialog extends DialogWrapper {
     private JPanel myMainPanel;
@@ -47,6 +53,8 @@ public class RenumberingDialog extends DialogWrapper {
 
     public RenumberingDialog(JComponent parent, @NotNull EditorEx editor) {
         super(parent, false);
+
+        setTitle(Bundle.message("renumber.title"));
 
         mySettings = ApplicationSettings.getInstance();
 
@@ -78,15 +86,105 @@ public class RenumberingDialog extends DialogWrapper {
 
     private String updateResults() {
         NumberingOptions options = myNumberingOptionsForm.getOptions();
+        List<CaretOffsets> carets = new ArrayList<>(myEditor.getCaretModel().getCaretCount());
+        StringBuilder sb = new StringBuilder();
+
+        // copy caret lines to new editor and re-create the carets by replacing selections if they exist
+        // or inserting number at carets if no selection is present
+        ApplicationManager.getApplication().runReadAction(() -> {
+            NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
+            int line = -1;
+            int offset = -1;
+            CharSequence chars = myEditor.getDocument().getCharsSequence();
+            EditorPositionFactory f = LineSelectionManager.getInstance(myViewer).getPositionFactory();
+            int lastVirtual = -1;
+
+            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                final int caretLine = caret.getLogicalPosition().line;
+                generator.next(caretLine);
+                String number = generator.getNumber();
+
+                if (line == -1 || line != caretLine) {
+                    // if prev line did not complete, add trailing chars here
+                    if (offset >= 0 && line >= 0) {
+                        final int endOffset = myEditor.getDocument().getLineEndOffset(line);
+                        if (offset < endOffset + 1) {
+                            sb.append(chars.subSequence(offset, endOffset + 1));
+                            offset = endOffset + 1;
+                        }
+                    }
+
+                    line = caretLine;
+                    offset = myEditor.getDocument().getLineStartOffset(line);
+                    lastVirtual = -1;
+                }
+
+                if (caret.hasSelection()) {
+                    // replace selection by number
+                    sb.append(chars.subSequence(offset, caret.getSelectionStart()));
+                    int pos = sb.length();
+                    int start = pos;
+                    sb.append(number);
+                    int end = sb.length();
+                    offset = caret.getSelectionEnd();
+                    CaretOffsets offsets = new CaretOffsets(pos, start, end);
+                    carets.add(offsets);
+                } else {
+                    // add number at caret but may need to add virtual spaces
+                    sb.append(chars.subSequence(offset, caret.getOffset()));
+
+                    int virtualSpaces = caret.getLogicalPosition().column - (myEditor.getDocument().getLineEndOffset(caretLine) - myEditor.getDocument().getLineStartOffset(caretLine));
+                    if (lastVirtual > 0) {
+                        virtualSpaces -= lastVirtual;
+                        lastVirtual += virtualSpaces;
+                    } else {
+                        lastVirtual = virtualSpaces;
+                    }
+
+                    while (virtualSpaces-- > 0) sb.append(' ');
+
+                    int pos = sb.length();
+                    int start = pos;
+                    sb.append(number);
+                    int end = sb.length();
+                    offset = caret.getOffset();
+                    CaretOffsets offsets = new CaretOffsets(pos, start, end);
+                    carets.add(offsets);
+                }
+            }
+
+            if (offset >= 0 && line >= 0) {
+                final int endOffset = myEditor.getDocument().getLineEndOffset(line);
+                if (offset < endOffset + 1) {
+                    sb.append(chars.subSequence(offset, endOffset + 1));
+                    offset = endOffset;
+                }
+            }
+        });
 
         // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
         WriteCommandAction.runWriteCommandAction(myViewer.getProject(), () -> {
             final Document document = myViewer.getDocument();
             document.setReadOnly(false);
             //document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
-            document.replaceString(0, document.getTextLength(), myEditor.getDocument().getCharsSequence());
+            document.replaceString(0, document.getTextLength(), sb);
             document.setReadOnly(true);
         });
+
+        // create carets in the viewer
+        boolean first = true;
+        myViewer.getCaretModel().removeSecondaryCarets();
+
+        for (CaretOffsets offsets : carets) {
+            Caret caret = first ? myViewer.getCaretModel().getPrimaryCaret() : myViewer.getCaretModel().addCaret(myViewer.offsetToVisualPosition(offsets.pos));
+            first = false;
+
+            if (caret != null) {
+                // move to logical position and set selection
+                caret.moveToOffset(offsets.pos);
+                caret.setSelection(offsets.start, offsets.end);
+            }
+        }
 
         return "";
     }
@@ -175,7 +273,7 @@ public class RenumberingDialog extends DialogWrapper {
         //boolean isLeadingWhitespaceShown(); void setLeadingWhitespaceShown(boolean val);
         //boolean isLineMarkerAreaShown(); void setLineMarkerAreaShown(boolean lineMarkerAreaShown);
         //boolean isLineNumbersShown(); void setLineNumbersShown(boolean val);
-        //boolean isMouseClickSelectionHonorsCamelWords(); void setMouseClickSelectionHonorsCamelWords(boolean val); 
+        //boolean isMouseClickSelectionHonorsCamelWords(); void setMouseClickSelectionHonorsCamelWords(boolean val);
         //boolean isRefrainFromScrolling(); void setRefrainFromScrolling(boolean b);
         //boolean isSmartHome(); void setSmartHome(boolean val);
         //boolean isTrailingWhitespaceShown(); void setTrailingWhitespaceShown(boolean val);

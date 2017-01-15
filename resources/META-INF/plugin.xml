@@ -70,94 +70,71 @@
         ]]>
     </description>
 
-    <version>0.8.3</version>
+    <version>0.8.3.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.1 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>
-                    <p>Fix: select up at left edge when line is blank selects the current line instead of just the
-                        above line (start/end not extended).</p>
-                </li>
-                <li>
-                    <p>Fix: #12, Previous Word does not move caret if line contains tabs</p>
-                </li>
-                <li>
-                    <p>Fix: when doing on paste fix ups of snake case don't convert to camelCase if pasted prefix has
-                        an underscore at the end or pasted suffix has one at the start.</p>
-                </li>
-                <li>
-                    <p>Fix: nested action tracking would get off count and some triggered actions and cleanup would
-                        not be performed.</p>
-                </li>
-                <li>
-                    <p>Add: option, enabled by default, to delete repeated content created for duplicate for
-                        clipboard carets, after it is pasted. The content has many carets and is useful for a
-                        particular combination of lines and carets that are duplicated. Keeping it in history is a
-                        waste of resources and can be confusing when you thought you were pasting the content you
-                        selected for duplication, but instead are getting the split/repeated content created for
-                        pasting into duplicated lines.</p>
-                </li>
-                <li>
-                    <p>Add: select on paste multi-caret enable predicate separate from non-multi-caret</p>
-                </li>
-                <li>
-                    <p>Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
-                        remove the original prefix from pasted word but not add the prefix that existed in the word
-                        being pasted over.</p>
-                </li>
-                <li>
-                    <p>Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
-                        prefix instead.</p>
-                </li>
-                <li>
-                    <p>Change: only one string is used for regex and regular prefixes, regex since it can represent
-                        all prefixes and regular string is now | separated list of prefixes.</p>
-                </li>
-                <li>
-                    <p>Fix: <code>StraightenCarets</code> action now disabled if there are selections</p>
-                </li>
-                <li>
-                    <p>Add: Dupe for Clipboard carets will also handle multi-caret input:</p>
+                    <p>Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
+                        at caret and whether there is a selection.</p>
                     <ul>
                         <li>
-                            <p>duplicated block spans all carets</p>
-                            <ul>
-                                <li>if have selections
-                                    <ul>
-                                        <li>then only keep carets with selections</li>
-                                    </ul>
-                                </li>
-                                <li>otherwise
-                                    <ul>
-                                        <li>if span == 1, keep all carets</li>
-                                        <li>if have no selections
-                                            <ul>
-                                                <li>if same number of carets on each type of line:code, comment, blank, of the block then
-                                                    keep all carets</li>
-                                                <li>otherwise, assume that the first and last caret were used to mark the span of lines to
-                                                    duplicate, and remove them, duplicating the rest of the carets</li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>clipboard data is duplicated for every caret so that the first block will have first caret
-                                    content for every caret in the block, second second, etc</li>
-                            </ul>
-                            <p>If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
-                                after dupe, the clipboard will contain 9 carets:
-                                text1,text1,text1,text2,text2,text2,text3,text3,text3</p>
+                            <p>if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on a
+                                non-space. Will select the intervening spaces for each caret</p>
+                        </li>
+                        <li>
+                            <p>if caret is on identifier start then will spawn a caret for every occurrence of
+                                identifier and select the identifier.</p>
+                        </li>
+                        <li>
+                            <p>if caret is on identifier character, but not start of identifier, then will spawn a caret
+                                for every occurrence of identifier that ends in same text as one from caret to end of
+                                identifier and select the matched identifier portion</p>
+                        </li>
+                        <li>
+                            <p>otherwise will spawn a caret on every occurrence of the character at caret, selecting
+                                trimmed intervening characters between carets.</p>
                         </li>
                     </ul>
-                </li>
-                <li>
-                    <p>Add: MultiPaste override for all editor fields to make it consistent across the IDE.</p>
-                </li>
-                <li>
-                    <p>Fix: MultiPaste would override even when disabled in settings.</p>
+                    <p>the behavior is also affected by number of carets and selection:</p>
+                    <ul>
+                        <li>
+                            <p>if no selections that spans lines then action is limited to a single line of the caret</p>
+                        </li>
+                        <li>
+                            <p>if no two carets are on the same line then affected range for each caret is expanded to full
+                                lines</p>
+                        </li>
+                        <li>
+                            <p>any selection for a caret is used to expand the range for that caret to include the
+                                selection and caret offset.</p>
+                        </li>
+                    </ul>
+                    <p>Best use is to define two shortcuts: one for forward spawning action and one for backward one.
+                        I was used to having this on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
+                        Since these are taken on OS X, I assigned <code>⌥⌘⇥</code> for forward and <code>⇧⌥⌘⇥</code> for backward
+                        spawning search instead. A bit awkward but usable.</p>
+                    <p>The effect when caret is on a space is to select every span of spaces from caret to end of
+                        line and put a caret at end of each selection. A quick way to place carets on next non-space
+                        while selecting previous spaces.</p>
+                    <p>The effect when caret is on an identifier is to either select occurrence of this identifier if
+                        caret is on identifier start, or to select the matched trailing part of the identifier on the
+                        line. For example if | marks caret position and [] selection:</p>
+                    <p><code>selection|Start(), range.getStart()</code></p>
+                    <p>forward spawning search will spawn one more caret and select</p>
+                    <p><code>selection|[Start](), range.get|[Start]()</code></p>
+                    <p>On the other hand if the caret is at start of identifier, then only that identifier will be
+                        selected.</p>
+                    <p>If caret is not on a whitespace or identifier then the character at caret is searched for,
+                        selecting trimmed intervening characters for each caret. Forward spawning search on:</p>
+                    <p><code>{ abc|, def, ghi, xyz, };</code></p>
+                    <p>will result in:</p>
+                    <p><code>{ abc|, [def]|, [ghi]|, [xyz]|, [};]</code></p>
+                    <p>if you don't need the selection then left/right caret movement will clear the selections.</p>
                 </li>
             </ul>
         </div>
@@ -461,6 +438,20 @@
                     id="MissingInActions.ToggleSelectionDirection"
                     text="Toggle Direction of Selection"
                     description="Toggle Direction of Selection">
+            </action>
+        </group>
+
+        <group id="MissingInActions.Pattern" text="Pattern Caret">
+            <action class="com.vladsch.MissingInActions.actions.pattern.ForwardSearchCaretSpawningAction"
+                    id="MissingInActions.ForwardSearchCaretSpawning"
+                    text="Forward Search Caret Spawning"
+                    description="Forward Search Caret Spawning">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.BackwardSearchCaretSpawningAction"
+                    id="MissingInActions.BackwardSearchCaretSpawning"
+                    text="Backward Search Caret Spawning"
+                    description="Backward Search Caret Spawning">
             </action>
         </group>
 

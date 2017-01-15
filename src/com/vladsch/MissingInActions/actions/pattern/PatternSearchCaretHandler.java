@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.actions.carets;
+package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretState;
@@ -36,12 +36,19 @@ import java.util.ArrayList;
 
 @SuppressWarnings("WeakerAccess")
 abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpawningHandler {
-    final private boolean mySingleMatch;
-
-    protected PatternSearchCaretHandler(boolean backwards, boolean lineMode, boolean singleLine, boolean singleMatch) {
-        super(backwards, lineMode, singleLine);
-        mySingleMatch = singleMatch;
+    /**
+     * Pattern search range limited caret spawning handler
+     *
+     * use single match when the caret is to be moved to a new position based on match location
+     * instead of spawning new carets for every match location.
+     *
+     * @param backwards search is backwards from caret offset
+     */
+    protected PatternSearchCaretHandler(boolean backwards) {
+        super(backwards);
     }
+
+    abstract protected boolean isSingleMatch();
 
     protected static class CaretMatch {
         public final int caretOffset;
@@ -90,14 +97,14 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
                     caret.setSelection(match.selectionStart, match.selectionEnd);
                 } else {
                     // create a new position
-                    LogicalPosition offset = editor.offsetToLogicalPosition(range.getStart() + match.caretOffset);
-                    LogicalPosition startOffset = editor.offsetToLogicalPosition(range.getStart() + match.selectionStart);
-                    LogicalPosition endOffset = editor.offsetToLogicalPosition(range.getEnd() + match.selectionEnd);
+                    LogicalPosition offset = editor.offsetToLogicalPosition(match.caretOffset);
+                    LogicalPosition startOffset = editor.offsetToLogicalPosition(match.selectionStart);
+                    LogicalPosition endOffset = editor.offsetToLogicalPosition(match.selectionEnd);
                     CaretState caretState = new CaretState(offset, startOffset, endOffset);
                     createCarets.add(caretState);
                 }
 
-                if (mySingleMatch || match.caretOffset + match.matchLength >= chars.length()) break;
+                if (isSingleMatch() || match.caretOffset + match.matchLength >= chars.length()) break;
                 lastMatch = match;
             }
         }

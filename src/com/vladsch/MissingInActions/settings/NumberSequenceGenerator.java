@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.vladsch.flexmark.util.Ref;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.CharSubSequence;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.BitSet;
+import java.util.Set;
 
 import static java.lang.Long.MIN_VALUE;
 
@@ -113,11 +115,19 @@ public class NumberSequenceGenerator {
     };
 
     private final NumberingOptions myOptions;
-    private long myFirst;
-    private long myLast;
+    private final long myFirst;
+    private final Long myLast;
+    private final long myStep;
+    private Long myNext;
+    private Integer myLastLine;
 
-    public NumberSequenceGenerator(@NotNull NumberingOptions options) {
+    public NumberSequenceGenerator(@NotNull NumberingOptions options, long first, long step, Long last) {
         myOptions = options;
+        myFirst = first;
+        myStep = step;
+        myLast = last;
+        myNext = first;
+        myLastLine = null;
     }
 
     /**
@@ -135,6 +145,117 @@ public class NumberSequenceGenerator {
 
         // see if we have a template and it matches somewhat
         return null;
+    }
+
+    @NotNull
+    public String getNumber() {
+        if (myNext != null) {
+            long next = myNext;
+            BasedSequence number = convertNumber(next, myOptions.getNumberingBase(), false);
+            if (!myOptions.isUpperCase()) number = number.toLowerCase();
+            return templateNumber(number);
+        }
+        return "";
+    }
+
+    public void next(int lineNumber) {
+        if (myNext != null && myLastLine != null && (myLastLine != lineNumber || !myOptions.isRepeatSameLine())) {
+            // advance next count
+            long next = myNext;
+
+            if (myStep > 0) {
+                if (myOptions.isBitShift()) {
+                    next = next << (int) myStep;
+                } else {
+                    next += myStep;
+                }
+                myNext = myLast == null || next <= myLast ? next : null;
+            } else if (myStep < 0) {
+                if (myOptions.isBitShift()) {
+                    next = next >> (int) -myStep;
+                } else {
+                    next += myStep;
+                }
+                myNext = myLast == null || next >= myLast ? next : null;
+            }
+        }
+
+        myLastLine = lineNumber;
+    }
+
+    /**
+     * Extract a number from given sequence based on prefix/suffix, base and template
+     *
+     * @param charSequence character sequence from which to extract a number
+     * @param numberBase
+     * @return number or null if unable to extract
+     */
+    public static long extractNumber(@NotNull CharSequence charSequence, @NotNull NumberingOptions options, int numberBase, @Nullable Ref<Integer> refMaxDigit) {
+        BasedSequence chars = BasedSequenceImpl.of(charSequence).trim();
+
+        if (!options.getPrefix().trim().isEmpty()) chars = chars.removePrefix(options.getPrefix().trim());
+        if (!options.getSuffix().trim().isEmpty()) chars = chars.removeSuffix(options.getSuffix().trim());
+
+        chars = chars.trim();
+
+        // see if we have a template and it matches somewhat
+        long number = 0;
+        boolean negative = false;
+        int maxDigit = refMaxDigit != null ? refMaxDigit.value : numberBase - 1;
+
+        for (int i = 0; i < chars.length(); i++) {
+            char c = chars.charAt(i);
+            if (c == '-' && i == 0) {
+                negative = true;
+                continue;
+            }
+
+            int digit = c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'z' ? c - 'a' + 10 : c >= 'A' && c <= 'A' ? c - 'A' + 10 : -1;
+            if (maxDigit < digit) maxDigit = digit;
+            if (digit < 0 || digit >= numberBase) continue;
+            number *= numberBase;
+            number += digit;
+        }
+
+        if (negative) {
+            number = -number;
+        }
+        if (refMaxDigit != null) refMaxDigit.value = maxDigit;
+        return number;
+    }
+
+    public static long tryExtractNumber(@NotNull String charSequence, @NotNull NumberingOptions options, int... numberBases) {
+        long number = 0;
+        int[] bases = new int[numberBases.length + 1];
+
+        int tryNumberBase = options.getNumberingBase();
+        System.arraycopy(numberBases, 0, bases, 1, numberBases.length);
+        bases[0] = tryNumberBase;
+        tryNumberBase = 0;
+        Ref<Integer> maxDigit = new Ref<>(bases[0] - 1);
+
+        for (int numberBase : bases) {
+            if (tryNumberBase < numberBase && maxDigit.value < numberBase) {
+                tryNumberBase = numberBase;
+            } else {
+                continue;
+            }
+
+            number = extractNumber(charSequence, options, tryNumberBase, maxDigit);
+            if (maxDigit.value < numberBase) break;
+        }
+
+        return number;
+    }
+
+    @NotNull
+    public static NumberSequenceGenerator create(@NotNull NumberingOptions options) {
+        int numberBase = options.getNumberingBase();
+        long first = tryExtractNumber(options.getFirst(), options, 10, 16);
+        Long last = options.getLast().trim().isEmpty() ? null : tryExtractNumber(options.getLast(), options, 10, 16);
+        long step = tryExtractNumber(options.getStep(), options, 10, 16);
+        if (step == 0 && options.isBitShift()) step = 1;
+        return new NumberSequenceGenerator(options, first, step, last);
     }
 
     /**
@@ -185,7 +306,15 @@ public class NumberSequenceGenerator {
     }
 
     @NotNull
-    public static String templateNumber(@NotNull CharSequence number, @Nullable String prefix, @Nullable String template, @Nullable String decimalPoint, @Nullable String separator, int separatorFrequency, @Nullable String suffix) {
+    public static String templateNumber(
+            @NotNull CharSequence number,
+            @Nullable String prefix,
+            @Nullable String template,
+            @Nullable String decimalPoint,
+            @Nullable String separator,
+            int separatorFrequency,
+            @Nullable String suffix
+    ) {
         StringBuilder sb = new StringBuilder();
 
         if (prefix != null && !prefix.isEmpty()) sb.append(prefix);
@@ -239,7 +368,7 @@ public class NumberSequenceGenerator {
         int pos;
         pos = number.length() - digitPos;
         String out = "";
-        while (pos > separatorFrequency) {
+        while (pos > separatorFrequency && separatorFrequency > 0) {
             out = number.subSequence(pos - separatorFrequency, pos) + out;
             out = separator + out;
             pos -= separatorFrequency;
@@ -326,7 +455,7 @@ public class NumberSequenceGenerator {
      * Convert a number to a sequence for given numbering base
      *
      * @param number               number to convert
-     * @param alwaysBaseComplement
+     * @param alwaysBaseComplement if true or base != 10 use base complement sequence, otherwise use - prefix for negative numbers
      * @return character sequence of that number in selected base
      */
     @NotNull

@@ -48,7 +48,9 @@
                             <preferred-size width="50" height="-1"/>
                           </grid>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.separator.description"/>
+                        </properties>
                       </component>
                       <component id="8b78d" class="javax.swing.JLabel">
                         <constraints>
@@ -83,7 +85,9 @@
                             <preferred-size width="100" height="-1"/>
                           </grid>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.template.description"/>
+                        </properties>
                       </component>
                       <component id="c0a48" class="javax.swing.JLabel">
                         <constraints>
@@ -96,11 +100,14 @@
                       </component>
                       <component id="cf1fc" class="javax.swing.JTextField" binding="myDecimalPoint">
                         <constraints>
-                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                             <preferred-size width="50" height="-1"/>
+                            <maximum-size width="50" height="-1"/>
                           </grid>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.decimal-point.description"/>
+                        </properties>
                       </component>
                     </children>
                   </grid>
@@ -159,7 +166,9 @@
                         <preferred-size width="100" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.step.description"/>
+                    </properties>
                   </component>
                 </children>
               </grid>
@@ -188,7 +197,9 @@
                         <preferred-size width="100" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.prefix.description"/>
+                    </properties>
                   </component>
                   <component id="25e8d" class="javax.swing.JLabel">
                     <constraints>
@@ -205,7 +216,9 @@
                         <preferred-size width="100" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.suffix.description"/>
+                    </properties>
                   </component>
                 </children>
               </grid>
@@ -236,6 +249,7 @@
                     </constraints>
                     <properties>
                       <text value=""/>
+                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.first.description"/>
                     </properties>
                   </component>
                   <component id="51906" class="javax.swing.JLabel">
@@ -253,7 +267,9 @@
                         <preferred-size width="100" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="renumber.last.description"/>
+                    </properties>
                   </component>
                 </children>
               </grid>

@@ -61,6 +61,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
@@ -676,55 +677,122 @@ public class EditHelpers {
         }
     }
 
+    @Nullable
     public static Range getCaretRange(@NotNull Caret caret, boolean backwards, boolean lineMode, boolean singleLine) {
         @NotNull Editor editor = caret.getEditor();
-        Range range;
+        Document document = editor.getDocument();
+        int caretOffset = caret.getOffset();
+        Range range = null;
+
+        int start;
+        int end;
 
         if (caret.hasSelection()) {
-            range = new Range(caret.getSelectionEnd(), caret.getSelectionStart());
+            if (backwards) {
+                end = caret.getOffset();
+                start = end;
+            } else {
+                start = caret.getOffset();
+                end = start;
+            }
+
+            // expand range to start/end of selection
+            if (start > caret.getSelectionStart()) {
+                start = caret.getSelectionStart();
+            }
+
+            if (end < caret.getSelectionEnd()) {
+                end = caret.getSelectionEnd();
+            }
         } else {
-            LogicalPosition caretPosition = caret.getLogicalPosition();
-            range = backwards ? new Range(0, caret.getOffset()) : new Range(caret.getOffset(), editor.getDocument().getTextLength());
+            if (backwards) {
+                start = 0;
+                end = caret.getOffset();
+            } else {
+                start = caret.getOffset();
+                end = document.getTextLength();
+            }
+        }
 
-            if (caret.getCaretModel().getCaretCount() > 1) {
-                // here we need to figure things out
-                List<Caret> carets = caret.getCaretModel().getAllCarets();
-                for (Caret other : carets) {
-                    if (!backwards) {
-                        int span = caret.getOffset() - other.getOffset();
-                        if (range.getSpan() > span) {
-                            range = range.withEnd(other.getOffset());
-                            if (lineMode) {
-                                LogicalPosition otherPosition = other.getLogicalPosition();
-                                if (caretPosition.line != otherPosition.line) {
-                                    // chop off range where the other caret's line ends
-                                    range = range.withEnd(editor.getDocument().getLineSeparatorLength(otherPosition.line));
-                                }
-                            }
-                        }
-                    } else {
+        if (lineMode) {
+            // expand range to start/end of line
+            int startOffset = document.getLineStartOffset(document.getLineNumber(start));
+            int endOffset = document.getLineEndOffset(document.getLineNumber(end));
 
-                        int span = caret.getOffset() - other.getOffset();
-                        if (range.getSpan() > -span) {
-                            range = range.withStart(other.getOffset());
+            if (start > startOffset) {
+                start = startOffset;
+            }
+            if (end < endOffset) {
+                end = endOffset;
+            }
+        }
 
-                            if (lineMode) {
-                                LogicalPosition otherPosition = other.getLogicalPosition();
-                                if (caretPosition.line != otherPosition.line) {
-                                    // chop off range where the other caret's line ends
-                                    range = range.withStart(editor.getDocument().getLineEndOffset(otherPosition.line));
-                                }
-                            }
-                        }
+        if (singleLine) {
+            // truncate to the caret line
+            int lineNumber = document.getLineNumber(caretOffset);
+            int startOffset = document.getLineStartOffset(lineNumber);
+            int endOffset = document.getLineEndOffset(lineNumber);
+
+            if (start < startOffset) {
+                start = startOffset;
+            }
+            if (end > endOffset) {
+                end = endOffset;
+            }
+        }
+
+        if (start >= end) {
+            int tmp = 0;
+        } else {
+            range = new Range(start, end);
+        }
+        return range;
+    }
+
+    public static Map<Caret, Range> limitCaretRange(boolean backwards, Map<Caret, Range> rangeMap) {
+        HashMap<Caret, Range> map = new HashMap<>(rangeMap.size());
+        Caret[] carets = rangeMap.keySet().toArray(new Caret[rangeMap.size()]);
+        Range prevRange = null;
+
+        if (!backwards) {
+            for (int i = carets.length; i-- > 0; ) {
+                Caret caret = carets[i];
+                Range range = rangeMap.get(caret);
+                if (range == null) continue;
+
+                if (prevRange != null) {
+                    if (prevRange.getStart() < range.getEnd()) {
+                        // truncate end
+                        range = range.withEnd(prevRange.getStart());
                     }
                 }
 
-                if (singleLine) {
-                    // limit it to the caret line
+                if (range.getSpan() > 0) {
+                    map.put(caret, range);
+                    prevRange = range;
+                }
+            }
+        } else {
+            for (int i = 0; i < carets.length; i++) {
+                Caret caret = carets[i];
+                Range range = rangeMap.get(caret);
+                if (range == null) continue;
+
+                if (prevRange != null) {
+                    if (prevRange.getEnd() > range.getStart()) {
+                        // truncate start
+                        range = range.withStart(prevRange.getEnd());
+                    }
+                }
+
+                if (range.getSpan() > 0) {
+                    map.put(caret, range);
+                    prevRange = range;
                 }
             }
         }
-        return range;
+
+        return map;
     }
 
     public static int getNextWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {

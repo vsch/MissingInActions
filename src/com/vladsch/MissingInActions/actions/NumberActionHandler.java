@@ -30,17 +30,25 @@
 package com.vladsch.MissingInActions.actions;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.settings.NumberSequenceGenerator;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
 import com.vladsch.MissingInActions.settings.RenumberingDialog;
+import com.vladsch.MissingInActions.util.CaretOffsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NumberActionHandler extends EditorActionHandler {
     public NumberActionHandler() {
@@ -49,7 +57,7 @@ public class NumberActionHandler extends EditorActionHandler {
 
     @Override
     protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-        return !(editor instanceof EditorEx) || editor.getCaretModel().supportsMultipleCarets();
+        return (!(editor instanceof EditorEx) || editor.getCaretModel().supportsMultipleCarets()) && editor.getCaretModel().getCaretCount() > 1;
     }
 
     @Override
@@ -61,9 +69,68 @@ public class NumberActionHandler extends EditorActionHandler {
 
             if (apply) {
                 NumberingOptions options = ApplicationSettings.getInstance().getLastNumberingOptions();
-                
-                manager.guard(() -> {
+                List<CaretOffsets> carets = new ArrayList<>(editor.getCaretModel().getCaretCount());
+
+                // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
+                WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
+                    final Document document = editor.getDocument();
+                    NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
+                    int line = -1;
+                    int lastVirtual = -1;
+
+                    for (Caret caret1 : editor.getCaretModel().getAllCarets()) {
+                        final int caretLine = caret1.getLogicalPosition().line;
+                        generator.next(caretLine);
+                        String number = generator.getNumber();
+
+                        if (line == -1 || line != caretLine) {
+                            // if prev line did not complete, add trailing chars here
+                            line = caretLine;
+                            lastVirtual = -1;
+                        }
+
+                        if (caret1.hasSelection()) {
+                            // replace selection by number
+                            final int selectionStart = caret1.getSelectionStart();
+                            final int selectionEnd = caret1.getSelectionEnd();
+                            document.replaceString(selectionStart, selectionEnd, number);
+                            CaretOffsets offsets = new CaretOffsets(selectionStart+number.length(), selectionStart, selectionStart + number.length());
+                            carets.add(offsets);
+                        } else {
+                            // add number at caret but may need to add virtual spaces
+                            int virtualSpaces = caret1.getLogicalPosition().column - (editor.getDocument().getLineEndOffset(caretLine) - editor.getDocument().getLineStartOffset(caretLine));
+                            if (lastVirtual > 0) {
+                                virtualSpaces -= lastVirtual;
+                                lastVirtual += virtualSpaces;
+                            } else {
+                                lastVirtual = virtualSpaces;
+                            }
+
+                            StringBuilder sb = new StringBuilder();
+                            while (virtualSpaces-- > 0) sb.append(' ');
+                            sb.append(number);
+                            final int offset = caret1.getOffset();
+                            document.insertString(offset, sb);
+                            CaretOffsets offsets = new CaretOffsets(offset + sb.length(), offset, offset + sb.length());
+                            carets.add(offsets);
+                        }
+                    }
                 });
+
+                // create carets in the viewer
+                boolean first = true;
+                editor.getCaretModel().removeSecondaryCarets();
+
+                for (CaretOffsets offsets : carets) {
+                    Caret caret1 = first ? editor.getCaretModel().getPrimaryCaret() : editor.getCaretModel().addCaret(editor.offsetToVisualPosition(offsets.pos));
+                    first = false;
+
+                    if (caret1 != null) {
+                        // move to logical position and set selection
+                        caret1.moveToOffset(offsets.pos);
+                        caret1.setSelection(offsets.start, offsets.end);
+                    }
+                }
             }
         }
     }

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="reverse-regex-util">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/reverse-regex-util.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
