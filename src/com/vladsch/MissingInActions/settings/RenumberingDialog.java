@@ -32,6 +32,7 @@ import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.CaretOffsets;
+import com.vladsch.MissingInActions.util.NumberSequenceGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

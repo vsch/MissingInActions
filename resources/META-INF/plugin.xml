@@ -70,14 +70,17 @@
         ]]>
     </description>
 
-    <version>0.8.3.2</version>
+    <version>0.8.3.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.1 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.3 - Bug Fixes and Enhancements</h3>
             <ul>
+                <li>
+                    <p>Add: number generating action. For now only for multiple carets.</p>
+                </li>
                 <li>
                     <p>Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
                         at caret and whether there is a selection.</p>
@@ -87,8 +90,8 @@
                                 non-space. Will select the intervening spaces for each caret</p>
                         </li>
                         <li>
-                            <p>if caret is on identifier start then will spawn a caret for every occurrence of
-                                identifier and select the identifier.</p>
+                            <p>if caret is on identifier start then will spawn a caret for every occurrence of identifier
+                                and select the identifier.</p>
                         </li>
                         <li>
                             <p>if caret is on identifier character, but not start of identifier, then will spawn a caret
@@ -116,14 +119,14 @@
                     </ul>
                     <p>Best use is to define two shortcuts: one for forward spawning action and one for backward one.
                         I was used to having this on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
-                        Since these are taken on OS X, I assigned <code>⌥⌘⇥</code> for forward and <code>⇧⌥⌘⇥</code> for backward
+                        Since these are taken on OS X, I assigned <code>⌥⌘⇥</code> for forward and <code>⌥⌘⇧⇥</code> for backward
                         spawning search instead. A bit awkward but usable.</p>
                     <p>The effect when caret is on a space is to select every span of spaces from caret to end of
                         line and put a caret at end of each selection. A quick way to place carets on next non-space
                         while selecting previous spaces.</p>
                     <p>The effect when caret is on an identifier is to either select occurrence of this identifier if
                         caret is on identifier start, or to select the matched trailing part of the identifier on the
-                        line. For example if | marks caret position and [] selection:</p>
+                        line. For example if <code>|</code> marks caret position and <code>[]</code> selection:</p>
                     <p><code>selection|Start(), range.getStart()</code></p>
                     <p>forward spawning search will spawn one more caret and select</p>
                     <p><code>selection|[Start](), range.get|[Start]()</code></p>

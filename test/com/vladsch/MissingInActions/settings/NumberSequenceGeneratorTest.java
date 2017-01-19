@@ -21,9 +21,10 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.vladsch.MissingInActions.util.NumberSequenceGenerator;
 import org.junit.Test;
 
-import static com.vladsch.MissingInActions.settings.NumberSequenceGenerator.*;
+import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.*;
 import static org.junit.Assert.assertEquals;
 
 public class NumberSequenceGeneratorTest {

@@ -97,30 +97,6 @@ kbd {
     line-height: 10px;
     padding: 6px 4px 2px 4px;
     vertical-align: middle;
-}
-
-h1 {
-    font-size: 2em;
-}
-
-h2 {
-    font-size: 1.5em;
-}
-
-h3 {
-    font-size: 1.25em;
-}
-
-h4 {
-    font-size: 1em;
-}
-
-h5 {
-    font-size: 0.875em;
-}
-
-h6 {
-    font-size: 0.85em;
 }</cssText>
     </CssSettings>
     <HtmlExportSettings updateOnSave="false" parentDir="$ProjectFileDir$" targetDir="$OutputPath$" cssDir="" scriptDir="" plainHtml="false" imageDir="$OutputPath$/img" copyLinkedImages="false" imageUniquifyType="0" targetExt="" useTargetExt="false" noCssNoScripts="false" linkToExportedHtml="true" exportOnSettingsChange="true" regenerateOnProjectOpen="false" />
