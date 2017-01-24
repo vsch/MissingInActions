@@ -52,14 +52,6 @@
       * [ ] straighten caret
 * [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
       indent.
-* [ ] Add: insert numeric sequence in multi-caret mode, with selections should try to determine
-      parameters: start number, increment, sequence type and format; without should re-use last
-      params with optional action to always show pop-up panel for options.
-      * [ ] Sequences 0-9, A-Z for number bases 2-36
-      * [ ] Prefix/Suffix options to add to generated number
-      * [ ] Sequences can be 0 left filled to any width
-      * [ ] Arithmetic or Shift with Step and Direction
-      * [ ] Start/Stop number, carets whose number is outside the range insert nothing
 * [ ] Add: column aligning `ColumnAligningTabAction`, non-multi-caret mode does tab action, in
       multi-caret mode that has the effect after action:
       * [ ] for each caret find the range of whitespace from caret to first non-whitespace at or
@@ -86,31 +78,29 @@
 ### 0.8.3.3 - Bug Fixes and Enhancements
 
 * Add: number generating action. For now only for multiple carets.
+  * Sequences 0-9, A-Z for number bases 2-36
+  * Prefix/Suffix options to add to generated number
+  * Sequences can be 0 left filled to any width
+  * Arithmetic or Shift with Step and Direction
+  * Start/Stop number, carets whose number is outside the range insert nothing
 
 * Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
   at caret and whether there is a selection.
   * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on a
     non-space. Will select the intervening spaces for each caret
-
   * if caret is on identifier start then will spawn a caret for every occurrence of identifier
     and select the identifier.
-
   * if caret is on identifier character, but not start of identifier, then will spawn a caret
     for every occurrence of identifier that ends in same text as one from caret to end of
     identifier and select the matched identifier portion
-
   * otherwise will spawn a caret on every occurrence of the character at caret, selecting
     trimmed intervening characters between carets.
-
-  the behavior is also affected by number of carets and selection:
-
-  * if no selections that spans lines then action is limited to a single line of the caret
-
-  * if no two carets are on the same line then affected range for each caret is expanded to full
-    lines
-
-  * any selection for a caret is used to expand the range for that caret to include the
-    selection and caret offset.
+  * behavior is also affected by number of carets and selection:
+    * if no selections that spans lines then action is limited to a single line of the caret
+    * if no two carets are on the same line then affected range for each caret is expanded to
+      full lines
+    * any selection for a caret is used to expand the range for that caret to include the
+      selection and caret offset.
 
   Best use is to define two shortcuts: one for forward spawning action and one for backward one.
   I was used to having this on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.

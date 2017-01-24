@@ -124,11 +124,10 @@ public class RenumberingDialog extends DialogWrapper {
                     // replace selection by number
                     sb.append(chars.subSequence(offset, caret.getSelectionStart()));
                     int pos = sb.length();
-                    int start = pos;
                     sb.append(number);
                     int end = sb.length();
                     offset = caret.getSelectionEnd();
-                    CaretOffsets offsets = new CaretOffsets(pos, start, end);
+                    CaretOffsets offsets = new CaretOffsets(pos, pos, end);
                     carets.add(offsets);
                 } else {
                     // add number at caret but may need to add virtual spaces
@@ -145,11 +144,10 @@ public class RenumberingDialog extends DialogWrapper {
                     while (virtualSpaces-- > 0) sb.append(' ');
 
                     int pos = sb.length();
-                    int start = pos;
                     sb.append(number);
                     int end = sb.length();
                     offset = caret.getOffset();
-                    CaretOffsets offsets = new CaretOffsets(pos, start, end);
+                    CaretOffsets offsets = new CaretOffsets(pos, pos, end);
                     carets.add(offsets);
                 }
             }
