@@ -21,10 +21,15 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
+import com.intellij.ui.CheckBoxWithColorChooser;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
 
 public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     public SettingsComponents() {
@@ -66,6 +71,8 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     @NotNull public RadioButtonSetter component(JRadioButton component, Getter<Boolean> getter, Setter<Boolean> setter) { return new RadioButtonSetter(component, getter, setter); }
     @NotNull public <V> SpinnerSetter<V> component(JSpinner component, Getter<V> getter, Setter<V> setter) { return new SpinnerSetter<V>(component, getter, setter); }
     @NotNull public TextBoxSetter component(JTextComponent component, Getter<String> getter, Setter<String> setter) { return new TextBoxSetter(component, getter, setter); }
+    @NotNull public ColorCheckBoxSetter component(CheckBoxWithColorChooser component, Getter<java.awt.Color> getter, Setter<java.awt.Color> setter) { return new ColorCheckBoxSetter(component, getter, setter); }
+    @NotNull public ColorCheckBoxEnabledSetter componentEnabled(CheckBoxWithColorChooser component, Getter<Boolean> getter, Setter<Boolean> setter) { return new ColorCheckBoxEnabledSetter(component, getter, setter); }
     // @formatter:on
 
     @NotNull
@@ -76,6 +83,12 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
 
     public static class CheckBoxSetter extends JComponentSettable<Boolean> {
         public CheckBoxSetter(@NotNull JCheckBox component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
+            super(component::isSelected, component::setSelected, getter, setter);
+        }
+    }
+
+    public static class ColorCheckBoxEnabledSetter extends JComponentSettable<Boolean> {
+        public ColorCheckBoxEnabledSetter(@NotNull CheckBoxWithColorChooser component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
             super(component::isSelected, component::setSelected, getter, setter);
         }
     }
@@ -112,6 +125,12 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     public static class TextBoxSetter extends JComponentSettable<String> {
         public TextBoxSetter(@NotNull JTextComponent component, @NotNull Getter<String> getter, @NotNull Setter<String> setter) {
             super(component::getText, component::setText, getter, setter);
+        }
+    }
+
+    public static class ColorCheckBoxSetter extends JComponentSettable<java.awt.Color> {
+        public ColorCheckBoxSetter(@NotNull CheckBoxWithColorChooser component, @NotNull Getter<java.awt.Color> getter, @NotNull Setter<java.awt.Color> setter) {
+            super(component::getColor, component::setColor, getter, setter);
         }
     }
 

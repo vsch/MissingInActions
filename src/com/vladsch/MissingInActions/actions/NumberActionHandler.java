@@ -116,7 +116,6 @@ public class NumberActionHandler extends EditorActionHandler {
                     }
                 });
 
-                // create carets in the viewer
                 boolean first = true;
                 editor.getCaretModel().removeSecondaryCarets();
 

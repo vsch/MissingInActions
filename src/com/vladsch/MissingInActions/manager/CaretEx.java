@@ -51,11 +51,15 @@ class CaretEx implements Caret {
         ourGetVisualAttributes = getVisualAttributes;
         ourSetVisualAttributes = setVisualAttributes;
     }
-    
+
     public static final boolean HAVE_VISUAL_ATTRIBUTES = ourGetVisualAttributes != null && ourSetVisualAttributes != null;
 
     public CaretEx(Caret caret) {
         myCaret = caret;
+    }
+
+    public Caret getCaret() {
+        return myCaret;
     }
 
     /**
@@ -92,7 +96,7 @@ class CaretEx implements Caret {
 
     @Override
     public void dispose() {
-        
+
     }
 
     public boolean isCaret(Caret caret) {

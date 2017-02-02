@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.editor.Caret;
-import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
@@ -67,6 +66,8 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
         return myMatcher;
     }
 
+    protected abstract CaretMatch getCaretMatch(RegExMatcher matcher, int selStart, int selEnd);
+
     @Override
     @Nullable
     final protected CaretMatch nextMatch(RegExMatcher matcher, BasedSequence chars, @NotNull Range range, @Nullable CaretMatch previousMatch) {
@@ -93,7 +94,7 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
                     }
                 }
 
-                match = new CaretMatch(myBackwards ? end : start, end - start, selStart, selEnd);
+                match = getCaretMatch(matcher, selStart, selEnd);
             } else {
                 int tmp = 0;
             }

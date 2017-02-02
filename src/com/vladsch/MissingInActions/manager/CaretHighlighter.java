@@ -22,25 +22,46 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretVisualAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Set;
 
 public interface CaretHighlighter {
     CaretHighlighter NULL = new CaretHighlighter() {
         // @formatter:off
         @Override public void caretAdded(@NotNull Caret caret) { }
         @Override public void caretRemoved(@NotNull Caret caret) { }
+        @Override public CaretEx getPrimaryCaret() { return null; }
+        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @Nullable final CaretVisualAttributes attributes, @Nullable final Set<CaretEx> exclude) { }
         @Override public void highlightCarets() { }
-        @Override public void removeCaretHighlight() { }
+        @Nullable public CaretVisualAttributes getPrimaryAttributes() { return null; }
+        @Nullable public CaretVisualAttributes getStartAttribute() { return null; }
+        @Nullable public CaretVisualAttributes getFoundAttribute() { return null; }
         @Override public void settingsChanged(ApplicationSettings settings) { }
+        @Override public void removeCaretHighlight() { }
         @Override public void updateCaretHighlights() { }
+        @Override public void setPrimaryCaret(@Nullable Caret caret) { }
         // @formatter:on
     };
 
     void updateCaretHighlights();
+    @Nullable
+    CaretEx getPrimaryCaret();
+    @Nullable
+    CaretVisualAttributes getPrimaryAttributes();
+    @Nullable
+    CaretVisualAttributes getStartAttribute();
+    @Nullable
+    CaretVisualAttributes getFoundAttribute();
     void settingsChanged(ApplicationSettings settings);
     void removeCaretHighlight();
+    void highlightCaretList(@Nullable Collection<CaretEx> carets, @Nullable CaretVisualAttributes attributes, @Nullable Set<CaretEx> exclude);
     void highlightCarets();
     void caretAdded(@NotNull Caret caret);
     void caretRemoved(@NotNull Caret caret);
+    void setPrimaryCaret(@Nullable Caret caret);
 }

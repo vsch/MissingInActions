@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.settings;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.ui.CheckBoxWithColorChooser;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
@@ -97,6 +98,12 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox mySelectPastedMultiCaretPredicate;
     JComboBox mySelectPastedPredicate;
     JSpinner myAutoIndentDelay;
+    private JComboBox myPrimaryCaretThickness;
+    private CheckBoxWithColorChooser myPrimaryCaretColor;
+    private JComboBox mySearchStartCaretThickness;
+    private CheckBoxWithColorChooser mySearchStartCaretColor;
+    private JComboBox mySearchFoundCaretThickness;
+    private CheckBoxWithColorChooser mySearchFoundCaretColor;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -115,6 +122,15 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(CaretAdjustmentType.ADAPTER, myCaretOnMoveSelectionUp, i::getCaretOnMoveSelectionUp, i::setCaretOnMoveSelectionUp),
                         component(LinePasteCaretAdjustmentType.ADAPTER, myLinePasteCaretAdjustment, i::getLinePasteCaretAdjustment, i::setLinePasteCaretAdjustment),
                         component(MouseModifierType.ADAPTER, myMouseModifier, i::getMouseModifier, i::setMouseModifier),
+                        component(CaretThicknessType.ADAPTER, myPrimaryCaretThickness, i::getPrimaryCaretThickness, i::setPrimaryCaretThickness),
+                        component(CaretThicknessType.ADAPTER, mySearchStartCaretThickness, i::getSearchStartCaretThickness, i::setSearchStartCaretThickness),
+                        component(CaretThicknessType.ADAPTER, mySearchFoundCaretThickness, i::getSearchFoundCaretThickness, i::setSearchFoundCaretThickness),
+                        component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
+                        componentEnabled(myPrimaryCaretColor, i::isPrimaryCaretColorEnabled, i::setPrimaryCaretColorEnabled),
+                        component(mySearchStartCaretColor, i::searchStartCaretColorRGB, i::searchStartCaretColorRGB),
+                        componentEnabled(mySearchStartCaretColor, i::isSearchStartCaretColorEnabled, i::setSearchStartCaretColorEnabled),
+                        component(mySearchFoundCaretColor, i::searchFoundCaretColorRGB, i::searchFoundCaretColorRGB),
+                        componentEnabled(mySearchFoundCaretColor, i::isSearchFoundCaretColorEnabled, i::setSearchFoundCaretColorEnabled),
                         component(myAddPrefixOnPaste, i::isAddPrefixOnPaste, i::setAddPrefixOnPaste),
                         component(myAutoIndent, i::isAutoIndent, i::setAutoIndent),
                         component(myAutoIndentDelay, i::getAutoIndentDelay, i::setAutoIndentDelay),
@@ -374,6 +390,13 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 }
             }
         });
+
+        myPrimaryCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
+        myPrimaryCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        mySearchStartCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
+        mySearchStartCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        mySearchFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
+        mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
     }
 
     private class EditingCommitter implements IdeEventQueue.EventDispatcher {

@@ -26,6 +26,8 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,103 +51,134 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
         myBackwards = backwards;
     }
 
-    abstract protected boolean isLineMode();
-    abstract protected boolean isSingleLine();
+    public abstract void caretsChanged(final Editor editor);
+
+    protected abstract boolean isLineMode();
+    protected abstract boolean isSingleLine();
+
+    protected abstract void updateCarets(final Editor editor, final List<Caret> caretList);
 
     // gives the handler opportunity to analyze current context and adjust line mode/single line and other values
-    abstract protected void analyzeContext(final Editor editor, final @Nullable Caret caret, final DataContext dataContext, @NotNull LineSelectionManager manager);
+    protected abstract void analyzeContext(final Editor editor, final @Nullable Caret caret, @NotNull LineSelectionManager manager);
 
     // execute pattern match
-    abstract protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets);
+    protected abstract boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets);
+
+    protected abstract Caret getPatternCaret();
+    protected abstract void preparePattern(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
 
     @Override
     public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
-        analyzeContext(editor, caret, dataContext, manager);
+        analyzeContext(editor, caret, manager);
 
         manager.guard(() -> {
-            Caret useCaret = caret;
-            ArrayList<CaretState> createList = new ArrayList<>();
-            HashSet<Caret> keptCarets = new HashSet<>();
-            CaretModel caretModel = editor.getCaretModel();
+            doAction(manager, editor, caret, getPatternCaret());
+        });
+    }
 
-            if (!caretModel.supportsMultipleCarets()) {
-                if (useCaret == null) useCaret = caretModel.getCurrentCaret();
-                Range range = EditHelpers.getCaretRange(useCaret, myBackwards, isLineMode(), isSingleLine());
-                perform(manager, useCaret, range, createList);
-            } else {
-                List<Caret> caretList;
-                boolean removePrimary;
-                Caret primaryCaret;
+    public void doAction(final LineSelectionManager manager, final Editor editor, final @Nullable Caret caret, @Nullable final Caret patternCaret) {
+        Caret useCaret = caret;
+        ArrayList<CaretState> createList = new ArrayList<>();
+        HashSet<Caret> keptCarets = new HashSet<>();
+        CaretModel caretModel = editor.getCaretModel();
 
-                caretList = caretModel.getAllCarets();
-                primaryCaret = caretModel.getPrimaryCaret();
-                Map<Caret, Range> caretRanges = new HashMap<>();
+        if (!caretModel.supportsMultipleCarets()) {
+            if (useCaret == null) useCaret = caretModel.getCurrentCaret();
+            Range range = EditHelpers.getCaretRange(useCaret, myBackwards, isLineMode(), isSingleLine());
+            if (range != null) perform(manager, useCaret, range, createList);
+        } else {
+            List<Caret> caretList;
+            boolean removePrimary;
+            Caret primaryCaret;
 
+            caretList = caretModel.getAllCarets();
+            primaryCaret = caretModel.getPrimaryCaret();
+            Map<Caret, Range> caretRanges = new HashMap<>();
+
+            for (Caret caret1 : caretList) {
+                Range range = EditHelpers.getCaretRange(caret1, myBackwards, isLineMode(), isSingleLine());
+                caretRanges.put(caret1,range);
+            }
+
+            caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges);
+
+            if (useCaret == null) {
+                if (patternCaret != null) {
+                    final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+                    preparePattern(manager, patternCaret, caretRanges.get(patternCaret), chars);
+                }
+
+                // here we adjust
                 for (Caret caret1 : caretList) {
-                    Range range = EditHelpers.getCaretRange(caret1, myBackwards, isLineMode(), isSingleLine());
-                    caretRanges.put(caret1,range);
-                }
+                    Range range = caretRanges.get(caret1);
+                    if (range == null) continue;
 
-                caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges);
-
-                if (useCaret == null) {
-                    // here we adjust
-                    for (Caret caret1 : caretList) {
-                        Range range = caretRanges.get(caret1);
-                        if (range == null) continue;
-
-                        if (perform(manager, caret1, range, createList)) {
-                            keptCarets.add(caret1);
-                        }
-                    }
-                    removePrimary = !keptCarets.contains(primaryCaret);
-                } else {
-                    caretList = Collections.singletonList(useCaret);
-                    primaryCaret = useCaret;
-                    removePrimary = true;
-                    Range range = caretRanges.get(useCaret);
-
-                    if (range != null) {
-                        if (perform(manager, useCaret, range, createList)) {
-                            removePrimary = false;
-                            keptCarets.add(useCaret);
-                        }
+                    if (perform(manager, caret1, range, createList)) {
+                        keptCarets.add(caret1);
                     }
                 }
+            } else {
+                caretList = Collections.singletonList(useCaret);
+                primaryCaret = useCaret;
+                Range range = caretRanges.get(useCaret);
 
-                if (keptCarets.isEmpty() && createList.isEmpty()) {
-                    // remove all but primary
-                    caretModel.removeSecondaryCarets();
-                } else {
-                    // create new carets
-                    for (CaretState caretState : createList) {
-                        LogicalPosition caretPosition = caretState.getCaretPosition();
-                        if (caretPosition != null) {
-                            Caret newCaret = removePrimary ? primaryCaret : caretModel.addCaret(caretPosition.toVisualPosition());
-                            EditHelpers.restoreState(newCaret, caretState, false);
-                            removePrimary = false;
-                        }
-                    }
-
-                    if (removePrimary) {
-                        // move primary to first kept and remove first
-                        Caret firstCaret = keptCarets.iterator().next();
-                        primaryCaret.moveToLogicalPosition(firstCaret.getLogicalPosition());
-                        primaryCaret.setSelection(firstCaret.getSelectionStart(), firstCaret.getSelectionEnd());
-                        keptCarets.remove(firstCaret);
-                        removePrimary = false;
-                    }
-
-                    // keep only ones in list
-                    for (Caret caret1 : caretList) {
-                        if (!keptCarets.contains(caret1)) {
-                            caretModel.removeCaret(caret1);
-                        }
+                if (range != null) {
+                    if (perform(manager, useCaret, range, createList)) {
+                        keptCarets.add(useCaret);
                     }
                 }
             }
-        });
+
+            removePrimary = !keptCarets.contains(primaryCaret);
+
+            List<Caret> createdCarets = new ArrayList<>();
+
+            if (keptCarets.isEmpty() && createList.isEmpty()) {
+                // remove all but primary
+                caretModel.removeSecondaryCarets();
+            } else {
+                // create new carets
+                for (CaretState caretState : createList) {
+                    LogicalPosition caretPosition = caretState.getCaretPosition();
+                    if (caretPosition != null) {
+                        Caret newCaret = removePrimary ? primaryCaret : caretModel.addCaret(caretPosition.toVisualPosition());
+                        if (newCaret != null) {
+                            EditHelpers.restoreState(newCaret, caretState, false);
+                            removePrimary = false;
+
+                            createdCarets.add(newCaret);
+                        } else {
+                            // caret already exists, we add that one
+                            for (Caret caret1 : keptCarets) {
+                                if (caretPosition.equals(caret1.getLogicalPosition())) {
+                                    createdCarets.add(caret1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (removePrimary) {
+                    // move primary to first kept and remove first
+                    Caret firstCaret = keptCarets.iterator().next();
+                    primaryCaret.moveToLogicalPosition(firstCaret.getLogicalPosition());
+                    primaryCaret.setSelection(firstCaret.getSelectionStart(), firstCaret.getSelectionEnd());
+                    keptCarets.remove(firstCaret);
+                    removePrimary = false;
+                }
+
+                // keep only ones in list
+                for (Caret caret1 : caretList) {
+                    if (!keptCarets.contains(caret1)) {
+                        caretModel.removeCaret(caret1);
+                    }
+                }
+            }
+
+            updateCarets(editor, createdCarets);
+        }
     }
 }

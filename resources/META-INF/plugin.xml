@@ -70,51 +70,49 @@
         ]]>
     </description>
 
-    <version>0.8.3.3</version>
+    <version>0.8.3.4</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.3 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.4 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>
+                    <p>Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
+                        carets. Also does color and weight change if 2017 EAP.</p>
+                </li>
+                <li>
                     <p>Add: number generating action. For now only for multiple carets.</p>
+                    <ul>
+                        <li>Sequences 0-9, A-Z for number bases 2-36</li>
+                        <li>Prefix/Suffix options to add to generated number</li>
+                        <li>Sequences can be 0 left filled to any width</li>
+                        <li>Arithmetic or Shift with Step and Direction</li>
+                        <li>Start/Stop number, carets whose number is outside the range insert nothing</li>
+                    </ul>
                 </li>
                 <li>
                     <p>Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
                         at caret and whether there is a selection.</p>
                     <ul>
-                        <li>
-                            <p>if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on a
-                                non-space. Will select the intervening spaces for each caret</p>
-                        </li>
-                        <li>
-                            <p>if caret is on identifier start then will spawn a caret for every occurrence of identifier
-                                and select the identifier.</p>
-                        </li>
-                        <li>
-                            <p>if caret is on identifier character, but not start of identifier, then will spawn a caret
-                                for every occurrence of identifier that ends in same text as one from caret to end of
-                                identifier and select the matched identifier portion</p>
-                        </li>
-                        <li>
-                            <p>otherwise will spawn a caret on every occurrence of the character at caret, selecting
-                                trimmed intervening characters between carets.</p>
-                        </li>
-                    </ul>
-                    <p>the behavior is also affected by number of carets and selection:</p>
-                    <ul>
-                        <li>
-                            <p>if no selections that spans lines then action is limited to a single line of the caret</p>
-                        </li>
-                        <li>
-                            <p>if no two carets are on the same line then affected range for each caret is expanded to full
-                                lines</p>
-                        </li>
-                        <li>
-                            <p>any selection for a caret is used to expand the range for that caret to include the
-                                selection and caret offset.</p>
+                        <li>if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on a
+                            non-space. Will select the intervening spaces for each caret</li>
+                        <li>if caret is on identifier start then will spawn a caret for every occurrence of identifier
+                            and select the identifier.</li>
+                        <li>if caret is on identifier character, but not start of identifier, then will spawn a caret
+                            for every occurrence of identifier that ends in same text as one from caret to end of
+                            identifier and select the matched identifier portion</li>
+                        <li>otherwise will spawn a caret on every occurrence of the character at caret, selecting
+                            trimmed intervening characters between carets.</li>
+                        <li>behavior is also affected by number of carets and selection:
+                            <ul>
+                                <li>if no selections that spans lines then action is limited to a single line of the caret</li>
+                                <li>if no two carets are on the same line then affected range for each caret is expanded to
+                                    full lines</li>
+                                <li>any selection for a caret is used to expand the range for that caret to include the
+                                    selection and caret offset.</li>
+                            </ul>
                         </li>
                     </ul>
                     <p>Best use is to define two shortcuts: one for forward spawning action and one for backward one.

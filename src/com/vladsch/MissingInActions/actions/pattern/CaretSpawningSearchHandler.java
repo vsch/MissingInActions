@@ -21,27 +21,36 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.ReverseRegEx.util.*;
+import com.vladsch.ReverseRegEx.util.ForwardPattern;
+import com.vladsch.ReverseRegEx.util.RegExMatcher;
+import com.vladsch.ReverseRegEx.util.RegExPattern;
+import com.vladsch.ReverseRegEx.util.ReversePattern;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.lang.Character.isJavaIdentifierPart;
-import static java.lang.Character.isJavaIdentifierStart;
 
 public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     private boolean myLineMode;
     private boolean mySingleLine;
     private boolean mySingleMatch;
+    private boolean myMoveFirstMatch;
+    private RegExPattern myPattern;
+    private Set<Caret> myStartSearchCarets;
+    private List<CaretState> myStartCarets;
+    private Caret myPatternCaret;
+    private boolean myCaretToEndGroup;
 
     public CaretSpawningSearchHandler(final boolean backwards) {
         super(backwards);
@@ -63,10 +72,35 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
-    protected void analyzeContext(final Editor editor, @Nullable final Caret caret, final DataContext dataContext, @NotNull final LineSelectionManager manager) {
+    protected boolean isMoveFirstMatch() {
+        return myMoveFirstMatch;
+    }
+
+    @Override
+    protected void updateCarets(final Editor editor, final List<Caret> caretList) {
+        LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        if (mySingleMatch) {
+            manager.setSearchFoundCaretSpawningHandler(this, myStartCarets, myStartSearchCarets, caretList);
+        } else {
+            // just regular carets
+            manager.clearSearchFoundCarets();
+        }
+    }
+
+    @Override
+    public void caretsChanged(final Editor editor) {
+        myStartCarets = editor.getCaretModel().getCaretsAndSelections();
+        myStartSearchCarets = new HashSet<>(editor.getCaretModel().getAllCarets());
+        myPatternCaret = editor.getCaretModel().getPrimaryCaret();
+    }
+
+    @Override
+    protected void analyzeContext(final Editor editor, @Nullable final Caret caret, @NotNull final LineSelectionManager manager) {
         int previousCaretLine = -1;
         boolean haveMultipleCaretsPerLine = false;
         boolean haveMultiLineSelection = false;
+        int caretCount = editor.getCaretModel().getCaretCount();
+        boolean haveMultipleCarets = caretCount > 1;
 
         for (Caret caret1 : editor.getCaretModel().getAllCarets()) {
             int caretLine = caret1.getLogicalPosition().line;
@@ -91,60 +125,100 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
         myLineMode = !haveMultipleCaretsPerLine;
         mySingleLine = !haveMultiLineSelection;
-        mySingleMatch = false;
+        mySingleMatch = haveMultipleCarets;
+        myMoveFirstMatch = !mySingleMatch;
+        myPattern = null;
+        myStartSearchCarets = null;
+        myPatternCaret = null;
+        myCaretToEndGroup = false;
+
+        if (mySingleMatch) {
+            // this is search forward/backward
+            caretsChanged(editor);
+        }
+    }
+
+    @Override
+    protected Caret getPatternCaret() {
+        return myPatternCaret;
+    }
+
+    @Override
+    protected void preparePattern(@NotNull final LineSelectionManager manager, @NotNull final Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
+        assert caret == myPatternCaret;
+        myPattern = null;
+        getPattern(manager, caret, range, chars);
+    }
+
+    @Override
+    protected CaretMatch getCaretMatch(final RegExMatcher matcher, int selStart, int selEnd) {
+        int caretOffset = myCaretToEndGroup ? (myBackwards ? selStart : selEnd) : (myBackwards ? matcher.end() : matcher.start());
+        if (isSingleMatch()) {
+            return new CaretMatch(caretOffset, matcher.end() - matcher.start(), caretOffset, caretOffset);
+        } else {
+            return new CaretMatch(caretOffset, matcher.end() - matcher.start(), selStart, selEnd);
+        }
     }
 
     @Nullable
     @Override
-    protected RegExPattern getPattern(@NotNull final LineSelectionManager manager, @NotNull final Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
-        EditorPosition caretPos = manager.getPositionFactory().fromPosition(caret.getLogicalPosition());
-        int offset = caretPos.getOffset();
-        int endOfLineColumn = caretPos.atEndColumn().column;
+    protected RegExPattern getPattern(@NotNull final LineSelectionManager manager, @NotNull Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
+        if (!mySingleMatch || myPattern == null) {
+            EditorPosition caretPos = manager.getPositionFactory().fromPosition(caret.getLogicalPosition());
+            int offset = caretPos.getOffset();
+            int endOfLineColumn = caretPos.atEndColumn().column;
 
-        if (!myBackwards) {
-            // check what is ahead of caret
-            char c = offset >= chars.length() || caretPos.column >= endOfLineColumn ? ' ' : chars.charAt(offset);
-            if (Character.isWhitespace(c)) {
-                // match next non-whitespace
-                return ForwardPattern.compile("(\\s+)\\S+");
-            } else if (isJavaIdentifierPart(c)) {
-                // find end of identifier
-                int end = offset;
-                while (end < range.getEnd() && isJavaIdentifierPart(chars.charAt(end))) end++;
+            myPattern = null;
 
-                if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
-                    // we are at start of identifier even if first char is not a valid java identifier
-                    return ForwardPattern.compile("\\b(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+            if (!myBackwards) {
+                // check what is ahead of caret
+                char c = offset >= chars.length() || caretPos.column >= endOfLineColumn ? ' ' : chars.charAt(offset);
+                if (Character.isWhitespace(c)) {
+                    // match next non-whitespace
+                    myPattern = ForwardPattern.compile("(\\s+)\\S+");
+                    myCaretToEndGroup = true;
+                } else if (isJavaIdentifierPart(c)) {
+                    // find end of identifier
+                    int end = offset;
+                    while (end < range.getEnd() && isJavaIdentifierPart(chars.charAt(end))) end++;
+
+                    if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
+                        // we are at start of identifier even if first char is not a valid java identifier
+                        myPattern = ForwardPattern.compile("\\b(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+                    } else {
+                        myPattern = ForwardPattern.compile("(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+                    }
                 } else {
-                    return ForwardPattern.compile("(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+                    // neither, just look for the character
+                    String quote = Pattern.quote(String.valueOf(c));
+                    myPattern = ForwardPattern.compile(quote + "\\s*([^" + quote + "]*)\\s*");
                 }
             } else {
-                // neither, just look for the character
-                String quote = Pattern.quote(String.valueOf(c));
-                return ForwardPattern.compile(quote + "\\s*([^" + quote + "]*)\\s*");
-            }
-        } else {
-            // check what is behind of caret
-            char c = offset == 0 || caretPos.column - 1 >= endOfLineColumn ? ' ' : chars.charAt(offset - 1);
-            if (Character.isWhitespace(c)) {
-                // match previous non-whitespace
-                return ReversePattern.compile("\\S+(\\s+)");
-            } else if (isJavaIdentifierPart(c)) {
-                // find start of identifier
-                int start = offset;
-                while (start > range.getStart() && isJavaIdentifierPart(chars.charAt(start - 1))) start--;
+                // check what is behind of caret
+                char c = offset == 0 || caretPos.column - 1 >= endOfLineColumn ? ' ' : chars.charAt(offset - 1);
+                if (Character.isWhitespace(c)) {
+                    // match previous non-whitespace
+                    myPattern = ReversePattern.compile("\\S+(\\s+)");
+                    myCaretToEndGroup = true;
+                } else if (isJavaIdentifierPart(c)) {
+                    // find start of identifier
+                    int start = offset;
+                    while (start > range.getStart() && isJavaIdentifierPart(chars.charAt(start - 1))) start--;
 
-                if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
-                    // we are at start of identifier even if first char is not a valid java identifier
-                    return ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")\\b");
+                    if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
+                        // we are at start of identifier even if first char is not a valid java identifier
+                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")\\b");
+                    } else {
+                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")");
+                    }
                 } else {
-                    return ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")");
+                    // neither, just look for the character
+                    String quote = Pattern.quote(String.valueOf(c));
+                    myPattern = ReversePattern.compile("\\s*([^" + quote + "]*)\\s*" + quote);
                 }
-            } else {
-                // neither, just look for the character
-                String quote = Pattern.quote(String.valueOf(c));
-                return ReversePattern.compile("\\s*([^" + quote + "]*)\\s*" + quote);
             }
         }
+
+        return myPattern;
     }
 }

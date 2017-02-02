@@ -26,4 +26,7 @@ public enum ActionSetType {
     MOVE_LINE_UP_AUTO_INDENT_TRIGGER,
     MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER,
     SELECTING_ACTION, CUT_ACTION, DUPLICATE_ACTION,
+
+    // used for search/filter multi-caret
+    MOVE_SEARCH_CARET_ACTION,
 }

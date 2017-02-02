@@ -64,6 +64,8 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
         }
     }
 
+    abstract protected boolean isMoveFirstMatch();
+
     /**
      * find match in chars using myBackwards for direction flag
      *
@@ -80,7 +82,7 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
     protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets) {
         Editor editor = caret.getEditor();
         final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
-        boolean keepCaret = false;
+        boolean keepCaret = !isMoveFirstMatch();
 
         T matcher = prepareMatcher(manager, caret, range, chars);
         if (matcher != null) {
@@ -93,10 +95,12 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
                 // found it, create or move caret here
                 if (!keepCaret) {
                     keepCaret = true;
-                    caret.moveToOffset(match.caretOffset);
-                    caret.setSelection(match.selectionStart, match.selectionEnd);
+                    if (isMoveFirstMatch()) {
+                        caret.moveToOffset(match.caretOffset);
+                        caret.setSelection(match.selectionStart, match.selectionEnd);
+                    }
                 } else {
-                    // create a new position
+                    // create a new position if caret moved
                     LogicalPosition offset = editor.offsetToLogicalPosition(match.caretOffset);
                     LogicalPosition startOffset = editor.offsetToLogicalPosition(match.selectionStart);
                     LogicalPosition endOffset = editor.offsetToLogicalPosition(match.selectionEnd);
@@ -109,6 +113,6 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
             }
         }
 
-        return keepCaret;
+        return keepCaret || isSingleMatch();
     }
 }

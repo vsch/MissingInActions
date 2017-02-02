@@ -25,10 +25,13 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretState;
+import com.intellij.openapi.editor.CaretVisualAttributes;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.util.messages.MessageBusConnection;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
@@ -39,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.util.*;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 
@@ -69,6 +72,10 @@ public class LineSelectionManager implements
     private boolean myIsSelectionStartExtended;
     private final CaretHighlighter myCaretHighlighter;
     private ApplicationSettings mySettings;
+    @Nullable private RangeLimitedCaretSpawningHandler myCaretSpawningHandler;
+    @Nullable private Set<CaretEx> myStartCarets;
+    @Nullable private Set<CaretEx> myFoundCarets;
+    @Nullable private List<CaretState> myStartCaretStates;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -79,6 +86,7 @@ public class LineSelectionManager implements
         myDelayedRunner.runAll();
         myActionSelectionAdjuster.dispose();
         myMessageBusConnection.disconnect();
+        myCaretSpawningHandler = null;
     }
 
     @NotNull
@@ -93,8 +101,8 @@ public class LineSelectionManager implements
         // this can fail if caret visual attributes are not implemented in the IDE (since 2017.1)
         CaretHighlighter caretHighlighter;
         try {
-            //caretHighlighter = new CaretHighlighterImpl(this);
-            caretHighlighter = CaretHighlighter.NULL;
+            caretHighlighter = new CaretHighlighterImpl(this);
+            //caretHighlighter = CaretHighlighter.NULL;
         } catch (Throwable ignored) {
             caretHighlighter = CaretHighlighter.NULL;
         }
@@ -107,11 +115,110 @@ public class LineSelectionManager implements
 
         myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
+        myCaretSpawningHandler = null;
+        myStartCarets = null;
+        myFoundCarets = null;
+        myStartCaretStates = null;
+    }
+
+    @Nullable
+    public RangeLimitedCaretSpawningHandler getCaretSpawningHandler() {
+        return myCaretSpawningHandler;
+    }
+
+    public void clearSearchFoundCarets() {
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+
+        myCaretSpawningHandler = null;
+        myStartCaretStates = null;
+        myStartCarets = null;
+        myFoundCarets = null;
+    }
+
+    public void clearSearchFoundHighlights() {
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+    }
+
+    public List<CaretState> getStartCaretStates() {
+        return myStartCaretStates;
+    }
+
+    @Nullable
+    public Set<CaretEx> getStartCarets() {
+        return myStartCarets;
+    }
+
+    @Nullable
+    public Set<CaretEx> getFoundCarets() {
+        return myFoundCarets;
+    }
+
+    public void setSearchFoundCaretSpawningHandler(
+            @Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler,
+            @Nullable final List<CaretState> startCaretStates,
+            @Nullable final Collection<Caret> startCarets,
+            @Nullable final Collection<Caret> foundCarets
+    ) {
+        myCaretSpawningHandler = caretSpawningHandler;
+        myStartCaretStates = startCaretStates;
+        setFoundCarets(foundCarets);
+        setStartCarets(startCarets);
+    }
+
+    @Nullable
+    public void setStartCaretStates(@Nullable final List<CaretState> startCaretStates) {
+        myStartCaretStates = startCaretStates;
+    }
+
+    private void setStartCarets(@Nullable final Collection<Caret> carets) {
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
+        if (carets == null) {
+            myStartCarets = null;
+        } else {
+            myStartCarets = new HashSet<>(carets.size());
+            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+
+            for (Caret caret : carets) {
+                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+                    myCaretHighlighter.setPrimaryCaret(null);
+                    myPrimaryCaret = null;
+                }
+                myStartCarets.add(new CaretEx(caret));
+            }
+
+            myCaretHighlighter.highlightCaretList(myStartCarets, myCaretHighlighter.getStartAttribute(), myFoundCarets);
+        }
+    }
+
+    private void setFoundCarets(@Nullable final Collection<Caret> carets) {
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+        if (carets == null) {
+            myFoundCarets = null;
+        } else {
+            myFoundCarets = new HashSet<>(carets.size());
+            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+
+            for (Caret caret : carets) {
+                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+                    myCaretHighlighter.setPrimaryCaret(null);
+                    myPrimaryCaret = null;
+                }
+                myFoundCarets.add(new CaretEx(caret));
+            }
+
+            myCaretHighlighter.highlightCaretList(myFoundCarets, myCaretHighlighter.getFoundAttribute(), null);
+        }
     }
 
     @NotNull
     public EditorPositionFactory getPositionFactory() {
         return myPositionFactory;
+    }
+
+    public CaretHighlighter getCaretHighlighter() {
+        return myCaretHighlighter;
     }
 
     @NotNull
@@ -253,7 +360,6 @@ public class LineSelectionManager implements
     @Override
     public void exitActiveLookup() {
         myIsActiveLookup = false;
-
     }
 
     @SuppressWarnings("WeakerAccess")

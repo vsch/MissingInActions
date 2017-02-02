@@ -39,6 +39,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
+import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.LinePasteCaretAdjustmentType;
@@ -56,6 +57,7 @@ import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
 import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
+import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_SEARCH_CARET_ACTION;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
 public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
@@ -70,6 +72,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     private final @NotNull AtomicInteger myNestingLevel = new AtomicInteger(0);
     private @Nullable RangeMarker myLastSelectionMarker = null;
     private @Nullable RangeMarker myTentativeSelectionMarker = null;
+    private boolean myRerunCaretHandler = false;
 
     final private boolean debug = false;
 
@@ -150,6 +153,40 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
             } catch (UnsupportedOperationException e) {
                 myTentativeSelectionMarker = null;
+            }
+        }
+
+        RangeLimitedCaretSpawningHandler caretSpawningHandler = myManager.getCaretSpawningHandler();
+        myRerunCaretHandler = false;
+
+        if (caretSpawningHandler != null) {
+            if (myManager.getStartCaretStates() != null) {
+                if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_SEARCH_CARET_ACTION)) {
+                    // create start position carets
+                    myEditor.getCaretModel().setCaretsAndSelections(myManager.getStartCaretStates());
+
+                    // rerun on new caret position after action
+                    myRerunCaretHandler = true;
+                } else {
+                    // keep only found position carets
+                    Set<CaretEx> foundCarets = myManager.getFoundCarets();
+                    if (foundCarets != null) {
+                        Set<Caret> carets = new HashSet<>(foundCarets.size());
+                        for (CaretEx caretEx : foundCarets) {
+                            carets.add(caretEx.getCaret());
+                        }
+
+                        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                            if (!carets.contains(caret)) {
+                                myEditor.getCaretModel().removeCaret(caret);
+                            }
+                        }
+                    }
+                    myManager.clearSearchFoundCarets();
+                }
+            } else {
+                myManager.clearSearchFoundCarets();
+                caretSpawningHandler = null;
             }
         }
 
@@ -249,6 +286,18 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 myTentativeSelectionMarker = null;
             }
         }
+
+        RangeLimitedCaretSpawningHandler caretSpawningHandler = myManager.getCaretSpawningHandler();
+        if (caretSpawningHandler != null && myRerunCaretHandler) {
+            // update start position carets
+            caretSpawningHandler.caretsChanged(myEditor);
+
+            // rerun on new caret position after action
+            final RangeLimitedCaretSpawningHandler finalCaretSpawningHandler = caretSpawningHandler;
+            myManager.guard(() -> {
+                finalCaretSpawningHandler.doAction(myManager, myEditor, null, null);
+            });
+        }
     }
 
     @Override
@@ -265,6 +314,29 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 && caretModel.getCaretCount() == 1
                 && myManager.getEditorCaret(caretModel.getPrimaryCaret()).isLine()) {
             myEditor.getSelectionModel().removeSelection();
+        }
+
+        RangeLimitedCaretSpawningHandler caretSpawningHandler = myManager.getCaretSpawningHandler();
+
+        if (caretSpawningHandler != null) {
+            if (myManager.getStartCaretStates() != null) {
+                // keep only found position carets
+                Set<CaretEx> foundCarets = myManager.getFoundCarets();
+                if (foundCarets != null) {
+                    Set<Caret> carets = new HashSet<>(foundCarets.size());
+                    for (CaretEx caretEx : foundCarets) {
+                        carets.add(caretEx.getCaret());
+                    }
+
+                    myManager.clearSearchFoundHighlights();
+
+                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                        if (!carets.contains(caret)) {
+                            myEditor.getCaretModel().removeCaret(caret);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -436,11 +508,22 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         });
     }
 
-    private void forAllEditorCaretsInWriteAction(@NotNull AnActionEvent event, boolean inWriteAction, @NotNull EditorCaretBeforeAction runnable, @NotNull EditorCaretAfterAction afterAction) {
+    private void forAllEditorCaretsInWriteAction(
+            @NotNull AnActionEvent event,
+            boolean inWriteAction,
+            @NotNull EditorCaretBeforeAction runnable,
+            @NotNull EditorCaretAfterAction afterAction
+    ) {
         forAllEditorCaretsInWriteAction(event, inWriteAction, runnable, afterAction, null);
     }
 
-    private void forAllEditorCaretsInWriteAction(@NotNull AnActionEvent event, boolean inWriteAction, @NotNull EditorCaretBeforeAction runnable, @NotNull EditorCaretAfterAction afterAction, final @Nullable Runnable afterAllCaretsAction) {
+    private void forAllEditorCaretsInWriteAction(
+            @NotNull AnActionEvent event,
+            boolean inWriteAction,
+            @NotNull EditorCaretBeforeAction runnable,
+            @NotNull EditorCaretAfterAction afterAction,
+            final @Nullable Runnable afterAllCaretsAction
+    ) {
         final ActionContext context = new ActionContext();
         forAllEditorCarets(context, runnable);
 

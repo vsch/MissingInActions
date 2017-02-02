@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.settings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.vladsch.MissingInActions.util.ui.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +82,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int         myPrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.getDefault().intValue;
     private int         mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private int         mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
+    private int         myPrimaryCaretThickness = CaretThicknessType.ADAPTER.getDefault().intValue;
+    private int         myPrimaryCaretColor = 0;
+    private boolean     myPrimaryCaretColorEnabled = false;
+    private int         mySearchStartCaretThickness = CaretThicknessType.THIN.intValue;
+    private int         mySearchStartCaretColor = java.awt.Color.RED.getRGB();
+    private boolean     mySearchStartCaretColorEnabled = true;
+    private int         mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
+    private int         mySearchFoundCaretColor = java.awt.Color.BLACK.getRGB();
+    private boolean     mySearchFoundCaretColorEnabled = false;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
     // @formatter:on
@@ -140,6 +150,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public LinePasteCaretAdjustmentType getLinePasteCaretAdjustmentType() { return LinePasteCaretAdjustmentType.ADAPTER.get(myLinePasteCaretAdjustment); }
     public SelectionPredicateType getSelectPastedPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedPredicate); }
     public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedMultiCaretPredicate); }
+    public CaretThicknessType getPrimaryCaretThicknessType() { return CaretThicknessType.ADAPTER.get(myPrimaryCaretThickness); }
+    public CaretThicknessType getSearchStartCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartCaretThickness); }
+    public CaretThicknessType getSearchFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchFoundCaretThickness); }
     public void setRemovePrefixOnPastePatternType(PrefixOnPastePatternType prefixOnPastePatternType) { myPrefixOnPastePattern = prefixOnPastePatternType.intValue; }
     public void setCaretOnMoveSelectionDownType(CaretAdjustmentType caretOnMoveSelectionDownType) { myCaretOnMoveSelectionDown = caretOnMoveSelectionDownType.intValue; }
     public void setCaretOnMoveSelectionUpType(CaretAdjustmentType caretOnMoveSelectionUpType) { myCaretOnMoveSelectionUp = caretOnMoveSelectionUpType.intValue; }
@@ -147,11 +160,13 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public void setLinePasteCaretAdjustmentType(LinePasteCaretAdjustmentType linePasteCaretAdjustmentType) { myLinePasteCaretAdjustment = linePasteCaretAdjustmentType.intValue; }
     public void setSelectPastedPredicateType(SelectionPredicateType selectPastedPredicateType) { mySelectPastedPredicate = selectPastedPredicateType.intValue; }
     public void setSelectPastedMultiCaretPredicateType(SelectionPredicateType selectPastedMultiCaretPredicateType) { mySelectPastedMultiCaretPredicate = selectPastedMultiCaretPredicateType.intValue; }
+    public void setPrimaryCaretThickness(CaretThicknessType primaryCaretThickness) { myPrimaryCaretThickness = primaryCaretThickness.intValue; }
+    public void setSearchStartCaretThickness(CaretThicknessType searchStartCaretThickness) { mySearchStartCaretThickness = searchStartCaretThickness.intValue; }
+    public void setSearchFoundCaretThickness(CaretThicknessType searchFoundCaretThickness) { mySearchFoundCaretThickness = searchFoundCaretThickness.intValue; }
     // @formatter:on
 
     // customized word flags
-    @SuppressWarnings({ "ConstantConditionalExpression", "PointlessBitwiseExpression" })
-    final private static int CUSTOMIZED_DEFAULTS = (true ? START_OF_LINE : 0)
+    @SuppressWarnings({ "ConstantConditionalExpression", "PointlessBitwiseExpression" }) final private static int CUSTOMIZED_DEFAULTS = (true ? START_OF_LINE : 0)
             | (true ? END_OF_LINE : 0)
             | (true ? START_OF_TRAILING_BLANKS | END_OF_LEADING_BLANKS : 0)
             | (false ? IDE_WORD : 0)
@@ -411,6 +426,54 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public NumberingBaseOptions getLastNumberingBaseOptions_36() { return myLastNumberingBaseOptions_36.copy(); }
     public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); }
     // @formatter:on
+
+    public int getPrimaryCaretColor() { return myPrimaryCaretColor; }
+
+    public void setPrimaryCaretColor(final int primaryCaretColor) { myPrimaryCaretColor = primaryCaretColor; }
+
+    public int getSearchStartCaretColor() { return mySearchStartCaretColor; }
+
+    public void setSearchStartCaretColor(final int searchStartCaretColor) { mySearchStartCaretColor = searchStartCaretColor; }
+
+    public int getSearchFoundCaretColor() { return mySearchFoundCaretColor; }
+
+    public void setSearchFoundCaretColor(final int searchFoundCaretColor) { mySearchFoundCaretColor = searchFoundCaretColor; }
+
+    public boolean isPrimaryCaretColorEnabled() { return myPrimaryCaretColorEnabled; }
+
+    public void setPrimaryCaretColorEnabled(final boolean primaryCaretColorEnabled) { myPrimaryCaretColorEnabled = primaryCaretColorEnabled; }
+
+    public int getPrimaryCaretThickness() { return myPrimaryCaretThickness; }
+
+    public void setPrimaryCaretThickness(final int primaryCaretThickness) { myPrimaryCaretThickness = primaryCaretThickness; }
+
+    public java.awt.Color primaryCaretColorRGB() { return Color.of(myPrimaryCaretColor); }
+
+    public void primaryCaretColorRGB(final java.awt.Color primaryCaretColor) { myPrimaryCaretColor = primaryCaretColor.getRGB(); }
+
+    public boolean isSearchStartCaretColorEnabled() { return mySearchStartCaretColorEnabled; }
+
+    public void setSearchStartCaretColorEnabled(final boolean primaryCaretColorEnabled) { mySearchStartCaretColorEnabled = primaryCaretColorEnabled; }
+
+    public int getSearchStartCaretThickness() { return mySearchStartCaretThickness; }
+
+    public void setSearchStartCaretThickness(final int primaryCaretThickness) { mySearchStartCaretThickness = primaryCaretThickness; }
+
+    public java.awt.Color searchStartCaretColorRGB() { return Color.of(mySearchStartCaretColor); }
+
+    public void searchStartCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchStartCaretColor = primaryCaretColor.getRGB(); }
+
+    public boolean isSearchFoundCaretColorEnabled() { return mySearchFoundCaretColorEnabled; }
+
+    public void setSearchFoundCaretColorEnabled(final boolean primaryCaretColorEnabled) { mySearchFoundCaretColorEnabled = primaryCaretColorEnabled; }
+
+    public int getSearchFoundCaretThickness() { return mySearchFoundCaretThickness; }
+
+    public void setSearchFoundCaretThickness(final int primaryCaretThickness) { mySearchFoundCaretThickness = primaryCaretThickness; }
+
+    public java.awt.Color searchFoundCaretColorRGB() { return Color.of(mySearchFoundCaretColor); }
+
+    public void searchFoundCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchFoundCaretColor = primaryCaretColor.getRGB(); }
 
     public boolean isMultiPasteDeleteRepeatedCaretData() { return myMultiPasteDeleteRepeatedCaretData; }
 

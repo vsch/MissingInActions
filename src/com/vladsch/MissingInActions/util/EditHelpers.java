@@ -58,10 +58,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.datatransfer.Transferable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
@@ -753,6 +750,13 @@ public class EditHelpers {
         HashMap<Caret, Range> map = new HashMap<>(rangeMap.size());
         Caret[] carets = rangeMap.keySet().toArray(new Caret[rangeMap.size()]);
         Range prevRange = null;
+
+        Arrays.sort(carets, new Comparator<Caret>() {
+            @Override
+            public int compare(final Caret o1, final Caret o2) {
+                return o1.getLogicalPosition().compareTo(o2.getLogicalPosition());
+            }
+        });
 
         if (!backwards) {
             for (int i = carets.length; i-- > 0; ) {
