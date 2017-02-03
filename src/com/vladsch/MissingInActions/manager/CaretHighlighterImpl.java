@@ -38,8 +38,8 @@ class CaretHighlighterImpl implements CaretHighlighter {
     @NotNull private final LineSelectionManager myManager;
     @Nullable private CaretEx myPrimaryCaret = null;
     @Nullable private CaretVisualAttributes myPrimaryAttributes = null;
-    @Nullable private CaretVisualAttributes myStartAttribute = null;
-    @Nullable private CaretVisualAttributes myFoundAttribute = null;
+    @Nullable private CaretVisualAttributes myStartAttributes = null;
+    @Nullable private CaretVisualAttributes myFoundAttributes = null;
 
     CaretHighlighterImpl(@NotNull LineSelectionManager manager) throws NotImplementedException {
         myManager = manager;
@@ -75,28 +75,10 @@ class CaretHighlighterImpl implements CaretHighlighter {
     }
 
     @Override
-    @Nullable
-    public CaretVisualAttributes getPrimaryAttributes() {
-        return myPrimaryAttributes;
-    }
-
-    @Override
-    @Nullable
-    public CaretVisualAttributes getStartAttribute() {
-        return myStartAttribute;
-    }
-
-    @Override
-    @Nullable
-    public CaretVisualAttributes getFoundAttribute() {
-        return myFoundAttribute;
-    }
-
-    @Override
     public void settingsChanged(ApplicationSettings settings) {
         myPrimaryAttributes = new CaretVisualAttributes(settings.isPrimaryCaretColorEnabled() ? settings.primaryCaretColorRGB() : null, getCaretWeight(settings.getPrimaryCaretThicknessType()));
-        myStartAttribute = new CaretVisualAttributes(settings.isSearchStartCaretColorEnabled() ? settings.searchStartCaretColorRGB() : null, getCaretWeight(settings.getSearchStartCaretThicknessType()));
-        myFoundAttribute = new CaretVisualAttributes(settings.isSearchFoundCaretColorEnabled() ? settings.searchFoundCaretColorRGB() : null, getCaretWeight(settings.getSearchFoundCaretThicknessType()));
+        myStartAttributes = new CaretVisualAttributes(settings.isSearchStartCaretColorEnabled() ? settings.searchStartCaretColorRGB() : null, getCaretWeight(settings.getSearchStartCaretThicknessType()));
+        myFoundAttributes = new CaretVisualAttributes(settings.isSearchFoundCaretColorEnabled() ? settings.searchFoundCaretColorRGB() : null, getCaretWeight(settings.getSearchFoundCaretThicknessType()));
     }
 
     @Override
@@ -108,12 +90,22 @@ class CaretHighlighterImpl implements CaretHighlighter {
         Set<CaretEx> myFoundCarets = myManager.getFoundCarets();
         Set<CaretEx> myStartCarets = myManager.getStartCarets();
 
-        highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
-        highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+        highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
     }
 
     @Override
-    public void highlightCaretList(@Nullable Collection<CaretEx> carets, @Nullable CaretVisualAttributes attributes, @Nullable Set<CaretEx> exclude) {
+    public void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<CaretEx> exclude) {
+        CaretVisualAttributes attributes = null;
+
+        switch (attributeType) {
+            case PRIMARY: attributes = myPrimaryAttributes; break;
+            case START: attributes = myStartAttributes; break;
+            case FOUND: attributes = myFoundAttributes; break;
+        }
+
+        if (attributes == null) attributes = CaretVisualAttributes.DEFAULT;
+
         Set<Long> excludeList = exclude == null ? null : new HashSet<>(exclude.size());
         if (excludeList != null) {
             for (CaretEx caretEx : exclude) {
@@ -124,7 +116,7 @@ class CaretHighlighterImpl implements CaretHighlighter {
         if (carets != null && !carets.isEmpty()) {
             for (CaretEx caretEx : carets) {
                 if (excludeList != null && excludeList.contains(caretEx.getCoordinates())) continue;
-                caretEx.setVisualAttributes(attributes == null ? CaretVisualAttributes.DEFAULT : attributes);
+                caretEx.setVisualAttributes(attributes);
             }
         }
     }
@@ -146,8 +138,8 @@ class CaretHighlighterImpl implements CaretHighlighter {
                     myPrimaryCaret.setVisualAttributes(myPrimaryAttributes);
                 }
             } else {
-                highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
-                highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+                highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+                highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
             }
         }
     }

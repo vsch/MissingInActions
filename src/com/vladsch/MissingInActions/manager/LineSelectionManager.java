@@ -127,8 +127,8 @@ public class LineSelectionManager implements
     }
 
     public void clearSearchFoundCarets() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
-        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
 
         myCaretSpawningHandler = null;
         myStartCaretStates = null;
@@ -138,10 +138,11 @@ public class LineSelectionManager implements
     }
 
     public void clearSearchFoundHighlights() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
-        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
     }
 
+    @Nullable
     public List<CaretState> getStartCaretStates() {
         return myStartCaretStates;
     }
@@ -174,7 +175,7 @@ public class LineSelectionManager implements
     }
 
     private void setStartCarets(@Nullable final Collection<Caret> carets) {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
         if (carets == null) {
             myStartCarets = null;
         } else {
@@ -189,12 +190,12 @@ public class LineSelectionManager implements
                 myStartCarets.add(new CaretEx(caret));
             }
 
-            myCaretHighlighter.highlightCaretList(myStartCarets, myCaretHighlighter.getStartAttribute(), myFoundCarets);
+            myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, myFoundCarets);
         }
     }
 
     private void setFoundCarets(@Nullable final Collection<Caret> carets) {
-        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
         if (carets == null) {
             myFoundCarets = null;
         } else {
@@ -209,7 +210,7 @@ public class LineSelectionManager implements
                 myFoundCarets.add(new CaretEx(caret));
             }
 
-            myCaretHighlighter.highlightCaretList(myFoundCarets, myCaretHighlighter.getFoundAttribute(), null);
+            myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.FOUND, null);
         }
     }
 

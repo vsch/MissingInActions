@@ -36,11 +36,8 @@ public interface CaretHighlighter {
         @Override public void caretAdded(@NotNull Caret caret) { }
         @Override public void caretRemoved(@NotNull Caret caret) { }
         @Override public CaretEx getPrimaryCaret() { return null; }
-        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @Nullable final CaretVisualAttributes attributes, @Nullable final Set<CaretEx> exclude) { }
+        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @NotNull final CaretAttributeType attributeType, @Nullable final Set<CaretEx> exclude) { }
         @Override public void highlightCarets() { }
-        @Nullable public CaretVisualAttributes getPrimaryAttributes() { return null; }
-        @Nullable public CaretVisualAttributes getStartAttribute() { return null; }
-        @Nullable public CaretVisualAttributes getFoundAttribute() { return null; }
         @Override public void settingsChanged(ApplicationSettings settings) { }
         @Override public void removeCaretHighlight() { }
         @Override public void updateCaretHighlights() { }
@@ -51,15 +48,9 @@ public interface CaretHighlighter {
     void updateCaretHighlights();
     @Nullable
     CaretEx getPrimaryCaret();
-    @Nullable
-    CaretVisualAttributes getPrimaryAttributes();
-    @Nullable
-    CaretVisualAttributes getStartAttribute();
-    @Nullable
-    CaretVisualAttributes getFoundAttribute();
     void settingsChanged(ApplicationSettings settings);
     void removeCaretHighlight();
-    void highlightCaretList(@Nullable Collection<CaretEx> carets, @Nullable CaretVisualAttributes attributes, @Nullable Set<CaretEx> exclude);
+    void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<CaretEx> exclude);
     void highlightCarets();
     void caretAdded(@NotNull Caret caret);
     void caretRemoved(@NotNull Caret caret);
