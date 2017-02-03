@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MissingInActions" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
     <module name="MissingInActions" />
-    <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+    <option name="VM_PARAMETERS" value="-Xmx3000m -Xms1024m -ea" />
     <option name="PROGRAM_PARAMETERS" value="" />
     <log_file path="$USER_HOME$/Library/Caches/IdeaIC2017-1/plugins-sandbox/system/log/idea.log" checked="false" skipped="false" show_all="false" alias="ide log" />
     <predefined_log_file id="idea.log" enabled="true" />

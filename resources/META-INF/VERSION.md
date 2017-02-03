@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.8.3.6 - Bug Fixes and Enhancements](#0836---bug-fixes-and-enhancements)
+- [0.8.3.8 - Bug Fixes and Enhancements](#0838---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
 - [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
 - [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
@@ -75,7 +75,7 @@
 
 &nbsp;</details>
 
-### 0.8.3.6 - Bug Fixes and Enhancements
+### 0.8.3.8 - Bug Fixes and Enhancements
 
 * Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
   carets. Also does color and weight change if 2017 EAP.

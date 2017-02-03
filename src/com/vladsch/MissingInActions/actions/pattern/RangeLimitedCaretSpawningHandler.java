@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.actions.pattern;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.manager.CaretEx;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
@@ -33,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static com.vladsch.MissingInActions.manager.CaretEx.getCoordinates;
 
 /**
  * These limit their range of effect within their own selection, start/end of line, or the next/prev caret location
@@ -81,7 +84,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
     public void doAction(final LineSelectionManager manager, final Editor editor, final @Nullable Caret caret, @Nullable final Caret patternCaret) {
         Caret useCaret = caret;
         ArrayList<CaretState> createList = new ArrayList<>();
-        HashSet<Caret> keptCarets = new HashSet<>();
+        Map<Long, Caret> keptCarets = new LinkedHashMap<>();
         CaretModel caretModel = editor.getCaretModel();
 
         if (!caretModel.supportsMultipleCarets()) {
@@ -99,7 +102,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
             for (Caret caret1 : caretList) {
                 Range range = EditHelpers.getCaretRange(caret1, myBackwards, isLineMode(), isSingleLine());
-                caretRanges.put(caret1,range);
+                caretRanges.put(caret1, range);
             }
 
             caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges);
@@ -116,7 +119,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                     if (range == null) continue;
 
                     if (perform(manager, caret1, range, createList)) {
-                        keptCarets.add(caret1);
+                        keptCarets.put(getCoordinates(caret1), caret1);
                     }
                 }
             } else {
@@ -126,12 +129,12 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
                 if (range != null) {
                     if (perform(manager, useCaret, range, createList)) {
-                        keptCarets.add(useCaret);
+                        keptCarets.put(getCoordinates(useCaret), useCaret);
                     }
                 }
             }
 
-            removePrimary = !keptCarets.contains(primaryCaret);
+            removePrimary = !keptCarets.containsKey(CaretEx.getCoordinates(primaryCaret));
 
             List<Caret> createdCarets = new ArrayList<>();
 
@@ -143,7 +146,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                 for (CaretState caretState : createList) {
                     LogicalPosition caretPosition = caretState.getCaretPosition();
                     if (caretPosition != null) {
-                        Caret newCaret = removePrimary ? primaryCaret : caretModel.addCaret(caretPosition.toVisualPosition());
+                        Caret newCaret = removePrimary ? primaryCaret : caretModel.addCaret(editor.logicalToVisualPosition(caretPosition));
                         if (newCaret != null) {
                             EditHelpers.restoreState(newCaret, caretState, false);
                             removePrimary = false;
@@ -151,11 +154,8 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                             createdCarets.add(newCaret);
                         } else {
                             // caret already exists, we add that one
-                            for (Caret caret1 : keptCarets) {
-                                if (caretPosition.equals(caret1.getLogicalPosition())) {
-                                    createdCarets.add(caret1);
-                                    break;
-                                }
+                            if (keptCarets.containsKey(getCoordinates(caretPosition))) {
+                                createdCarets.add(keptCarets.get(getCoordinates(caretPosition)));
                             }
                         }
                     }
@@ -163,16 +163,16 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
                 if (removePrimary) {
                     // move primary to first kept and remove first
-                    Caret firstCaret = keptCarets.iterator().next();
+                    Caret firstCaret = keptCarets.values().iterator().next();
                     primaryCaret.moveToLogicalPosition(firstCaret.getLogicalPosition());
                     primaryCaret.setSelection(firstCaret.getSelectionStart(), firstCaret.getSelectionEnd());
-                    keptCarets.remove(firstCaret);
+                    keptCarets.remove(CaretEx.getCoordinates(firstCaret));
                     removePrimary = false;
                 }
 
                 // keep only ones in list
                 for (Caret caret1 : caretList) {
-                    if (!keptCarets.contains(caret1)) {
+                    if (!keptCarets.containsKey(CaretEx.getCoordinates(caret1))) {
                         caretModel.removeCaret(caret1);
                     }
                 }

@@ -181,8 +181,16 @@ public class LineSelectionManager implements
         } else {
             myStartCarets = new HashSet<>(carets.size());
             CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+            Set<Long> excludeList = myFoundCarets == null ? null : new HashSet<>(myFoundCarets.size());
+            if (excludeList != null) {
+                for (CaretEx caretEx : myFoundCarets) {
+                    excludeList.add(caretEx.getCoordinates());
+                }
+            }
 
             for (Caret caret : carets) {
+                if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
+
                 if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
                     myCaretHighlighter.setPrimaryCaret(null);
                     myPrimaryCaret = null;

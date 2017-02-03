@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-class CaretEx implements Caret {
+public class CaretEx implements Caret {
     private static final Method ourGetVisualAttributes;
     private static final Method ourSetVisualAttributes;
     private final Caret myCaret;
@@ -67,7 +67,10 @@ class CaretEx implements Caret {
     }
 
     public static long getCoordinates(Caret caret) {
-        LogicalPosition logicalPosition = caret.getLogicalPosition();
+        return getCoordinates(caret.getLogicalPosition());
+    }
+
+    public static long getCoordinates(LogicalPosition logicalPosition) {
         return ((long)logicalPosition.line << 32) | (logicalPosition.column);
     }
 
@@ -109,7 +112,7 @@ class CaretEx implements Caret {
     }
 
     public boolean isCaret(Caret caret) {
-        return myCaret == caret;
+        return equals(caret);
     }
 
     @Override
