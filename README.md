@@ -66,6 +66,8 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 [Version Notes][] [Download Latest 0.8.3.10 from this repo][]
 
+* Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
+
 * Add: number generating action. For now only for multiple carets.
   * Sequences 0-9, A-Z for number bases 2-36
   * Prefix/Suffix options to add to generated number
