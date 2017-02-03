@@ -1,12 +1,13 @@
 <img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
-=================================================================================================================================================================================================
+================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.8.3 from this repo]
+[Download Latest 0.8.3.10 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 0.8.3.10 - Bug Fix and Improvement Release](#version-08310---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
@@ -18,9 +19,9 @@
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
-- Enable Auto Indent Lines after move line/selection up or down actions to have them indented
+* Enable Auto Indent Lines after move line/selection up or down actions to have them indented
   automatically.
-- Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
+* Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
   match case and style of identifier at destination when you paste, undo to get results before
   MIA adjusted them.
 
@@ -29,29 +30,30 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   Works when pasting at the **beginning**, **end** and **middle** of identifiers.
 
-  Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**
+  Supports: **camelCase**, **PascalCase**, **snake_case**, **SCREAMING_SNAKE_CASE**,
+  **dash-case**, **dot.case**, **slash/case**
 
   Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields, static
   fields, getters and setters.
-- Enable Auto Line Selections and select full lines without loosing time or column position by
+* Enable Auto Line Selections and select full lines without loosing time or column position by
   moving the caret to the start of line when selecting or pasting.
 
   **Choose** whether you want to **paste full line** selections: **above** or **below** the
   current line regardless of the caret's column.
-- Toggle between selection and multiple carets on selected lines to save time re-selecting the
+* Toggle between selection and multiple carets on selected lines to save time re-selecting the
   same text again.
-- Filter multiple carets saves you time when creating multiple carets by removing carets on
+* Filter multiple carets saves you time when creating multiple carets by removing carets on
   blank or comment lines so you can edit only code lines.
-- Enhanced Paste from History dialog:
-  - **combine**, **arrange** and **reverse** the order of content entries
-  - **combine multiple** clipboard contents **with caret information intact**
-  - **paste and re-create multiple carets** from information already stored on the clipboard
-  - **duplicate line/block for each caret** in the clipboard content and **put a caret on the
+* Enhanced Paste from History dialog:
+  * **combine**, **arrange** and **reverse** the order of content entries
+  * **combine multiple** clipboard contents **with caret information intact**
+  * **paste and re-create multiple carets** from information already stored on the clipboard
+  * **duplicate line/block for each caret** in the clipboard content and **put a caret on the
     first line** of the block, ready for multi-caret select and paste
-  - **duplicate line/block for each caret** in the clipboard content for multiple caret
+  * **duplicate line/block for each caret** in the clipboard content for multiple caret
     selections and paste content into each selection
-  - see caret information stored on the clipboard for each content entry
-- Many more options and adjustments to make multiple caret text editing fast, efficient and
+  * see caret information stored on the clipboard for each content entry
+* Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
 **Plugin website:
@@ -60,35 +62,90 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
+## Version 0.8.3.10 - Bug Fix and Improvement Release
+
+[Version Notes][] [Download Latest 0.8.3.10 from this repo][]
+
+* Add: number generating action. For now only for multiple carets.
+  * Sequences 0-9, A-Z for number bases 2-36
+  * Prefix/Suffix options to add to generated number
+  * Sequences can be 0 or space right justified to any width
+  * Arithmetic or Shift with Step and Direction
+  * Start/Stop number, carets whose number is outside the range insert nothing
+
+* Add: forward/backward caret spawn/filter pattern actions: `Backward Search Caret Spawning`,
+  `Forward Search Caret Spawning` pattern search and action results are based on context and
+  number of carets:
+  * if a single caret exists then:
+    * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
+      a non-space. Will select the intervening spaces for each caret
+    * if caret is on identifier start then will spawn a caret for every occurrence of identifier
+      and select the identifier.
+    * if caret is on identifier character, but not start of identifier, then will spawn a caret
+      for every occurrence of identifier that ends in same text as one from caret to end of
+      identifier and select the matched identifier portion
+    * otherwise will spawn a caret on every occurrence of the character at caret, selecting
+      trimmed intervening characters between carets.
+  * if multiple carets exist then spawning of only a single carets is done by using the pattern
+    as determined by the primary caret per above rules. For each caret the pattern search is
+    applied and if found a caret is placed at the location. Original caret position is treated
+    as search start location and match location is called the found caret position.
+
+    Start positions are affected by caret movement actions and the pattern search applied at the
+    new location. This allows the search start to be modified after the pattern is set.
+
+    Found positions will be the only carets that remain on any non-caret movement actions or on
+    typing a character.
+
+    This functionality allows creating a set of carets on all lines and then filtering and
+    changing the location of carets used for editing by matching a pattern at the primary caret
+    location.
+
+    :information_source: With IDE versions **2017.1 EAP** and newer the plugin allows changing
+    the caret appearance for: primary, start and found carets making it easy to see where the
+    search starts and where the pattern is matched. Plugin configuration settings under settings
+    in Tools > Missing In Actions:
+
+    ![Tools Settings Caret Attributes](/assets/images/ToolsSettings_CaretAttributes.png)
+  * behavior is also affected by number of carets and selection:
+    * if no selections that spans lines then action is limited to a single line of the caret
+    * if no two carets are on the same line then affected range for each caret is expanded to
+      full lines
+    * any selection for a caret is used to expand the range for that caret to include the
+      selection and caret offset.
+
+  For best use, define two shortcuts: one for forward spawning action and one for backward one.
+  I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
+  Since these are taken on OS X, I assigned `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward
+  spawning search instead. A bit awkward but usable.
+
 ## Version 0.8.3 - Bug Fix and Improvement Release
 
-[Version Notes] [Download Latest 0.8.3 from this repo]
-
-- Add: Dupe for Clipboard carets to handle multi-caret input:
-  - duplicated block spans all carets
-    - if have selections
-      - then only keep carets with selections
-    - otherwise
-      - if span == 1, keep all carets
-      - if have no selections
-        - if same number of carets on each type of line:code, comment, blank, of the block then
+* Add: Dupe for Clipboard carets to handle multi-caret input:
+  * duplicated block spans all carets
+    * if have selections
+      * then only keep carets with selections
+    * otherwise
+      * if span == 1, keep all carets
+      * if have no selections
+        * if same number of carets on each type of line:code, comment, blank, of the block then
           keep all carets
-        - otherwise, assume that the first and last caret were used to mark the span of lines to
+        * otherwise, assume that the first and last caret were used to mark the span of lines to
           duplicate, and remove them, duplicating the rest of the carets
-    - clipboard data is duplicated for every caret so that the first block will have first caret
+    * clipboard data is duplicated for every caret so that the first block will have first caret
       content for every caret in the block, second second, etc
 
     If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
     after dupe, the clipboard will contain 9 carets:
     text1,text1,text1,text2,text2,text2,text3,text3,text3
 
-- Fix: improve smart paste and preserve case and prefix
+* Fix: improve smart paste and preserve case and prefix
 
-- Fix: on paste add/remove/preserve prefixes now unlimited whether regex or text versions.
+* Fix: on paste add/remove/preserve prefixes now unlimited whether regex or text versions.
 
 ## Version 0.8.2 - Enhanced Paste From History
 
-- Enhanced Paste From History Added, [Paste From History: A Power User Feature]
+* Enhanced Paste From History Added, [Paste From History: A Power User Feature]
 
 ![Paste From History Details](/assets/images/PasteFromHistory_Details.png)
 
@@ -145,14 +202,14 @@ between selection and multiple carets:
 5. Paste of full line selections now behaves like line selections should. These can be made to
    paste:
 
-   - IDE default, where you left your caret last
+   * IDE default, where you left your caret last
 
-   - always above the caret line (my new favourite),
+   * always above the caret line (my new favourite),
 
-   - above the caret line if caret is between left margin/indent position and below it
+   * above the caret line if caret is between left margin/indent position and below it
      otherwise,
 
-   - always below the caret line
+   * always below the caret line
 
 6. Auto Line Indent on move line or selection up or down. With every other editing operation,
    the IDE seems to remember to adjust indentation automatically, at least as an option. This
@@ -260,7 +317,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 0.8.3 from this repo]: ../../raw/master/dist/MissingInActions.0.8.3.zip
+[Download Latest 0.8.3.10 from this repo]: ../../raw/master/dist/MissingInActions.0.8.4.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

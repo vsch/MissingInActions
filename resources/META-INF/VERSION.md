@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.8.3.9 - Bug Fixes and Enhancements](#0839---bug-fixes-and-enhancements)
+- [0.8.3.10 - Bug Fixes and Enhancements](#08310---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
 - [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
 - [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
@@ -75,7 +75,7 @@
 
 &nbsp;</details>
 
-### 0.8.3.9 - Bug Fixes and Enhancements
+### 0.8.3.10 - Bug Fixes and Enhancements
 
 * Add: DashCase, DotCase and SlashCase to on paste preservation options
 
@@ -91,54 +91,49 @@
 
 * Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
   at caret and whether there is a selection.
-  * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on a
-    non-space. Will select the intervening spaces for each caret
-  * if caret is on identifier start then will spawn a caret for every occurrence of identifier
-    and select the identifier.
-  * if caret is on identifier character, but not start of identifier, then will spawn a caret
-    for every occurrence of identifier that ends in same text as one from caret to end of
-    identifier and select the matched identifier portion
-  * otherwise will spawn a caret on every occurrence of the character at caret, selecting
-    trimmed intervening characters between carets.
-  * behavior is also affected by number of carets and selection:
-    * if no selections that spans lines then action is limited to a single line of the caret
-    * if no two carets are on the same line then affected range for each caret is expanded to
-      full lines
-    * any selection for a caret is used to expand the range for that caret to include the
-      selection and caret offset.
 
-  Best use is to define two shortcuts: one for forward spawning action and one for backward one.
-  I was used to having this on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
+  * if a single caret exists then:
+    * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
+      a non-space. Will select the intervening spaces for each caret
+    * if caret is on identifier start then will spawn a caret for every occurrence of identifier
+      and select the identifier.
+    * if caret is on identifier character, but not start of identifier, then will spawn a caret
+      for every occurrence of identifier that ends in same text as one from caret to end of
+      identifier and select the matched identifier portion
+    * otherwise will spawn a caret on every occurrence of the character at caret, selecting
+      trimmed intervening characters between carets.
+
+  * if multiple carets exist then spawning of only a single carets is done by using the pattern
+    as determined by the primary caret per above rules. For each caret the pattern search is
+    applied and if found a caret is placed at the location. Original caret position is treated
+    as search start positions and match location is called the found caret position.
+
+    Start positions are affected by caret movement actions and the pattern search applied at the
+    new location. This allows the search start to be modified after the pattern is set.
+
+    Found positions will be the only carets that remain on any non-caret movement actions or on
+    typing a character.
+
+    This functionality allows creating a set of carets on all lines and then filtering and
+    changing the location of carets used for editing by matching a pattern at the primary caret
+    location.
+
+    :information_source: With IDE versions **2017.1 EAP** and newer the plugin allows changing
+    the caret appearance for: primary, start and found carets making it easy to see where the
+    search starts and where the pattern is matched. Plugin configuration settings under settings
+    in Tools > Missing In Actions:
+
+* behavior is also affected by number of carets and selection:
+  * if no selections that spans lines then action is limited to a single line of the caret
+  * if no two carets are on the same line then affected range for each caret is expanded to full
+    lines
+  * any selection for a caret is used to expand the range for that caret to include the
+    selection and caret offset.
+
+  For best use, define two shortcuts: one for forward spawning action and one for backward one.
+  I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
   Since these are taken on OS X, I assigned `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward
   spawning search instead. A bit awkward but usable.
-
-  The effect when caret is on a space is to select every span of spaces from caret to end of
-  line and put a caret at end of each selection. A quick way to place carets on next non-space
-  while selecting previous spaces.
-
-  The effect when caret is on an identifier is to either select occurrence of this identifier if
-  caret is on identifier start, or to select the matched trailing part of the identifier on the
-  line. For example if `|` marks caret position and `[]` selection:
-
-  `selection|Start(), range.getStart()`
-
-  forward spawning search will spawn one more caret and select
-
-  `selection|[Start](), range.get|[Start]()`
-
-  On the other hand if the caret is at start of identifier, then only that identifier will be
-  selected.
-
-  If caret is not on a whitespace or identifier then the character at caret is searched for,
-  selecting trimmed intervening characters for each caret. Forward spawning search on:
-
-  `{ abc|, def, ghi, xyz, };`
-
-  will result in:
-
-  `{ abc|, [def]|, [ghi]|, [xyz]|, [};]`
-
-  if you don't need the selection then left/right caret movement will clear the selections.
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
