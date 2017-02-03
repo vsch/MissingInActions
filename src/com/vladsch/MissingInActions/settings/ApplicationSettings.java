@@ -64,6 +64,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean     myPreserveCamelCaseOnPaste = false;
     private boolean     myPreserveScreamingSnakeCaseOnPaste = false;
     private boolean     myPreserveSnakeCaseOnPaste = false;
+    private boolean     myPreserveDashCaseOnPaste = false;
+    private boolean     myPreserveDotCaseOnPaste = false;
+    private boolean     myPreserveSlashCaseOnPaste = false;
     private boolean     myRemovePrefixOnPaste = false;
     private boolean     mySelectPasted = false;
     private boolean     mySelectPastedMultiCaret = false;
@@ -526,6 +529,18 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public boolean isPreserveSnakeCaseOnPaste() { return myPreserveSnakeCaseOnPaste; }
 
     public void setPreserveSnakeCaseOnPaste(boolean preserveSnakeCaseOnPaste) { myPreserveSnakeCaseOnPaste = preserveSnakeCaseOnPaste; }
+
+    public boolean isPreserveDashCaseOnPaste() { return myPreserveDashCaseOnPaste; }
+
+    public void setPreserveDashCaseOnPaste(final boolean preserveDashCaseOnPaste) { myPreserveDashCaseOnPaste = preserveDashCaseOnPaste; }
+
+    public boolean isPreserveDotCaseOnPaste() { return myPreserveDotCaseOnPaste; }
+
+    public void setPreserveDotCaseOnPaste(final boolean preserveDotCaseOnPaste) { myPreserveDotCaseOnPaste = preserveDotCaseOnPaste; }
+
+    public boolean isPreserveSlashCaseOnPaste() { return myPreserveSlashCaseOnPaste; }
+
+    public void setPreserveSlashCaseOnPaste(final boolean preserveSlashCaseOnPaste) { myPreserveSlashCaseOnPaste = preserveSlashCaseOnPaste; }
 
     public boolean isRemovePrefixOnPaste() { return myRemovePrefixOnPaste; }
 

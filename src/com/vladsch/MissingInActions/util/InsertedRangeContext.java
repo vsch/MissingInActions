@@ -342,12 +342,32 @@ public class InsertedRangeContext {
     }
 
     @NotNull
-    public InsertedRangeContext fixSnakeCase() {
-        if (charBefore == '_' && charAtStart() == '_') deletePrefix(1);
-        else if (!isWordStartAtStart && charBefore != '_' && charAtStart() != '_') prefixWith("_");
-        if (charAfter == '_' && charAtEnd() == '_') deleteSuffix(1);
-        else if (!isWordEndAtEnd && charAfter != '_' && charAtEnd() != '_') suffixWith("_");
+    public InsertedRangeContext fixSeparatorCase(char separator) {
+        if (charBefore == separator && charAtStart() == separator) deletePrefix(1);
+        else if (!isWordStartAtStart && charBefore != separator && charAtStart() != separator) prefixWith("_");
+        if (charAfter == separator && charAtEnd() == separator) deleteSuffix(1);
+        else if (!isWordEndAtEnd && charAfter != separator && charAtEnd() != separator) suffixWith("_");
         return this;
+    }
+
+    @NotNull
+    public InsertedRangeContext fixSnakeCase() {
+        return fixSeparatorCase('_');
+    }
+
+    @NotNull
+    public InsertedRangeContext fixDashCase() {
+        return fixSeparatorCase('-');
+    }
+
+    @NotNull
+    public InsertedRangeContext fixDotCase() {
+        return fixSeparatorCase('.');
+    }
+
+    @NotNull
+    public InsertedRangeContext fixSlashCase() {
+        return fixSeparatorCase('/');
     }
 
     public boolean isHumpBoundIdentifierAtStart() { return isHumpBoundIdentifierAtStart(null); }
@@ -407,6 +427,9 @@ public class InsertedRangeContext {
     public boolean isCamelCase() { return studiedWord().isCamelCase(); }
     public boolean isPascalCase() { return studiedWord().isPascalCase(); }
     public boolean isSnakeCase() { return studiedWord().isSnakeCase(); }
+    public boolean isDashCase() { return studiedWord().isDashCase(); }
+    public boolean isDotCase() { return studiedWord().isDotCase(); }
+    public boolean isSlashCase() { return studiedWord().isSlashCase(); }
     public boolean isScreamingSnakeCase() { return studiedWord().isScreamingSnakeCase(); }
 
     public boolean isIsolated() { return expandedPrefix.isEmpty() && expandedSuffix.isEmpty(); }
@@ -427,6 +450,9 @@ public class InsertedRangeContext {
     @NotNull public InsertedRangeContext makeProperCamelCase() { myWord = studiedWord().makeProperCamelCase(); return this; }
     @NotNull public InsertedRangeContext makePascalCase() { myWord = studiedWord().makePascalCase(); return this; }
     @NotNull public InsertedRangeContext makeSnakeCase() { myWord = studiedWord().makeSnakeCase(); fixSnakeCase(); return this; }
+    @NotNull public InsertedRangeContext makeDashCase() { myWord = studiedWord().makeDashCase(); fixDashCase(); return this; }
+    @NotNull public InsertedRangeContext makeDotCase() { myWord = studiedWord().makeDotCase(); fixDotCase(); return this; }
+    @NotNull public InsertedRangeContext makeSlashCase() { myWord = studiedWord().makeSlashCase(); fixSlashCase(); return this; }
     @NotNull public InsertedRangeContext makeScreamingSnakeCase() { myWord = studiedWord().makeScreamingSnakeCase(); fixSnakeCase(); return this; }
 
     public boolean hasUnderscore() { return myWord.indexOf('_') != -1; }

@@ -34,7 +34,19 @@ public class CaseFormatPreserverTest {
     private static final String[] prefixes = new String[] { "my", "our", "is", "get", "set" };
     private static final String[] regexPrefixes = new String[] { "^(?:my|our|is|get|set)(?=[A-Z])" };
 
-    private String preserved(String template, String pasted, boolean camelCase, boolean snakeCase, boolean screamingSnakeCase, boolean addPrefix, @Nullable PrefixOnPastePatternType patternType, String[] prefixes) {
+    private String preserved(
+            String template,
+            String pasted,
+            boolean camelCase,
+            boolean snakeCase,
+            boolean screamingSnakeCase,
+            boolean dashCase,
+            boolean dotCase,
+            boolean slashCase,
+            boolean addPrefix,
+            @Nullable PrefixOnPastePatternType patternType,
+            String[] prefixes
+    ) {
         // template: [ ] marks the selection range, | marks caret position
         // pasted is what is pasted,
         // prefix1 & prefix2 prefixes to remove
@@ -72,7 +84,7 @@ public class CaseFormatPreserverTest {
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
         final BasedSequence chars1 = BasedSequenceImpl.of(edited);
-        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, addPrefix, patternType, prefixes);
+        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, dashCase, dotCase, slashCase, addPrefix, patternType, prefixes);
 
         String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
         return result;
@@ -81,112 +93,112 @@ public class CaseFormatPreserverTest {
     @Test
     public void test_Basic() throws Exception {
         final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.CAMEL;
-        String s = preserved("   int |\n", "myName", true, true, true, true, patternType, prefixes);
+        String s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName\n", s);
 
-        s = preserved("   int | abc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int | abc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName abc\n", s);
 
-        s = preserved("   int |abc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int |abc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int nameAbc\n", s);
 
-        s = preserved("   int a|bc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int a|bc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int aNameBc\n", s);
 
-        s = preserved("   int ab|c\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int ab|c\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abNameC\n", s);
 
-        s = preserved("   int abc|\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int abc|\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abcName\n", s);
 
-        s = preserved("   int [abc]|\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int [abc]|\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int |[abc]\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int |[abc]\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int [abcDef]|\n", "myNameAnd", true, true, true, true, patternType, prefixes);
+        s = preserved("   int [abcDef]|\n", "myNameAnd", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int nameAnd\n", s);
 
-        s = preserved("   int |[abcDef]\n", "myNameAnd", true, true, true, true, patternType, prefixes);
+        s = preserved("   int |[abcDef]\n", "myNameAnd", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int nameAnd\n", s);
 
-        s = preserved("   int abc |\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int abc |\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abc myName\n", s);
 
-        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, patternType, prefixes);
+        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int WordStudy.of(\n", s);
 
-        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, patternType, prefixes);
+        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  caret WordStudy(\n", s);
 
-        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, patternType, prefixes);
+        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("WORD_STUDY(\n", s);
 
-        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, patternType, prefixes);
+        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("word_study(\n", s);
 
-        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, patternType, prefixes);
+        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("static Couple<Integer>  duplicateLine\n", s);
 
-        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, patternType, prefixes);
+        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  Manager myManager;\n", s);
 
-        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, patternType, prefixes);
+        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  private boolean myRemovePrefixOnPasteType = removePrefixOnPasteType;\n", s);
 
-        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAGS_CLASS_MEMBER_NAME\n", s);
 
-        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("flags_class_member_name\n", s);
 
-        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("myClassMemberName\n", s);
 
-        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, patternType, prefixes);
+        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean myDisableGifImages\n", s);
 
-        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, patternType, prefixes);
+        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", true, true, true, true, patternType, prefixes);
+        s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("       LastSelectionMarker\n", s);
 
-        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.getReplacement()\n", s);
 
-        s = preserved("editor.|appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.|appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.test_appendIf()\n", s);
 
-        s = preserved("appendIf|()\n", "_test", true, true, true, true, patternType, prefixes);
+        s = preserved("appendIf|()\n", "_test", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("appendIf_test()\n", s);
 
-        s = preserved(" |appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved(" |appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals(" test_appendIf()\n", s);
 
-        s = preserved("|appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved("|appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("test_appendIf()\n", s);
 
-        s = preserved("appendIf| \n", "_test", true, true, true, true, patternType, prefixes);
+        s = preserved("appendIf| \n", "_test", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("appendIf_test \n", s);
 
-        s = preserved("[IS_SORTED]| \n", "isFlat", true, true, true, true, patternType, prefixes);
+        s = preserved("[IS_SORTED]| \n", "isFlat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("IS_FLAT \n", s);
 
-        s = preserved("get[IsSorted]|\n", "isFlat", true, true, true, true, patternType, prefixes);
+        s = preserved("get[IsSorted]|\n", "isFlat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("getIsFlat\n", s);
 
-        s = preserved("[sorted]|\n", "FLAT", true, true, true, true, patternType, prefixes);
+        s = preserved("[sorted]|\n", "FLAT", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("flat\n", s);
 
-        s = preserved("[SORTED]|\n", "flat", true, true, true, true, patternType, prefixes);
+        s = preserved("[SORTED]|\n", "flat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAT\n", s);
     }
 
@@ -195,103 +207,103 @@ public class CaseFormatPreserverTest {
         final String[] prefixes = regexPrefixes;
         final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.REGEX;
 
-        String s = preserved("   int |\n", "myName", true, true, true, true, patternType, prefixes);
+        String s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName\n", s);
 
-        s = preserved("   int | abc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int | abc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName abc\n", s);
 
-        s = preserved("   int |abc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int |abc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int nameAbc\n", s);
 
-        s = preserved("   int a|bc\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int a|bc\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int aNameBc\n", s);
 
-        s = preserved("   int ab|c\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int ab|c\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abNameC\n", s);
 
-        s = preserved("   int abc|\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int abc|\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abcName\n", s);
 
-        s = preserved("   int [abc]|\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int [abc]|\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int |[abc]\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int |[abc]\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int name\n", s);
 
-        s = preserved("   int abc |\n", "myName", true, true, true, true, patternType, prefixes);
+        s = preserved("   int abc |\n", "myName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int abc myName\n", s);
 
-        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, patternType, prefixes);
+        s = preserved("   int [new WordStudy]|(\n", "WordStudy.of", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int WordStudy.of(\n", s);
 
-        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, patternType, prefixes);
+        s = preserved("  [int]| WordStudy(\n", "myCaret", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  caret WordStudy(\n", s);
 
-        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, patternType, prefixes);
+        s = preserved("[WORK_PLAY]|(\n", "myWordStudy", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("WORD_STUDY(\n", s);
 
-        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, patternType, prefixes);
+        s = preserved("[work_play]|(\n", "myWordStudy", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("word_study(\n", s);
 
-        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, patternType, prefixes);
+        s = preserved("static [void]| duplicateLine\n", "Couple<Integer> ", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("static Couple<Integer>  duplicateLine\n", s);
 
-        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, patternType, prefixes);
+        s = preserved("  [Class]| myManager;\n", "myManager", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  Manager myManager;\n", s);
 
-        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, patternType, prefixes);
+        s = preserved("  private boolean myRemovePrefixOnPasteType = [false]|;\n", "myRemovePrefixOnPasteType", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("  private boolean myRemovePrefixOnPasteType = removePrefixOnPasteType;\n", s);
 
-        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("FLAGS[_SOME_NAME]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAGS_CLASS_MEMBER_NAME\n", s);
 
-        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("flags[_some_name]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("flags_class_member_name\n", s);
 
-        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, patternType, prefixes);
+        s = preserved("[myClassMemberName]|\n", "myClassMemberName", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("myClassMemberName\n", s);
 
-        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, patternType, prefixes);
+        s = preserved("boolean [myClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean myDisableGifImages\n", s);
 
-        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, patternType, prefixes);
+        s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.getReplacement()\n", s);
 
-        s = preserved("editor.|appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved("editor.|appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("editor.test_appendIf()\n", s);
 
-        s = preserved("appendIf|()\n", "_test", true, true, true, true, patternType, prefixes);
+        s = preserved("appendIf|()\n", "_test", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("appendIf_test()\n", s);
 
-        s = preserved(" |appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved(" |appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals(" test_appendIf()\n", s);
 
-        s = preserved("|appendIf()\n", "test_", true, true, true, true, patternType, prefixes);
+        s = preserved("|appendIf()\n", "test_", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("test_appendIf()\n", s);
 
-        s = preserved("appendIf| \n", "_test", true, true, true, true, patternType, prefixes);
+        s = preserved("appendIf| \n", "_test", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("appendIf_test \n", s);
 
-        s = preserved("[IS_SORTED]| \n", "isFlat", true, true, true, true, patternType, prefixes);
+        s = preserved("[IS_SORTED]| \n", "isFlat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("IS_FLAT \n", s);
 
-        s = preserved("get[IsSorted]|\n", "isFlat", true, true, true, true, patternType, prefixes);
+        s = preserved("get[IsSorted]|\n", "isFlat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("getIsFlat\n", s);
 
-        s = preserved("[sorted]|\n", "FLAT", true, true, true, true, patternType, prefixes);
+        s = preserved("[sorted]|\n", "FLAT", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("flat\n", s);
 
-        s = preserved("[SORTED]|\n", "flat", true, true, true, true, patternType, prefixes);
+        s = preserved("[SORTED]|\n", "flat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAT\n", s);
     }
 

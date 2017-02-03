@@ -970,6 +970,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                             ), settings.isPreserveCamelCaseOnPaste()
                                             , settings.isPreserveSnakeCaseOnPaste()
                                             , settings.isPreserveScreamingSnakeCaseOnPaste()
+                                            , settings.isPreserveDashCaseOnPaste()
+                                            , settings.isPreserveDotCaseOnPaste()
+                                            , settings.isPreserveSlashCaseOnPaste()
                                             , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
                                             , settings.getRemovePrefixOnPastePatternType()
                                             , settings.isAddPrefixOnPaste()

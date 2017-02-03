@@ -83,6 +83,9 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myPreserveCamelCaseOnPaste;
     JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
     JBCheckBox myPreserveSnakeCaseOnPaste;
+    JBCheckBox myPreserveDashCaseOnPaste;
+    JBCheckBox myPreserveDotCaseOnPaste;
+    JBCheckBox myPreserveSlashCaseOnPaste;
     JBCheckBox myRemovePrefixOnPaste;
     JBCheckBox mySelectPasted;
     JBCheckBox mySelectPastedMultiCaret;
@@ -156,6 +159,9 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myPreserveCamelCaseOnPaste, i::isPreserveCamelCaseOnPaste, i::setPreserveCamelCaseOnPaste),
                         component(myPreserveScreamingSnakeCaseOnPaste, i::isPreserveScreamingSnakeCaseOnPaste, i::setPreserveScreamingSnakeCaseOnPaste),
                         component(myPreserveSnakeCaseOnPaste, i::isPreserveSnakeCaseOnPaste, i::setPreserveSnakeCaseOnPaste),
+                        component(myPreserveDashCaseOnPaste, i::isPreserveDashCaseOnPaste, i::setPreserveDashCaseOnPaste),
+                        component(myPreserveDotCaseOnPaste, i::isPreserveDotCaseOnPaste, i::setPreserveDotCaseOnPaste),
+                        component(myPreserveSlashCaseOnPaste, i::isPreserveSlashCaseOnPaste, i::setPreserveSlashCaseOnPaste),
                         component(myRemovePrefixOnPaste, i::isRemovePrefixOnPaste, i::setRemovePrefixOnPaste),
                         component(myPrefixOnPasteText, i::getPrefixesOnPasteText, i::setPrefixesOnPasteText),
                         component(mySelectionEndExtended, i::isSelectionEndExtended, i::setSelectionEndExtended),

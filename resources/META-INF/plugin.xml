@@ -70,14 +70,17 @@
         ]]>
     </description>
 
-    <version>0.8.3.8</version>
+    <version>0.8.3.9</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.8 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.9 - Bug Fixes and Enhancements</h3>
             <ul>
+                <li>
+                    <p>Add: DashCase, DotCase and SlashCase to on paste preservation options</p>
+                </li>
                 <li>
                     <p>Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
                         carets. Also does color and weight change if 2017 EAP.</p>
