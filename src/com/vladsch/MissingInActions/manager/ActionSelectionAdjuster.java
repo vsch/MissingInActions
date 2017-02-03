@@ -171,13 +171,13 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     // keep only found position carets
                     Set<CaretEx> foundCarets = myManager.getFoundCarets();
                     if (foundCarets != null) {
-                        Set<Caret> carets = new HashSet<>(foundCarets.size());
+                        Set<Long> carets = new HashSet<>(foundCarets.size());
                         for (CaretEx caretEx : foundCarets) {
-                            carets.add(caretEx.getCaret());
+                            carets.add(caretEx.getCoordinates());
                         }
 
                         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                            if (!carets.contains(caret)) {
+                            if (!carets.contains(CaretEx.getCoordinates(caret))) {
                                 myEditor.getCaretModel().removeCaret(caret);
                             }
                         }

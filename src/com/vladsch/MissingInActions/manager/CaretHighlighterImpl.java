@@ -110,24 +110,20 @@ class CaretHighlighterImpl implements CaretHighlighter {
 
         highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
         highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
-
-        myPrimaryCaret = null;
-        myManager.clearSearchFoundCarets();
     }
 
     @Override
     public void highlightCaretList(@Nullable Collection<CaretEx> carets, @Nullable CaretVisualAttributes attributes, @Nullable Set<CaretEx> exclude) {
-        Set<Caret> excludeList = exclude == null ? null : new HashSet<>(exclude.size());
+        Set<Long> excludeList = exclude == null ? null : new HashSet<>(exclude.size());
         if (excludeList != null) {
             for (CaretEx caretEx : exclude) {
-                excludeList.add(caretEx.getCaret());
+                excludeList.add(caretEx.getCoordinates());
             }
         }
 
         if (carets != null && !carets.isEmpty()) {
             for (CaretEx caretEx : carets) {
-                if (excludeList != null && excludeList.contains(caretEx.getCaret())) continue;
-
+                if (excludeList != null && excludeList.contains(caretEx.getCoordinates())) continue;
                 caretEx.setVisualAttributes(attributes == null ? CaretVisualAttributes.DEFAULT : attributes);
             }
         }
@@ -142,17 +138,16 @@ class CaretHighlighterImpl implements CaretHighlighter {
             Caret caret = myManager.getEditor().getCaretModel().getPrimaryCaret();
 
             removeCaretHighlight();
+            myPrimaryCaret = null;
 
             if (caretCount > 1) {
                 if (myPrimaryAttributes != null) {
                     myPrimaryCaret = new CaretEx(caret);
                     myPrimaryCaret.setVisualAttributes(myPrimaryAttributes);
                 }
-            }
-
-            if (caretCount == 1) {
-                highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT,myFoundCarets);
-                highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT,null);
+            } else {
+                highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
+                highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
             }
         }
     }

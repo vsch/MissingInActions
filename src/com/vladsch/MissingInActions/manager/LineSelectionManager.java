@@ -127,17 +127,18 @@ public class LineSelectionManager implements
     }
 
     public void clearSearchFoundCarets() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
 
         myCaretSpawningHandler = null;
         myStartCaretStates = null;
         myStartCarets = null;
         myFoundCarets = null;
+        myCaretHighlighter.highlightCarets();
     }
 
     public void clearSearchFoundHighlights() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, null);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretVisualAttributes.DEFAULT, myFoundCarets);
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretVisualAttributes.DEFAULT, null);
     }
 
@@ -309,8 +310,8 @@ public class LineSelectionManager implements
 
         hookListeners(settings);
         myCaretHighlighter.removeCaretHighlight();
-        myCaretHighlighter.updateCaretHighlights();
         myCaretHighlighter.settingsChanged(settings);
+        myCaretHighlighter.updateCaretHighlights();
 
         // change all selections that were lines back to lines
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {

@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
+import com.intellij.ui.JBColor;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.MissingInActions.util.ui.Color;
 import org.jetbrains.annotations.NotNull;
@@ -82,14 +83,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int         myPrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.getDefault().intValue;
     private int         mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private int         mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
-    private int         myPrimaryCaretThickness = CaretThicknessType.ADAPTER.getDefault().intValue;
-    private int         myPrimaryCaretColor = 0;
+    private int         myPrimaryCaretThickness = CaretThicknessType.NORMAL.intValue;
+    private int         myPrimaryCaretColor = JBColor.BLACK.getRGB();
     private boolean     myPrimaryCaretColorEnabled = false;
     private int         mySearchStartCaretThickness = CaretThicknessType.THIN.intValue;
-    private int         mySearchStartCaretColor = java.awt.Color.RED.getRGB();
+    private int         mySearchStartCaretColor = JBColor.RED.getRGB();
     private boolean     mySearchStartCaretColorEnabled = true;
     private int         mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int         mySearchFoundCaretColor = java.awt.Color.BLACK.getRGB();
+    private int         mySearchFoundCaretColor = JBColor.BLACK.getRGB();
     private boolean     mySearchFoundCaretColorEnabled = false;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
@@ -153,16 +154,6 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public CaretThicknessType getPrimaryCaretThicknessType() { return CaretThicknessType.ADAPTER.get(myPrimaryCaretThickness); }
     public CaretThicknessType getSearchStartCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartCaretThickness); }
     public CaretThicknessType getSearchFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchFoundCaretThickness); }
-    public void setRemovePrefixOnPastePatternType(PrefixOnPastePatternType prefixOnPastePatternType) { myPrefixOnPastePattern = prefixOnPastePatternType.intValue; }
-    public void setCaretOnMoveSelectionDownType(CaretAdjustmentType caretOnMoveSelectionDownType) { myCaretOnMoveSelectionDown = caretOnMoveSelectionDownType.intValue; }
-    public void setCaretOnMoveSelectionUpType(CaretAdjustmentType caretOnMoveSelectionUpType) { myCaretOnMoveSelectionUp = caretOnMoveSelectionUpType.intValue; }
-    public void setDuplicateAtStartOrEndPredicateType(SelectionPredicateType duplicateAtStartOrEndPredicateType) { myDuplicateAtStartOrEndPredicate = duplicateAtStartOrEndPredicateType.intValue; }
-    public void setLinePasteCaretAdjustmentType(LinePasteCaretAdjustmentType linePasteCaretAdjustmentType) { myLinePasteCaretAdjustment = linePasteCaretAdjustmentType.intValue; }
-    public void setSelectPastedPredicateType(SelectionPredicateType selectPastedPredicateType) { mySelectPastedPredicate = selectPastedPredicateType.intValue; }
-    public void setSelectPastedMultiCaretPredicateType(SelectionPredicateType selectPastedMultiCaretPredicateType) { mySelectPastedMultiCaretPredicate = selectPastedMultiCaretPredicateType.intValue; }
-    public void setPrimaryCaretThickness(CaretThicknessType primaryCaretThickness) { myPrimaryCaretThickness = primaryCaretThickness.intValue; }
-    public void setSearchStartCaretThickness(CaretThicknessType searchStartCaretThickness) { mySearchStartCaretThickness = searchStartCaretThickness.intValue; }
-    public void setSearchFoundCaretThickness(CaretThicknessType searchFoundCaretThickness) { mySearchFoundCaretThickness = searchFoundCaretThickness.intValue; }
     // @formatter:on
 
     // customized word flags

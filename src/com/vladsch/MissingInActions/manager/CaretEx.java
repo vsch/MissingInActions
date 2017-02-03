@@ -62,6 +62,15 @@ class CaretEx implements Caret {
         return myCaret;
     }
 
+    public long getCoordinates() {
+        return getCoordinates(myCaret);
+    }
+
+    public static long getCoordinates(Caret caret) {
+        LogicalPosition logicalPosition = caret.getLogicalPosition();
+        return ((long)logicalPosition.line << 32) | (logicalPosition.column);
+    }
+
     /**
      * Returns visual attributes currently set for the caret.
      *
@@ -224,4 +233,22 @@ class CaretEx implements Caret {
 
     @Override
     public <T> void putUserData(@NotNull Key<T> key, @Nullable T value) {myCaret.putUserData(key, value);}
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CaretEx)) {
+            if (!(o instanceof Caret)) return false;
+            return myCaret.equals(o);
+        }
+
+        CaretEx caretEx = (CaretEx) o;
+
+        return myCaret.equals(caretEx.myCaret);
+    }
+
+    @Override
+    public int hashCode() {
+        return myCaret.hashCode();
+    }
 }

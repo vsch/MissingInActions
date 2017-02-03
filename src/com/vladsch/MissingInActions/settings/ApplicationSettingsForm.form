@@ -901,7 +901,7 @@
                               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.mult-caret-filter.primary-thickness"/>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.primary-thickness"/>
                               <toolTipText value=""/>
                             </properties>
                           </component>
@@ -932,7 +932,7 @@
                               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.mult-caret-filter.search-start.label"/>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-start.label"/>
                               <toolTipText value=""/>
                             </properties>
                           </component>
@@ -963,7 +963,7 @@
                               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.mult-caret-filter.search-found.label"/>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-found.label"/>
                               <toolTipText value=""/>
                             </properties>
                           </component>
