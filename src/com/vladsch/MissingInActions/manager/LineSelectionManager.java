@@ -121,6 +121,10 @@ public class LineSelectionManager implements
         myStartCaretStates = null;
     }
 
+    public static boolean isCaretAttributeAvailable() {
+        return CaretEx.HAVE_VISUAL_ATTRIBUTES;
+    }
+
     @Nullable
     public RangeLimitedCaretSpawningHandler getCaretSpawningHandler() {
         return myCaretSpawningHandler;

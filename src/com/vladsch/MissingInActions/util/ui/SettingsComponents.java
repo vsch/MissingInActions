@@ -21,15 +21,10 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import com.intellij.ui.CheckBoxWithColorChooser;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
 
 public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     public SettingsComponents() {

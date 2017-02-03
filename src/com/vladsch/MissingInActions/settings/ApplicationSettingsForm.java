@@ -24,13 +24,16 @@ package com.vladsch.MissingInActions.settings;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
-import com.intellij.ui.CheckBoxWithColorChooser;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.Utils;
+import com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser;
 import com.vladsch.MissingInActions.util.ui.Settable;
 import com.vladsch.MissingInActions.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +46,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+
+import static com.vladsch.MissingInActions.manager.LineSelectionManager.*;
 
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder {
@@ -104,6 +109,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private CheckBoxWithColorChooser mySearchStartCaretColor;
     private JComboBox mySearchFoundCaretThickness;
     private CheckBoxWithColorChooser mySearchFoundCaretColor;
+    private JTextPane myCaretVisualAttributesPane;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -198,7 +204,33 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myEditingCommitter = new EditingCommitter();
         IdeEventQueue.getInstance().addDispatcher(myEditingCommitter, this);
 
+        if (!LineSelectionManager.isCaretAttributeAvailable()) {
+            myPrimaryCaretThickness.setEnabled(false);
+            myPrimaryCaretColor.setEnabled(false);
+            mySearchStartCaretThickness.setEnabled(false);
+            mySearchStartCaretColor.setEnabled(false);
+            mySearchFoundCaretThickness.setEnabled(false);
+            mySearchFoundCaretColor.setEnabled(false);
+            myCaretVisualAttributesPane.setVisible(true);
+            setContentBody(Bundle.message("settings.caret-visual-attributes.description"));
+        } else {
+            myCaretVisualAttributesPane.setVisible(false);
+        }
+        myCaretVisualAttributesPane.validate();
+        myMainPanel.validate();
+
         updateOptions(true);
+    }
+
+    public void setContentBody(String text) {
+        JLabel label = new JLabel();
+        Font font = label.getFont();
+        Color textColor = label.getForeground();
+        String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + Utils.toRgbString(textColor) + "'>" +
+                (text == null ? "" : text) +
+                "</div></body></html>";
+        myCaretVisualAttributesPane.setText(out);
+        myMainPanel.validate();
     }
 
     // @formatter:off
