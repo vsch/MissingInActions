@@ -63,6 +63,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
     protected abstract boolean isLineMode();
     protected abstract boolean isSingleLine();
+    protected abstract boolean wantEmptyRanges();
 
     protected abstract void updateCarets(final Editor editor, final List<Caret> caretList);
 
@@ -112,7 +113,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                 caretRanges.put(caret1, range);
             }
 
-            caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges);
+            caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges, wantEmptyRanges());
 
             if (useCaret == null) {
                 if (patternCaret != null) {

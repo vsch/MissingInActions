@@ -77,6 +77,9 @@
 
 ### 0.8.3.12 - Bug Fixes and Enhancements
 
+* Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
+  carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text. 
+
 * Add: MissingInAction toolbar
 
 * Add: edit caret search options with dialog to show preview of caret search by pattern.

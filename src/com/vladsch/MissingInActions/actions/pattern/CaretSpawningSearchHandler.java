@@ -96,6 +96,11 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
+    protected boolean wantEmptyRanges() {
+        return mySingleMatch;
+    }
+
+    @Override
     protected void updateCarets(final Editor editor, final List<Caret> caretList) {
         LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         if (mySingleMatch) {

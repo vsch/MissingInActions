@@ -531,6 +531,13 @@
                 description="Generate Number Sequence for Carets">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.carets.TabAlignCaretTextAction"
+                id="MissingInActions.TabAlignCaretText"
+                text="Tab Align Text at Carets"
+                icon="PluginIcons.Tab_align_text"
+                description="Tab Align Text at Carets">
+        </action>
+
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
@@ -541,6 +548,7 @@
             <separator/>
             <reference id="MissingInActions.Number"/>
             <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>
+            <reference id="MissingInActions.TabAlignCaretText"/>
             <separator/>
             <reference id="MissingInActions.PrimaryCaretToNext"/>
             <reference id="MissingInActions.PrimaryCaretToPrev"/>

@@ -738,7 +738,7 @@ public class EditHelpers {
             }
         }
 
-        if (start >= end) {
+        if (start > end) {
             int tmp = 0;
         } else {
             range = new Range(start, end);
@@ -746,7 +746,7 @@ public class EditHelpers {
         return range;
     }
 
-    public static Map<Caret, Range> limitCaretRange(boolean backwards, Map<Caret, Range> rangeMap) {
+    public static Map<Caret, Range> limitCaretRange(boolean backwards, Map<Caret, Range> rangeMap, boolean wantEmptyRanges) {
         HashMap<Caret, Range> map = new HashMap<>(rangeMap.size());
         Caret[] carets = rangeMap.keySet().toArray(new Caret[rangeMap.size()]);
         Range prevRange = null;
@@ -771,7 +771,7 @@ public class EditHelpers {
                     }
                 }
 
-                if (range.getSpan() > 0) {
+                if (range.getSpan() > 0 || wantEmptyRanges && range.getSpan() == 0) {
                     map.put(caret, range);
                     prevRange = range;
                 }
@@ -789,7 +789,7 @@ public class EditHelpers {
                     }
                 }
 
-                if (range.getSpan() > 0) {
+                if (range.getSpan() > 0 || wantEmptyRanges && range.getSpan() == 0) {
                     map.put(caret, range);
                     prevRange = range;
                 }
