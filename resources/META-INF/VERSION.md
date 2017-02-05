@@ -53,6 +53,8 @@
 
 ### 0.8.3.12 - Bug Fixes and Enhancements
 
+* Add: caret search action detects when caret context is on a hex, decimal or octal number. 
+
 * Change: make MIA application settings shared so that they can be imported and exported.
 
 * Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
@@ -97,9 +99,12 @@
       trimmed intervening characters between carets.
 
   * if multiple carets exist then spawning of only a single carets is done by using the pattern
-    as determined by the primary caret per above rules. For each caret the pattern search is
-    applied and if found a caret is placed at the location. Original caret position is treated
-    as search start positions and match location is called the found caret position.
+    as determined by the primary caret per above rules with addition of hex (with or without 0x
+    prefix), decimal or octal will search for numeric sequence.
+
+    For each caret the pattern search is applied and if found a caret is placed at the location.
+    Original caret position is treated as search start positions and match location is called
+    the found caret position.
 
     Start positions are affected by caret movement actions and the pattern search applied at the
     new location. This allows the search start to be modified after the pattern is set.

@@ -144,7 +144,6 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         }
     }
 
-
     @Override
     protected void analyzeContext(final Editor editor, @Nullable final Caret caret, @NotNull final LineSelectionManager manager) {
         int previousCaretLine = -1;
@@ -237,7 +236,11 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
             if (!myBackwards) {
                 // check what is ahead of caret
-                char c = offset >= chars.length() || caretPos.column >= endOfLineColumn ? ' ' : chars.charAt(offset);
+                boolean afterEnd = offset >= chars.length() || caretPos.column >= endOfLineColumn;
+                //char prevC = offset == 0 || offset-1 >= chars.length() || caretPos.column == 0 || caretPos.column-1 >= endOfLineColumn ? ' ' : chars.charAt(offset);
+                char c = afterEnd ? ' ' : chars.charAt(offset);
+                //BasedSequence afterCaret = chars.subSequence(afterEnd ? endOfLineColumn : offset, endOfLineColumn);
+
                 if (Character.isWhitespace(c)) {
                     // match next non-whitespace
                     //myPattern = ForwardPattern.compile("(\\s*)\\S+");
@@ -247,12 +250,34 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     // find end of identifier
                     int end = offset;
                     while (end < range.getEnd() && isJavaIdentifierPart(chars.charAt(end))) end++;
-
-                    if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
+                    BasedSequence text = chars.subSequence(offset, end);
+                    boolean hexPrefix = text.startsWith("0x", true);
+                    if ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                            || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                            || (text.indexOfAnyNot("0123456789") == -1)
+                            ) {
+                        // hex, octal or decimal, look for numeric sequence
+                        if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
+                            if (hexPrefix) {
+                                myPattern = ForwardPattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            } else {
+                                myPattern = ForwardPattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            }
+                        } else {
+                            if (hexPrefix) {
+                                myPattern = ForwardPattern.compile("(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            } else {
+                                myPattern = ForwardPattern.compile("([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            }
+                        }
+                    } else if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
                         // we are at start of identifier even if first char is not a valid java identifier
-                        myPattern = ForwardPattern.compile("\\b(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
+                        // check if it is a numeric sequence base 10 or hex starting with 0x
+                        myPattern = ForwardPattern.compile("\\b(" + Pattern.quote(text.toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     } else {
-                        myPattern = ForwardPattern.compile("(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
+                        myPattern = ForwardPattern.compile("(" + Pattern.quote(text.toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
                     // neither, just look for the character
@@ -272,7 +297,29 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     int start = offset;
                     while (start > range.getStart() && isJavaIdentifierPart(chars.charAt(start - 1))) start--;
 
-                    if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
+                    BasedSequence text = chars.subSequence(start, offset);
+                    boolean hexPrefix = text.startsWith("0x", true);
+                    if ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                            || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                            || (text.indexOfAnyNot("0123456789") == -1)
+                            ) {
+                        // hex, octal or decimal, look for numeric sequence
+                        if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
+                            if (hexPrefix) {
+                                myPattern = ReversePattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            } else {
+                                myPattern = ReversePattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            }
+                        } else {
+                            if (hexPrefix) {
+                                myPattern = ReversePattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)");
+                            } else {
+                                myPattern = ReversePattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)");
+                            }
+                        }
+                    } else if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
                         // we are at start of identifier even if first char is not a valid java identifier
                         myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     } else {

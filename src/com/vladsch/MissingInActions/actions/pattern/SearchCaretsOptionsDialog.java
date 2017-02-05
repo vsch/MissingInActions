@@ -32,6 +32,7 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.UIUtil;
+import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.manager.CaretEx;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
@@ -105,6 +106,8 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
 
     public SearchCaretsOptionsDialog(JComponent parent, @NotNull RegExSettingsHolder settingsHolder, @NotNull EditorEx editor) {
         super(parent, false);
+
+        setTitle(Bundle.message("caret-search.options-dialog.title"));
 
         mySettingsHolder = settingsHolder;
         String text = settingsHolder.getPatternText();

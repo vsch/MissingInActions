@@ -2,12 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.8.3.10 from this repo]
+[Download Latest 0.8.3.12 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 0.8.3.10 - Bug Fix and Improvement Release](#version-08310---bug-fix-and-improvement-release)
+- [Version 0.8.3.12 - Bug Fix and Improvement Release](#version-08312---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
@@ -62,9 +62,16 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 0.8.3.10 - Bug Fix and Improvement Release
+## Version 0.8.3.12 - Bug Fix and Improvement Release
 
-[Version Notes][] [Download Latest 0.8.3.10 from this repo][]
+[Version Notes][] [Download Latest 0.8.3.12 from this repo][]
+
+* Change: make MIA application settings shared so that they can be imported and exported.
+
+* Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
+  carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text.
+
+* Add: MissingInAction toolbar
 
 * Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
 
@@ -89,9 +96,12 @@ Adds missing editor actions for end of word navigation but that is just the begi
     * otherwise will spawn a caret on every occurrence of the character at caret, selecting
       trimmed intervening characters between carets.
   * if multiple carets exist then spawning of only a single carets is done by using the pattern
-    as determined by the primary caret per above rules. For each caret the pattern search is
-    applied and if found a caret is placed at the location. Original caret position is treated
-    as search start location and match location is called the found caret position.
+    as determined by the primary caret per above rules with addition of hex (with or without 0x
+    prefix), decimal or octal will search for numeric sequence.
+
+    For each caret the pattern search is applied and if found a caret is placed at the location.
+    Original caret position is treated as search start positions and match location is called
+    the found caret position.
 
     Start positions are affected by caret movement actions and the pattern search applied at the
     new location. This allows the search start to be modified after the pattern is set.
@@ -102,6 +112,11 @@ Adds missing editor actions for end of word navigation but that is just the begi
     This functionality allows creating a set of carets on all lines and then filtering and
     changing the location of carets used for editing by matching a pattern at the primary caret
     location.
+
+    Caret search options with dialog to show preview of caret search by pattern and ability to
+    tweak some search options.
+
+    ![Caret Search Options](/assets/images/CaretSearch_Options.png)
 
     :information_source: With IDE versions **2017.1 EAP** and newer the plugin allows changing
     the caret appearance for: primary, start and found carets making it easy to see where the
@@ -319,7 +334,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 0.8.3.10 from this repo]: ../../raw/master/dist/MissingInActions.0.8.3.10.zip
+[Download Latest 0.8.3.12 from this repo]: ../../raw/master/dist/MissingInActions.0.8.3.12.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
