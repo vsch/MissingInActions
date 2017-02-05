@@ -73,6 +73,8 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Add: MissingInAction toolbar
 
+  ![Toolbar](assets/images/Toolbar.png) 
+
 * Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
 
 * Add: number generating action. For now only for multiple carets.
