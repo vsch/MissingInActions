@@ -73,7 +73,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Add: MissingInActions toolbar
 
-  ![Toolbar](assets/images/Toolbar.png) 
+  ![Toolbar](/assets/images/Toolbar.png) 
 
 * Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
 

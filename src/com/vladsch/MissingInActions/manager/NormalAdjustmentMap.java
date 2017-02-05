@@ -320,7 +320,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.carets.SmartRemoveLineCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.StraightenCaretsAction.class
                 , com.vladsch.MissingInActions.actions.pattern.SearchCaretsOptionsAction.class
+                , com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction.class
         );
-
     }
 }
