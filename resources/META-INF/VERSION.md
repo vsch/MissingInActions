@@ -53,6 +53,8 @@
 
 ### 0.8.3.12 - Bug Fixes and Enhancements
 
+* Change: make MIA application settings shared so that they can be imported and exported.
+
 * Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
   carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text. 
 
