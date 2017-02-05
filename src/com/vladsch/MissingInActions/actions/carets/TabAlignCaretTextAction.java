@@ -108,7 +108,10 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
             WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
                 for (Caret caret : carets) {
                     EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                    if (position.column >= position.atEndColumn().column) continue;
+                    if (position.column >= position.atEndColumn().column) {
+                        caret.moveToLogicalPosition(position.atColumn(finalColumn));
+                        continue;
+                    }
 
                     int count = finalColumn - position.column;
                     if (count > 0) {
