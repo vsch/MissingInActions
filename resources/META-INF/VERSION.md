@@ -45,32 +45,8 @@
 * [ ] Add: per language configuration of what constitutes an identifier character set to
       override Java default for custom word actions for languages other than Java (dynamically
       based on file language type)
-* [ ] Add: icons to caret/selection actions for toolbar buttons
-* [ ] Add: toolbar with buttons for caret/selection actions a la debug configs. Specifically:
-      * [ ] keep comments
-      * [ ] keep blank lines
-      * [ ] straighten caret
 * [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
       indent.
-* [ ] Add: column aligning `ColumnAligningTabAction`, non-multi-caret mode does tab action, in
-      multi-caret mode that has the effect after action:
-      * [ ] for each caret find the range of whitespace from caret to first non-whitespace at or
-            after the caret. If caret after last non-whitespace of the line, treat end of line
-            as the first non-whitespace character
-      * [ ] alignment column is the minimum of all range starts, aligned on tab indent count for
-            file.
-      * [ ] move each caret to minimum of alignment column and end of whitespace range
-      * [ ] if caret after move: - [ ] is before the whitespace range end, delete characters to
-            whitespace range - [ ] is before alignment column, insert spaces before caret so it
-            is moved to alignment column
-      * [ ] if no caret columns changed as the result of above steps, add indent spaces to
-            alignment column and repeat previous two steps.
-      * all carets will be at the same column
-      * that column will be >= the column before action
-      * that column will be a multiple of file's indent space count
-      * each caret will be on the first non-whitespace character at or after caret before action
-      * if the caret is after the trimmed end of line then treat the end of line as a
-        non-whitespace character
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>

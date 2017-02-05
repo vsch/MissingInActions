@@ -43,62 +43,62 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
     // @formatter:off
-    private boolean     myAddPrefixOnPaste = false;
-    private boolean     myAutoIndent = false;
-    private boolean     myCopyLineOrLineSelection = false;
-    private boolean     myDeleteOperations = false;
-    private boolean     myDuplicateAtStartOrEnd = false;
-    private boolean     myIndentUnindent = false;
-    private boolean     myIsSelectionEndExtended = false;
-    private boolean     myIsSelectionStartExtended = false;
-    private boolean     myLeftRightMovement = false;
-    private boolean     myMouseCamelHumpsFollow = false;
-    private boolean     myMouseLineSelection = false;
-    private boolean     myMultiPasteShowEolInViewer = false;
-    private boolean     myMultiPasteShowEolInList = true;
-    private boolean     myMultiPasteShowInstructions = true;
-    private boolean     myMultiPasteShowOptions = true;
-    private boolean     myMultiPastePreserveOriginal = true;
-    private boolean     myMultiPasteDeleteRepeatedCaretData = true;
-    private boolean     myOverrideStandardPaste = false;
-    private boolean     myPreserveCamelCaseOnPaste = false;
-    private boolean     myPreserveScreamingSnakeCaseOnPaste = false;
-    private boolean     myPreserveSnakeCaseOnPaste = false;
-    private boolean     myPreserveDashCaseOnPaste = false;
-    private boolean     myPreserveDotCaseOnPaste = false;
-    private boolean     myPreserveSlashCaseOnPaste = false;
-    private boolean     myRemovePrefixOnPaste = false;
-    private boolean     mySelectPasted = false;
-    private boolean     mySelectPastedMultiCaret = false;
-    private boolean     myStartEndAsLineSelection = false;
-    private boolean     myTypingDeletesLineSelection = false;
-    private boolean     myUnselectToggleCase = false;
-    private boolean     myUpDownMovement = false;
-    private boolean     myUpDownSelection = false;
-    private boolean     myWeSetVirtualSpace = true;
-    private int         myAutoIndentDelay = 300;
-    private int         myAutoLineMode = AutoLineModeType.ADAPTER.getDefault().getIntValue();
-    private int         myCaretOnMoveSelectionDown = CaretAdjustmentType.ADAPTER.getDefault().intValue;
-    private int         myCaretOnMoveSelectionUp = CaretAdjustmentType.ADAPTER.getDefault().intValue;
-    private int         myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
-    private int         myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
-    private int         myMouseModifier = MouseModifierType.ADAPTER.getDefault().getIntValue();
-    private int         myPrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.getDefault().intValue;
-    private int         mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
-    private int         mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
-    private int         myPrimaryCaretThickness = CaretThicknessType.NORMAL.intValue;
-    private int         myPrimaryCaretColor = JBColor.BLACK.getRGB();
-    private boolean     myPrimaryCaretColorEnabled = false;
-    private int         mySearchStartCaretThickness = CaretThicknessType.THIN.intValue;
-    private int         mySearchStartCaretColor = JBColor.RED.getRGB();
-    private boolean     mySearchStartCaretColorEnabled = true;
-    private int         mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int         mySearchFoundCaretColor = JBColor.BLUE.getRGB();
-    private boolean     mySearchFoundCaretColorEnabled = true;
-    private int         mySearchStartMatchedCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int         mySearchStartMatchedCaretColor = JBColor.RED.getRGB();
-    private boolean     mySearchStartMatchedCaretColorEnabled = false;
-    private boolean     mySearchCancelOnEscape = true;
+    private boolean         myAddPrefixOnPaste = false;
+    private boolean         myAutoIndent = false;
+    private boolean         myCopyLineOrLineSelection = false;
+    private boolean         myDeleteOperations = false;
+    private boolean         myDuplicateAtStartOrEnd = false;
+    private boolean         myIndentUnindent = false;
+    private boolean         myIsSelectionEndExtended = false;
+    private boolean         myIsSelectionStartExtended = false;
+    private boolean         myLeftRightMovement = false;
+    private boolean         myMouseCamelHumpsFollow = false;
+    private boolean         myMouseLineSelection = false;
+    private boolean         myMultiPasteShowEolInViewer = false;
+    private boolean         myMultiPasteShowEolInList = true;
+    private boolean         myMultiPasteShowInstructions = true;
+    private boolean         myMultiPasteShowOptions = true;
+    private boolean         myMultiPastePreserveOriginal = true;
+    private boolean         myMultiPasteDeleteRepeatedCaretData = true;
+    private boolean         myOverrideStandardPaste = false;
+    private boolean         myPreserveCamelCaseOnPaste = false;
+    private boolean         myPreserveScreamingSnakeCaseOnPaste = false;
+    private boolean         myPreserveSnakeCaseOnPaste = false;
+    private boolean         myPreserveDashCaseOnPaste = false;
+    private boolean         myPreserveDotCaseOnPaste = false;
+    private boolean         myPreserveSlashCaseOnPaste = false;
+    private boolean         myRemovePrefixOnPaste = false;
+    private boolean         mySelectPasted = false;
+    private boolean         mySelectPastedMultiCaret = false;
+    private boolean         myStartEndAsLineSelection = false;
+    private boolean         myTypingDeletesLineSelection = false;
+    private boolean         myUnselectToggleCase = false;
+    private boolean         myUpDownMovement = false;
+    private boolean         myUpDownSelection = false;
+    private boolean         myWeSetVirtualSpace = true;
+    private int             myAutoIndentDelay = 300;
+    private int             myAutoLineMode = AutoLineModeType.ADAPTER.getDefault().getIntValue();
+    private int             myCaretOnMoveSelectionDown = CaretAdjustmentType.ADAPTER.getDefault().intValue;
+    private int             myCaretOnMoveSelectionUp = CaretAdjustmentType.ADAPTER.getDefault().intValue;
+    private int             myDuplicateAtStartOrEndPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
+    private int             myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
+    private int             myMouseModifier = MouseModifierType.ADAPTER.getDefault().getIntValue();
+    private int             myPrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.getDefault().intValue;
+    private int             mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
+    private int             mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
+    private int             myPrimaryCaretThickness = CaretThicknessType.NORMAL.intValue;
+    private int             myPrimaryCaretColor = JBColor.BLACK.getRGB();
+    private boolean         myPrimaryCaretColorEnabled = false;
+    private int             mySearchStartCaretThickness = CaretThicknessType.THIN.intValue;
+    private int             mySearchStartCaretColor = JBColor.RED.getRGB();
+    private boolean         mySearchStartCaretColorEnabled = true;
+    private int             mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
+    private int             mySearchFoundCaretColor = JBColor.BLUE.getRGB();
+    private boolean         mySearchFoundCaretColorEnabled = true;
+    private int             mySearchStartMatchedCaretThickness = CaretThicknessType.HEAVY.intValue;
+    private int             mySearchStartMatchedCaretColor = JBColor.RED.getRGB();
+    private boolean         mySearchStartMatchedCaretColorEnabled = false;
+    private boolean         mySearchCancelOnEscape = true;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
 
@@ -152,17 +152,17 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     // get/set enums directly
     // @formatter:off
-    public PrefixOnPastePatternType getRemovePrefixOnPastePatternType() { return PrefixOnPastePatternType.ADAPTER.get(myPrefixOnPastePattern); }
-    public CaretAdjustmentType getCaretOnMoveSelectionDownType() { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionDown); }
-    public CaretAdjustmentType getCaretOnMoveSelectionUpType() { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionUp); }
-    public SelectionPredicateType getDuplicateAtStartOrEndPredicateType() { return SelectionPredicateType.ADAPTER.get(myDuplicateAtStartOrEndPredicate); }
-    public LinePasteCaretAdjustmentType getLinePasteCaretAdjustmentType() { return LinePasteCaretAdjustmentType.ADAPTER.get(myLinePasteCaretAdjustment); }
-    public SelectionPredicateType getSelectPastedPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedPredicate); }
-    public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedMultiCaretPredicate); }
-    public CaretThicknessType getPrimaryCaretThicknessType() { return CaretThicknessType.ADAPTER.get(myPrimaryCaretThickness); }
-    public CaretThicknessType getSearchStartCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartCaretThickness); }
-    public CaretThicknessType getSearchStartFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartMatchedCaretThickness); }
-    public CaretThicknessType getSearchFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchFoundCaretThickness); }
+    public PrefixOnPastePatternType         getRemovePrefixOnPastePatternType()             { return PrefixOnPastePatternType.ADAPTER.get(myPrefixOnPastePattern); }
+    public CaretAdjustmentType              getCaretOnMoveSelectionDownType()               { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionDown); }
+    public CaretAdjustmentType              getCaretOnMoveSelectionUpType()                 { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionUp); }
+    public SelectionPredicateType           getDuplicateAtStartOrEndPredicateType()         { return SelectionPredicateType.ADAPTER.get(myDuplicateAtStartOrEndPredicate); }
+    public LinePasteCaretAdjustmentType     getLinePasteCaretAdjustmentType()               { return LinePasteCaretAdjustmentType.ADAPTER.get(myLinePasteCaretAdjustment); }
+    public SelectionPredicateType           getSelectPastedPredicateType()                  { return SelectionPredicateType.ADAPTER.get(mySelectPastedPredicate); }
+    public SelectionPredicateType           getSelectPastedMultiCaretPredicateType()        { return SelectionPredicateType.ADAPTER.get(mySelectPastedMultiCaretPredicate); }
+    public CaretThicknessType               getPrimaryCaretThicknessType()                  { return CaretThicknessType.ADAPTER.get(myPrimaryCaretThickness); }
+    public CaretThicknessType               getSearchStartCaretThicknessType()              { return CaretThicknessType.ADAPTER.get(mySearchStartCaretThickness); }
+    public CaretThicknessType               getSearchStartFoundCaretThicknessType()         { return CaretThicknessType.ADAPTER.get(mySearchStartMatchedCaretThickness); }
+    public CaretThicknessType               getSearchFoundCaretThicknessType()              { return CaretThicknessType.ADAPTER.get(mySearchFoundCaretThickness); }
     // @formatter:on
 
     // customized word flags
@@ -515,8 +515,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setMultiPasteShowEolInViewer(final boolean multiPasteShowEolInViewer) { myMultiPasteShowEolInViewer = multiPasteShowEolInViewer; }
 
-    @NotNull
-    public String getRegexSampleText() { return myRegexSampleText; }
+    @NotNull public String getRegexSampleText() { return myRegexSampleText; }
 
     public void setRegexSampleText(@NotNull final String regexSampleText) { myRegexSampleText = regexSampleText; }
 
@@ -568,8 +567,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setRemovePrefixOnPaste(boolean removePrefixOnPaste) { myRemovePrefixOnPaste = removePrefixOnPaste; }
 
-    @NotNull
-    public String getPrefixesOnPasteText() { return myPrefixesOnPasteText; }
+    @NotNull public String getPrefixesOnPasteText() { return myPrefixesOnPasteText; }
 
     public void setPrefixesOnPasteText(@NotNull String prefixesOnPasteText) {
         myPrefixesOnPasteText = prefixesOnPasteText;

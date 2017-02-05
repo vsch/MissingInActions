@@ -264,6 +264,8 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , PreviousWordInDifferentHumpsModeAction.class
                 , TextEndAction.class
                 , TextStartAction.class
+                , CloneCaretAbove.class
+                , CloneCaretBelow.class
 
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndInDifferentHumpsModeAction.class
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndAction.class
