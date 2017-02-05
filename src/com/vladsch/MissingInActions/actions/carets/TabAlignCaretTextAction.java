@@ -85,21 +85,23 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
         if (caretModel.getCaretCount() > 1 && !editor.getSelectionModel().hasSelection()) {
             // insert enough spaces after each caret to move their text to next tab stop and have all carets aligned
             HashMap<Caret, Integer> insertMap = new HashMap<>();
-            int column = 0;
+            int column = -1;
+            boolean unevenColumns = false;
             List<Caret> carets = caretModel.getAllCarets();
             for (Caret caret : carets) {
                 EditorPosition position = f.fromPosition(caret.getLogicalPosition());
                 int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
-                if (spaces > 0) position = position.addColumn(spaces);
-                if (position.column >= position.atEndColumn().column) continue;
-                caret.moveToLogicalPosition(position);
+                if (position.column + spaces >= position.atEndColumn().column) continue;
 
-                if (column < position.column) column = position.column;
+                if (column < position.column + spaces) {
+                    if (column != -1) unevenColumns = true;
+                    column = position.column + spaces;
+                }
             }
 
             CodeStyleSettings styleSettings = CodeStyleSettingsManager.getSettings(editor.getProject());
             int tabSize = styleSettings.getTabSize(editor.getVirtualFile().getFileType());
-            column += column % tabSize == 0 ? 0 : tabSize - (column % tabSize);
+            column += column % tabSize == 0 && unevenColumns ? 0 : tabSize - (column % tabSize);
 
             // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
             int finalColumn = column;
@@ -108,17 +110,17 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
             WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
                 for (Caret caret : carets) {
                     EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                    if (position.column >= position.atEndColumn().column) {
+                    int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
+
+                    int count = finalColumn - position.column - spaces;
+                    if (count <= 0 || position.column >= position.atEndColumn().column) {
                         caret.moveToLogicalPosition(position.atColumn(finalColumn));
                         continue;
                     }
 
-                    int count = finalColumn - position.column;
-                    if (count > 0) {
-                        int offset = caret.getOffset();
-                        doc.insertString(offset, RepeatedCharSequence.of(' ', count));
-                        caret.moveToOffset(offset + count);
-                    }
+                    int offset = position.getOffset() + spaces;
+                    doc.insertString(offset, RepeatedCharSequence.of(' ', count));
+                    caret.moveToLogicalPosition(position.atColumn(finalColumn));
                 }
             });
         }
