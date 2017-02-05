@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static com.vladsch.MissingInActions.manager.CaretEx.getCoordinates;
 
@@ -56,6 +57,10 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
     public abstract void caretsChanged(final Editor editor);
 
+    public boolean isBackwards() {
+        return myBackwards;
+    }
+
     protected abstract boolean isLineMode();
     protected abstract boolean isSingleLine();
 
@@ -67,6 +72,8 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
     // execute pattern match
     protected abstract boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets);
 
+    protected abstract String getPattern();
+    protected abstract void setPattern(String pattern);
     protected abstract Caret getPatternCaret();
     protected abstract void preparePattern(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
 

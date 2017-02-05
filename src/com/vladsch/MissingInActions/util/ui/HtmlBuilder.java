@@ -35,22 +35,22 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
-    private final StringBuilder myBuilder;
+    private final Appendable myBuilder;
     private final Stack<String> myOpenTags = new Stack<>();
 
     public HtmlBuilder() {
         super(new StringBuilder());
-        myBuilder = (StringBuilder) getAppendable();
+        myBuilder = getAppendable();
     }
 
     public HtmlBuilder(final int indentSize, final boolean allFormatOptions) {
         super(new StringBuilder(), indentSize, allFormatOptions);
-        myBuilder = (StringBuilder) getAppendable();
+        myBuilder = getAppendable();
     }
 
     public HtmlBuilder(final int indentSize, final int formatOptions) {
         super(new StringBuilder(), indentSize, formatOptions);
-        myBuilder = (StringBuilder) getAppendable();
+        myBuilder = getAppendable();
     }
 
     private String tagStack() {

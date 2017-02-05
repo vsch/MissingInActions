@@ -38,7 +38,7 @@ import java.util.ArrayList;
 abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpawningHandler {
     /**
      * Pattern search range limited caret spawning handler
-     *
+     * <p>
      * use single match when the caret is to be moved to a new position based on match location
      * instead of spawning new carets for every match location.
      *
@@ -48,6 +48,7 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
         super(backwards);
     }
 
+    public abstract boolean isCaseSensitive();
     abstract protected boolean isSingleMatch();
 
     protected static class CaretMatch {

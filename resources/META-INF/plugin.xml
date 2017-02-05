@@ -70,16 +70,32 @@
         ]]>
     </description>
 
-    <version>0.8.3.10</version>
+    <version>0.8.3.12</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.10 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.12 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>
-                    <p>Add: DashCase, DotCase and SlashCase to on paste preservation options</p>
+                    <p>Add: MissingInAction toolbar</p>
+                </li>
+                <li>
+                    <p>Add: edit caret search options with dialog to show preview of caret search by pattern.</p>
+                </li>
+                <li>
+                    <p>Add: caret visual attributes for start search carets that have a match on the line to
+                        highlight start locations which have matches.</p>
+                </li>
+                <li>
+                    <p>Add: <code>Accept Found Search Carets</code> action to only leave the found caret locations.</p>
+                </li>
+                <li>
+                    <p>Add: <code>Cancel Found Search Carets</code> action and settings option to <code>Cancel Caret Search on ESCAPE</code> to cancel caret search and restore carets to only the start search location carets.</p>
+                </li>
+                <li>
+                    <p>Add: <strong>dash-case</strong>, <strong>dot.case</strong> and <strong>slash/case</strong> to on paste preservation options</p>
                 </li>
                 <li>
                     <p>Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
@@ -185,7 +201,7 @@
 
     <actions>
         <!-- Line Selection / Char Selection Switchers -->
-        <group id="MissingInActions.WordActions" text="Word Start/End Navigation and Selection">
+        <group id="MissingInActions.WordActionsGroup" text="Word Start/End Navigation and Selection">
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordAction" id="MissingInActions.NextWord" text="Move Caret to Next Word" description="Move Caret to Next Word"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction" id="MissingInActions.NextWordWithSelection" text="Move Caret to Next Word with Selection" description="Move Caret to Next Word with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.word.NextWordInDifferentHumpsModeAction" id="MissingInActions.NextWordInDifferentHumpsMode" text='Move Caret to Next Word in Different "CamelHumps" Mode' description='"Move Caret to Next Word in Different "CamelHumps" Mode'/>
@@ -212,7 +228,7 @@
             <action class="com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousWordInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Word in Different "CamelHumps" Mode with Selection'/>
         </group>
 
-        <group id="MissingInActions.IdentifierActions" text="Identifier Start/End Navigation and Selection">
+        <group id="MissingInActions.IdentifierActionsGroup" text="Identifier Start/End Navigation and Selection">
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordAction" id="MissingInActions.NextIdentifier" text="Move Caret to Next Identifier" description="Move Caret to Next Identifier"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordWithSelectionAction" id="MissingInActions.NextIdentifierWithSelection" text="Move Caret to Next Identifier with Selection" description="Move Caret to Next Identifier with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.identifier.NextWordInDifferentHumpsModeAction" id="MissingInActions.NextIdentifierInDifferentHumpsMode" text='Move Caret to Next Identifier in Different "CamelHumps" Mode' description='"Move Caret to Next Identifier in Different "CamelHumps" Mode'/>
@@ -239,7 +255,7 @@
             <action class="com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeWithSelectionAction" id="MissingInActions.PreviousIdentifierInDifferentHumpsModeStartWithSelection" text='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection' description='Move Caret to Previous Start of Identifier in Different "CamelHumps" Mode with Selection'/>
         </group>
 
-        <group id="MissingInActions.CustomizedActions" text="Identifier Start/End Navigation and Selection">
+        <group id="MissingInActions.CustomizedActionsGroup" text="Identifier Start/End Navigation and Selection">
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordAction" id="MissingInActions.NextCustomized" text="Move Caret to Next Customized" description="Move Caret to Next Customized"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordWithSelectionAction" id="MissingInActions.NextCustomizedWithSelection" text="Move Caret to Next Customized with Selection" description="Move Caret to Next Customized with Selection"/>
             <action class="com.vladsch.MissingInActions.actions.character.custom.NextWordInDifferentHumpsModeAction" id="MissingInActions.NextCustomizedInDifferentHumpsMode" text='Move Caret to Next Customized in Different "CamelHumps" Mode' description='"Move Caret to Next Customized in Different "CamelHumps" Mode'/>
@@ -277,7 +293,7 @@
             </action>
         </group>
 
-        <group id="MissingInActions.MultiCaretFriendly" text="Multi Caret Friendly">
+        <group id="MissingInActions.MultiCaretFriendlyGroup" text="Multi Caret Friendly">
             <action class="com.vladsch.MissingInActions.actions.line.DeleteToLineEndNotEolAction"
                     id="MissingInActions.DeleteToLineEndNotEol"
                     text="Delete to Line End not EOL"
@@ -333,16 +349,18 @@
             </action>
         </group>
 
-        <group id="MissingInActions.MultiCaretShapersFilters" text="Multi Caret Modifiers">
+        <group id="MissingInActions.MultiCaretShapersFiltersGroup" text="Multi Caret Modifiers">
             <action class="com.vladsch.MissingInActions.actions.carets.StraightenCaretsAction"
                     id="MissingInActions.StraightenCarets"
                     text="Straighten Carets"
+                    icon="PluginIcons.Straighten_carets"
                     description="Straighten Carets">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.carets.SmartKeepLineCaretsAction"
                     id="MissingInActions.SmartKeepLineCarets"
                     text="Smart Keep Line Carets"
+                    icon="PluginIcons.Smart_keep_carets"
                     description="Smart Keep Line Carets">
             </action>
 
@@ -373,6 +391,7 @@
             <action class="com.vladsch.MissingInActions.actions.carets.KeepBlankLineCaretsAction"
                     id="MissingInActions.KeepBlankLineCarets"
                     text="Keep Blank Line Carets"
+                    icon="PluginIcons.Keep_blank_carets"
                     description="Keep Blank Line Carets">
             </action>
 
@@ -391,6 +410,7 @@
             <action class="com.vladsch.MissingInActions.actions.carets.ToggleCaretsLineSelectionAction"
                     id="MissingInActions.ToggleCaretsLineSelection"
                     text="Toggle Between Carets and Line Selection"
+                    icon="PluginIcons.Toggle_carets_selection"
                     description="Toggle Between Carets and Line Selection">
             </action>
 
@@ -409,17 +429,19 @@
             <action class="com.vladsch.MissingInActions.actions.carets.PrimaryCaretToNextAction"
                     id="MissingInActions.PrimaryCaretToNext"
                     text="Make Next Caret Primary"
+                    icon="PluginIcons.Primary_next_caret"
                     description="Make Next Caret Primary">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.carets.PrimaryCaretToPrevAction"
                     id="MissingInActions.PrimaryCaretToPrev"
                     text="Make Previous Caret Primary"
+                    icon="PluginIcons.Primary_previous_caret"
                     description="Make Previous Caret Primary">
             </action>
         </group>
 
-        <group id="MissingInActions.LineCharacterCarets" text="Selection Modifiers">
+        <group id="MissingInActions.LineCharacterCaretsGroup" text="Selection Modifiers">
             <action class="com.vladsch.MissingInActions.actions.line.ToggleLineCharacterSelectionAction"
                     id="MissingInActions.ToggleLineCharacterSelection"
                     text="Toggle Line/Character Selection"
@@ -451,17 +473,41 @@
             </action>
         </group>
 
-        <group id="MissingInActions.Pattern" text="Pattern Caret">
+        <group id="MissingInActions.PatternGroup" text="Pattern Caret">
             <action class="com.vladsch.MissingInActions.actions.pattern.ForwardSearchCaretSpawningAction"
                     id="MissingInActions.ForwardSearchCaretSpawning"
                     text="Forward Search Caret Spawning"
+                    icon="PluginIcons.Forward_search"
                     description="Forward Search Caret Spawning">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.BackwardSearchCaretSpawningAction"
                     id="MissingInActions.BackwardSearchCaretSpawning"
                     text="Backward Search Caret Spawning"
+                    icon="PluginIcons.Backward_search"
                     description="Backward Search Caret Spawning">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.AcceptFoundCaretsAction"
+                    id="MissingInActions.AcceptFoundCarets"
+                    text="Accept Found Search Carets"
+                    icon="PluginIcons.Accept_search"
+                    description="Accept Found Search Carets">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction"
+                    id="MissingInActions.CancelFoundCarets"
+                    text="Cancel Found Search Carets"
+                    icon="PluginIcons.Cancel_search"
+                    description="Cancel Found Search Carets">
+                <keyboard-shortcut first-keystroke="ESCAPE" keymap="$default" />
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.SearchCaretsOptionsAction"
+                    id="MissingInActions.SearchCaretsOptions"
+                    text="Search Carets Options"
+                    icon="PluginIcons.Search_options"
+                    description="Search Carets Options">
             </action>
         </group>
 
@@ -474,13 +520,45 @@
         <action class="com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction"
                 id="MissingInActions.DuplicateForMultipleClipboardCarets"
                 text="Duplicate Line or Selection for Carets from Clipboard History"
+                icon="PluginIcons.Duplicate_multiple_carets"
                 description="Duplicate Line or Selection for Carets from Clipboard History">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.line.NumberAction"
                 id="MissingInActions.Number"
-                text="Generate Number Sequence for Caret or Selection"
-                description="Generate Number Sequence for Caret or Selection">
+                text="Generate Number Sequence for Carets"
+                icon="PluginIcons.Number_carets"
+                description="Generate Number Sequence for Carets">
         </action>
+
+        <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
+            <separator/>
+            <reference id="MissingInActions.ToggleCaretsLineSelection"/>
+            <separator/>
+            <reference id="MissingInActions.SmartKeepLineCarets"/>
+            <reference id="MissingInActions.KeepBlankLineCarets"/>
+            <reference id="MissingInActions.StraightenCarets"/>
+            <separator/>
+            <reference id="MissingInActions.Number"/>
+            <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>
+            <separator/>
+            <reference id="MissingInActions.PrimaryCaretToNext"/>
+            <reference id="MissingInActions.PrimaryCaretToPrev"/>
+            <separator/>
+            <reference id="MissingInActions.ForwardSearchCaretSpawning"/>
+            <reference id="MissingInActions.BackwardSearchCaretSpawning"/>
+            <reference id="MissingInActions.SearchCaretsOptions"/>
+            <!--<action id="MissingInActions.Pattern" class="com.vladsch.MissingInActions.actions.pattern.PatternAction" text="Caret Search Pattern">-->
+                <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
+            <!--</action>-->
+            <reference id="MissingInActions.AcceptFoundCarets"/>
+            <reference id="MissingInActions.CancelFoundCarets"/>
+
+            <add-to-group group-id="MainToolBar" anchor="before" relative-to-action="MainToolBarSettings" />
+            <add-to-group group-id="NavBarToolBar" anchor="first"/>
+        </group>
+
     </actions>
+
+
 </idea-plugin>

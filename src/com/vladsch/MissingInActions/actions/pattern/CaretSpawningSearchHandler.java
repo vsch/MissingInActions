@@ -46,6 +46,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     private boolean mySingleLine;
     private boolean mySingleMatch;
     private boolean myMoveFirstMatch;
+    private boolean myCaseSensitive;
     private RegExPattern myPattern;
     private Set<Caret> myStartSearchCarets;
     private List<CaretState> myStartCarets;
@@ -54,6 +55,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
     public CaretSpawningSearchHandler(final boolean backwards) {
         super(backwards);
+        myCaseSensitive = true;
     }
 
     @Override
@@ -67,6 +69,15 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
+    public boolean isCaseSensitive() {
+        return myCaseSensitive;
+    }
+
+    public void setCaseSensitive(final boolean caseSensitive) {
+        myCaseSensitive = caseSensitive;
+    }
+
+    @Override
     protected boolean isSingleMatch() {
         return mySingleMatch;
     }
@@ -76,11 +87,29 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         return myMoveFirstMatch;
     }
 
+    public boolean isCaretToEndGroup() {
+        return myCaretToEndGroup;
+    }
+
+    public void setCaretToEndGroup(final boolean caretToEndGroup) {
+        myCaretToEndGroup = caretToEndGroup;
+    }
+
     @Override
     protected void updateCarets(final Editor editor, final List<Caret> caretList) {
         LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         if (mySingleMatch) {
-            manager.setSearchFoundCaretSpawningHandler(this, myStartCarets, myStartSearchCarets, caretList);
+            List<Caret> startMatchedCarets = new ArrayList<>();
+            for (Caret caret : caretList) {
+                for (Caret startCaret : myStartSearchCarets) {
+                    if (startCaret.getLogicalPosition().line == caret.getLogicalPosition().line) {
+                        startMatchedCarets.add(startCaret);
+                        break;
+                    }
+                }
+            }
+
+            manager.setSearchFoundCaretSpawningHandler(this, myStartCarets, myStartSearchCarets, startMatchedCarets, caretList);
         } else {
             // just regular carets
             manager.clearSearchFoundCarets();
@@ -93,6 +122,23 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         myStartSearchCarets = new HashSet<>(editor.getCaretModel().getAllCarets());
         myPatternCaret = editor.getCaretModel().getPrimaryCaret();
     }
+
+    public void copySettings(final CaretSpawningSearchHandler other, final Editor editor) {
+        myLineMode = other.myLineMode;
+        mySingleLine = other.mySingleLine;
+        mySingleMatch = other.mySingleMatch;
+        myMoveFirstMatch = other.myMoveFirstMatch;
+        myCaretToEndGroup = other.myCaretToEndGroup;
+        myPattern = null;
+        myStartSearchCarets = null;
+        myPatternCaret = null;
+
+        if (mySingleMatch) {
+            // this is search forward/backward
+            caretsChanged(editor);
+        }
+    }
+
 
     @Override
     protected void analyzeContext(final Editor editor, @Nullable final Caret caret, @NotNull final LineSelectionManager manager) {
@@ -144,6 +190,20 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
+    protected String getPattern() {
+        return myPattern == null ? "" : myPattern instanceof ReversePattern ? ((ReversePattern) myPattern).originalPattern() : myPattern.pattern();
+    }
+
+    @Override
+    protected void setPattern(String pattern) {
+        if (myBackwards) {
+            myPattern = ReversePattern.compile(pattern, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
+        } else {
+            myPattern = ForwardPattern.compile(pattern, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
+        }
+    }
+
+    @Override
     protected void preparePattern(@NotNull final LineSelectionManager manager, @NotNull final Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
         assert caret == myPatternCaret;
         myPattern = null;
@@ -175,7 +235,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 char c = offset >= chars.length() || caretPos.column >= endOfLineColumn ? ' ' : chars.charAt(offset);
                 if (Character.isWhitespace(c)) {
                     // match next non-whitespace
-                    myPattern = ForwardPattern.compile("(\\s+)\\S+");
+                    //myPattern = ForwardPattern.compile("(\\s*)\\S+");
+                    myPattern = ForwardPattern.compile("((?<=\\s)\\s*|^|(?<=\\S)\\S*\\s+)\\S+");
                     myCaretToEndGroup = true;
                 } else if (isJavaIdentifierPart(c)) {
                     // find end of identifier
@@ -184,9 +245,9 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
                     if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
                         // we are at start of identifier even if first char is not a valid java identifier
-                        myPattern = ForwardPattern.compile("\\b(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+                        myPattern = ForwardPattern.compile("\\b(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     } else {
-                        myPattern = ForwardPattern.compile("(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b");
+                        myPattern = ForwardPattern.compile("(" + Pattern.quote(chars.subSequence(offset, end).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
                     // neither, just look for the character
@@ -198,7 +259,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 char c = offset == 0 || caretPos.column - 1 >= endOfLineColumn ? ' ' : chars.charAt(offset - 1);
                 if (Character.isWhitespace(c)) {
                     // match previous non-whitespace
-                    myPattern = ReversePattern.compile("\\S+(\\s+)");
+                    //myPattern = ReversePattern.compile("\\S+(\\s+)");
+                    myPattern = ReversePattern.compile("\\S+(\\s*(?=\\s)|$|\\s+(?=\\S+))");
                     myCaretToEndGroup = true;
                 } else if (isJavaIdentifierPart(c)) {
                     // find start of identifier
@@ -207,9 +269,9 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
                     if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
                         // we are at start of identifier even if first char is not a valid java identifier
-                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")\\b");
+                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")\\b", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     } else {
-                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")");
+                        myPattern = ReversePattern.compile("\\b(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
                     // neither, just look for the character

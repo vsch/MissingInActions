@@ -28,4 +28,10 @@ public interface RegExSettingsHolder {
     @NotNull String getSampleText();
     void setPatternText(String pattern1);
     void setSampleText(String sampleText);
+    boolean isCaseSensitive();
+    boolean isBackwards();
+    boolean isCaretToGroupEnd();
+    void setCaseSensitive(boolean isCaseSensitive);
+    void setBackwards(boolean isBackwards);
+    void setCaretToGroupEnd(boolean isCaretToGroupEnd);
 }

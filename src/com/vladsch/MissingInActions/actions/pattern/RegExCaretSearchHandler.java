@@ -56,7 +56,7 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
             } else {
                 myMatcher.region(range.getStart(), offset);
             }
-            myMatcher.useTransparentBounds(!isSingleLine());
+            myMatcher.useTransparentBounds(true);
             myMatcher.useAnchoringBounds(false);
 
             if (!myMatcher.find()) {

@@ -287,17 +287,22 @@ public class NumberSequenceGenerator {
 
     private static void insertSeparators(StringBuilder sb, @NotNull CharSequence number, int digitPos, @Nullable String separator, int separatorFrequency) {
         int pos;
+        BasedSequence sequence = BasedSequenceImpl.of(number);
+
         pos = number.length() - digitPos;
         String out = "";
+
         while (pos > separatorFrequency && separatorFrequency > 0) {
             out = number.subSequence(pos - separatorFrequency, pos) + out;
-            out = separator + out;
             pos -= separatorFrequency;
+            if (sequence.subSequence(0, pos).isBlank()) break;
+            out = separator + out;
         }
 
         if (pos > 0) {
             out = number.subSequence(0, pos) + out;
         }
+
         sb.append(out);
     }
 

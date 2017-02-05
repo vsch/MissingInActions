@@ -93,10 +93,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int         mySearchStartCaretColor = JBColor.RED.getRGB();
     private boolean     mySearchStartCaretColorEnabled = true;
     private int         mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int         mySearchFoundCaretColor = JBColor.BLACK.getRGB();
-    private boolean     mySearchFoundCaretColorEnabled = false;
+    private int         mySearchFoundCaretColor = JBColor.BLUE.getRGB();
+    private boolean     mySearchFoundCaretColorEnabled = true;
+    private int         mySearchStartMatchedCaretThickness = CaretThicknessType.HEAVY.intValue;
+    private int         mySearchStartMatchedCaretColor = JBColor.RED.getRGB();
+    private boolean     mySearchStartMatchedCaretColorEnabled = false;
+    private boolean     mySearchCancelOnEscape = true;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
+
     // @formatter:on
     private NumberingOptions myLastNumberingOptions = new NumberingOptions();
     private NumberingBaseOptions myLastNumberingBaseOptions_0 = new NumberingBaseOptions();
@@ -156,6 +161,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public SelectionPredicateType getSelectPastedMultiCaretPredicateType() { return SelectionPredicateType.ADAPTER.get(mySelectPastedMultiCaretPredicate); }
     public CaretThicknessType getPrimaryCaretThicknessType() { return CaretThicknessType.ADAPTER.get(myPrimaryCaretThickness); }
     public CaretThicknessType getSearchStartCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartCaretThickness); }
+    public CaretThicknessType getSearchStartFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchStartMatchedCaretThickness); }
     public CaretThicknessType getSearchFoundCaretThicknessType() { return CaretThicknessType.ADAPTER.get(mySearchFoundCaretThickness); }
     // @formatter:on
 
@@ -421,6 +427,10 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); }
     // @formatter:on
 
+    public boolean isSearchCancelOnEscape() { return mySearchCancelOnEscape; }
+
+    public void setSearchCancelOnEscape(final boolean searchCancelOnEscape) { mySearchCancelOnEscape = searchCancelOnEscape; }
+
     public int getPrimaryCaretColor() { return myPrimaryCaretColor; }
 
     public void setPrimaryCaretColor(final int primaryCaretColor) { myPrimaryCaretColor = primaryCaretColor; }
@@ -456,6 +466,18 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public java.awt.Color searchStartCaretColorRGB() { return Color.of(mySearchStartCaretColor); }
 
     public void searchStartCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchStartCaretColor = primaryCaretColor.getRGB(); }
+
+    public boolean isSearchStartMatchedCaretColorEnabled() { return mySearchStartMatchedCaretColorEnabled; }
+
+    public void setSearchStartMatchedCaretColorEnabled(final boolean primaryCaretColorEnabled) { mySearchStartMatchedCaretColorEnabled = primaryCaretColorEnabled; }
+
+    public int getSearchStartMatchedCaretThickness() { return mySearchStartMatchedCaretThickness; }
+
+    public void setSearchStartMatchedCaretThickness(final int primaryCaretThickness) { mySearchStartMatchedCaretThickness = primaryCaretThickness; }
+
+    public java.awt.Color searchStartMatchedCaretColorRGB() { return Color.of(mySearchStartMatchedCaretColor); }
+
+    public void searchStartMatchedCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchStartMatchedCaretColor = primaryCaretColor.getRGB(); }
 
     public boolean isSearchFoundCaretColorEnabled() { return mySearchFoundCaretColorEnabled; }
 

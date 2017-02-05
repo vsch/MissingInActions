@@ -328,8 +328,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                         carets.add(caretEx.getCaret());
                     }
 
-                    myManager.clearSearchFoundHighlights();
-
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
                         if (!carets.contains(caret)) {
                             myEditor.getCaretModel().removeCaret(caret);
@@ -337,6 +335,8 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     }
                 }
             }
+
+            myManager.clearSearchFoundCarets();
         }
     }
 

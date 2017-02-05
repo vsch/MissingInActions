@@ -20,6 +20,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.ui.ClickListener;
 import com.intellij.ui.ColorChooser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -28,20 +29,32 @@ import java.awt.event.MouseEvent;
 
 /**
  * @author Vladimir Schneider
- * Added Enabled property propagation to checkbox and repainting of color tab on color change
- *
+ *         Added Enabled property propagation to checkbox and repainting of color tab on color change
+ *         Added unselected color property to display when checkbox is not selected
+ *         Added update runnable to callback on color change
  * @author Konstantin Bulenkov
  */
 public class CheckBoxWithColorChooser extends JPanel {
     private Color myColor;
     private final JCheckBox myCheckbox;
+    private @Nullable Color myUnselectedColor;
+    private Runnable myUpdateRunnable;
+    private final JButton myColorButton;
 
-    public CheckBoxWithColorChooser(String text, boolean selected, Color color) {
+    public CheckBoxWithColorChooser(String text, boolean selected, @NotNull Color color) {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         myColor = color;
+        myUnselectedColor = null;
         myCheckbox = new JCheckBox(text, selected);
+
         add(myCheckbox);
-        add(new MyColorButton());
+        myColorButton = new MyColorButton();
+        add(myColorButton);
+        myUpdateRunnable = null;
+
+        myCheckbox.addActionListener((event) -> {
+            myColorButton.repaint();
+        });
     }
 
     public CheckBoxWithColorChooser(String text, boolean selected) {
@@ -50,6 +63,26 @@ public class CheckBoxWithColorChooser extends JPanel {
 
     public CheckBoxWithColorChooser(String text) {
         this(text, false);
+    }
+
+    @Nullable
+    public Color getUnselectedColor() {
+        return myUnselectedColor;
+    }
+
+    public void setUnselectedColor(@Nullable final Color unselectedColor) {
+        myUnselectedColor = unselectedColor;
+        if (!myCheckbox.isSelected()) {
+            myColorButton.repaint();
+        }
+    }
+
+    public Runnable getUpdateRunnable() {
+        return myUpdateRunnable;
+    }
+
+    public void setUpdateRunnable(final Runnable updateRunnable) {
+        myUpdateRunnable = updateRunnable;
     }
 
     public void setMnemonic(char c) {
@@ -62,10 +95,15 @@ public class CheckBoxWithColorChooser extends JPanel {
 
     public void setColor(Color color) {
         myColor = color;
+        myColorButton.repaint();
+        if (myUpdateRunnable != null) {
+            myUpdateRunnable.run();
+        }
     }
 
     public void setSelected(boolean selected) {
         myCheckbox.setSelected(selected);
+        myColorButton.repaint();
     }
 
     public boolean isSelected() {
@@ -96,6 +134,9 @@ public class CheckBoxWithColorChooser extends JPanel {
                         if (color != null) {
                             myColor = color;
                             MyColorButton.this.repaint();
+                            if (myUpdateRunnable != null) {
+                                myUpdateRunnable.run();
+                            }
                         }
                     }
                     return true;
@@ -106,7 +147,7 @@ public class CheckBoxWithColorChooser extends JPanel {
         @Override
         public void paint(Graphics g) {
             final Color color = g.getColor();
-            g.setColor(myColor);
+            g.setColor(myCheckbox.isSelected() || myUnselectedColor == null ? myColor : myUnselectedColor);
             g.fillRect(0, 0, getWidth(), getHeight());
             g.setColor(color);
         }

@@ -22,5 +22,5 @@
 package com.vladsch.MissingInActions.manager;
 
 public enum CaretAttributeType {
-    DEFAULT, PRIMARY, START, FOUND,
+    DEFAULT, PRIMARY, START, START_MATCHED, FOUND,
 }

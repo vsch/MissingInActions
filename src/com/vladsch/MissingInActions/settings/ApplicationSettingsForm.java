@@ -47,8 +47,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import static com.vladsch.MissingInActions.manager.LineSelectionManager.*;
-
 @SuppressWarnings("WeakerAccess")
 public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder {
     private JPanel myMainPanel;
@@ -105,11 +103,14 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox myRemovePrefixOnPastePattern;
     JComboBox mySelectPastedMultiCaretPredicate;
     JComboBox mySelectPastedPredicate;
+    JCheckBox mySearchCancelOnEscape;
     JSpinner myAutoIndentDelay;
     private JComboBox myPrimaryCaretThickness;
     private CheckBoxWithColorChooser myPrimaryCaretColor;
     private JComboBox mySearchStartCaretThickness;
     private CheckBoxWithColorChooser mySearchStartCaretColor;
+    private JComboBox mySearchStartFoundCaretThickness;
+    private CheckBoxWithColorChooser mySearchStartMatchedCaretColor;
     private JComboBox mySearchFoundCaretThickness;
     private CheckBoxWithColorChooser mySearchFoundCaretColor;
     private JTextPane myCaretVisualAttributesPane;
@@ -133,11 +134,14 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(MouseModifierType.ADAPTER, myMouseModifier, i::getMouseModifier, i::setMouseModifier),
                         component(CaretThicknessType.ADAPTER, myPrimaryCaretThickness, i::getPrimaryCaretThickness, i::setPrimaryCaretThickness),
                         component(CaretThicknessType.ADAPTER, mySearchStartCaretThickness, i::getSearchStartCaretThickness, i::setSearchStartCaretThickness),
+                        component(CaretThicknessType.ADAPTER, mySearchStartFoundCaretThickness, i::getSearchStartMatchedCaretThickness, i::setSearchStartMatchedCaretThickness),
                         component(CaretThicknessType.ADAPTER, mySearchFoundCaretThickness, i::getSearchFoundCaretThickness, i::setSearchFoundCaretThickness),
                         component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
                         componentEnabled(myPrimaryCaretColor, i::isPrimaryCaretColorEnabled, i::setPrimaryCaretColorEnabled),
                         component(mySearchStartCaretColor, i::searchStartCaretColorRGB, i::searchStartCaretColorRGB),
                         componentEnabled(mySearchStartCaretColor, i::isSearchStartCaretColorEnabled, i::setSearchStartCaretColorEnabled),
+                        component(mySearchStartMatchedCaretColor, i::searchStartMatchedCaretColorRGB, i::searchStartMatchedCaretColorRGB),
+                        componentEnabled(mySearchStartMatchedCaretColor, i::isSearchStartMatchedCaretColorEnabled, i::setSearchStartMatchedCaretColorEnabled),
                         component(mySearchFoundCaretColor, i::searchFoundCaretColorRGB, i::searchFoundCaretColorRGB),
                         componentEnabled(mySearchFoundCaretColor, i::isSearchFoundCaretColorEnabled, i::setSearchFoundCaretColorEnabled),
                         component(myAddPrefixOnPaste, i::isAddPrefixOnPaste, i::setAddPrefixOnPaste),
@@ -146,6 +150,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myCopyLineOrLineSelection, i::isCopyLineOrLineSelection, i::setCopyLineOrLineSelection),
                         component(myDeleteOperations, i::isDeleteOperations, i::setDeleteOperations),
                         component(myDuplicateAtStartOrEnd, i::isDuplicateAtStartOrEnd, i::setDuplicateAtStartOrEnd),
+                        component(mySearchCancelOnEscape, i::isSearchCancelOnEscape, i::setSearchCancelOnEscape),
                         component(myIndentUnindent, i::isIndentUnindent, i::setIndentUnindent),
                         component(myLeftRightMovement, i::isLeftRightMovement, i::setLeftRightMovement),
                         component(myMouseCamelHumpsFollow, i::isMouseCamelHumpsFollow, i::setMouseCamelHumpsFollow),
@@ -215,12 +220,17 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             myPrimaryCaretColor.setEnabled(false);
             mySearchStartCaretThickness.setEnabled(false);
             mySearchStartCaretColor.setEnabled(false);
+            mySearchStartFoundCaretThickness.setEnabled(false);
+            mySearchStartMatchedCaretColor.setEnabled(false);
             mySearchFoundCaretThickness.setEnabled(false);
             mySearchFoundCaretColor.setEnabled(false);
             myCaretVisualAttributesPane.setVisible(true);
             setContentBody(Bundle.message("settings.caret-visual-attributes.description"));
         } else {
             myCaretVisualAttributesPane.setVisible(false);
+            mySearchStartCaretColor.setUpdateRunnable(() -> {
+                mySearchStartMatchedCaretColor.setUnselectedColor(mySearchStartCaretColor.getColor());
+            });
         }
         myCaretVisualAttributesPane.validate();
         myMainPanel.validate();
@@ -244,6 +254,12 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     @NotNull @Override public String getSampleText() { return myRegexSampleText; }
     @Override public void setPatternText(final String patternText) { myPrefixOnPasteText.setText(patternText); }
     @Override public void setSampleText(final String sampleText) { myRegexSampleText = sampleText; }
+    @Override public boolean isCaseSensitive() { return true; }
+    @Override public boolean isBackwards() { return false; }
+    @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
+    @Override public void setBackwards(final boolean isBackwards) { }
+    @Override public boolean isCaretToGroupEnd() { return false; }
+    @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
     // @formatter:on
 
     public JComponent getComponent() {
@@ -433,6 +449,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myPrimaryCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
         mySearchStartCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
         mySearchStartCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        mySearchStartFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
+        mySearchStartMatchedCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
         mySearchFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
         mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
     }

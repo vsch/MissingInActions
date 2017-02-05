@@ -93,7 +93,7 @@ public class NumberActionHandler extends EditorActionHandler {
                             final int selectionStart = caret1.getSelectionStart();
                             final int selectionEnd = caret1.getSelectionEnd();
                             document.replaceString(selectionStart, selectionEnd, number);
-                            CaretOffsets offsets = new CaretOffsets(selectionStart+number.length(), selectionStart, selectionStart + number.length());
+                            CaretOffsets offsets = new CaretOffsets(selectionStart + number.length(), selectionStart, selectionStart + number.length());
                             carets.add(offsets);
                         } else {
                             // add number at caret but may need to add virtual spaces
@@ -106,11 +106,12 @@ public class NumberActionHandler extends EditorActionHandler {
                             }
 
                             StringBuilder sb = new StringBuilder();
-                            while (virtualSpaces-- > 0) sb.append(' ');
+                            int i = virtualSpaces;
+                            while (i-- > 0) sb.append(' ');
                             sb.append(number);
                             final int offset = caret1.getOffset();
                             document.insertString(offset, sb);
-                            CaretOffsets offsets = new CaretOffsets(offset + sb.length(), offset, offset + sb.length());
+                            CaretOffsets offsets = new CaretOffsets(offset + sb.length(), offset + virtualSpaces, offset + sb.length());
                             carets.add(offsets);
                         }
                     }

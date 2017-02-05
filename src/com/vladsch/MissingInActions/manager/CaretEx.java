@@ -28,6 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CaretEx implements Caret {
     private static final Method ourGetVisualAttributes;
@@ -53,6 +56,16 @@ public class CaretEx implements Caret {
     }
 
     public static final boolean HAVE_VISUAL_ATTRIBUTES = ourGetVisualAttributes != null && ourSetVisualAttributes != null;
+
+    @Nullable
+    public static Set<Long> getExcludedCoordinates(@Nullable Set<Long> excludeSet, @Nullable Collection<CaretEx> exclude) {
+        if (exclude == null || exclude.isEmpty()) return excludeSet;
+        if (excludeSet == null) excludeSet = new HashSet<>(exclude.size());
+        for (CaretEx caretEx : exclude) {
+            excludeSet.add(caretEx.getCoordinates());
+        }
+        return excludeSet;
+    }
 
     public CaretEx(Caret caret) {
         myCaret = caret;

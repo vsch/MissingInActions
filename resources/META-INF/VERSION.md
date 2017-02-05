@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.8.3.10 - Bug Fixes and Enhancements](#08310---bug-fixes-and-enhancements)
+- [0.8.3.12 - Bug Fixes and Enhancements](#08312---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
 - [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
 - [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
@@ -75,9 +75,21 @@
 
 &nbsp;</details>
 
-### 0.8.3.10 - Bug Fixes and Enhancements
+### 0.8.3.12 - Bug Fixes and Enhancements
 
-* Add: DashCase, DotCase and SlashCase to on paste preservation options
+* Add: MissingInAction toolbar
+
+* Add: edit caret search options with dialog to show preview of caret search by pattern.
+
+* Add: caret visual attributes for start search carets that have a match on the line to
+  highlight start locations which have matches.
+
+* Add: `Accept Found Search Carets` action to only leave the found caret locations.
+
+* Add: `Cancel Found Search Carets` action and settings option to `Cancel Caret Search on
+  ESCAPE` to cancel caret search and restore carets to only the start search location carets.
+
+* Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
 
 * Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
   carets. Also does color and weight change if 2017 EAP.

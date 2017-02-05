@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.manager;
 
+import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
@@ -30,19 +31,25 @@ import com.intellij.openapi.editor.CaretVisualAttributes;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
+import com.vladsch.MissingInActions.util.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.event.MouseEvent;
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 
@@ -58,6 +65,7 @@ public class LineSelectionManager implements
         , Disposable
 {
 
+    public static final String ESCAPE_SEARCH = "ESCAPE";
     final private Editor myEditor;
     final private ReEntryGuard myCaretGuard = new ReEntryGuard();
     final private HashMap<Caret, StoredLineSelectionState> mySelectionStates = new HashMap<>();
@@ -74,6 +82,7 @@ public class LineSelectionManager implements
     private ApplicationSettings mySettings;
     @Nullable private RangeLimitedCaretSpawningHandler myCaretSpawningHandler;
     @Nullable private Set<CaretEx> myStartCarets;
+    @Nullable private Set<CaretEx> myStartMatchedCarets;
     @Nullable private Set<CaretEx> myFoundCarets;
     @Nullable private List<CaretState> myStartCaretStates;
 
@@ -117,6 +126,7 @@ public class LineSelectionManager implements
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
         myCaretSpawningHandler = null;
         myStartCarets = null;
+        myStartMatchedCarets = null;
         myFoundCarets = null;
         myStartCaretStates = null;
     }
@@ -131,19 +141,36 @@ public class LineSelectionManager implements
     }
 
     public void clearSearchFoundCarets() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        Set<Long> excludeList = null;
+
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
+
 
         myCaretSpawningHandler = null;
         myStartCaretStates = null;
         myStartCarets = null;
+        myStartMatchedCarets = null;
         myFoundCarets = null;
         myCaretHighlighter.highlightCarets();
+        myDelayedRunner.runAllFor(ESCAPE_SEARCH);
     }
 
     public void clearSearchFoundHighlights() {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        Set<Long> excludeList = null;
+
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
     }
 
     @Nullable
@@ -157,6 +184,11 @@ public class LineSelectionManager implements
     }
 
     @Nullable
+    public Set<CaretEx> getStartMatchedCarets() {
+        return myStartMatchedCarets;
+    }
+
+    @Nullable
     public Set<CaretEx> getFoundCarets() {
         return myFoundCarets;
     }
@@ -165,12 +197,25 @@ public class LineSelectionManager implements
             @Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler,
             @Nullable final List<CaretState> startCaretStates,
             @Nullable final Collection<Caret> startCarets,
+            @Nullable final Collection<Caret> startMatchedCarets,
             @Nullable final Collection<Caret> foundCarets
     ) {
+        if (myCaretSpawningHandler == null) {
+            addEscapeDispatcher();
+        }
+
         myCaretSpawningHandler = caretSpawningHandler;
         myStartCaretStates = startCaretStates;
         setFoundCarets(foundCarets);
+        setStartMatchedCarets(startMatchedCarets);
         setStartCarets(startCarets);
+    }
+
+    public void setSearchFoundCaretSpawningHandler( @Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler) {
+        if (myCaretSpawningHandler == null) {
+            addEscapeDispatcher();
+        }
+        myCaretSpawningHandler = caretSpawningHandler;
     }
 
     @Nullable
@@ -178,20 +223,18 @@ public class LineSelectionManager implements
         myStartCaretStates = startCaretStates;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void setStartCarets(@Nullable final Collection<Caret> carets) {
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        Set<Long> excludeList = null;
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+
+        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
         if (carets == null) {
             myStartCarets = null;
         } else {
             myStartCarets = new HashSet<>(carets.size());
             CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
-            Set<Long> excludeList = myFoundCarets == null ? null : new HashSet<>(myFoundCarets.size());
-            if (excludeList != null) {
-                for (CaretEx caretEx : myFoundCarets) {
-                    excludeList.add(caretEx.getCoordinates());
-                }
-            }
-
             for (Caret caret : carets) {
                 if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
 
@@ -202,7 +245,31 @@ public class LineSelectionManager implements
                 myStartCarets.add(new CaretEx(caret));
             }
 
-            myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, myFoundCarets);
+            myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
+        }
+    }
+
+    private void setStartMatchedCarets(@Nullable final Collection<Caret> carets) {
+        Set<Long> excludeList = null;
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+
+        myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
+        if (carets == null) {
+            myStartMatchedCarets = null;
+        } else {
+            myStartMatchedCarets = new HashSet<>(carets.size());
+            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+            for (Caret caret : carets) {
+                if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
+
+                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+                    myCaretHighlighter.setPrimaryCaret(null);
+                    myPrimaryCaret = null;
+                }
+                myStartMatchedCarets.add(new CaretEx(caret));
+            }
+
+            myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
         }
     }
 
@@ -296,6 +363,44 @@ public class LineSelectionManager implements
         return myIsSelectionStartExtended;
     }
 
+    private void addEscapeDispatcher() {
+        if (mySettings.isSearchCancelOnEscape()) {
+            final IdeEventQueue.EventDispatcher eventDispatcher = new IdeEventQueue.EventDispatcher() {
+                @Override
+                public boolean dispatch(@NotNull final AWTEvent e) {
+                    return LineSelectionManager.this.dispatchEscape(e);
+                }
+            };
+
+            IdeEventQueue.getInstance().addDispatcher(eventDispatcher, this);
+            myDelayedRunner.addRunnable(ESCAPE_SEARCH, () -> {
+                IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
+            });
+        }
+    }
+
+    private boolean dispatchEscape(@NotNull final AWTEvent e) {
+        if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
+            if ((((KeyEvent)e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
+                final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
+
+                if (owner != null && owner instanceof JComponent) {
+                    // register multi-paste if no already registered and remove when focus is lost
+                    if (owner == myEditor.getContentComponent()) {
+                        List<CaretState> caretStates = getStartCaretStates();
+                        if (caretStates != null) {
+                            clearSearchFoundCarets();
+                            myEditor.getCaretModel().setCaretsAndSelections(caretStates);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     private void settingsChanged(@NotNull ApplicationSettings settings) {
         // unhook all the stuff for settings registration
         mySettings = settings;
@@ -324,7 +429,19 @@ public class LineSelectionManager implements
         hookListeners(settings);
         myCaretHighlighter.removeCaretHighlight();
         myCaretHighlighter.settingsChanged(settings);
-        myCaretHighlighter.updateCaretHighlights();
+        Set<Long> excludeList = null;
+
+        if (myCaretSpawningHandler != null) {
+            myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.FOUND, null);
+
+            excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+            myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
+
+            excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+            myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
+
+            addEscapeDispatcher();
+        }
 
         // change all selections that were lines back to lines
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {

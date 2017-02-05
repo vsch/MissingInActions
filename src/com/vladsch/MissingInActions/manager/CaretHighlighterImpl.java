@@ -38,6 +38,7 @@ class CaretHighlighterImpl implements CaretHighlighter {
     @NotNull private final LineSelectionManager myManager;
     @Nullable private CaretEx myPrimaryCaret = null;
     @Nullable private CaretVisualAttributes myPrimaryAttributes = null;
+    @Nullable private CaretVisualAttributes myStartMatchedAttributes = null;
     @Nullable private CaretVisualAttributes myStartAttributes = null;
     @Nullable private CaretVisualAttributes myFoundAttributes = null;
 
@@ -78,6 +79,7 @@ class CaretHighlighterImpl implements CaretHighlighter {
     public void settingsChanged(ApplicationSettings settings) {
         myPrimaryAttributes = new CaretVisualAttributes(settings.isPrimaryCaretColorEnabled() ? settings.primaryCaretColorRGB() : null, getCaretWeight(settings.getPrimaryCaretThicknessType()));
         myStartAttributes = new CaretVisualAttributes(settings.isSearchStartCaretColorEnabled() ? settings.searchStartCaretColorRGB() : null, getCaretWeight(settings.getSearchStartCaretThicknessType()));
+        myStartMatchedAttributes = new CaretVisualAttributes(settings.isSearchStartMatchedCaretColorEnabled() ? settings.searchStartMatchedCaretColorRGB() : myStartAttributes.getColor(), getCaretWeight(settings.getSearchStartFoundCaretThicknessType()));
         myFoundAttributes = new CaretVisualAttributes(settings.isSearchFoundCaretColorEnabled() ? settings.searchFoundCaretColorRGB() : null, getCaretWeight(settings.getSearchFoundCaretThicknessType()));
     }
 
@@ -88,30 +90,32 @@ class CaretHighlighterImpl implements CaretHighlighter {
         }
 
         Set<CaretEx> myFoundCarets = myManager.getFoundCarets();
+        Set<CaretEx> myStartMatchedCarets = myManager.getStartMatchedCarets();
         Set<CaretEx> myStartCarets = myManager.getStartCarets();
 
-        highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+        Set<Long> excludeList = null;
+
         highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
+
+        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+        highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
     }
 
     @Override
-    public void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<CaretEx> exclude) {
+    public void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<Long> excludeList) {
         CaretVisualAttributes attributes = null;
 
         switch (attributeType) {
             case PRIMARY: attributes = myPrimaryAttributes; break;
             case START: attributes = myStartAttributes; break;
+            case START_MATCHED: attributes = myStartMatchedAttributes; break;
             case FOUND: attributes = myFoundAttributes; break;
         }
 
         if (attributes == null) attributes = CaretVisualAttributes.DEFAULT;
-
-        Set<Long> excludeList = exclude == null ? null : new HashSet<>(exclude.size());
-        if (excludeList != null) {
-            for (CaretEx caretEx : exclude) {
-                excludeList.add(caretEx.getCoordinates());
-            }
-        }
 
         if (carets != null && !carets.isEmpty()) {
             for (CaretEx caretEx : carets) {
@@ -125,8 +129,10 @@ class CaretHighlighterImpl implements CaretHighlighter {
     public void highlightCarets() {
         int caretCount = myManager.getEditor().getCaretModel().getCaretCount();
         Set<CaretEx> myFoundCarets = myManager.getFoundCarets();
+        Set<CaretEx> myStartMatchedCarets = myManager.getStartMatchedCarets();
         Set<CaretEx> myStartCarets = myManager.getStartCarets();
-        if (caretCount == 1 || (myStartCarets == null && myFoundCarets == null)) {
+
+        if (caretCount == 1 || (myFoundCarets == null && myStartMatchedCarets == null && myStartCarets == null)) {
             Caret caret = myManager.getEditor().getCaretModel().getPrimaryCaret();
 
             removeCaretHighlight();
@@ -138,8 +144,15 @@ class CaretHighlighterImpl implements CaretHighlighter {
                     myPrimaryCaret.setVisualAttributes(myPrimaryAttributes);
                 }
             } else {
-                highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, myFoundCarets);
+                Set<Long> excludeList = null;
+
                 highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
+
+                excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+                highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
+
+                excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+                highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
             }
         }
     }

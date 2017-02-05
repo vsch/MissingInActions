@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretVisualAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ public interface CaretHighlighter {
         @Override public void caretAdded(@NotNull Caret caret) { }
         @Override public void caretRemoved(@NotNull Caret caret) { }
         @Override public CaretEx getPrimaryCaret() { return null; }
-        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @NotNull final CaretAttributeType attributeType, @Nullable final Set<CaretEx> exclude) { }
+        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @NotNull final CaretAttributeType attributeType, @Nullable final Set<Long> excludeList) { }
         @Override public void highlightCarets() { }
         @Override public void settingsChanged(ApplicationSettings settings) { }
         @Override public void removeCaretHighlight() { }
@@ -50,7 +49,7 @@ public interface CaretHighlighter {
     CaretEx getPrimaryCaret();
     void settingsChanged(ApplicationSettings settings);
     void removeCaretHighlight();
-    void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<CaretEx> exclude);
+    void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<Long> excludeList);
     void highlightCarets();
     void caretAdded(@NotNull Caret caret);
     void caretRemoved(@NotNull Caret caret);
