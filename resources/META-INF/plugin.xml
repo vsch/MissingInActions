@@ -70,7 +70,7 @@
         ]]>
     </description>
 
-    <version>0.8.3.12</version>
+    <version>0.8.3.13</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
