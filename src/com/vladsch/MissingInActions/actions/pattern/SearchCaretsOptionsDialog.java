@@ -95,10 +95,10 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         mySettingsHolder.setSampleText(mySampleText.getText());
 
         if (!onlySamples) {
-            mySettingsHolder.setPatternText(myPattern.getText().trim());
-            mySettingsHolder.setCaseSensitive(myCaseSensitive.isSelected());
             mySettingsHolder.setBackwards(myBackwards.isSelected());
+            mySettingsHolder.setCaseSensitive(myCaseSensitive.isSelected());
             mySettingsHolder.setCaretToGroupEnd(myCaretToEndGroup.isSelected());
+            mySettingsHolder.setPatternText(myPattern.getText().trim());
         }
 
         return onlySamples || checkRegEx(myPattern).isEmpty();
@@ -112,7 +112,8 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         mySettingsHolder = settingsHolder;
         String text = settingsHolder.getPatternText();
         myPattern.setText(text);
-        myCaseSensitive.setSelected(mySettingsHolder.isCaseSensitive());
+        boolean caseSensitive = mySettingsHolder.isCaseSensitive();
+        myCaseSensitive.setSelected(caseSensitive);
         myBackwards.setSelected(mySettingsHolder.isBackwards());
         myCaretToEndGroup.setSelected(mySettingsHolder.isCaretToGroupEnd());
 

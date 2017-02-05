@@ -109,21 +109,30 @@ public class SearchCaretsOptionsAction extends EditorAction {
 
                     @Override
                     public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) {
-                        handler[0].setCaretToEndGroup(isCaretToGroupEnd);
+                        if (handler[0].isCaretToEndGroup() != isCaretToGroupEnd) {
+                            changeHandler(null).setCaretToEndGroup(isCaretToGroupEnd);
+                        }
                     }
 
                     @Override
                     public void setCaseSensitive(final boolean isCaseSensitive) {
-                        handler[0].setCaseSensitive(isCaseSensitive);
+                        if (handler[0].isCaseSensitive() != isCaseSensitive) {
+                            changeHandler(null).setCaseSensitive(isCaseSensitive);
+                        }
+                    }
+
+                    public CaretSpawningSearchHandler changeHandler(Boolean isBackwards) {
+                        CaretSpawningSearchHandler searchHandler = new CaretSpawningSearchHandler(isBackwards == null ? handler[0].isBackwards() : isBackwards);
+                        searchHandler.copySettings(handler[0], editor);
+                        handler[0] = searchHandler;
+                        manager.setSearchFoundCaretSpawningHandler(searchHandler);
+                        return searchHandler;
                     }
 
                     @Override
                     public void setBackwards(final boolean isBackwards) {
                         if (handler[0].isBackwards() != isBackwards) {
-                            CaretSpawningSearchHandler searchHandler = new CaretSpawningSearchHandler(isBackwards);
-                            searchHandler.copySettings(handler[0], editor);
-                            manager.setSearchFoundCaretSpawningHandler(searchHandler);
-                            handler[0] = searchHandler;
+                            changeHandler(isBackwards);
                         }
                     }
                 }, (EditorEx) editor);

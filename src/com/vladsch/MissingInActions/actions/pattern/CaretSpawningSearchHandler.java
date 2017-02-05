@@ -134,7 +134,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         mySingleMatch = other.mySingleMatch;
         myMoveFirstMatch = other.myMoveFirstMatch;
         myCaretToEndGroup = other.myCaretToEndGroup;
-        myPattern = null;
+        myPattern = other.myPattern;
+        myStartCarets = null;
         myStartSearchCarets = null;
         myPatternCaret = null;
 
@@ -252,12 +253,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     while (end < range.getEnd() && isJavaIdentifierPart(chars.charAt(end))) end++;
                     BasedSequence text = chars.subSequence(offset, end);
                     boolean hexPrefix = text.startsWith("0x", true);
-                    if ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                    if (text.indexOf("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
                             || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
                             || (text.indexOfAnyNot("0123456789") == -1)
-                            ) {
+                            )) {
                         // hex, octal or decimal, look for numeric sequence
                         if (offset == 0 || !isJavaIdentifierPart(chars.charAt(offset - 1))) {
                             if (hexPrefix) {
@@ -299,12 +300,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
                     BasedSequence text = chars.subSequence(start, offset);
                     boolean hexPrefix = text.startsWith("0x", true);
-                    if ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                    if (text.indexOf("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
                             || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
                             || (text.indexOfAnyNot("0123456789") == -1)
-                            ) {
+                            )) {
                         // hex, octal or decimal, look for numeric sequence
                         if (offset >= chars.length() || !isJavaIdentifierPart(chars.charAt(offset))) {
                             if (hexPrefix) {

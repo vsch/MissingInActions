@@ -554,6 +554,8 @@ public class LineSelectionManager implements
                 final boolean controlledSelect = isControlledSelect(e);
                 adjustMouseSelection(mouseAnchor, controlledSelect, true);
             }
+
+            clearSearchFoundCarets();
         }
 
         myMouseAnchor = -1;
