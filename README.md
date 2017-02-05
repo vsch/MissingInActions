@@ -71,7 +71,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
   carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text.
 
-* Add: MissingInAction toolbar
+* Add: MissingInActions toolbar
 
   ![Toolbar](assets/images/Toolbar.png) 
 
