@@ -77,16 +77,20 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
 
-* Add: number generating action. For now only for multiple carets.
+* Add: number generating action. For now only for multiple carets:
+  ![Number Carets](/resources/icons/Number_carets.png)
   * Sequences 0-9, A-Z for number bases 2-36
   * Prefix/Suffix options to add to generated number
   * Sequences can be 0 or space right justified to any width
   * Arithmetic or Shift with Step and Direction
   * Start/Stop number, carets whose number is outside the range insert nothing
+  
+  ![Generate Numeric Sequence](/assets/images/Generate_NumericSequence.png) 
 
-* Add: forward/backward caret spawn/filter pattern actions: `Backward Search Caret Spawning`,
-  `Forward Search Caret Spawning` pattern search and action results are based on context and
-  number of carets:
+* Add: forward/backward caret spawn/filter pattern actions: `Backward Search Caret Spawning`
+  ![Backward Search](/resources/icons/Backward_search.png), `Forward Search Caret Spawning`
+  ![Forward Search](/resources/icons/Forward_search.png) pattern search and action results are
+  based on context and number of carets:
   * if a single caret exists then:
     * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
       a non-space. Will select the intervening spaces for each caret
@@ -116,7 +120,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
     location.
 
     Caret search options with dialog to show preview of caret search by pattern and ability to
-    tweak some search options.
+    tweak some search options: ![Search Options](/resources/icons/Search_options.png).
 
     ![Caret Search Options](/assets/images/CaretSearch_Options.png)
 
