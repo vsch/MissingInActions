@@ -253,7 +253,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     while (end < range.getEnd() && isJavaIdentifierPart(chars.charAt(end))) end++;
                     BasedSequence text = chars.subSequence(offset, end);
                     boolean hexPrefix = text.startsWith("0x", true);
-                    if (text.indexOf("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                    if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
                             || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
@@ -300,7 +300,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
                     BasedSequence text = chars.subSequence(start, offset);
                     boolean hexPrefix = text.startsWith("0x", true);
-                    if (text.indexOf("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                    if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
                             || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
