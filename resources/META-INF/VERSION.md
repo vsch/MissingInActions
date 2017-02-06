@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [0.8.3.13 - Bug Fixes and Enhancements](#08313---bug-fixes-and-enhancements)
+- [0.8.3.14 - Bug Fixes and Enhancements](#08314---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
 - [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
 - [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
@@ -51,7 +51,7 @@
 
 &nbsp;</details>
 
-### 0.8.3.13 - Bug Fixes and Enhancements
+### 0.8.3.14 - Bug Fixes and Enhancements
 
 * Fix: toolbar icons for consistency and bigger direction arrows.
 

@@ -70,16 +70,29 @@
         ]]>
     </description>
 
-    <version>0.8.3.13</version>
+    <version>0.8.3.14</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.12 - Bug Fixes and Enhancements</h3>
+            <h3>0.8.3.14 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>
-                    <p>Add: MissingInAction toolbar</p>
+                    <p>Fix: toolbar icons for consistency and bigger direction arrows.</p>
+                </li>
+                <li>
+                    <p>Add: caret search action detects when caret context is on a hex, decimal or octal number.</p>
+                </li>
+                <li>
+                    <p>Change: make MIA application settings shared so that they can be imported and exported.</p>
+                </li>
+                <li>
+                    <p>Add: <code>Tab Align Text at Carets</code> to push non-whitespace text after each caret so that all
+                        carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text.</p>
+                </li>
+                <li>
+                    <p>Add: MissingInActions toolbar</p>
                 </li>
                 <li>
                     <p>Add: edit caret search options with dialog to show preview of caret search by pattern.</p>
@@ -131,9 +144,11 @@
                         </li>
                         <li>
                             <p>if multiple carets exist then spawning of only a single carets is done by using the pattern
-                                as determined by the primary caret per above rules. For each caret the pattern search is
-                                applied and if found a caret is placed at the location. Original caret position is treated
-                                as search start positions and match location is called the found caret position.</p>
+                                as determined by the primary caret per above rules with addition of hex (with or without 0x
+                                prefix), decimal or octal will search for numeric sequence.</p>
+                            <p>For each caret the pattern search is applied and if found a caret is placed at the location.
+                                Original caret position is treated as search start positions and match location is called
+                                the found caret position.</p>
                             <p>Start positions are affected by caret movement actions and the pattern search applied at the
                                 new location. This allows the search start to be modified after the pattern is set.</p>
                             <p>Found positions will be the only carets that remain on any non-caret movement actions or on
