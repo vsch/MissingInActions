@@ -30,25 +30,25 @@ public class PluginIcons {
         return IconLoader.getIcon(path, PluginIcons.class);
     }
 
-    public static final Icon Clipboard_carets = load("/icons/Clipboard_carets.png");
-    public static final Icon Clipboard_text = load("/icons/Clipboard_text.png");
-    public static final Icon Clipboard_char_lines_caret = load("/icons/Clipboard_char_lines_caret.png");
-    public static final Icon Clipboard_line_caret = load("/icons/Clipboard_line_caret.png");
-    public static final Icon Clipboard_char_caret = load("/icons/Clipboard_char_caret.png");
     public static final Icon Accept_search = load("/icons/Accept_search.png");
     public static final Icon Backward_search = load("/icons/Backward_search.png");
     public static final Icon Cancel_search = load("/icons/Cancel_search.png");
+    public static final Icon Clipboard_carets = load("/icons/Clipboard_carets.png");
+    public static final Icon Clipboard_char_caret = load("/icons/Clipboard_char_caret.png");
+    public static final Icon Clipboard_char_lines_caret = load("/icons/Clipboard_char_lines_caret.png");
+    public static final Icon Clipboard_line_caret = load("/icons/Clipboard_line_caret.png");
+    public static final Icon Clipboard_text = load("/icons/Clipboard_text.png");
     public static final Icon Duplicate_multiple_carets = load("/icons/Duplicate_multiple_carets.png");
     public static final Icon Forward_search = load("/icons/Forward_search.png");
+    public static final Icon Keep_blank_carets = load("/icons/Keep_blank_carets.png");
     public static final Icon Number_carets = load("/icons/Number_carets.png");
     public static final Icon Primary_next_caret = load("/icons/Primary_next_caret.png");
     public static final Icon Primary_previous_caret = load("/icons/Primary_previous_caret.png");
     public static final Icon Search_options = load("/icons/Search_options.png");
     public static final Icon Smart_keep_carets = load("/icons/Smart_keep_carets.png");
-    public static final Icon Keep_blank_carets = load("/icons/Keep_blank_carets.png");
     public static final Icon Straighten_carets = load("/icons/Straighten_carets.png");
-    public static final Icon Toggle_carets_selection = load("/icons/Toggle_carets_selection.png");
     public static final Icon Tab_align_text = load("/icons/Tab_align_text.png");
+    public static final Icon Toggle_carets_selection = load("/icons/Toggle_carets_selection.png");
 
     public static class EditorActions {
         //public static final Icon Strike_through = load("/icons/editor_actions/Strike_through.png"); // 16x16
