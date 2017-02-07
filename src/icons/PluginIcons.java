@@ -49,8 +49,4 @@ public class PluginIcons {
     public static final Icon Straighten_carets = load("/icons/Straighten_carets.png");
     public static final Icon Tab_align_text = load("/icons/Tab_align_text.png");
     public static final Icon Toggle_carets_selection = load("/icons/Toggle_carets_selection.png");
-
-    public static class EditorActions {
-        //public static final Icon Strike_through = load("/icons/editor_actions/Strike_through.png"); // 16x16
-    }
 }

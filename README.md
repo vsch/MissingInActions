@@ -124,10 +124,10 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
     ![Caret Search Options](/assets/images/CaretSearch_Options.png)
 
-    :information_source: With IDE versions **2017.1 EAP** and newer the plugin allows changing
-    the caret appearance for: primary, start and found carets making it easy to see where the
-    search starts and where the pattern is matched. Plugin configuration settings under settings
-    in Tools > Missing In Actions:
+    :warning: Only IDE versions **2017.1 EAP** and newer the plugin allows changing the caret
+    appearance for: primary, start and found carets making it easy to see where the search
+    starts and where the pattern is matched. Plugin configuration settings under settings in
+    Tools > Missing In Actions:
 
     ![Tools Settings Caret Attributes](/assets/images/ToolsSettings_CaretAttributes.png)
   * behavior is also affected by number of carets and selection:
