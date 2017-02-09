@@ -44,7 +44,7 @@
                 <li>Enable Auto Line Selections and select full lines without loosing time or column position by
                     moving the caret to the start of line when selecting or pasting.
                     <strong>Choose</strong> whether you want to <strong>paste full line</strong> selections: <strong>above</strong> or <strong>below</strong> the
-                    current line regardless of the caret's column.</li>
+                    current line regardless of the caret&rsquo;s column.</li>
                 <li>Toggle between selection and multiple carets on selected lines to save time re-selecting the
                     same text again.</li>
                 <li>Filter multiple carets saves you time when creating multiple carets by removing carets on
