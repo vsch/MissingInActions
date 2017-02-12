@@ -50,6 +50,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -273,6 +274,8 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         List<CaretState> states = otherManager.getStartCaretStates();
         assert states != null;
 
+        states.sort(Comparator.comparing(CaretState::getCaretPosition));
+
         // copy caret lines to new editor and re-create the carets by replacing selections if they exist
         // or inserting number at carets if no selection is present
         ApplicationManager.getApplication().runReadAction(() -> {
@@ -372,9 +375,9 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
 
     private String checkRegEx(final JTextField pattern) {
         final String patternText = pattern.getText().trim();
-        Color validBackground = getValidTextFieldBackground();
-        Color selectedBackground = getSelectedTextFieldBackground();
-        Color invalidBackground = getInvalidTextFieldBackground();
+        //Color validBackground = getValidTextFieldBackground();
+        //Color selectedBackground = getSelectedTextFieldBackground();
+        //Color invalidBackground = getInvalidTextFieldBackground();
         Color warningBackground = getWarningTextFieldBackground();
         String error = "";
         String warning = "";

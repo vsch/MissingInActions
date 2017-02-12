@@ -2,12 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 0.8.3.14 from this repo]
+[Download Latest 1.0.0 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 0.8.3.14 - Bug Fix and Improvement Release](#version-08314---bug-fix-and-improvement-release)
+- [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
@@ -62,9 +62,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 0.8.3.14 - Bug Fix and Improvement Release
+## Version 1.0.0 - Bug Fix and Improvement Release
 
-[Version Notes][] [Download Latest 0.8.3.14 from this repo][]
+[Version Notes][] [Download Latest 1.0.0 from this repo][]
 
 * Change: make MIA application settings shared so that they can be imported and exported.
 
@@ -340,7 +340,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 0.8.3.14 from this repo]: ../../raw/master/dist/MissingInActions.0.8.3.14.zip
+[Download Latest 1.0.0 from this repo]: ../../raw/master/dist/MissingInActions.1.0.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

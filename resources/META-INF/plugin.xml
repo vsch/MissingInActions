@@ -69,13 +69,13 @@
         ]]>
     </description>
 
-    <version>0.8.3.14</version>
+    <version>1.0.0</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="143.2370"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>0.8.3.14 - Bug Fixes and Enhancements</h3>
+            <h3>1.0.0 - Bug Fixes and Enhancements</h3>
             <ul>
                 <li>
                     <p>Fix: toolbar icons for consistency and bigger direction arrows.</p>
