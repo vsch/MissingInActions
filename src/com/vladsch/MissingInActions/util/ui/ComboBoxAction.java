@@ -490,7 +490,6 @@ public abstract class ComboBoxAction extends AnAction implements CustomComponent
                 super.paint(g);
             } else {
                 UISettings.setupAntialiasing(g);
-                GraphicsUtil.setupAntialiasing(g);
 
                 final Color textColor = isEnabled()
                         ? UIManager.getColor("Panel.foreground")

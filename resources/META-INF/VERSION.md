@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.1 - Enhancement Release](#111---enhancement-release)
 - [1.1.0 - Enhancement Release](#110---enhancement-release)
 - [1.0.0 - Bug Fixes and Enhancements](#100---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
@@ -51,6 +52,10 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.1.1 - Enhancement Release
+
+* Fix: exception caused by api change
 
 ### 1.1.0 - Enhancement Release
 

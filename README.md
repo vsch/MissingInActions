@@ -2,12 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.0 from this repo]
+[Download Latest 1.1.1 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.1.0 - Enhancement Release](#version-110---enhancement-release)
+- [Version 1.1.1 - Enhancement Release](#version-111---enhancement-release)
 - [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
@@ -63,9 +63,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.0 - Enhancement Release
+## Version 1.1.1 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.0 from this repo][]
+[Version Notes][] [Download Latest 1.1.1 from this repo][]
 
 * Add: Selection Stack to automatically store the last N selections for a file
 
@@ -350,7 +350,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.0 from this repo]: ../../raw/master/dist/MissingInActions.1.1.0.zip
+[Download Latest 1.1.1 from this repo]: ../../raw/master/dist/MissingInActions.1.1.1.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
