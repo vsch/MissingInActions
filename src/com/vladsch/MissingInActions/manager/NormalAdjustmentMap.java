@@ -29,6 +29,8 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
+import com.vladsch.MissingInActions.actions.PopSelectionAction;
+import com.vladsch.MissingInActions.actions.SwapSelectionAction;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction;
@@ -241,6 +243,76 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
 
         addActionSet(ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER
                 , MoveLineDownAction.class
+        );
+
+        // here are all caret move actions that affect the search carets
+        addActionSet(ActionSetType.SELECTION_ALWAYS_STASH
+                , FindAction.class
+                , ReplaceAction.class
+                , IncrementalFindAction.class
+        );
+
+        // here are all caret move actions that affect the search carets
+        addActionSet(ActionSetType.SELECTION_STASH_ACTIONS
+                , PopSelectionAction.class
+                , SwapSelectionAction.class
+                , LineEndWithSelectionAction.class
+                , LineStartWithSelectionAction.class
+                , MoveCaretDownWithSelectionAction.class
+                , MoveCaretLeftWithSelectionAction.class
+                , MoveCaretRightWithSelectionAction.class
+                , MoveCaretUpWithSelectionAction.class
+                , MoveDownWithSelectionAndScrollAction.class
+                , MoveUpWithSelectionAndScrollAction.class
+                , NextWordWithSelectionAction.class
+                , NextWordInDifferentHumpsModeWithSelectionAction.class
+                , PageBottomWithSelectionAction.class
+                , PageDownWithSelectionAction.class
+                , PageTopWithSelectionAction.class
+                , PageUpWithSelectionAction.class
+                , PreviousWordWithSelectionAction.class
+                , PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , TextEndWithSelectionAction.class
+                , TextStartWithSelectionAction.class
+
+                , com.vladsch.MissingInActions.actions.character.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.word.PreviousWordWithSelectionAction.class
+
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.identifier.PreviousWordWithSelectionAction.class
+
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordEndWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordStartWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.NextWordWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordInDifferentHumpsModeWithSelectionAction.class
+                , com.vladsch.MissingInActions.actions.character.custom.PreviousWordWithSelectionAction.class
         );
 
         // here are all caret move actions that affect the search carets

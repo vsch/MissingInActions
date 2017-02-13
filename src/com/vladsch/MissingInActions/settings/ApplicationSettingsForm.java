@@ -23,6 +23,10 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
+import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
@@ -105,6 +109,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox mySelectPastedPredicate;
     JCheckBox mySearchCancelOnEscape;
     JSpinner myAutoIndentDelay;
+    JSpinner mySelectionStashLimit;
     private JComboBox myPrimaryCaretThickness;
     private CheckBoxWithColorChooser myPrimaryCaretColor;
     private JComboBox mySearchStartCaretThickness;
@@ -114,6 +119,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private JComboBox mySearchFoundCaretThickness;
     private CheckBoxWithColorChooser mySearchFoundCaretColor;
     private JTextPane myCaretVisualAttributesPane;
+    private CheckBoxWithColorChooser myRecalledSelectionColor;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -144,9 +150,12 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         componentEnabled(mySearchStartMatchedCaretColor, i::isSearchStartMatchedCaretColorEnabled, i::setSearchStartMatchedCaretColorEnabled),
                         component(mySearchFoundCaretColor, i::searchFoundCaretColorRGB, i::searchFoundCaretColorRGB),
                         componentEnabled(mySearchFoundCaretColor, i::isSearchFoundCaretColorEnabled, i::setSearchFoundCaretColorEnabled),
+                        component(myRecalledSelectionColor, i::recalledSelectionColorRGB, i::recalledSelectionColorRGB),
+                        componentEnabled(myRecalledSelectionColor, i::isRecalledSelectionColorEnabled, i::setRecalledSelectionColorEnabled),
                         component(myAddPrefixOnPaste, i::isAddPrefixOnPaste, i::setAddPrefixOnPaste),
                         component(myAutoIndent, i::isAutoIndent, i::setAutoIndent),
                         component(myAutoIndentDelay, i::getAutoIndentDelay, i::setAutoIndentDelay),
+                        component(mySelectionStashLimit, i::getSelectionStashLimit, i::setSelectionStashLimit),
                         component(myCopyLineOrLineSelection, i::isCopyLineOrLineSelection, i::setCopyLineOrLineSelection),
                         component(myDeleteOperations, i::isDeleteOperations, i::setDeleteOperations),
                         component(myDuplicateAtStartOrEnd, i::isDuplicateAtStartOrEnd, i::setDuplicateAtStartOrEnd),
@@ -232,6 +241,11 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 mySearchStartMatchedCaretColor.setUnselectedColor(mySearchStartCaretColor.getColor());
             });
         }
+
+        DefaultColorsScheme scheme = DefaultColorSchemesManager.getInstance().getFirstScheme();
+        Color color = scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
+        myRecalledSelectionColor.setUnselectedColor(color);
+
         myCaretVisualAttributesPane.validate();
         myMainPanel.validate();
 
@@ -425,6 +439,9 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);
         myAutoIndentDelay = new JSpinner(model);
 
+        final SpinnerNumberModel limitModel = new SpinnerNumberModel(10, 1, 50, 1);
+        mySelectionStashLimit = new JSpinner(limitModel);
+
         mySetVirtualSpace = new HyperlinkLabel();
         mySetVirtualSpace.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(final HyperlinkEvent e) {
@@ -453,6 +470,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySearchStartMatchedCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
         mySearchFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
         mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        myRecalledSelectionColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
     }
 
     private class EditingCommitter implements IdeEventQueue.EventDispatcher {

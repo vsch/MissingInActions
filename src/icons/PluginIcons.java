@@ -37,6 +37,7 @@ public class PluginIcons {
     public static final Icon Clipboard_char_caret = load("/icons/Clipboard_char_caret.png");
     public static final Icon Clipboard_char_lines_caret = load("/icons/Clipboard_char_lines_caret.png");
     public static final Icon Clipboard_line_caret = load("/icons/Clipboard_line_caret.png");
+    public static final Icon Clipboard_disabled_caret = load("/icons/Clipboard_disabled_caret.png");
     public static final Icon Clipboard_text = load("/icons/Clipboard_text.png");
     public static final Icon Duplicate_multiple_carets = load("/icons/Duplicate_multiple_carets.png");
     public static final Icon Forward_search = load("/icons/Forward_search.png");
@@ -49,4 +50,9 @@ public class PluginIcons {
     public static final Icon Straighten_carets = load("/icons/Straighten_carets.png");
     public static final Icon Tab_align_text = load("/icons/Tab_align_text.png");
     public static final Icon Toggle_carets_selection = load("/icons/Toggle_carets_selection.png");
+    public static final Icon Recall_selection = load("/icons/Recall_selection.png");
+    public static final Icon Recall_selection_list = load("/icons/Recall_selection_list.png");
+    public static final Icon Swap_selection = load("/icons/Swap_selection.png");
+    public static final Icon Swap_selection_text = load("/icons/Swap_selection_text.png");
+    public static final Icon Swap_selection_list_text = load("/icons/Swap_selection_list_text.png");
 }

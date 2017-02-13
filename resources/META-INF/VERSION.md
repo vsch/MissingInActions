@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.0 - Enhancement Release](#110---enhancement-release)
 - [1.0.0 - Bug Fixes and Enhancements](#100---bug-fixes-and-enhancements)
 - [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
 - [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
@@ -50,6 +51,15 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.1.0 - Enhancement Release
+
+* Add: Selection Stack to automatically store the last N selections for a file
+
+* Add: Recall/Swap selection actions and toolbar buttons
+
+* Add: Swap Selection Text actions and toolbar buttons to swap currently selected text with text
+  from a stored selection.
 
 ### 1.0.0 - Bug Fixes and Enhancements
 

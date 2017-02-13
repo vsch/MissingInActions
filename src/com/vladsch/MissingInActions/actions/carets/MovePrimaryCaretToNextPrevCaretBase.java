@@ -55,7 +55,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
-            e.getPresentation().setVisible(false);
+            e.getPresentation().setVisible(true);
         } else {
             e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1);
             e.getPresentation().setVisible(true);
@@ -85,7 +85,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                 }
 
                 int newIndex = index + myDelta % caretStates.size();
-                if (newIndex < 0) newIndex += caretStates.size(); 
+                if (newIndex < 0) newIndex += caretStates.size();
 
                 if (newIndex != index) {
                     // need to move the primary to last position in the list
@@ -104,7 +104,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                             i++;
                         }
                     }
-                    
+
                     manager.updateCaretHighlights();
                 }
 

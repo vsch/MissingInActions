@@ -65,7 +65,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
-            e.getPresentation().setVisible(false);
+            e.getPresentation().setVisible(true);
         } else {
             e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1 && !editor.getSelectionModel().hasSelection());
             e.getPresentation().setVisible(true);

@@ -39,7 +39,7 @@ import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class StraightenCaretsAction extends AnAction  implements LineSelectionAware {
+public class StraightenCaretsAction extends AnAction implements LineSelectionAware {
     public StraightenCaretsAction() {
         setEnabledInModalContext(true);
     }
@@ -54,7 +54,7 @@ public class StraightenCaretsAction extends AnAction  implements LineSelectionAw
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
-            e.getPresentation().setVisible(false);
+            e.getPresentation().setVisible(true);
         } else {
             e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1 && !editor.getSelectionModel().hasSelection());
             e.getPresentation().setVisible(true);
@@ -70,7 +70,7 @@ public class StraightenCaretsAction extends AnAction  implements LineSelectionAw
 
         if (caretModel.getCaretCount() > 1 && !editor.getSelectionModel().hasSelection()) {
             // move all carets to column of primary
-            int column = caretModel.getPrimaryCaret().getLogicalPosition().column; 
+            int column = caretModel.getPrimaryCaret().getLogicalPosition().column;
             for (Caret caret : caretModel.getAllCarets()) {
                 caret.moveToLogicalPosition(new LogicalPosition(doc.getLineNumber(caret.getOffset()), column));
             }

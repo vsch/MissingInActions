@@ -58,7 +58,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
-            e.getPresentation().setVisible(false);
+            e.getPresentation().setVisible(true);
         } else {
             e.getPresentation().setEnabled(editor.getCaretModel().supportsMultipleCarets() && editor.getSelectionModel().hasSelection() || editor.getCaretModel().getCaretCount() > 1);
             e.getPresentation().setVisible(true);

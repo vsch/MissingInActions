@@ -99,6 +99,9 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int             mySearchStartMatchedCaretColor = JBColor.RED.getRGB();
     private boolean         mySearchStartMatchedCaretColorEnabled = false;
     private boolean         mySearchCancelOnEscape = true;
+    private int             mySelectionStashLimit = 5;
+    private int             myRecalledSelectionColor = 0xFCBEFF;
+    private boolean         myRecalledSelectionColorEnabled = false;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
 
@@ -426,6 +429,18 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public NumberingBaseOptions getLastNumberingBaseOptions_36() { return myLastNumberingBaseOptions_36.copy(); }
     public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); }
     // @formatter:on
+
+    public boolean isRecalledSelectionColorEnabled() { return myRecalledSelectionColorEnabled; }
+
+    public void setRecalledSelectionColorEnabled(final boolean primaryCaretColorEnabled) { myRecalledSelectionColorEnabled = primaryCaretColorEnabled; }
+
+    public java.awt.Color recalledSelectionColorRGB() { return Color.of(myRecalledSelectionColor); }
+
+    public void recalledSelectionColorRGB(final java.awt.Color color) { myRecalledSelectionColor = color.getRGB(); }
+
+    public int getSelectionStashLimit() { return mySelectionStashLimit; }
+
+    public void setSelectionStashLimit(final int selectionStashLimit) { mySelectionStashLimit = selectionStashLimit; }
 
     public boolean isSearchCancelOnEscape() { return mySearchCancelOnEscape; }
 

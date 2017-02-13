@@ -55,9 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
-import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
-import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
-import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_SEARCH_CARET_ACTION;
+import static com.vladsch.MissingInActions.manager.ActionSetType.*;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
 public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
@@ -70,9 +68,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     final private @NotNull Editor myEditor;
     private @NotNull ActionAdjustmentMap myAdjustmentsMap = ActionAdjustmentMap.EMPTY;
     private final @NotNull AtomicInteger myNestingLevel = new AtomicInteger(0);
-    private @Nullable RangeMarker myLastSelectionMarker = null;
+    //private @Nullable RangeMarker myLastSelectionMarker = null;
     private @Nullable RangeMarker myTentativeSelectionMarker = null;
     private boolean myRerunCaretHandler = false;
+    private final StashedRangeMarkers myRangeMarkers;
 
     final private boolean debug = false;
 
@@ -86,6 +85,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         myManager = manager;
         myEditor = manager.getEditor();
         myAdjustmentsMap = normalAdjustmentMap;
+        myRangeMarkers = new StashedRangeMarkers(myManager);
 
         Plugin.getInstance().addEditorActionListener(myEditor, this, myManager);
     }
@@ -96,46 +96,53 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         return myEditor;
     }
 
-    public void recallLastSelection(boolean swapWithCurrent) {
-        if (myLastSelectionMarker != null) {
-            if (myLastSelectionMarker.isValid()) {
-                // if we have a valid selection we can swap it
-                RangeMarker nextSelectionMarker = null;
+    public void recallLastSelection(int offsetFromTop, boolean removeSelection, boolean swapWithCurrent) {
+        RangeMarker marker = removeSelection ? myRangeMarkers.pop(offsetFromTop) : myRangeMarkers.get(offsetFromTop);
 
-                if (swapWithCurrent && canSaveAsLastSelection()) {
-                    nextSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
-                }
-
-                // recall the selection
-                myEditor.getSelectionModel().setSelection(myLastSelectionMarker.getStartOffset(), myLastSelectionMarker.getEndOffset());
-
-                if (nextSelectionMarker != null) {
-                    myLastSelectionMarker.dispose();
-                    myLastSelectionMarker = nextSelectionMarker;
-                }
-            } else {
-                myLastSelectionMarker.dispose();
-                myLastSelectionMarker = null;
+        if (marker != null) {
+            if (swapWithCurrent && canSaveSelection()) {
+                RangeMarker nextSelectionMarker = getCurrentSelectionMarker();
+                myRangeMarkers.push(nextSelectionMarker);
             }
+
+            // recall the selection
+            myEditor.getSelectionModel().setSelection(marker.getStartOffset(), marker.getEndOffset());
         }
     }
 
-    public boolean haveLastSelection() {
-        if (myLastSelectionMarker != null) {
-            if (!myLastSelectionMarker.isValid()) {
-                myLastSelectionMarker.dispose();
-                myLastSelectionMarker = null;
-            }
-        }
-        return myLastSelectionMarker != null;
+    @NotNull
+    public RangeMarker getCurrentSelectionMarker() {
+        return myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
+    }
+
+    @Nullable
+    public RangeMarker getDummySelectionMarker() {
+        return canSaveSelection() ? new StashedRangeMarkers.DummyMarker(myEditor) : null;
+    }
+
+    public boolean canRecallSelection() {
+        RangeMarker marker = myRangeMarkers.peek();
+        return marker != null;
+    }
+
+    public void setSelectionStashLimit(int maxLimit) {
+        myRangeMarkers.setStashLimit(maxLimit);
+    }
+
+    public boolean canSwapSelection() {
+        RangeMarker myLastSelectionMarker = myRangeMarkers.peek();
+        return myLastSelectionMarker != null && canSaveSelection();
+    }
+
+    public RangeMarker[] getSavedSelections() {
+        return myRangeMarkers.getRangeMarkers();
     }
 
     @Override
     public void dispose() {
-        if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
         if (myTentativeSelectionMarker != null) myTentativeSelectionMarker.dispose();
-        myLastSelectionMarker = null;
         myTentativeSelectionMarker = null;
+        myRangeMarkers.dispose();
     }
 
     @Override
@@ -145,12 +152,11 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
 
         int nesting = myNestingLevel.incrementAndGet();
-        myTentativeSelectionMarker = null;
 
-        if (nesting == 1 && canSaveAsLastSelection()) {
+        if (nesting == 1 && canSaveSelection()) {
             // top level, can tentatively save the current selection
             try {
-                myTentativeSelectionMarker = myEditor.getDocument().createRangeMarker(myEditor.getSelectionModel().getSelectionStart(), myEditor.getSelectionModel().getSelectionEnd());
+                myTentativeSelectionMarker = getCurrentSelectionMarker();
             } catch (UnsupportedOperationException e) {
                 myTentativeSelectionMarker = null;
             }
@@ -232,7 +238,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
     }
 
-    private boolean canSaveAsLastSelection() {
+    public boolean canSaveSelection() {
         return myEditor.getCaretModel().getCaretCount() == 1 && myEditor.getSelectionModel().hasSelection();
     }
 
@@ -269,21 +275,24 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             }
         }
 
-        if (myLastSelectionMarker != null && !myLastSelectionMarker.isValid()) {
-            myLastSelectionMarker.dispose();
-            myLastSelectionMarker = null;
-        }
-
         if (myTentativeSelectionMarker != null && !myTentativeSelectionMarker.isValid()) {
             myTentativeSelectionMarker.dispose();
             myTentativeSelectionMarker = null;
         }
 
         if (nesting == 0) {
+            RangeMarker marker = null;
             if (myTentativeSelectionMarker != null) {
-                if (myLastSelectionMarker != null) myLastSelectionMarker.dispose();
-                myLastSelectionMarker = myTentativeSelectionMarker;
+                marker = myTentativeSelectionMarker;
                 myTentativeSelectionMarker = null;
+            }
+
+            if (marker != null && !myAdjustmentsMap.isInSet(action.getClass(), SELECTION_STASH_ACTIONS)) {
+                saveSelectionMarker(marker, !myAdjustmentsMap.isInSet(action.getClass(), SELECTION_ALWAYS_STASH), true, true, true);
+            } else {
+                if (marker != null) {
+                    marker.dispose();
+                }
             }
         }
 
@@ -297,6 +306,39 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             myManager.guard(() -> {
                 finalCaretSpawningHandler.doAction(myManager, myEditor, null, null);
             });
+        }
+    }
+
+    public void saveSelectionMarker(RangeMarker marker, boolean onlyIfNotSelection, boolean onlyIfNotTop, boolean onlyIfNotStored, boolean moveToTop) {
+        boolean save = true;
+
+        if (onlyIfNotSelection) {
+            RangeMarker other = getDummySelectionMarker();
+            if (other != null && marker.getStartOffset() == other.getStartOffset() && marker.getEndOffset() == other.getEndOffset()) {
+                save = false;
+            }
+        }
+
+        if (onlyIfNotStored) {
+            if (moveToTop) {
+                int index = myRangeMarkers.getStoredIndex(marker);
+                if (index >= 0) {
+                    myRangeMarkers.remove(index);
+                }
+            } else {
+                save = !myRangeMarkers.isStored(marker);
+            }
+        } else if (onlyIfNotTop) {
+            RangeMarker other = myRangeMarkers.peek();
+            if (other != null && marker.getStartOffset() == other.getStartOffset() && marker.getEndOffset() == other.getEndOffset()) {
+                save = false;
+            }
+        }
+
+        if (save) {
+            myRangeMarkers.push(marker);
+        } else {
+            marker.dispose();
         }
     }
 

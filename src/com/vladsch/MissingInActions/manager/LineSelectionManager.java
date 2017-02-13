@@ -25,10 +25,7 @@ import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretState;
-import com.intellij.openapi.editor.CaretVisualAttributes;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
@@ -37,8 +34,8 @@ import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHan
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
-import com.vladsch.MissingInActions.util.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.DelayedRunner;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.ReEntryGuard;
 import org.jetbrains.annotations.NotNull;
@@ -151,7 +148,6 @@ public class LineSelectionManager implements
         excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
         myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
 
-
         myCaretSpawningHandler = null;
         myStartCaretStates = null;
         myStartCarets = null;
@@ -211,7 +207,7 @@ public class LineSelectionManager implements
         setStartCarets(startCarets);
     }
 
-    public void setSearchFoundCaretSpawningHandler( @Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler) {
+    public void setSearchFoundCaretSpawningHandler(@Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler) {
         if (myCaretSpawningHandler == null) {
             addEscapeDispatcher();
         }
@@ -381,7 +377,7 @@ public class LineSelectionManager implements
 
     private boolean dispatchEscape(@NotNull final AWTEvent e) {
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-            if ((((KeyEvent)e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
+            if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
                 final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
 
                 if (owner != null && owner instanceof JComponent) {
@@ -442,6 +438,8 @@ public class LineSelectionManager implements
 
             addEscapeDispatcher();
         }
+
+        myActionSelectionAdjuster.setSelectionStashLimit(settings.getSelectionStashLimit());
 
         // change all selections that were lines back to lines
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
@@ -524,6 +522,10 @@ public class LineSelectionManager implements
 
             if (myMouseAnchor == -1) {
                 // if we have a selection then we need to move the caret out of it otherwise the editor interprets it as a continuation of selection
+                if (myActionSelectionAdjuster.canSaveSelection()) {
+                    myActionSelectionAdjuster.saveSelectionMarker(myActionSelectionAdjuster.getCurrentSelectionMarker(), false, true, true, true);
+                }
+
                 Caret caret = myEditor.getCaretModel().getPrimaryCaret();
                 if (caret.hasSelection()) {
                     caret.moveToOffset(caret.getSelectionStart());
@@ -535,6 +537,54 @@ public class LineSelectionManager implements
     @Override
     public void mouseClicked(EditorMouseEvent e) {
 
+    }
+
+    public boolean canRecallSelection() {
+        return myActionSelectionAdjuster.canRecallSelection();
+    }
+
+    public boolean canSwapSelection() {
+        return myActionSelectionAdjuster.canSwapSelection();
+    }
+
+    public void recallLastSelection(int offsetFromTop, boolean removeSelection, boolean swapWithCurrent, boolean makeVisible) {
+        myActionSelectionAdjuster.recallLastSelection(offsetFromTop, removeSelection, swapWithCurrent);
+        if (makeVisible) {
+            EditHelpers.scrollToSelection(myEditor);
+        }
+    }
+
+    @Nullable
+    public RangeMarker getRangeMarker() {
+        if (myActionSelectionAdjuster.canSaveSelection()) {
+            return myActionSelectionAdjuster.getCurrentSelectionMarker();
+        }
+        return null;
+    }
+
+    @Nullable
+    public RangeMarker getDummyRangeMarker() {
+        if (myActionSelectionAdjuster.canSaveSelection()) {
+            return myActionSelectionAdjuster.getDummySelectionMarker();
+        }
+        return null;
+    }
+
+    public void pushSelection(@Nullable RangeMarker marker, boolean onlyIfNotTop, boolean onlyIfNotStored, boolean moveToTop) {
+        if (marker != null && marker.isValid()) {
+            myActionSelectionAdjuster.saveSelectionMarker(marker, false, onlyIfNotTop, onlyIfNotStored, moveToTop);
+        }
+    }
+
+    public void pushSelection(boolean onlyIfNotTop, boolean onlyIfNotStored, boolean moveToTop) {
+        if (myActionSelectionAdjuster.canSaveSelection()) {
+            RangeMarker marker = myActionSelectionAdjuster.getCurrentSelectionMarker();
+            pushSelection(marker, onlyIfNotTop, onlyIfNotStored, moveToTop);
+        }
+    }
+
+    public RangeMarker[] getSavedSelections() {
+        return myActionSelectionAdjuster.getSavedSelections();
     }
 
     private boolean isControlledSelect(EditorMouseEvent e) {
