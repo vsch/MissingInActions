@@ -70,12 +70,16 @@
         ]]>
     </description>
 
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.1.2 - Enhancement Release</h3>
+            <ul>
+                <li>Fix: bump up version compatibility to 162.*</li>
+            </ul>
             <h3>1.1.1 - Enhancement Release</h3>
             <ul>
                 <li>Fix: exception caused by api change</li>
