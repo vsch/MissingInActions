@@ -72,7 +72,7 @@
 
     <version>1.1.1</version>
     <depends>com.intellij.modules.lang</depends>
-    <idea-version since-build="143.2370"/>
+    <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
