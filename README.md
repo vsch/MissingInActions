@@ -2,12 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.2 from this repo]
+[Download Latest 1.1.3 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.1.2 - Enhancement Release](#version-112---enhancement-release)
+- [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
 - [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
@@ -65,9 +65,18 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.2 - Enhancement Release
+## Version 1.1.3 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.2 from this repo][]
+[Version Notes][] [Download Latest 1.1.3 from this repo][]
+
+* Change: allow overlapping selection text swapping by eliminating overlapping part of selections
+  from the swap.
+* Fix: exception in some cases when swapping text and more than set limit of stored selections
+  is already present.
+
+* Fix: bump up version compatibility to 162.*
+
+* Fix: exception caused by api change
 
 * Add: Selection Stack to automatically store the last N selections for a file
 
@@ -352,7 +361,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.2 from this repo]: ../../raw/master/dist/MissingInActions.1.1.2.zip
+[Download Latest 1.1.3 from this repo]: ../../raw/master/dist/MissingInActions.1.1.3.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
