@@ -126,6 +126,7 @@ public class StashedRangeMarkers implements Disposable {
     }
 
     public void push(RangeMarker marker) {
+        releaseUnused();
         add(myMarkers.size(), marker);
     }
 
@@ -232,10 +233,8 @@ public class StashedRangeMarkers implements Disposable {
     }
 
     public void add(int index, @Nullable RangeMarker marker) {
-        releaseUnused();
-
-        if (index < 0 || index > myStashLimit) {
-            throw new IllegalArgumentException("index " + index + " out of range of [0, " + myStashLimit + "]");
+        if (index < 0 || index > myMarkers.size()) {
+            throw new IllegalArgumentException("index " + index + " out of range of [0, " + myMarkers.size() + "]");
         }
 
         myMarkers.add(index, marker);

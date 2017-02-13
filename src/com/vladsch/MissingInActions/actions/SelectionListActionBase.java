@@ -113,7 +113,7 @@ abstract public class SelectionListActionBase extends ComboBoxAction implements 
 
                 if (exclusionRange != null) {
                     Range range = new Range(marker.getStartOffset(), marker.getEndOffset());
-                    if (exclusionRange.doesOverlap(range)) {
+                    if (exclusionRange.doesContain(range) || range.doesContain(exclusionRange)) {
                         disabled = true;
                     }
                 }

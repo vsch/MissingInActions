@@ -28,7 +28,9 @@
             <h1><img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions</h1>
             <p>Adds missing editor actions for end of word navigation but that is just the beginning:</p>
             <ul>
-                <li>Enable Auto Indent Lines after move line/selection up or down actions to have them indented
+                <li>Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
+                    previous selection from a list.</li>
+                <li>Enable Auto Indent Lines after move line/selection up or down actions to have lines indented
                     automatically.</li>
                 <li>Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
                     match case and style of identifier at destination when you paste. Undo to get results before
@@ -70,12 +72,19 @@
         ]]>
     </description>
 
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.1.3 - Bug Fix &amp; Enhancement Release</h3>
+            <ul>
+                <li>Change: allow overlapping selection text swapping by eliminating overlapping part of selections
+                    from the swap.</li>
+                <li>Fix: exception in some cases when swapping text and more than set limit of stored selections
+                    is already present.</li>
+            </ul>
             <h3>1.1.2 - Enhancement Release</h3>
             <ul>
                 <li>Fix: bump up version compatibility to 162.*</li>

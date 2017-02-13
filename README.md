@@ -7,7 +7,7 @@
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.1.1 - Enhancement Release](#version-111---enhancement-release)
+- [Version 1.1.2 - Enhancement Release](#version-112---enhancement-release)
 - [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
@@ -20,6 +20,8 @@
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
+* Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
+  previous selection from a list.
 * Enable Auto Indent Lines after move line/selection up or down actions to have them indented
   automatically.
 * Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
@@ -63,7 +65,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.1 - Enhancement Release
+## Version 1.1.2 - Enhancement Release
 
 [Version Notes][] [Download Latest 1.1.2 from this repo][]
 

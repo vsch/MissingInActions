@@ -26,6 +26,7 @@ import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.Language;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
@@ -674,7 +675,10 @@ public class EditHelpers {
             }
 
             if (caretState.getSelectionStart() != null && caretState.getSelectionEnd() != null) {
-                newCaret.setSelection(newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionStart()), newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionEnd()));
+                newCaret.setSelection(
+                        newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionStart()),
+                        newCaret.getEditor().logicalPositionToOffset(caretState.getSelectionEnd())
+                );
             } else if (alwaysSetSelection) {
                 newCaret.setSelection(newCaret.getOffset(), newCaret.getOffset());
             }
@@ -865,7 +869,11 @@ public class EditHelpers {
     }
 
     public static int getWordStartAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
-        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordEnd(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordEnd(
+                charSequence,
+                offset,
+                false
+        ) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
             // go forward
             return offset;//getNextWordStartAtOffset(charSequence, offset, wordType, isCamel);
         } else {
@@ -875,7 +883,11 @@ public class EditHelpers {
     }
 
     public static int getWordEndAtOffset(CharSequence charSequence, int offset, int wordType, boolean isCamel, boolean stopIfNonWord) {
-        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordStart(charSequence, offset, false) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
+        if (wordType != WORD_SPACE_DELIMITED && !isIdentifier(charSequence, offset) && !isWordStart(
+                charSequence,
+                offset,
+                false
+        ) || wordType == WORD_SPACE_DELIMITED && isWhitespaceMiddle(charSequence, offset)) {
             // go backwards
             return offset; //getPreviousWordEndAtOffset(charSequence, offset, wordType, isCamel);
         } else {
@@ -1404,6 +1416,65 @@ public class EditHelpers {
         studiedCarets.firstLineCaret = firstCaret;
         studiedCarets.lastLineCaret = lastCaret;
         return studiedCarets;
+    }
+
+    public static boolean swapRangeText(final Editor editor, final Range range1, final Range range2) {
+        boolean handled = false;
+        if (!range1.doesContain(range2) && !range2.doesContain(range1)) {
+            // can swap text
+            handled = true;
+
+            WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
+                Range effectiveRange1 = range1.exclude(range2);
+                Range effectiveRange2 = range2.exclude(range1);
+                Document document = editor.getDocument();
+                CharSequence chars = document.getCharsSequence();
+                String text1 = effectiveRange1.subSequence(chars).toString();
+                String text2 = effectiveRange2.subSequence(chars).toString();
+                int start1;
+                int start2;
+
+                start1 = effectiveRange1.getStart();
+                start2 = effectiveRange2.getStart();
+                if (effectiveRange1.getStart() < effectiveRange2.getStart()) {
+                    // effectiveRange2 first, then effectiveRange1
+                    document.replaceString(effectiveRange2.getStart(), effectiveRange2.getEnd(), text1);
+                    document.replaceString(effectiveRange1.getStart(), effectiveRange1.getEnd(), text2);
+
+                    start2 -= effectiveRange1.getSpan();
+                    start2 += text2.length();
+                } else {
+                    // effectiveRange1 first, then effectiveRange2
+                    document.replaceString(effectiveRange1.getStart(), effectiveRange1.getEnd(), text2);
+                    document.replaceString(effectiveRange2.getStart(), effectiveRange2.getEnd(), text1);
+
+                    start1 -= effectiveRange2.getSpan();
+                    start1 += text1.length();
+                }
+
+                final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+
+                //if (!effectiveRange1.isEqual(range1)) {
+                //    int range1StartDelta = start1 - effectiveRange1.getStart();
+                //    int range1EndDelta = range1StartDelta + text2.length() - effectiveRange1.getEnd();
+                //    editor.getSelectionModel().setSelection(range1.getStart() + range1StartDelta, range1.getEnd() + range1EndDelta);
+                //    manager.pushSelection(true, true, true);
+                //}
+                //
+                //if (!effectiveRange2.isEqual(range2)) {
+                //    int range2StartDelta = start2 - effectiveRange2.getStart();
+                //    int range2EndDelta = range2StartDelta + text1.length() - effectiveRange2.getEnd();
+                //    editor.getSelectionModel().setSelection(range2.getStart() + range2StartDelta, range2.getEnd() + range2EndDelta);
+                //    manager.pushSelection(true, true, true);
+                //}
+
+                editor.getSelectionModel().setSelection(start1, start1 + text2.length());
+                manager.pushSelection(false, false, false);
+                editor.getSelectionModel().setSelection(start2, start2 + text1.length());
+                scrollToSelection(editor);
+            });
+        }
+        return handled;
     }
 
     public static class ByLineType {

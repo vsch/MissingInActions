@@ -22,9 +22,7 @@
 package com.vladsch.MissingInActions.actions;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
@@ -62,42 +60,7 @@ public class SwapLastSelectionTextAction extends EditorAction {
                 final Range range1 = new Range(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
                 final Range range2 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
 
-                if (!range1.doesOverlap(range2)) {
-                    // can swap text
-                    handled = true;
-
-                    WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
-                        Document document = editor.getDocument();
-                        CharSequence chars = document.getCharsSequence();
-                        String text1 = range1.subSequence(chars).toString();
-                        String text2 = range2.subSequence(chars).toString();
-                        int start1;
-                        int start2;
-
-                        start1 = range1.getStart();
-                        start2 = range2.getStart();
-                        if (range1.getStart() < range2.getStart()) {
-                            // range2 first, then range1
-                            document.replaceString(range2.getStart(), range2.getEnd(), text1);
-                            document.replaceString(range1.getStart(), range1.getEnd(), text2);
-
-                            start2 -= range1.getSpan();
-                            start2 += text2.length();
-                        } else {
-                            // range1 first, then range2
-                            document.replaceString(range1.getStart(), range1.getEnd(), text2);
-                            document.replaceString(range2.getStart(), range2.getEnd(), text1);
-
-                            start1 -= range2.getSpan();
-                            start1 += text1.length();
-                        }
-
-                        editor.getSelectionModel().setSelection(start1, start1 + text2.length());
-                        manager.pushSelection(false, false, false);
-                        editor.getSelectionModel().setSelection(start2, start2 + text1.length());
-                        EditHelpers.scrollToSelection(editor);
-                    });
-                }
+                handled = EditHelpers.swapRangeText(editor, range1, range2);
             }
 
             if (!handled && previousSelection != null) {

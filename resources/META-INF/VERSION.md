@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.3 - Bug Fix & Enhancement Release](#113---bug-fix--enhancement-release)
 - [1.1.2 - Enhancement Release](#112---enhancement-release)
 - [1.1.1 - Enhancement Release](#111---enhancement-release)
 - [1.1.0 - Enhancement Release](#110---enhancement-release)
@@ -53,6 +54,13 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.1.3 - Bug Fix & Enhancement Release
+
+* Change: allow overlapping selection text swapping by eliminating overlapping part of selections
+  from the swap.
+* Fix: exception in some cases when swapping text and more than set limit of stored selections
+  is already present.
 
 ### 1.1.2 - Enhancement Release
 
