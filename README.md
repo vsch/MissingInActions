@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.4 from this repo]
+[Download Latest 1.1.5 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
 - [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
 - [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
 - [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
@@ -69,9 +70,22 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.4 - Enhancement Release
+## Version 1.1.5 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.4 from this repo][]
+[Version Notes][] [Download Latest 1.1.5 from this repo][]
+
+* Change: Recall selection from list action text from `Recall Selection` to `Selections` to
+  shorten the toolbar button.
+
+  ![Toolbar](/assets/images/Toolbar.png)
+
+* Change: split settings into tabbed pane per category
+
+  |                                                    |                                                          |                                                           |                                                           |
+  |----------------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------|-----------------------------------------------------------|
+  | ![Isolated Lines](assets/images/ToolsSettings.png) | ![Isolated Lines](assets/images/ToolsSettings_Paste.png) | ![Isolated Lines](assets/images/ToolsSettings_Extras.png) | ![Isolated Lines](assets/images/ToolsSettings_Custom.png) |
+
+## Version 1.1.4 - Enhancement Release
 
 * Add: Line Isolation Mode to "highlight" the isolated lines by "lowlighting" the non isolated
   lines. Especially useful when duplicating a method or methods for modification. This allows
@@ -81,12 +95,12 @@ Adds missing editor actions for end of word navigation but that is just the begi
   ![Isolated Lines](assets/images/Isolated_Lines.png)
 
 * Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
-  selection. 
+  selection.
 
 ## Version 1.1.3 - Enhancement Release
 
-* Change: allow overlapping selection text swapping by eliminating overlapping part of selections
-  from the swap.
+* Change: allow overlapping selection text swapping by eliminating overlapping part of
+  selections from the swap.
 
 * Fix: exception in some cases when swapping text and more than set limit of stored selections
   is already present.
@@ -378,7 +392,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.4 from this repo]: ../../raw/master/dist/MissingInActions.1.1.4.zip
+[Download Latest 1.1.5 from this repo]: ../../raw/master/dist/MissingInActions.1.1.5.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

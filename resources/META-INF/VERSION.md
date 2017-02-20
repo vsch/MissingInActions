@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.5 - Enhancement Release](#115---enhancement-release)
 - [1.1.4 - Enhancement Release](#114---enhancement-release)
 - [1.1.3 - Bug Fix & Enhancement Release](#113---bug-fix--enhancement-release)
 - [1.1.2 - Enhancement Release](#112---enhancement-release)
@@ -56,6 +57,13 @@
 
 &nbsp;</details>
 
+### 1.1.5 - Enhancement Release
+
+* Change: Recall selection from list action text from `Recall Selection` to `Selections` to
+  shorten the toolbar button.
+
+* Change: split settings into tabbed pane per category
+
 ### 1.1.4 - Enhancement Release
 
 * Add: Line Isolation Mode to "highlight" the isolated lines by "lowlighting" the non isolated
@@ -64,7 +72,7 @@
   originals.
 
 * Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
-  selection. 
+  selection.
 
 ### 1.1.3 - Bug Fix & Enhancement Release
 

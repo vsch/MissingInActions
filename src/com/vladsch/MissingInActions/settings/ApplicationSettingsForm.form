@@ -1,30 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.vladsch.MissingInActions.settings.ApplicationSettingsForm">
-  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="702" height="2148"/>
+      <xy x="20" y="20" width="694" height="726"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="ec693" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
+      <tabbedpane id="7ea15" class="com.intellij.ui.components.JBTabbedPane">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <vspacer id="960be">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </vspacer>
-          <grid id="6c8ea" layout-manager="GridLayoutManager" row-count="9" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="f90f4" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <tabbedpane title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.tab.selection.title"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -32,7 +26,7 @@
               <grid id="f6680" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.auto-line.section.title"/>
@@ -96,7 +90,7 @@
                   <grid id="1706b" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -138,10 +132,67 @@
                   </component>
                 </children>
               </grid>
+              <vspacer id="3c7c">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <grid id="463f5" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.virtual-space-aware.section.description"/>
+                </properties>
+                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.virtual-space-aware.section.title"/>
+                <children>
+                  <component id="87f4f" class="com.intellij.ui.components.JBCheckBox" binding="myDeleteOperations">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.delete.label"/>
+                    </properties>
+                  </component>
+                  <component id="b1708" class="com.intellij.ui.components.JBCheckBox" binding="myUpDownMovement">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.up-down.label"/>
+                    </properties>
+                  </component>
+                  <component id="25b73" class="com.intellij.ui.components.JBCheckBox" binding="myLeftRightMovement">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.left-right.label"/>
+                    </properties>
+                  </component>
+                  <component id="34c3f" class="com.intellij.ui.components.JBCheckBox" binding="myIndentUnindent">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.indent-unindent.label"/>
+                    </properties>
+                  </component>
+                  <component id="e8f9b" class="com.intellij.ui.components.JBCheckBox" binding="myCopyLineOrLineSelection">
+                    <constraints>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.copy-line.label"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
               <grid id="6cc8b" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.virtual-space-aware.section.description"/>
@@ -157,10 +208,10 @@
                       <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.unselect-toggle-case.description"/>
                     </properties>
                   </component>
-                  <grid id="8f9bc" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="8f9bc" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -176,7 +227,7 @@
                       </component>
                       <component id="dc04d" class="javax.swing.JComboBox" binding="myDuplicateAtStartOrEndPredicate" custom-create="true">
                         <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
                       </component>
@@ -185,12 +236,12 @@
                   <grid id="3b46e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.move-selection-up-down.label"/>
                     <children>
-                      <grid id="6662d" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                      <grid id="6662d" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                         <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
@@ -198,34 +249,54 @@
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <component id="11e9e" class="javax.swing.JComboBox" binding="myCaretOnMoveSelectionUp" custom-create="true">
+                          <grid id="8529f" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints>
-                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties/>
-                          </component>
-                          <component id="7349c" class="javax.swing.JLabel">
+                            <border type="none"/>
+                            <children>
+                              <component id="11e9e" class="javax.swing.JComboBox" binding="myCaretOnMoveSelectionUp" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                              </component>
+                              <component id="7349c" class="javax.swing.JLabel">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.move-line-up.label"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
+                          <grid id="ba6ea" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.move-line-up.label"/>
-                            </properties>
-                          </component>
-                          <component id="c9b22" class="javax.swing.JLabel">
-                            <constraints>
-                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.move-line-down.label"/>
-                            </properties>
-                          </component>
-                          <component id="71e9e" class="javax.swing.JComboBox" binding="myCaretOnMoveSelectionDown" custom-create="true">
-                            <constraints>
-                              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties/>
-                          </component>
+                            <border type="none"/>
+                            <children>
+                              <component id="c9b22" class="javax.swing.JLabel">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.move-line-down.label"/>
+                                </properties>
+                              </component>
+                              <component id="71e9e" class="javax.swing.JComboBox" binding="myCaretOnMoveSelectionDown" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                              </component>
+                            </children>
+                          </grid>
                         </children>
                       </grid>
                     </children>
@@ -276,7 +347,7 @@
                   </grid>
                   <component id="e104" class="com.intellij.ui.components.JBCheckBox" binding="myTypingDeletesLineSelection">
                     <constraints>
-                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.typing-deletes-lines.label"/>
@@ -284,10 +355,653 @@
                   </component>
                 </children>
               </grid>
+            </children>
+          </grid>
+          <grid id="fe247" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.tab.Paste.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="c9384" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.preserve-on-paste.title"/>
+                <children>
+                  <grid id="43f0" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="b3b3c" class="com.intellij.ui.components.JBCheckBox" binding="myOverrideStandardPaste">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste.label"/>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste.description"/>
+                        </properties>
+                      </component>
+                      <grid id="3c0c7" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="c60ba" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowInstructions">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste-multi-caret.label"/>
+                              <toolTipText value=""/>
+                            </properties>
+                          </component>
+                          <component id="29d0f" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowEolInViewer">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.show-eol.label"/>
+                              <toolTipText value=""/>
+                            </properties>
+                          </component>
+                          <component id="66d43" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowEolInList">
+                            <constraints>
+                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.show-eol-list.label"/>
+                              <toolTipText value=""/>
+                            </properties>
+                          </component>
+                          <component id="b531d" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPastePreserveOriginal">
+                            <constraints>
+                              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.duplicate-for-carets.preserve-original.label"/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.duplicate-for-carets.preserve-original.description"/>
+                            </properties>
+                          </component>
+                          <component id="55a8c" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteDeleteRepeatedCaretData">
+                            <constraints>
+                              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.delete-merged-data.label"/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.delete-merged-data.description"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <grid id="37ea" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.paste-options.on-paste.title"/>
+                <children>
+                  <grid id="82657" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <grid id="48938" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="daa6e" class="com.intellij.ui.components.JBCheckBox" binding="mySelectPasted">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.select-pasted.label"/>
+                            </properties>
+                          </component>
+                          <component id="8fe69" class="javax.swing.JComboBox" binding="mySelectPastedPredicate" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                          <component id="674ba" class="com.intellij.ui.components.JBCheckBox" binding="mySelectPastedMultiCaret">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.select-pasted-multi-caret.label"/>
+                            </properties>
+                          </component>
+                          <component id="6012e" class="javax.swing.JComboBox" binding="mySelectPastedMultiCaretPredicate" custom-create="true">
+                            <constraints>
+                              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <grid id="4af1" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.on-paste-preserve.label"/>
+                    <children>
+                      <grid id="274a8" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <grid id="44bac" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="55bb" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveCamelCaseOnPaste">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-camel-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-camel-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                              <component id="ddc86" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveSnakeCaseOnPaste">
+                                <constraints>
+                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-snake-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-snake-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                              <component id="6eb61" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveScreamingSnakeCaseOnPaste">
+                                <constraints>
+                                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-screaming-snake-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-screaming-snake-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                              <component id="9ebe0" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveDashCaseOnPaste">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dash-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dash-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                              <component id="4cdd0" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveDotCaseOnPaste">
+                                <constraints>
+                                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dot-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dot-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                              <component id="77dae" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveSlashCaseOnPaste">
+                                <constraints>
+                                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-slash-case-on-paste.label"/>
+                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-slash-case-on-paste.description"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <grid id="32ca0" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.prefix.title"/>
+                    <children>
+                      <grid id="c3718" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="2f302" class="com.intellij.ui.components.JBTextField" binding="myPrefixOnPasteText">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.prefix.description"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                      <grid id="bf9b5" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPastePattern" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste-type.description"/>
+                            </properties>
+                          </component>
+                          <component id="247c2" class="javax.swing.JButton" binding="myEditRegExButton">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.regex.modify.label"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="e3e3f" class="com.intellij.ui.components.JBCheckBox" binding="myRemovePrefixOnPaste">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste.label"/>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste.description"/>
+                        </properties>
+                      </component>
+                      <component id="61392" class="com.intellij.ui.components.JBCheckBox" binding="myAddPrefixOnPaste">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.add-prefix-on-paste.label"/>
+                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.add-prefix-on-paste.description"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="bbb56" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="cedd6" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-paste-adjust.label"/>
+                        </properties>
+                      </component>
+                      <component id="a290b" class="javax.swing.JComboBox" binding="myLinePasteCaretAdjustment" custom-create="true">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <vspacer id="5d993">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+            </children>
+          </grid>
+          <grid id="b1a54" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.tab.extras.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="f76a9" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="9d3cb" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <grid id="e734e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.line-isolation.title"/>
+                        <children>
+                          <grid id="b871c" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="cf7f3" class="javax.swing.JLabel">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.foreground.label"/>
+                                </properties>
+                              </component>
+                              <component id="6acb5" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedForegroundColor" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                              </component>
+                              <component id="29218" class="javax.swing.JLabel">
+                                <constraints>
+                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.background.label"/>
+                                </properties>
+                              </component>
+                              <component id="ccf03" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedBackgroundColor" custom-create="true">
+                                <constraints>
+                                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                              </component>
+                            </children>
+                          </grid>
+                        </children>
+                      </grid>
+                      <grid id="cc3b9" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.selection-stash.title"/>
+                        <children>
+                          <grid id="c064e" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="ae0f8" class="javax.swing.JLabel">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.selection-stack.label"/>
+                                </properties>
+                              </component>
+                              <component id="2cec0" class="javax.swing.JSpinner" binding="mySelectionStashLimit" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                                    <preferred-size width="75" height="-1"/>
+                                  </grid>
+                                </constraints>
+                                <properties/>
+                              </component>
+                              <component id="9e59f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myRecalledSelectionColor" custom-create="true">
+                                <constraints>
+                                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                              </component>
+                            </children>
+                          </grid>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <vspacer id="29ca9">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <grid id="3f835" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="etched" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.multi-caret-filter.title"/>
+                <children>
+                  <grid id="e5967" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="a033a" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.primary-thickness"/>
+                          <toolTipText value=""/>
+                        </properties>
+                      </component>
+                      <grid id="61364" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="dc588" class="javax.swing.JComboBox" binding="myPrimaryCaretThickness" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                          <component id="e6cc1" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myPrimaryCaretColor" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="f23f0" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-start.label"/>
+                          <toolTipText value=""/>
+                        </properties>
+                      </component>
+                      <grid id="99e65" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="74646" class="javax.swing.JComboBox" binding="mySearchStartCaretThickness" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                          <component id="35b7a" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartCaretColor" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="4d415" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-found.label"/>
+                          <toolTipText value=""/>
+                        </properties>
+                      </component>
+                      <grid id="cc9ce" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="df447" class="javax.swing.JComboBox" binding="mySearchFoundCaretThickness" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                          <component id="8bc92" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchFoundCaretColor" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="ae5" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-start-found.label"/>
+                          <toolTipText value=""/>
+                        </properties>
+                      </component>
+                      <grid id="c5409" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="10d8f" class="javax.swing.JComboBox" binding="mySearchStartFoundCaretThickness" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                          <component id="fd77f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartMatchedCaretColor" custom-create="true">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <component id="3105" class="javax.swing.JTextPane" binding="myCaretVisualAttributesPane">
+                    <constraints>
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="100" height="20"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <contentType value="text/html"/>
+                      <editable value="true"/>
+                      <enabled value="false"/>
+                      <opaque value="false"/>
+                    </properties>
+                  </component>
+                  <component id="ba7ef" class="com.intellij.ui.components.JBCheckBox" binding="mySearchCancelOnEscape">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.search-cancel-on-escape.label"/>
+                      <toolTipText value=""/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="c8203" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.tab.custom.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <vspacer id="c32de">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
               <grid id="768a7" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.customized-start.bounds.label"/>
@@ -587,654 +1301,19 @@
                   </grid>
                 </children>
               </grid>
-              <grid id="c9384" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.preserve-on-paste.title"/>
-                <children>
-                  <grid id="43f0" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="b3b3c" class="com.intellij.ui.components.JBCheckBox" binding="myOverrideStandardPaste">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste.label"/>
-                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste.description"/>
-                        </properties>
-                      </component>
-                      <grid id="3c0c7" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <component id="c60ba" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowInstructions">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.override-standard-paste-multi-caret.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <component id="29d0f" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowEolInViewer">
-                            <constraints>
-                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.show-eol.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <component id="66d43" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteShowEolInList">
-                            <constraints>
-                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.show-eol-list.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <component id="b531d" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPastePreserveOriginal">
-                            <constraints>
-                              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.duplicate-for-carets.preserve-original.label"/>
-                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.duplicate-for-carets.preserve-original.description"/>
-                            </properties>
-                          </component>
-                          <component id="55a8c" class="com.intellij.ui.components.JBCheckBox" binding="myMultiPasteDeleteRepeatedCaretData">
-                            <constraints>
-                              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.delete-merged-data.label"/>
-                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.delete-merged-data.description"/>
-                            </properties>
-                          </component>
-                        </children>
-                      </grid>
-                    </children>
-                  </grid>
-                </children>
-              </grid>
-              <grid id="37ea" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.paste-options.on-paste.title"/>
-                <children>
-                  <grid id="82657" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <grid id="48938" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <component id="daa6e" class="com.intellij.ui.components.JBCheckBox" binding="mySelectPasted">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.select-pasted.label"/>
-                            </properties>
-                          </component>
-                          <component id="8fe69" class="javax.swing.JComboBox" binding="mySelectPastedPredicate" custom-create="true">
-                            <constraints>
-                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                          </component>
-                          <component id="674ba" class="com.intellij.ui.components.JBCheckBox" binding="mySelectPastedMultiCaret">
-                            <constraints>
-                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.select-pasted-multi-caret.label"/>
-                            </properties>
-                          </component>
-                          <component id="6012e" class="javax.swing.JComboBox" binding="mySelectPastedMultiCaretPredicate" custom-create="true">
-                            <constraints>
-                              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                          </component>
-                        </children>
-                      </grid>
-                    </children>
-                  </grid>
-                  <grid id="4af1" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.on-paste-preserve.label"/>
-                    <children>
-                      <grid id="274a8" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <grid id="44bac" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="55bb" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveCamelCaseOnPaste">
-                                <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-camel-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-camel-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                              <component id="ddc86" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveSnakeCaseOnPaste">
-                                <constraints>
-                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-snake-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-snake-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                              <component id="6eb61" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveScreamingSnakeCaseOnPaste">
-                                <constraints>
-                                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-screaming-snake-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-screaming-snake-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                              <component id="9ebe0" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveDashCaseOnPaste">
-                                <constraints>
-                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dash-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dash-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                              <component id="4cdd0" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveDotCaseOnPaste">
-                                <constraints>
-                                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dot-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-dot-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                              <component id="77dae" class="com.intellij.ui.components.JBCheckBox" binding="myPreserveSlashCaseOnPaste">
-                                <constraints>
-                                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties>
-                                  <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-slash-case-on-paste.label"/>
-                                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.preserve-slash-case-on-paste.description"/>
-                                </properties>
-                              </component>
-                            </children>
-                          </grid>
-                        </children>
-                      </grid>
-                    </children>
-                  </grid>
-                  <grid id="32ca0" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.prefix.title"/>
-                    <children>
-                      <grid id="c3718" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <component id="2f302" class="com.intellij.ui.components.JBTextField" binding="myPrefixOnPasteText">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.prefix.description"/>
-                            </properties>
-                          </component>
-                        </children>
-                      </grid>
-                      <grid id="bf9b5" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="1" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPastePattern" custom-create="true">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste-type.description"/>
-                            </properties>
-                          </component>
-                          <component id="247c2" class="javax.swing.JButton" binding="myEditRegExButton">
-                            <constraints>
-                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.regex.modify.label"/>
-                            </properties>
-                          </component>
-                        </children>
-                      </grid>
-                      <component id="e3e3f" class="com.intellij.ui.components.JBCheckBox" binding="myRemovePrefixOnPaste">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste.label"/>
-                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste.description"/>
-                        </properties>
-                      </component>
-                      <component id="61392" class="com.intellij.ui.components.JBCheckBox" binding="myAddPrefixOnPaste">
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.add-prefix-on-paste.label"/>
-                          <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.add-prefix-on-paste.description"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
-                  <grid id="bbb56" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="cedd6" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-paste-adjust.label"/>
-                        </properties>
-                      </component>
-                      <component id="a290b" class="javax.swing.JComboBox" binding="myLinePasteCaretAdjustment" custom-create="true">
-                        <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                      </component>
-                    </children>
-                  </grid>
-                  <grid id="3f835" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="etched" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.multi-caret-filter.title"/>
-                    <children>
-                      <grid id="e5967" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children>
-                          <component id="a033a" class="javax.swing.JLabel">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.primary-thickness"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <grid id="61364" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="dc588" class="javax.swing.JComboBox" binding="myPrimaryCaretThickness" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                              <component id="e6cc1" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myPrimaryCaretColor" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                            </children>
-                          </grid>
-                          <component id="f23f0" class="javax.swing.JLabel">
-                            <constraints>
-                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-start.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <grid id="99e65" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="74646" class="javax.swing.JComboBox" binding="mySearchStartCaretThickness" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                              <component id="35b7a" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartCaretColor" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                            </children>
-                          </grid>
-                          <component id="4d415" class="javax.swing.JLabel">
-                            <constraints>
-                              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-found.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <grid id="cc9ce" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="df447" class="javax.swing.JComboBox" binding="mySearchFoundCaretThickness" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                              <component id="8bc92" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchFoundCaretColor" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                            </children>
-                          </grid>
-                          <component id="ae5" class="javax.swing.JLabel">
-                            <constraints>
-                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-                            </constraints>
-                            <properties>
-                              <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret-filter.search-start-found.label"/>
-                              <toolTipText value=""/>
-                            </properties>
-                          </component>
-                          <grid id="c5409" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="10d8f" class="javax.swing.JComboBox" binding="mySearchStartFoundCaretThickness" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                              <component id="fd77f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartMatchedCaretColor" custom-create="true">
-                                <constraints>
-                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                                </constraints>
-                                <properties/>
-                              </component>
-                            </children>
-                          </grid>
-                        </children>
-                      </grid>
-                      <component id="3105" class="javax.swing.JTextPane" binding="myCaretVisualAttributesPane">
-                        <constraints>
-                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                            <preferred-size width="100" height="20"/>
-                          </grid>
-                        </constraints>
-                        <properties>
-                          <contentType value="text/html"/>
-                          <editable value="true"/>
-                          <enabled value="false"/>
-                          <opaque value="false"/>
-                        </properties>
-                      </component>
-                      <component id="ba7ef" class="com.intellij.ui.components.JBCheckBox" binding="mySearchCancelOnEscape">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.search-cancel-on-escape.label"/>
-                          <toolTipText value=""/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
-                </children>
-              </grid>
-              <grid id="463f5" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.virtual-space-aware.section.description"/>
-                </properties>
-                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.virtual-space-aware.section.title"/>
-                <children>
-                  <component id="87f4f" class="com.intellij.ui.components.JBCheckBox" binding="myDeleteOperations">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.delete.label"/>
-                    </properties>
-                  </component>
-                  <component id="b1708" class="com.intellij.ui.components.JBCheckBox" binding="myUpDownMovement">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.up-down.label"/>
-                    </properties>
-                  </component>
-                  <component id="25b73" class="com.intellij.ui.components.JBCheckBox" binding="myLeftRightMovement">
-                    <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.left-right.label"/>
-                    </properties>
-                  </component>
-                  <component id="34c3f" class="com.intellij.ui.components.JBCheckBox" binding="myIndentUnindent">
-                    <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.indent-unindent.label"/>
-                    </properties>
-                  </component>
-                  <component id="e8f9b" class="com.intellij.ui.components.JBCheckBox" binding="myCopyLineOrLineSelection">
-                    <constraints>
-                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.auto-line.copy-line.label"/>
-                    </properties>
-                  </component>
-                </children>
-              </grid>
               <component id="7e6a8" class="com.intellij.ui.components.JBCheckBox" binding="myMouseCamelHumpsFollow">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.mouse-camels-follows.label"/>
                   <verticalAlignment value="0"/>
                 </properties>
               </component>
-              <grid id="cc3b9" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.selection-stash.title"/>
-                <children>
-                  <grid id="c064e" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="ae0f8" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.selection-stack.label"/>
-                        </properties>
-                      </component>
-                      <component id="2cec0" class="javax.swing.JSpinner" binding="mySelectionStashLimit" custom-create="true">
-                        <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                            <preferred-size width="75" height="-1"/>
-                          </grid>
-                        </constraints>
-                        <properties/>
-                      </component>
-                      <component id="9e59f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myRecalledSelectionColor" custom-create="true">
-                        <constraints>
-                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                      </component>
-                    </children>
-                  </grid>
-                </children>
-              </grid>
-              <grid id="e734e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.line-isolation.title"/>
-                <children>
-                  <grid id="b871c" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="cf7f3" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.foreground.label"/>
-                        </properties>
-                      </component>
-                      <component id="6acb5" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedForegroundColor" custom-create="true">
-                        <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                      </component>
-                      <component id="29218" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.background.label"/>
-                        </properties>
-                      </component>
-                      <component id="ccf03" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedBackgroundColor" custom-create="true">
-                        <constraints>
-                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                      </component>
-                    </children>
-                  </grid>
-                </children>
-              </grid>
             </children>
           </grid>
         </children>
-      </grid>
-      <hspacer id="e36c2">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
+      </tabbedpane>
     </children>
   </grid>
 </form>
