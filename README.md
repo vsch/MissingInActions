@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.3 from this repo]
+[Download Latest 1.1.4 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
 - [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
 - [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
 - [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
@@ -22,6 +23,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
   previous selection from a list.
+* Isolate Lines mode to make a group of lines stand out from the rest. Handy way to isolate a
+  copy of existing method for modification and not accidentally modify the original text instead
+  of the copy.
 * Enable Auto Indent Lines after move line/selection up or down actions to have them indented
   automatically.
 * Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
@@ -65,12 +69,25 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.3 - Enhancement Release
+## Version 1.1.4 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.3 from this repo][]
+[Version Notes][] [Download Latest 1.1.4 from this repo][]
+
+* Add: Line Isolation Mode to "highlight" the isolated lines by "lowlighting" the non isolated
+  lines. Especially useful when duplicating a method or methods for modification. This allows
+  isolating the copies which are to be modified so that they are not confused with the
+  originals.
+
+  ![Isolated Lines](assets/images/Isolated_Lines.png)
+
+* Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
+  selection. 
+
+## Version 1.1.3 - Enhancement Release
 
 * Change: allow overlapping selection text swapping by eliminating overlapping part of selections
   from the swap.
+
 * Fix: exception in some cases when swapping text and more than set limit of stored selections
   is already present.
 
@@ -361,7 +378,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.3 from this repo]: ../../raw/master/dist/MissingInActions.1.1.3.zip
+[Download Latest 1.1.4 from this repo]: ../../raw/master/dist/MissingInActions.1.1.4.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

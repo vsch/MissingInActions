@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -21,6 +21,8 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.*;
 
 public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
@@ -28,10 +30,11 @@ public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
     boolean onFirst(int intValue, OnMap map);
     boolean onAll(int intValue, OnMap map);
     void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
-    E findEnum(int intValue);
-    E findEnum(String displayName);
-    E get(JComboBox comboBox);
-    E valueOf(String name);
-    E getDefault();
+    @NotNull E findEnum(int intValue);
+    @NotNull E findEnum(String displayName);
+    @NotNull E findEnumName(String name);
+    @NotNull E get(JComboBox comboBox);
+    @NotNull E valueOf(String name);
+    @NotNull E getDefault();
     boolean isBoolean();
 }

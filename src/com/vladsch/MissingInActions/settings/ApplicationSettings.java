@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.settings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.ui.JBColor;
+import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.MissingInActions.util.ui.Color;
 import org.jetbrains.annotations.NotNull;
@@ -88,20 +89,31 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int             mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
     private int             myPrimaryCaretThickness = CaretThicknessType.NORMAL.intValue;
     private int             myPrimaryCaretColor = JBColor.BLACK.getRGB();
+    private int             myPrimaryCaretDarkColor = 0xCACACA;
     private boolean         myPrimaryCaretColorEnabled = false;
     private int             mySearchStartCaretThickness = CaretThicknessType.THIN.intValue;
-    private int             mySearchStartCaretColor = JBColor.RED.getRGB();
+    private int             mySearchStartCaretColor = 0xD40047;
+    private int             mySearchStartCaretDarkColor = 0xFF4D4D;
     private boolean         mySearchStartCaretColorEnabled = true;
     private int             mySearchFoundCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int             mySearchFoundCaretColor = JBColor.BLUE.getRGB();
+    private int             mySearchFoundCaretColor = 0x0306CF;
+    private int             mySearchFoundCaretDarkColor = 0x59F3FF;
     private boolean         mySearchFoundCaretColorEnabled = true;
     private int             mySearchStartMatchedCaretThickness = CaretThicknessType.HEAVY.intValue;
-    private int             mySearchStartMatchedCaretColor = JBColor.RED.getRGB();
+    private int             mySearchStartMatchedCaretColor = 0xD40047;
+    private int             mySearchStartMatchedCaretDarkColor = 0xFF4D4D;
     private boolean         mySearchStartMatchedCaretColorEnabled = false;
     private boolean         mySearchCancelOnEscape = true;
     private int             mySelectionStashLimit = 5;
     private int             myRecalledSelectionColor = 0xFCBEFF;
+    private int             myRecalledSelectionDarkColor = 0x844E8A;
     private boolean         myRecalledSelectionColorEnabled = false;
+    private int             myIsolatedForegroundColor = 0x555555;
+    private int             myIsolatedForegroundDarkColor = 0x999999;
+    private boolean         myIsolatedForegroundColorEnabled = true;
+    private int             myIsolatedBackgroundColor = 0xAAAAAA;
+    private int             myIsolatedBackgroundDarkColor = 0x666666;
+    private boolean         myIsolatedBackgroundColorEnabled = true;
     private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
 
@@ -430,13 +442,85 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public void setLastNumberingBaseOptions_36(NumberingBaseOptions lastNumberingBaseOptions_36) { myLastNumberingBaseOptions_36 = lastNumberingBaseOptions_36.copy(); }
     // @formatter:on
 
+    public int getIsolatedForegroundColor() { return myIsolatedForegroundColor; }
+
+    public int getIsolatedForegroundDarkColor() { return myIsolatedForegroundDarkColor; }
+
+    public void isolatedForegroundColorRGB(java.awt.Color color) {
+        if (UIUtil.isUnderDarcula()) {
+            myIsolatedForegroundDarkColor = color.getRGB();
+        } else {
+            myIsolatedForegroundColor = color.getRGB();
+        }
+    }
+
+    public java.awt.Color isolatedForegroundColorRGB() {
+        return Color.of(UIUtil.isUnderDarcula() ? myIsolatedForegroundDarkColor : myIsolatedForegroundColor);
+    }
+
+    public void setIsolatedForegroundColor(final int color) { myIsolatedForegroundColor = color; }
+
+    public void setIsolatedForegroundDarkColor(final int color) { myIsolatedForegroundDarkColor = color; }
+
+    public boolean isIsolatedForegroundColorEnabled() { return myIsolatedForegroundColorEnabled; }
+
+    public void setIsolatedForegroundColorEnabled(final boolean isolatedForegroundColorEnabled) { myIsolatedForegroundColorEnabled = isolatedForegroundColorEnabled; }
+
+    public int getIsolatedBackgroundColor() { return myIsolatedBackgroundColor; }
+
+    public int getIsolatedBackgroundDarkColor() { return myIsolatedBackgroundDarkColor; }
+
+    public void setIsolatedBackgroundColor(final int color) { myIsolatedBackgroundColor = color; }
+
+    public void setIsolatedBackgroundDarkColor(final int color) { myIsolatedBackgroundDarkColor = color; }
+
+    public void isolatedBackgroundColorRGB(java.awt.Color color) {
+        if (UIUtil.isUnderDarcula()) {
+            myIsolatedBackgroundDarkColor = color.getRGB();
+        } else {
+            myIsolatedBackgroundColor = color.getRGB();
+        }
+    }
+
+    public java.awt.Color isolatedBackgroundColorRGB() {
+        return Color.of(UIUtil.isUnderDarcula() ? myIsolatedBackgroundDarkColor : myIsolatedBackgroundColor);
+    }
+
+    public boolean isIsolatedBackgroundColorEnabled() { return myIsolatedBackgroundColorEnabled; }
+
+    public void setIsolatedBackgroundColorEnabled(final boolean isolatedBackgroundColorEnabled) { myIsolatedBackgroundColorEnabled = isolatedBackgroundColorEnabled; }
+
     public boolean isRecalledSelectionColorEnabled() { return myRecalledSelectionColorEnabled; }
 
     public void setRecalledSelectionColorEnabled(final boolean primaryCaretColorEnabled) { myRecalledSelectionColorEnabled = primaryCaretColorEnabled; }
 
-    public java.awt.Color recalledSelectionColorRGB() { return Color.of(myRecalledSelectionColor); }
+    public java.awt.Color recalledSelectionColorRGB() {
+        return Color.of(UIUtil.isUnderDarcula() ? myRecalledSelectionDarkColor : myRecalledSelectionColor);
+    }
 
-    public void recalledSelectionColorRGB(final java.awt.Color color) { myRecalledSelectionColor = color.getRGB(); }
+    public void recalledSelectionColorRGB(final java.awt.Color color) {
+        if (UIUtil.isUnderDarcula()) {
+            myRecalledSelectionDarkColor = color.getRGB();
+        } else {
+            myRecalledSelectionColor = color.getRGB();
+        }
+    }
+
+    public int getSearchStartMatchedCaretColor() { return mySearchStartMatchedCaretColor; }
+
+    public void setSearchStartMatchedCaretColor(final int searchStartMatchedCaretColor) { mySearchStartMatchedCaretColor = searchStartMatchedCaretColor; }
+
+    public int getSearchStartMatchedCaretDarkColor() { return mySearchStartMatchedCaretDarkColor; }
+
+    public void setSearchStartMatchedCaretDarkColor(final int searchStartMatchedCaretDarkColor) { mySearchStartMatchedCaretDarkColor = searchStartMatchedCaretDarkColor; }
+
+    public int getRecalledSelectionColor() { return myRecalledSelectionColor; }
+
+    public void setRecalledSelectionColor(final int recalledSelectionColor) { myRecalledSelectionColor = recalledSelectionColor; }
+
+    public int getRecalledSelectionDarkColor() { return myRecalledSelectionDarkColor; }
+
+    public void setRecalledSelectionDarkColor(final int recalledSelectionDarkColor) { myRecalledSelectionDarkColor = recalledSelectionDarkColor; }
 
     public int getSelectionStashLimit() { return mySelectionStashLimit; }
 
@@ -448,15 +532,27 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public int getPrimaryCaretColor() { return myPrimaryCaretColor; }
 
-    public void setPrimaryCaretColor(final int primaryCaretColor) { myPrimaryCaretColor = primaryCaretColor; }
+    public int getPrimaryCaretDarkColor() { return myPrimaryCaretDarkColor; }
+
+    public void setPrimaryCaretColor(final int color) { myPrimaryCaretColor = color; }
+
+    public void setPrimaryCaretDarkColor(final int color) { myPrimaryCaretDarkColor = color; }
 
     public int getSearchStartCaretColor() { return mySearchStartCaretColor; }
 
-    public void setSearchStartCaretColor(final int searchStartCaretColor) { mySearchStartCaretColor = searchStartCaretColor; }
+    public int getSearchStartCaretDarkColor() { return mySearchStartCaretDarkColor; }
+
+    public void setSearchStartCaretColor(final int color) { mySearchStartCaretColor = color; }
+
+    public void setSearchStartCaretDarkColor(final int color) { mySearchStartCaretDarkColor = color; }
 
     public int getSearchFoundCaretColor() { return mySearchFoundCaretColor; }
 
-    public void setSearchFoundCaretColor(final int searchFoundCaretColor) { mySearchFoundCaretColor = searchFoundCaretColor; }
+    public int getSearchFoundCaretDarkColor() { return mySearchFoundCaretDarkColor; }
+
+    public void setSearchFoundCaretColor(final int color) { mySearchFoundCaretColor = color; }
+
+    public void setSearchFoundCaretDarkColor(final int color) { mySearchFoundCaretDarkColor = color; }
 
     public boolean isPrimaryCaretColorEnabled() { return myPrimaryCaretColorEnabled; }
 
@@ -466,9 +562,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setPrimaryCaretThickness(final int primaryCaretThickness) { myPrimaryCaretThickness = primaryCaretThickness; }
 
-    public java.awt.Color primaryCaretColorRGB() { return Color.of(myPrimaryCaretColor); }
+    public java.awt.Color primaryCaretColorRGB() { return Color.of(UIUtil.isUnderDarcula() ? myPrimaryCaretDarkColor : myPrimaryCaretColor); }
 
-    public void primaryCaretColorRGB(final java.awt.Color primaryCaretColor) { myPrimaryCaretColor = primaryCaretColor.getRGB(); }
+    public void primaryCaretColorRGB(final java.awt.Color primaryCaretColor) {
+        if (UIUtil.isUnderDarcula()) {
+            myPrimaryCaretDarkColor = primaryCaretColor.getRGB();
+        } else {
+            myPrimaryCaretColor = primaryCaretColor.getRGB();
+        }
+    }
 
     public boolean isSearchStartCaretColorEnabled() { return mySearchStartCaretColorEnabled; }
 
@@ -478,9 +580,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setSearchStartCaretThickness(final int primaryCaretThickness) { mySearchStartCaretThickness = primaryCaretThickness; }
 
-    public java.awt.Color searchStartCaretColorRGB() { return Color.of(mySearchStartCaretColor); }
+    public java.awt.Color searchStartCaretColorRGB() { return Color.of(UIUtil.isUnderDarcula() ? mySearchStartCaretDarkColor : mySearchStartCaretColor); }
 
-    public void searchStartCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchStartCaretColor = primaryCaretColor.getRGB(); }
+    public void searchStartCaretColorRGB(final java.awt.Color primaryCaretColor) {
+        if (UIUtil.isUnderDarcula()) {
+            mySearchStartCaretDarkColor = primaryCaretColor.getRGB();
+        } else {
+            mySearchStartCaretColor = primaryCaretColor.getRGB();
+        }
+    }
 
     public boolean isSearchStartMatchedCaretColorEnabled() { return mySearchStartMatchedCaretColorEnabled; }
 
@@ -490,9 +598,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setSearchStartMatchedCaretThickness(final int primaryCaretThickness) { mySearchStartMatchedCaretThickness = primaryCaretThickness; }
 
-    public java.awt.Color searchStartMatchedCaretColorRGB() { return Color.of(mySearchStartMatchedCaretColor); }
+    public java.awt.Color searchStartMatchedCaretColorRGB() { return Color.of(UIUtil.isUnderDarcula() ? mySearchStartMatchedCaretDarkColor : mySearchStartMatchedCaretColor); }
 
-    public void searchStartMatchedCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchStartMatchedCaretColor = primaryCaretColor.getRGB(); }
+    public void searchStartMatchedCaretColorRGB(final java.awt.Color primaryCaretColor) {
+        if (UIUtil.isUnderDarcula()) {
+            mySearchStartMatchedCaretDarkColor = primaryCaretColor.getRGB();
+        } else {
+            mySearchStartMatchedCaretColor = primaryCaretColor.getRGB();
+        }
+    }
 
     public boolean isSearchFoundCaretColorEnabled() { return mySearchFoundCaretColorEnabled; }
 
@@ -502,9 +616,15 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setSearchFoundCaretThickness(final int primaryCaretThickness) { mySearchFoundCaretThickness = primaryCaretThickness; }
 
-    public java.awt.Color searchFoundCaretColorRGB() { return Color.of(mySearchFoundCaretColor); }
+    public java.awt.Color searchFoundCaretColorRGB() { return Color.of(UIUtil.isUnderDarcula() ? mySearchFoundCaretDarkColor : mySearchFoundCaretColor); }
 
-    public void searchFoundCaretColorRGB(final java.awt.Color primaryCaretColor) { mySearchFoundCaretColor = primaryCaretColor.getRGB(); }
+    public void searchFoundCaretColorRGB(final java.awt.Color primaryCaretColor) {
+        if (UIUtil.isUnderDarcula()) {
+            mySearchFoundCaretDarkColor = primaryCaretColor.getRGB();
+        } else {
+            mySearchFoundCaretColor = primaryCaretColor.getRGB();
+        }
+    }
 
     public boolean isMultiPasteDeleteRepeatedCaretData() { return myMultiPasteDeleteRepeatedCaretData; }
 
@@ -530,7 +650,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setMultiPasteShowEolInViewer(final boolean multiPasteShowEolInViewer) { myMultiPasteShowEolInViewer = multiPasteShowEolInViewer; }
 
-    @NotNull public String getRegexSampleText() { return myRegexSampleText; }
+    @NotNull
+    public String getRegexSampleText() { return myRegexSampleText; }
 
     public void setRegexSampleText(@NotNull final String regexSampleText) { myRegexSampleText = regexSampleText; }
 
@@ -582,7 +703,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public void setRemovePrefixOnPaste(boolean removePrefixOnPaste) { myRemovePrefixOnPaste = removePrefixOnPaste; }
 
-    @NotNull public String getPrefixesOnPasteText() { return myPrefixesOnPasteText; }
+    @NotNull
+    public String getPrefixesOnPasteText() { return myPrefixesOnPasteText; }
 
     public void setPrefixesOnPasteText(@NotNull String prefixesOnPasteText) {
         myPrefixesOnPasteText = prefixesOnPasteText;

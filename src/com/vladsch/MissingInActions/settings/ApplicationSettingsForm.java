@@ -22,9 +22,10 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.ide.IdeEventQueue;
+import com.intellij.ide.ui.LafManager;
+import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
@@ -120,11 +121,14 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private CheckBoxWithColorChooser mySearchFoundCaretColor;
     private JTextPane myCaretVisualAttributesPane;
     private CheckBoxWithColorChooser myRecalledSelectionColor;
+    private CheckBoxWithColorChooser myIsolatedForegroundColor;
+    private CheckBoxWithColorChooser myIsolatedBackgroundColor;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
 
     private final SettingsComponents<ApplicationSettings> components;
+    private final LafManagerListener myLafManagerListener;
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -144,6 +148,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(CaretThicknessType.ADAPTER, mySearchFoundCaretThickness, i::getSearchFoundCaretThickness, i::setSearchFoundCaretThickness),
                         component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
                         componentEnabled(myPrimaryCaretColor, i::isPrimaryCaretColorEnabled, i::setPrimaryCaretColorEnabled),
+                        component(myIsolatedForegroundColor, i::isolatedForegroundColorRGB, i::isolatedForegroundColorRGB),
+                        componentEnabled(myIsolatedForegroundColor, i::isIsolatedForegroundColorEnabled, i::setIsolatedForegroundColorEnabled),
+                        component(myIsolatedBackgroundColor, i::isolatedBackgroundColorRGB, i::isolatedBackgroundColorRGB),
+                        componentEnabled(myIsolatedBackgroundColor, i::isIsolatedBackgroundColorEnabled, i::setIsolatedBackgroundColorEnabled),
                         component(mySearchStartCaretColor, i::searchStartCaretColorRGB, i::searchStartCaretColorRGB),
                         componentEnabled(mySearchStartCaretColor, i::isSearchStartCaretColorEnabled, i::setSearchStartCaretColorEnabled),
                         component(mySearchStartMatchedCaretColor, i::searchStartMatchedCaretColorRGB, i::searchStartMatchedCaretColorRGB),
@@ -201,6 +209,37 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             @Override
             public void actionPerformed(final ActionEvent e) {ApplicationSettingsForm.this.updateOptions(false);}
         };
+
+        myLafManagerListener = new LafManagerListener() {
+            boolean darculaUI = UIUtil.isUnderDarcula();
+
+            @Override
+            public void lookAndFeelChanged(final LafManager source) {
+                boolean underDarcula = UIUtil.isUnderDarcula();
+                if (darculaUI != underDarcula) {
+                    darculaUI = underDarcula;
+
+                    SettingsComponents<ApplicationSettings> colorComponents = new SettingsComponents<ApplicationSettings>() {
+                        @Override
+                        protected Settable[] getComponents(ApplicationSettings i) {
+                            return new Settable[] {
+                                    component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
+                                    component(myIsolatedForegroundColor, i::isolatedForegroundColorRGB, i::isolatedForegroundColorRGB),
+                                    component(myIsolatedBackgroundColor, i::isolatedBackgroundColorRGB, i::isolatedBackgroundColorRGB),
+                                    component(mySearchStartCaretColor, i::searchStartCaretColorRGB, i::searchStartCaretColorRGB),
+                                    component(mySearchStartMatchedCaretColor, i::searchStartMatchedCaretColorRGB, i::searchStartMatchedCaretColorRGB),
+                                    component(mySearchFoundCaretColor, i::searchFoundCaretColorRGB, i::searchFoundCaretColorRGB),
+                                    component(myRecalledSelectionColor, i::recalledSelectionColorRGB, i::recalledSelectionColorRGB),
+                            };
+                        }
+                    };
+
+                    colorComponents.reset(ApplicationSettings.getInstance());
+                }
+            }
+        };
+
+        LafManager.getInstance().addLafManagerListener(myLafManagerListener);
 
         myMouseLineSelection.addActionListener(actionListener);
         myUpDownSelection.addActionListener(actionListener);
@@ -330,6 +369,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     @Override
     public void dispose() {
         IdeEventQueue.getInstance().removeDispatcher(myEditingCommitter);
+        LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -471,6 +511,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySearchFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
         mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
         myRecalledSelectionColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
+        myIsolatedForegroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
+        myIsolatedBackgroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
     }
 
     private class EditingCommitter implements IdeEventQueue.EventDispatcher {

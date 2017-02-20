@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -39,13 +39,16 @@ public interface ComboBoxAdaptable<E> {
             this.ADAPTER = ADAPTER;
         }
 
+        @NotNull
         public T get(JComboBox comboBox) {
             return ADAPTER.findEnum((String) comboBox.getSelectedItem());
         }
 
+        @NotNull
         @Override
         public T valueOf(String name) {return ADAPTER.valueOf(name);}
 
+        @NotNull
         @Override
         public T getDefault() {return ADAPTER.getDefault();}
 
@@ -73,11 +76,17 @@ public interface ComboBoxAdaptable<E> {
         @Override
         public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable[] exclude) { ADAPTER.fillComboBox(comboBox, exclude); }
 
+        @NotNull
         @Override
         public T findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
 
+        @NotNull
         @Override
         public T findEnum(String displayName) { return ADAPTER.findEnum(displayName); }
+
+        @NotNull
+        @Override
+        public T findEnumName(String name) { return ADAPTER.findEnumName(name); }
 
         @Override
         public boolean isBoolean() { return ADAPTER.isBoolean(); }

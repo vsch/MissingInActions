@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -22,6 +22,7 @@
 package com.vladsch.MissingInActions.util.ui;
 
 import com.intellij.openapi.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -80,6 +81,7 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
         return myDefault.getClass() == type.getClass();
     }
 
+    @NotNull
     @Override
     public E findEnum(int intValue) {
         for (E item : myDefault.getValues()) {
@@ -90,11 +92,13 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
         return myDefault;
     }
 
+    @NotNull
     @Override
     public E get(final JComboBox comboBox) {
         return findEnum((String) comboBox.getSelectedItem());
     }
 
+    @NotNull
     @Override
     public E findEnum(String displayName) {
         for (E item : myDefault.getValues()) {
@@ -105,6 +109,18 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
         return myDefault;
     }
 
+    @NotNull
+    @Override
+    public E findEnumName(String name) {
+        for (E item : myDefault.getValues()) {
+            if (item.name().equals(name)) {
+                return item;
+            }
+        }
+        return myDefault;
+    }
+
+    @NotNull
     @Override
     public E valueOf(String name) {
         for (E item : myDefault.getValues()) {
@@ -115,6 +131,7 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
         return myDefault;
     }
 
+    @NotNull
     @Override
     public E getDefault() {
         return myDefault;

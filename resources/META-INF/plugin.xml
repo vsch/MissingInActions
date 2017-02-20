@@ -72,12 +72,25 @@
         ]]>
     </description>
 
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.1.4 - Enhancement Release</h3>
+            <ul>
+                <li>
+                    <p>Add: Line Isolation Mode to &ldquo;highlight&rdquo; the isolated lines by &ldquo;lowlighting&rdquo; the non isolated
+                        lines. Especially useful when duplicating a method or methods for modification. This allows
+                        isolating the copies which are to be modified so that they are not confused with the
+                        originals.</p>
+                </li>
+                <li>
+                    <p>Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
+                        selection.</p>
+                </li>
+            </ul>
             <h3>1.1.3 - Bug Fix &amp; Enhancement Release</h3>
             <ul>
                 <li>Change: allow overlapping selection text swapping by eliminating overlapping part of selections
@@ -104,108 +117,6 @@
                 <li>
                     <p>Add: Swap Selection Text actions and toolbar buttons to swap currently selected text with text
                         from a stored selection.</p>
-                </li>
-            </ul>
-            <h3>1.0.0 - Bug Fixes and Enhancements</h3>
-            <ul>
-                <li>
-                    <p>Fix: toolbar icons for consistency and bigger direction arrows.</p>
-                </li>
-                <li>
-                    <p>Add: caret search action detects when caret context is on a hex, decimal or octal number.</p>
-                </li>
-                <li>
-                    <p>Change: make MIA application settings shared so that they can be imported and exported.</p>
-                </li>
-                <li>
-                    <p>Add: <code>Tab Align Text at Carets</code> to push non-whitespace text after each caret so that all
-                        carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text.</p>
-                </li>
-                <li>
-                    <p>Add: MissingInActions toolbar</p>
-                </li>
-                <li>
-                    <p>Add: edit caret search options with dialog to show preview of caret search by pattern.</p>
-                </li>
-                <li>
-                    <p>Add: caret visual attributes for start search carets that have a match on the line to
-                        highlight start locations which have matches.</p>
-                </li>
-                <li>
-                    <p>Add: <code>Accept Found Search Carets</code> action to only leave the found caret locations.</p>
-                </li>
-                <li>
-                    <p>Add: <code>Cancel Found Search Carets</code> action and settings option to <code>Cancel Caret Search on ESCAPE</code> to cancel caret search and restore carets to only the start search location carets.</p>
-                </li>
-                <li>
-                    <p>Add: <strong>dash-case</strong>, <strong>dot.case</strong> and <strong>slash/case</strong> to on paste preservation options</p>
-                </li>
-                <li>
-                    <p>Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
-                        carets. Also does color and weight change if 2017 EAP.</p>
-                </li>
-                <li>
-                    <p>Add: number generating action. For now only for multiple carets.</p>
-                    <ul>
-                        <li>Sequences 0-9, A-Z for number bases 2-36</li>
-                        <li>Prefix/Suffix options to add to generated number</li>
-                        <li>Sequences can be 0 left filled to any width</li>
-                        <li>Arithmetic or Shift with Step and Direction</li>
-                        <li>Start/Stop number, carets whose number is outside the range insert nothing</li>
-                    </ul>
-                </li>
-                <li>
-                    <p>Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
-                        at caret and whether there is a selection.</p>
-                    <ul>
-                        <li>
-                            <p>if a single caret exists then:</p>
-                            <ul>
-                                <li>if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
-                                    a non-space. Will select the intervening spaces for each caret</li>
-                                <li>if caret is on identifier start then will spawn a caret for every occurrence of identifier
-                                    and select the identifier.</li>
-                                <li>if caret is on identifier character, but not start of identifier, then will spawn a caret
-                                    for every occurrence of identifier that ends in same text as one from caret to end of
-                                    identifier and select the matched identifier portion</li>
-                                <li>otherwise will spawn a caret on every occurrence of the character at caret, selecting
-                                    trimmed intervening characters between carets.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <p>if multiple carets exist then spawning of only a single carets is done by using the pattern
-                                as determined by the primary caret per above rules with addition of hex (with or without 0x
-                                prefix), decimal or octal will search for numeric sequence.</p>
-                            <p>For each caret the pattern search is applied and if found a caret is placed at the location.
-                                Original caret position is treated as search start positions and match location is called
-                                the found caret position.</p>
-                            <p>Start positions are affected by caret movement actions and the pattern search applied at the
-                                new location. This allows the search start to be modified after the pattern is set.</p>
-                            <p>Found positions will be the only carets that remain on any non-caret movement actions or on
-                                typing a character.</p>
-                            <p>This functionality allows creating a set of carets on all lines and then filtering and
-                                changing the location of carets used for editing by matching a pattern at the primary caret
-                                location.</p>
-                            <p><img src="file:/Users/vlad/Library/Application Support/IdeaIC2017-1-EAP/idea-multimarkdown/emojis/information_source.png" alt="emoji symbols:information_source" height="20" width="20" align="absmiddle" /> With IDE versions <strong>2017.1 EAP</strong> and newer the plugin allows changing
-                                the caret appearance for: primary, start and found carets making it easy to see where the
-                                search starts and where the pattern is matched. Plugin configuration settings under settings
-                                in Tools &gt; Missing In Actions:</p>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <p>behavior is also affected by number of carets and selection:</p>
-                    <ul>
-                        <li>if no selections that spans lines then action is limited to a single line of the caret</li>
-                        <li>if no two carets are on the same line then affected range for each caret is expanded to full
-                            lines</li>
-                        <li>any selection for a caret is used to expand the range for that caret to include the
-                            selection and caret offset.</li>
-                    </ul>
-                    <p>For best use, define two shortcuts: one for forward spawning action and one for backward one.
-                        I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
-                        Since these are taken on OS X, I assigned <code>⌥⌘⇥</code> for forward and <code>⌥⌘⇧⇥</code> for backward
-                        spawning search instead. A bit awkward but usable.</p>
                 </li>
             </ul>
         </div>
@@ -618,9 +529,34 @@
                 description="Swap Last Selection Text">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.line.ToggleIsolationModeAction"
+                id="MissingInActions.ToggleIsolationMode"
+                text="Toggle Line Isolation Mode"
+                icon="PluginIcons.Toggle_isolated_mode"
+                description="Toggle Line Isolation Mode">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.line.AddIsolationLinesAction"
+                id="MissingInActions.AddIsolationLines"
+                text="Add Caret or Selection to Isolated Lines"
+                icon="PluginIcons.Add_isolated_lines"
+                description="Add Caret or Selection to Isolated Lines">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.line.RemoveIsolationLinesAction"
+                id="MissingInActions.RemoveIsolationLines"
+                text="Remove Caret or Selection from Isolated Lines"
+                icon="PluginIcons.Remove_isolated_lines"
+                description="Remove Caret or Selection from Isolated Lines">
+        </action>
+
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
+            <separator/>
+            <reference id="MissingInActions.ToggleIsolationMode"/>
+            <reference id="MissingInActions.AddIsolationLines"/>
+            <reference id="MissingInActions.RemoveIsolationLines"/>
             <separator/>
             <reference id="MissingInActions.SmartKeepLineCarets"/>
             <reference id="MissingInActions.KeepBlankLineCarets"/>

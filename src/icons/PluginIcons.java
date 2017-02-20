@@ -55,4 +55,7 @@ public class PluginIcons {
     public static final Icon Swap_selection = load("/icons/Swap_selection.png");
     public static final Icon Swap_selection_text = load("/icons/Swap_selection_text.png");
     public static final Icon Swap_selection_list_text = load("/icons/Swap_selection_list_text.png");
+    public static final Icon Toggle_isolated_mode = load("/icons/Toggle_isolated_mode.png");
+    public static final Icon Add_isolated_lines = load("/icons/Add_isolated_lines.png");
+    public static final Icon Remove_isolated_lines = load("/icons/Remove_isolated_lines.png");
 }

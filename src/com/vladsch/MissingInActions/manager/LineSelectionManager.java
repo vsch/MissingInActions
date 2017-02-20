@@ -22,11 +22,14 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.ide.IdeEventQueue;
+import com.intellij.ide.ui.LafManager;
+import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.markup.*;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
@@ -44,7 +47,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -82,17 +86,23 @@ public class LineSelectionManager implements
     @Nullable private Set<CaretEx> myStartMatchedCarets;
     @Nullable private Set<CaretEx> myFoundCarets;
     @Nullable private List<CaretState> myStartCaretStates;
+    @Nullable private List<RangeHighlighter> myIsolationHighlighters;
+    @Nullable private List<RangeMarker> myIsolationMarkers;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
+    private final LafManagerListener myLafManagerListener;
 
     @Override
     public void dispose() {
         //println("LineSelectionAdjuster disposed");
+        clearIsolationMarkers();
+
         myDelayedRunner.runAll();
         myActionSelectionAdjuster.dispose();
         myMessageBusConnection.disconnect();
         myCaretSpawningHandler = null;
+        LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
     }
 
     @NotNull
@@ -112,6 +122,21 @@ public class LineSelectionManager implements
         } catch (Throwable ignored) {
             caretHighlighter = CaretHighlighter.NULL;
         }
+
+        myLafManagerListener = new LafManagerListener() {
+            UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
+
+            @Override
+            public void lookAndFeelChanged(final LafManager source) {
+                UIManager.LookAndFeelInfo newLookAndFeel = source.getCurrentLookAndFeel();
+                if (lookAndFeel != newLookAndFeel) {
+                    lookAndFeel = newLookAndFeel;
+                    settingsChanged(mySettings);
+                }
+            }
+        };
+
+        LafManager.getInstance().addLafManagerListener(myLafManagerListener);
 
         myCaretHighlighter = caretHighlighter;
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
@@ -289,6 +314,154 @@ public class LineSelectionManager implements
         }
     }
 
+    @Nullable
+    public BitSet getIsolatedLines() {
+        BitSet bitSet = null;
+        if (myIsolationMarkers != null) {
+            Document document = myEditor.getDocument();
+            bitSet = new BitSet(document.getLineCount());
+            bitSet.set(0, document.getLineCount());
+            for (RangeMarker marker : myIsolationMarkers) {
+                if (marker.isValid()) {
+                    int startLine = document.getLineNumber(marker.getStartOffset());
+                    int endLine = document.getLineNumber(marker.getEndOffset());
+                    bitSet.clear(startLine, endLine);
+                }
+            }
+        }
+        return bitSet;
+    }
+
+    @Nullable
+    public BitSet addIsolatedLines(@NotNull BitSet bitSet) {
+        BitSet existingLines = getIsolatedLines();
+        if (existingLines != null) {
+            existingLines.or(bitSet);
+            return existingLines;
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    public BitSet removeIsolatedLines(@NotNull BitSet bitSet) {
+        BitSet existingLines = getIsolatedLines();
+        if (existingLines != null) {
+            existingLines.andNot(bitSet);
+            return existingLines;
+        } else {
+            return null;
+        }
+    }
+
+    private void updateRangeMarkers(@NotNull BitSet bitSet, boolean updateHighlighters) {
+        MarkupModel markupModel = myEditor.getMarkupModel();
+        Document document = myEditor.getDocument();
+
+        ApplicationSettings settings = ApplicationSettings.getInstance();
+        Color foreground = settings.isIsolatedForegroundColorEnabled() ? settings.isolatedForegroundColorRGB() : null;
+        Color background = settings.isIsolatedBackgroundColorEnabled() ? settings.isolatedBackgroundColorRGB() : null;
+
+        int startLine = 0;
+        int startOffset = 0;
+        int endOffset = document.getTextLength();
+        int endLine = document.getLineCount();
+
+        myIsolationMarkers = null;
+        myIsolationHighlighters = null;
+
+        if (bitSet.cardinality() > 0) {
+            while (startOffset < endOffset && startLine < endLine) {
+                int nextLine = bitSet.nextSetBit(startLine);
+                int firstOffset = nextLine == -1 ? endOffset : document.getLineStartOffset(nextLine);
+
+                if (startOffset < firstOffset) {
+                    // create a new low light marker
+                    if (myIsolationMarkers == null) {
+                        myIsolationMarkers = new ArrayList<>();
+                        if (updateHighlighters && (background != null || foreground != null)) {
+                            myIsolationHighlighters = new ArrayList<>();
+                        }
+                    }
+
+                    RangeMarker marker = document.createRangeMarker(startOffset, firstOffset);
+                    myIsolationMarkers.add(marker);
+
+                    if (updateHighlighters && (background != null || foreground != null)) {
+                        RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(startOffset, firstOffset > 0 ? firstOffset - 1 : 0, HighlighterLayer.SELECTION - 1, new TextAttributes(foreground, background, null, EffectType.BOLD_DOTTED_LINE, 0), HighlighterTargetArea.LINES_IN_RANGE);
+                        myIsolationHighlighters.add(rangeHighlighter);
+                    }
+                }
+
+                if (nextLine == -1) break;
+
+                int lastLine = bitSet.nextClearBit(nextLine);
+                if (lastLine == -1 || lastLine >= endLine) break;
+
+                int lastOffset = document.getLineStartOffset(lastLine);
+
+                startLine = lastLine;
+                startOffset = lastOffset;
+            }
+        }
+    }
+
+    public boolean isIsolatedMode() {
+        return myIsolationHighlighters != null;
+    }
+
+    public boolean haveIsolatedLines() {
+        return myIsolationMarkers != null;
+    }
+
+    public void setIsolatedMode(boolean isolatedMode) {
+        if (isolatedMode) {
+            if (!isIsolatedMode() && haveIsolatedLines() && (mySettings.isIsolatedForegroundColorEnabled() || mySettings.isIsolatedBackgroundColorEnabled())) {
+                BitSet bitSet = getIsolatedLines();
+                if (bitSet != null) {
+                    updateRangeMarkers(bitSet, true);
+                }
+            }
+        } else {
+            clearIsolationHighlighters();
+        }
+    }
+
+    private void clearIsolationMarkers() {
+        if (myIsolationMarkers != null) {
+            for (RangeMarker marker : myIsolationMarkers) {
+                if (marker.isValid()) {
+                    marker.dispose();
+                }
+            }
+            myIsolationMarkers = null;
+            clearIsolationHighlighters();
+        }
+    }
+
+    private void clearIsolationHighlighters() {
+        if (myIsolationHighlighters != null) {
+            MarkupModel markupModel = myEditor.getMarkupModel();
+            for (RangeHighlighter marker : myIsolationHighlighters) {
+                if (marker.isValid()) {
+                    markupModel.removeHighlighter(marker);
+                    marker.dispose();
+                }
+            }
+            myIsolationHighlighters = null;
+        }
+    }
+
+    public void setIsolatedLines(@Nullable BitSet bitSet, @Nullable Boolean isolatedMode) {
+        if (bitSet == null) {
+            clearIsolationMarkers();
+        } else {
+            boolean updateHighlighters = isolatedMode != null ? isolatedMode : isIsolatedMode();
+            clearIsolationMarkers();
+            updateRangeMarkers(bitSet, updateHighlighters);
+        }
+    }
+
     @NotNull
     public EditorPositionFactory getPositionFactory() {
         return myPositionFactory;
@@ -401,6 +574,10 @@ public class LineSelectionManager implements
         // unhook all the stuff for settings registration
         mySettings = settings;
 
+        BitSet bitSet = getIsolatedLines();
+        boolean isIsolatedMode = isIsolatedMode();
+        clearIsolationMarkers();
+
         boolean startExtended = settings.isSelectionStartExtended();
         boolean endExtended = settings.isSelectionEndExtended();
 
@@ -450,6 +627,10 @@ public class LineSelectionManager implements
                         .normalizeCaretPosition()
                         .commit();
             }
+        }
+
+        if (bitSet != null) {
+            updateRangeMarkers(bitSet, isIsolatedMode);
         }
     }
 
