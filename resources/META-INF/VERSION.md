@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.6 - Enhancement Release](#116---enhancement-release)
 - [1.1.5 - Enhancement Release](#115---enhancement-release)
 - [1.1.4 - Enhancement Release](#114---enhancement-release)
 - [1.1.3 - Bug Fix & Enhancement Release](#113---bug-fix--enhancement-release)
@@ -56,6 +57,11 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.1.6 - Enhancement Release
+
+* Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
+  Spawning` actions toggle actions to show when active.
 
 ### 1.1.5 - Enhancement Release
 

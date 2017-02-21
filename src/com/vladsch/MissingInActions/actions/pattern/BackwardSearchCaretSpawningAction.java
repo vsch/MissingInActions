@@ -21,10 +21,38 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 
-public class BackwardSearchCaretSpawningAction extends EditorAction {
+public class BackwardSearchCaretSpawningAction extends EditorAction implements Toggleable {
     public BackwardSearchCaretSpawningAction() {
         super(new CaretSpawningSearchHandler(true));
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+
+        Presentation presentation = e.getPresentation();
+        boolean enabled = presentation.isEnabled();
+        boolean selected = false;
+
+        if (enabled) {
+            final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+            if (editor != null) {
+                LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+                RangeLimitedCaretSpawningHandler spawningHandler = manager.getCaretSpawningHandler();
+                if (spawningHandler != null && spawningHandler.isBackwards()) {
+                    selected = true;
+                }
+            }
+        }
+
+        presentation.putClientProperty(Toggleable.SELECTED_PROPERTY, selected);
     }
 }

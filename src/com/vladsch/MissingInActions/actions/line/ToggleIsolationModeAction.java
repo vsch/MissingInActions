@@ -21,35 +21,37 @@
 
 package com.vladsch.MissingInActions.actions.line;
 
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.actionSystem.EditorAction;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ToggleIsolationModeAction extends EditorAction {
-    public ToggleIsolationModeAction() {
-        super(new Handler());
+public class ToggleIsolationModeAction extends ToggleAction implements DumbAware {
+    @Override
+    public boolean isSelected(final AnActionEvent e) {
+        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        boolean enabled = false;
+        boolean selected = false;
+
+        if (editor != null) {
+            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            selected = manager.isIsolatedMode();
+            enabled = selected || manager.haveIsolatedLines();
+        }
+        e.getPresentation().setEnabled(enabled);
+        return selected;
     }
 
-    private static class Handler extends EditorActionHandler {
-        public Handler() {
-            super(false);
-        }
-
-        @Override
-        protected boolean isEnabledForCaret(@NotNull final Editor editor, @NotNull final Caret caret, final DataContext dataContext) {
+    @Override
+    public void setSelected(final AnActionEvent e, final boolean state) {
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        if (editor != null) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            return manager.isIsolatedMode() || manager.haveIsolatedLines();
-        }
-
-        @Override
-        protected void doExecute(final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
-            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            manager.setIsolatedMode(!manager.isIsolatedMode());
+            manager.setIsolatedMode(state);
         }
     }
 }

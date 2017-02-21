@@ -35,6 +35,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.Utils;
@@ -123,6 +124,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private CheckBoxWithColorChooser myRecalledSelectionColor;
     private CheckBoxWithColorChooser myIsolatedForegroundColor;
     private CheckBoxWithColorChooser myIsolatedBackgroundColor;
+    private JLabel myVersion;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -240,6 +242,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         };
 
         LafManager.getInstance().addLafManagerListener(myLafManagerListener);
+
+        myVersion.setText(Bundle.message("settings.version.label") + " " + Plugin.fullProductVersion());
 
         myMouseLineSelection.addActionListener(actionListener);
         myUpDownSelection.addActionListener(actionListener);

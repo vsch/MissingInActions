@@ -86,7 +86,6 @@ public class PatternAction extends TextFieldAction {
             presentation.setText("RegEx");
         }
         presentation.setEnabled(enabled);
-        presentation.setEnabled(enabled);
         super.update(e);
     }
 

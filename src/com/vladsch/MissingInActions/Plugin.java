@@ -22,10 +22,13 @@
 package com.vladsch.MissingInActions;
 
 import com.intellij.ide.IdeEventQueue;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -34,16 +37,14 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
-import com.vladsch.MissingInActions.util.CommonUIShortcuts;
-import com.vladsch.MissingInActions.util.DelayedRunner;
-import com.vladsch.MissingInActions.util.EditorActionListener;
-import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.MissingInActions.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -446,5 +447,79 @@ public class Plugin implements ApplicationComponent, Disposable {
 
     private static String getProductDisplayName() {
         return Bundle.message("plugin.name");
+    }
+
+    private static final String PLUGIN_ID = "com.vladsch.MissingInActions";
+
+    public static IdeaPluginDescriptor getPluginDescriptor() {
+        IdeaPluginDescriptor[] plugins = PluginManager.getPlugins();
+        for (IdeaPluginDescriptor plugin : plugins) {
+            if (PLUGIN_ID.equals(plugin.getPluginId().getIdString())) {
+                return plugin;
+            }
+        }
+
+        throw new IllegalStateException("Unexpected, plugin cannot find its own plugin descriptor");
+    }
+
+    public static String productVersion() {
+        IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
+        String version = pluginDescriptor.getVersion();
+        // truncate version to 3 digits and if had more than 3 append .x, that way
+        // no separate product versions need to be created
+        String[] parts = version.split("\\.", 4);
+        if (parts.length <= 3) {
+            return version;
+        }
+
+        String sep = "";
+        StringBuilder newVersion = new StringBuilder();
+        for (int i = 0; i < 3; i++) {
+            newVersion.append(sep);
+            sep = ".";
+            newVersion.append(parts[i]);
+        }
+        newVersion.append(".x");
+        return newVersion.toString();
+    }
+
+    public static String fullProductVersion() {
+        IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
+        return pluginDescriptor.getVersion();
+    }
+
+    @Nullable
+    public static String getPluginCustomPath()
+    {
+        String[] variants = { PathManager.getHomePath(), PathManager.getPluginsPath() };
+
+        for (String variant : variants) {
+            String path = variant + "/" + getProductId();
+            if (LocalFileSystem.getInstance().findFileByPath(path) != null) {
+                return path;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getPluginPath()
+    {
+        String[] variants = { PathManager.getPluginsPath() };
+
+        for (String variant : variants) {
+            String path = variant + "/" + getProductId();
+            if (LocalFileSystem.getInstance().findFileByPath(path) != null) {
+                return path;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getPluginFilePath(String fileName)
+    {
+        String path = getPluginCustomPath();
+        return path == null ? null : UtilKt.suffixWith( path, '/') + fileName;
     }
 }

@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.5 from this repo]
+[Download Latest 1.1.6 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.1.6 - Enhancement Release](#version-116---enhancement-release)
 - [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
 - [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
 - [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
@@ -70,9 +71,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
 
-## Version 1.1.5 - Enhancement Release
+## Version 1.1.6 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.5 from this repo][]
+[Version Notes][] [Download Latest 1.1.6 from this repo][]
+
+* Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
+  Spawning` actions toggle actions to show when active.
+
+## Version 1.1.5 - Enhancement Release
 
 * Change: Recall selection from list action text from `Recall Selection` to `Selections` to
   shorten the toolbar button.
@@ -392,7 +398,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.5 from this repo]: ../../raw/master/dist/MissingInActions.1.1.5.zip
+[Download Latest 1.1.6 from this repo]: ../../raw/master/dist/MissingInActions.1.1.6.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
