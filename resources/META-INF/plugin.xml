@@ -72,12 +72,16 @@
         ]]>
     </description>
 
-    <version>1.1.6</version>
+    <version>1.1.7</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.1.7 - Enhancement Release</h3>
+            <ul>
+                <li>Add: hide disabled toolbar buttons option to settings</li>
+            </ul>
             <h3>1.1.6 - Enhancement Release</h3>
             <ul>
                 <li>Change: make <code>Line Selection Mode</code>, <code>Forward Search Caret Spawning</code> and <code>Backward Search Caret Spawning</code> actions toggle actions to show when active.</li>

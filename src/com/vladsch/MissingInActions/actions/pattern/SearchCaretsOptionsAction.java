@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
@@ -37,6 +38,12 @@ import org.jetbrains.annotations.Nullable;
 public class SearchCaretsOptionsAction extends EditorAction {
     public SearchCaretsOptionsAction() {
         super(new Handler());
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     private static class Handler extends EditorActionHandler {

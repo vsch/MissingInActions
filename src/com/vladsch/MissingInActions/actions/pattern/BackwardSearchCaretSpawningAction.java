@@ -28,6 +28,7 @@ import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class BackwardSearchCaretSpawningAction extends EditorAction implements Toggleable {
     public BackwardSearchCaretSpawningAction() {
@@ -54,5 +55,7 @@ public class BackwardSearchCaretSpawningAction extends EditorAction implements T
         }
 
         presentation.putClientProperty(Toggleable.SELECTED_PROPERTY, selected);
+
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

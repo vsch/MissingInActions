@@ -21,8 +21,17 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
+
 public class RemoveWordHighlightedCaretAction extends KeepWordHighlightCaretsActionBase {
     public RemoveWordHighlightedCaretAction() {
         super(true);
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

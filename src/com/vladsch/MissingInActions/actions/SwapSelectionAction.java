@@ -21,18 +21,27 @@
 
 package com.vladsch.MissingInActions.actions;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SwapSelectionAction extends EditorAction {
     public SwapSelectionAction() {
         super(new Handler());
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     private static class Handler extends EditorActionHandler {

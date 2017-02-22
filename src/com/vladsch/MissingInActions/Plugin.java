@@ -290,7 +290,7 @@ public class Plugin implements ApplicationComponent, Disposable {
     private void fireHighlightWordsChanged() {
         myHighlightWordsRunner.cancel();
         if (!myHighlightWordListeners.isEmpty()) {
-            myHighlightWordsRunner = OneTimeRunnable.schedule(500, new AwtRunnable(true, () -> {
+            myHighlightWordsRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
                 for (HighlightWordsListener listener : myHighlightWordListeners) {
                     if (listener == null) continue;
                     listener.highlightedWordsChanged();

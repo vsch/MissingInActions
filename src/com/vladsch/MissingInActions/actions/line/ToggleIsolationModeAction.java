@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class ToggleIsolationModeAction extends ToggleAction implements DumbAware {
     @Override
@@ -43,6 +44,7 @@ public class ToggleIsolationModeAction extends ToggleAction implements DumbAware
             enabled = selected || manager.haveIsolatedLines();
         }
         e.getPresentation().setEnabled(enabled);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
         return selected;
     }
 

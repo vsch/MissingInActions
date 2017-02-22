@@ -31,7 +31,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
-import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +54,8 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
         }
         e.getPresentation().setEnabled(enabled);
         super.update(e);
+
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     @Override

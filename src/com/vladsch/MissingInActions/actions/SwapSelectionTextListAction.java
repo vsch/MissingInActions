@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.Nullable;
@@ -75,5 +76,7 @@ public class SwapSelectionTextListAction extends SelectionListActionBase {
         if (e.getPresentation().isEnabled() && (editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection())) {
             e.getPresentation().setEnabled(false);
         }
+
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.1.7 - Enhancement Release](#117---enhancement-release)
 - [1.1.6 - Enhancement Release](#116---enhancement-release)
 - [1.1.5 - Enhancement Release](#115---enhancement-release)
 - [1.1.4 - Enhancement Release](#114---enhancement-release)
@@ -36,17 +37,6 @@
       parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
       require editing without changing the selection to remove carets from lines that contain
       only context and termination elements.
-* [ ] Add: low-lighting to isolate parts of source a la BeyondEdit
-      * [ ] with options to copy/cut low-lighted or not low-lighted blocks
-* [ ] Add: global highlight text which will work across files of matching text with actions to:
-      * [ ] use spectrum generated for each different word in a rainbow progression so that the
-            order in which the highlights were made can be visually verified.
-      * [ ] clear all highlights
-      * [ ] clear highlight for word at caret or selection
-      * [ ] highlight word at caret or selection
-      * [ ] next/prev highlight in file
-      * [ ] Preferably should only highlight part of the document that is visible. Hidden
-            portions highlighted as they become exposed during scrolling.
 * [ ] Add: per language configuration of what constitutes an identifier character set to
       override Java default for custom word actions for languages other than Java (dynamically
       based on file language type)
@@ -56,6 +46,10 @@
 
 &nbsp;</details>
 
+### 1.1.7 - Enhancement Release
+
+* Add: hide disabled toolbar buttons option to settings
+
 ### 1.1.6 - Enhancement Release
 
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
@@ -64,29 +58,32 @@
 * Fix: line selections not working in editor text fields in settings
 
 * Add: Word Highlighting Actions, toolbar buttons and settings:
-  * Toggle highlight word mode ![Toggle Word Highlights](../icons/Toggle_word_highlights.png):
-    turns highlighted words on/off. Can be used to turn off highlights without clearing
-    highlight word list.
+  * Toggle highlight word mode
+    ![Toggle Word Highlights](/resources/icons/Toggle_word_highlights%402x.png): turns
+    highlighted words on/off. Can be used to turn off highlights without clearing highlight word
+    list.
   * Toggle highlight word case sensitive mode
-    ![Toggle Case Sensitive Highlights](../icons/Toggle_case_sensitive_highlights.png): toggles
-    highlight word case sensitive matching on/off.
-  * Clear highlighted words ![Clear Word Highlights](../icons/Clear_word_highlights.png): clears
-    all highlighted words.
-  * Add selection to highlighted words ![Add Word Highlight](../icons/Add_word_highlight.png):
-    adds the current carets' selection to list of highlighted words.
+    ![Toggle Case Sensitive Highlights](/resources/icons/Toggle_case_sensitive_highlights%402x.png):
+    toggles highlight word case sensitive matching on/off.
+  * Clear highlighted words
+    ![Clear Word Highlights](/resources/icons/Clear_word_highlights%402x.png): clears all
+    highlighted words.
+  * Add selection to highlighted words
+    ![Add Word Highlight](/resources/icons/Add_word_highlight%402x.png): adds the current
+    carets' selection to list of highlighted words.
   * Remove selection from highlighted words
-    ![Remove Word Highlight](../icons/Remove_word_highlight.png): adds the current carets'
-    selection to list of highlighted words.
+    ![Remove Word Highlight](/resources/icons/Remove_word_highlight%402x.png): adds the current
+    carets' selection to list of highlighted words.
   * Keep carets whose selections are highlighted words
-    ![Keep Word Highlighted Carets](../icons/Keep_word_highlighted_carets.png): removes all
-    carets without selection or whose selection text is not a highlighted word.
+    ![Keep Word Highlighted Carets](/resources/icons/Keep_word_highlighted_carets%402x.png):
+    removes all carets without selection or whose selection text is not a highlighted word.
   * Remove selection from highlighted words.
-    ![Remove Word Highlighted Carets](../icons/Remove_word_highlighted_carets.png): removes all
-    carets whose selection text is a highlighted word.
+    ![Remove Word Highlighted Carets](/resources/icons/Remove_word_highlighted_carets%402x.png):
+    removes all carets whose selection text is a highlighted word.
   * Setting allows to define the background colors to be used for highlighted words based on
     hue, saturation and brightness boundaries and steps.
-    
-    ![Assets Tools Settings Extras](../../assets/images/ToolsSettings_WordHighlights.png) 
+
+    ![Assets Tools Settings Extras](/assets/images/ToolsSettings_WordHighlights.png)
 
 ### 1.1.5 - Enhancement Release
 

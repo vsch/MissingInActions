@@ -134,6 +134,16 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int             myDarkGradientBrightnessMin = 40;
     private int             myDarkGradientBrightnessMax = 30;
     private int             myDarkGradientBrightnessSteps = 2;
+    private boolean         myHideDisabledButtons = false;
+    // @formatter:on
+
+    public boolean isHideDisabledButtons() {
+        return myHideDisabledButtons;
+    }
+
+    public void setHideDisabledButtons(final boolean hideDisabledButtons) {
+        myHideDisabledButtons = hideDisabledButtons;
+    }
 
     public void setHueMin(final int hueMin) {
         if (UIUtil.isUnderDarcula()) {
@@ -207,52 +217,94 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         }
     }
 
-    // @formatter:on
     public int getHueMin() { return UIUtil.isUnderDarcula() ? myDarkGradientHueMin : myGradientHueMin; }
+
     public int getHueMax() { return UIUtil.isUnderDarcula() ? myDarkGradientHueMax : myGradientHueMax; }
+
     public int getHueSteps() { return UIUtil.isUnderDarcula() ? myDarkGradientHueSteps : myGradientHueSteps; }
+
     public int getSaturationMin() { return UIUtil.isUnderDarcula() ? myDarkGradientSaturationMin : myGradientSaturationMin; }
+
     public int getSaturationMax() { return UIUtil.isUnderDarcula() ? myDarkGradientSaturationMax : myGradientSaturationMax; }
+
     public int getSaturationSteps() { return UIUtil.isUnderDarcula() ? myDarkGradientSaturationSteps : myGradientSaturationSteps; }
+
     public int getBrightnessMin() { return UIUtil.isUnderDarcula() ? myDarkGradientBrightnessMin : myGradientBrightnessMin; }
+
     public int getBrightnessMax() { return UIUtil.isUnderDarcula() ? myDarkGradientBrightnessMax : myGradientBrightnessMax; }
+
     public int getBrightnessSteps() { return UIUtil.isUnderDarcula() ? myDarkGradientBrightnessSteps : myGradientBrightnessSteps; }
 
     public int getDarkGradientHueMin() { return myDarkGradientHueMin; }
+
     public void setDarkGradientHueMin(final int darkGradientHueMin) { myDarkGradientHueMin = darkGradientHueMin; }
+
     public int getDarkGradientHueMax() { return myDarkGradientHueMax; }
+
     public void setDarkGradientHueMax(final int darkGradientHueMax) { myDarkGradientHueMax = darkGradientHueMax; }
+
     public int getDarkGradientHueSteps() { return myDarkGradientHueSteps; }
+
     public void setDarkGradientHueSteps(final int darkGradientHueSteps) { myDarkGradientHueSteps = darkGradientHueSteps; }
+
     public int getDarkGradientSaturationMin() { return myDarkGradientSaturationMin; }
+
     public void setDarkGradientSaturationMin(final int darkGradientSaturationMin) { myDarkGradientSaturationMin = darkGradientSaturationMin; }
+
     public int getDarkGradientSaturationMax() { return myDarkGradientSaturationMax; }
+
     public void setDarkGradientSaturationMax(final int darkGradientSaturationMax) { myDarkGradientSaturationMax = darkGradientSaturationMax; }
+
     public int getDarkGradientSaturationSteps() { return myDarkGradientSaturationSteps; }
+
     public void setDarkGradientSaturationSteps(final int darkGradientSaturationSteps) { myDarkGradientSaturationSteps = darkGradientSaturationSteps; }
+
     public int getDarkGradientBrightnessMin() { return myDarkGradientBrightnessMin; }
+
     public void setDarkGradientBrightnessMin(final int darkGradientBrightnessMin) { myDarkGradientBrightnessMin = darkGradientBrightnessMin; }
+
     public int getDarkGradientBrightnessMax() { return myDarkGradientBrightnessMax; }
+
     public void setDarkGradientBrightnessMax(final int darkGradientBrightnessMax) { myDarkGradientBrightnessMax = darkGradientBrightnessMax; }
+
     public int getDarkGradientBrightnessSteps() { return myDarkGradientBrightnessSteps; }
+
     public void setDarkGradientBrightnessSteps(final int darkGradientBrightnessSteps) { myDarkGradientBrightnessSteps = darkGradientBrightnessSteps; }
+
     public int getGradientHueMin() { return myGradientHueMin; }
+
     public void setGradientHueMin(int gradientHueMin) { myGradientHueMin = gradientHueMin; }
+
     public int getGradientHueMax() { return myGradientHueMax; }
+
     public void setGradientHueMax(int gradientHueMax) { myGradientHueMax = gradientHueMax; }
+
     public int getGradientHueSteps() { return myGradientHueSteps; }
+
     public void setGradientHueSteps(int gradientHueSteps) { myGradientHueSteps = gradientHueSteps; }
+
     public int getGradientSaturationMin() { return myGradientSaturationMin; }
+
     public void setGradientSaturationMin(int gradientSaturationMin) { myGradientSaturationMin = gradientSaturationMin; }
+
     public int getGradientSaturationMax() { return myGradientSaturationMax; }
+
     public void setGradientSaturationMax(int gradientSaturationMax) { myGradientSaturationMax = gradientSaturationMax; }
+
     public int getGradientSaturationSteps() { return myGradientSaturationSteps; }
+
     public void setGradientSaturationSteps(int gradientSaturationSteps) { myGradientSaturationSteps = gradientSaturationSteps; }
+
     public int getGradientBrightnessMin() { return myGradientBrightnessMin; }
+
     public void setGradientBrightnessMin(int gradientBrightnessMin) { myGradientBrightnessMin = gradientBrightnessMin; }
+
     public int getGradientBrightnessMax() { return myGradientBrightnessMax; }
+
     public void setGradientBrightnessMax(int gradientBrightnessMax) { myGradientBrightnessMax = gradientBrightnessMax; }
+
     public int getGradientBrightnessSteps() { return myGradientBrightnessSteps; }
+
     public void setGradientBrightnessSteps(int gradientBrightnessSteps) { myGradientBrightnessSteps = gradientBrightnessSteps; }
 
     private NumberingOptions myLastNumberingOptions = new NumberingOptions();

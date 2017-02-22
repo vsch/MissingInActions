@@ -27,6 +27,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.Utils;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.MissingInActions.util.ui.TextFieldAction;
@@ -87,6 +88,8 @@ public class PatternAction extends TextFieldAction {
         }
         presentation.setEnabled(enabled);
         super.update(e);
+
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     @Override

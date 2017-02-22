@@ -29,12 +29,20 @@
  */
 package com.vladsch.MissingInActions.actions.line;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.vladsch.MissingInActions.actions.DumbAwareEditorAction;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NumberActionHandler;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class NumberAction extends DumbAwareEditorAction implements LineSelectionAware {
     public NumberAction() {
         super(new NumberActionHandler());
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

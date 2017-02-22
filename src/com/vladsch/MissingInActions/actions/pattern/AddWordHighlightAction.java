@@ -21,8 +21,17 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
+
 public class AddWordHighlightAction extends WordHighlightActionBase {
     public AddWordHighlightAction() {
         super(false);
+    }
+
+    @Override
+    public void update(final AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

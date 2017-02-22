@@ -584,6 +584,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             e.getPresentation().setVisible(enabled);
         } else {
             e.getPresentation().setEnabled(enabled);
+            e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || enabled);
         }
     }
 

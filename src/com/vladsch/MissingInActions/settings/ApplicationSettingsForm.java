@@ -114,6 +114,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox mySelectPastedMultiCaretPredicate;
     JComboBox mySelectPastedPredicate;
     JCheckBox mySearchCancelOnEscape;
+    JCheckBox myHideDisabledButtons;
     JSpinner myAutoIndentDelay;
     JSpinner mySelectionStashLimit;
     private JComboBox myPrimaryCaretThickness;
@@ -194,6 +195,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myDeleteOperations, i::isDeleteOperations, i::setDeleteOperations),
                         component(myDuplicateAtStartOrEnd, i::isDuplicateAtStartOrEnd, i::setDuplicateAtStartOrEnd),
                         component(mySearchCancelOnEscape, i::isSearchCancelOnEscape, i::setSearchCancelOnEscape),
+                        component(myHideDisabledButtons, i::isHideDisabledButtons, i::setHideDisabledButtons),
                         component(myIndentUnindent, i::isIndentUnindent, i::setIndentUnindent),
                         component(myLeftRightMovement, i::isLeftRightMovement, i::setLeftRightMovement),
                         component(myMouseCamelHumpsFollow, i::isMouseCamelHumpsFollow, i::setMouseCamelHumpsFollow),
@@ -385,6 +387,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
             com.vladsch.MissingInActions.util.ui.BackgroundColor color = com.vladsch.MissingInActions.util.ui.BackgroundColor.of(hsbColor);
             html.attr(color).span(String.format("%03d ", iterator.getIndex() + 1));
+
         }
 
         html.closeTag("body");

@@ -31,6 +31,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 
 abstract public class WordHighlightActionBase extends AnAction implements DumbAware {
@@ -51,6 +52,8 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         }
         e.getPresentation().setEnabled(enabled);
         super.update(e);
+
+        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     @Override
