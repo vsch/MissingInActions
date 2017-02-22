@@ -65,18 +65,41 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-**Plugin website:
-[<span style="color:#30A0D8">Missing In Actions GitHub Repo</span>](http://github.com/vsch/MissingInActions)**
-
-**Bug tracking & feature requests:
-[<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](http://github.com/vsch/MissingInActions)**
-
 ## Version 1.1.6 - Enhancement Release
 
 [Version Notes][] [Download Latest 1.1.6 from this repo][]
 
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
   Spawning` actions toggle actions to show when active.
+
+* Fix: line selections not working in editor text fields in settings
+
+* Add: Word Highlighting Actions. This allows highlighting words based on selections in one file
+  across all files in the IDE and to keep or remove carets bases on whether their selections are
+  equal to a highlighted word.
+  * Toggle highlight word mode ![Toggle Word Highlights](resources/icons/Toggle_word_highlights.png):
+    turns highlighted words on/off. Can be used to turn off highlights without clearing
+    highlight word list.
+  * Toggle highlight word case sensitive mode
+    ![Toggle Case Sensitive Highlights](resources/icons/Toggle_case_sensitive_highlights.png): toggles
+    highlight word case sensitive matching on/off.
+  * Clear highlighted words ![Clear Word Highlights](resources/icons/Clear_word_highlights.png): clears
+    all highlighted words.
+  * Add selection to highlighted words ![Add Word Highlight](resources/icons/Add_word_highlight.png):
+    adds the current carets' selection to list of highlighted words.
+  * Remove selection from highlighted words
+    ![Remove Word Highlight](resources/icons/Remove_word_highlight.png): adds the current carets'
+    selection to list of highlighted words.
+  * Keep carets whose selections are highlighted words
+    ![Keep Word Highlighted Carets](resources/icons/Keep_word_highlighted_carets.png): removes all
+    carets without selection or whose selection text is not a highlighted word.
+  * Remove selection from highlighted words.
+    ![Remove Word Highlighted Carets](resources/icons/Remove_word_highlighted_carets.png): removes all
+    carets whose selection text is a highlighted word.
+  * Setting allows to define the background colors to be used for highlighted words based on
+    hue, saturation and brightness boundaries and steps.
+    
+    ![Assets Tools Settings Extras](assets/images/ToolsSettings_WordHighlights.png) 
 
 ## Version 1.1.5 - Enhancement Release
 

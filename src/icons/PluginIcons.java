@@ -58,4 +58,11 @@ public class PluginIcons {
     public static final Icon Toggle_isolated_mode = load("/icons/Toggle_isolated_mode.png");
     public static final Icon Add_isolated_lines = load("/icons/Add_isolated_lines.png");
     public static final Icon Remove_isolated_lines = load("/icons/Remove_isolated_lines.png");
+    public static final Icon Clear_word_highlights = load("/icons/Clear_word_highlights.png");
+    public static final Icon Add_word_highlight = load("/icons/Add_word_highlight.png");
+    public static final Icon Remove_word_highlight = load("/icons/Remove_word_highlight.png");
+    public static final Icon Toggle_word_highlights = load("/icons/Toggle_word_highlights.png");
+    public static final Icon Toggle_case_sensitive_highlights = load("/icons/Toggle_case_sensitive_highlights.png");
+    public static final Icon Keep_word_highlighted_carets = load("/icons/Keep_word_highlighted_carets.png");
+    public static final Icon Remove_word_highlighted_carets = load("/icons/Remove_word_highlighted_carets.png");
 }

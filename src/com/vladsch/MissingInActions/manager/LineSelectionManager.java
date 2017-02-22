@@ -37,10 +37,7 @@ import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHan
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
-import com.vladsch.MissingInActions.util.DelayedRunner;
-import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
-import com.vladsch.MissingInActions.util.ReEntryGuard;
+import com.vladsch.MissingInActions.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,12 +48,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 
 /**
  * Adjust a line selection to a normal selection when selection is adjusted by moving the caret
  */
+@SuppressWarnings("WeakerAccess")
 public class LineSelectionManager implements
         CaretListener
         //, SelectionListener
@@ -66,7 +66,7 @@ public class LineSelectionManager implements
         , Disposable
 {
 
-    public static final String ESCAPE_SEARCH = "ESCAPE";
+    private static final String ESCAPE_SEARCH = "ESCAPE";
     final private Editor myEditor;
     final private ReEntryGuard myCaretGuard = new ReEntryGuard();
     final private HashMap<Caret, StoredLineSelectionState> mySelectionStates = new HashMap<>();
@@ -88,6 +88,8 @@ public class LineSelectionManager implements
     @Nullable private List<CaretState> myStartCaretStates;
     @Nullable private List<RangeHighlighter> myIsolationHighlighters;
     @Nullable private List<RangeMarker> myIsolationMarkers;
+    @Nullable private List<RangeHighlighter> myWordHighlighters;
+    private OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -123,6 +125,13 @@ public class LineSelectionManager implements
             caretHighlighter = CaretHighlighter.NULL;
         }
 
+        Plugin.getInstance().addHighlightWordListener(new HighlightWordsListener() {
+            @Override
+            public void highlightedWordsChanged() {
+                updateHighlightWords();
+            }
+        }, this);
+
         myLafManagerListener = new LafManagerListener() {
             UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
 
@@ -151,6 +160,25 @@ public class LineSelectionManager implements
         myStartMatchedCarets = null;
         myFoundCarets = null;
         myStartCaretStates = null;
+
+        DocumentListener documentListener = new DocumentListener() {
+            @Override
+            public void beforeDocumentChange(final com.intellij.openapi.editor.event.DocumentEvent event) {
+
+            }
+
+            @Override
+            public void documentChanged(final com.intellij.openapi.editor.event.DocumentEvent event) {
+                if (Plugin.getInstance().showHighlightedWords()) {
+                    myHighlightWordsRunner.cancel();
+                    myHighlightWordsRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
+                        updateHighlightWords();
+                    }));
+                }
+            }
+        };
+
+        myEditor.getDocument().addDocumentListener(documentListener, this);
     }
 
     public static boolean isCaretAttributeAvailable() {
@@ -167,6 +195,7 @@ public class LineSelectionManager implements
 
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
 
+        //noinspection ConstantConditions
         excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
         myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
 
@@ -187,6 +216,7 @@ public class LineSelectionManager implements
 
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
 
+        //noinspection ConstantConditions
         excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
         myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
 
@@ -462,6 +492,56 @@ public class LineSelectionManager implements
         }
     }
 
+    private void removeWordHighlights() {
+        if (myWordHighlighters != null) {
+            MarkupModel markupModel = myEditor.getMarkupModel();
+            for (RangeHighlighter marker : myWordHighlighters) {
+                if (marker.isValid()) {
+                    markupModel.removeHighlighter(marker);
+                    marker.dispose();
+                }
+            }
+            myWordHighlighters = null;
+        }
+    }
+
+    private void updateHighlightWords() {
+        Plugin plugin = Plugin.getInstance();
+
+        removeWordHighlights();
+
+        if (plugin.showHighlightedWords()) {
+            Pattern pattern = plugin.getHighlightPattern();
+            Map<String, Integer> indices = plugin.getHighlightWordIndices();
+            Map<String, Integer> caseInsensitiveIndices = plugin.getHighlightCaseInsensitiveWordIndices();
+            if (pattern != null && indices != null && caseInsensitiveIndices != null) {
+                Color[] colors = plugin.getHighlightColors();
+                Document document = myEditor.getDocument();
+                MarkupModel markupModel = myEditor.getMarkupModel();
+                Matcher matcher = pattern.matcher(document.getCharsSequence());
+                int colorRepeatIndex = plugin.getHighlightColorRepeatIndex();
+                int colorRepeatSteps = colors.length - colorRepeatIndex;
+                while (matcher.find()) {
+                    // create a highlighter
+                    Integer index = indices.get(matcher.group());
+                    if (index == null) {
+                        // check for case insensitive word index
+                        index = caseInsensitiveIndices.get(matcher.group().toLowerCase());
+                    }
+
+                    if (index != null) {
+                        RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(matcher.start(), matcher.end(), HighlighterLayer.SELECTION - 2, new TextAttributes(null, colors[index < colorRepeatIndex ? index : colorRepeatIndex + ((index - colorRepeatIndex) % colorRepeatSteps)], null, EffectType.BOLD_DOTTED_LINE, 0), HighlighterTargetArea.EXACT_RANGE);
+                        if (myWordHighlighters == null) {
+                            myWordHighlighters = new ArrayList<>();
+                        }
+
+                        myWordHighlighters.add(rangeHighlighter);
+                    }
+                }
+            }
+        }
+    }
+
     @NotNull
     public EditorPositionFactory getPositionFactory() {
         return myPositionFactory;
@@ -674,7 +754,7 @@ public class LineSelectionManager implements
 
     @SuppressWarnings("WeakerAccess")
     public boolean isLineSelectionSupported() {
-        return myEditor.getProject() != null && !myEditor.isOneLineMode() && !myIsActiveLookup;
+        return !myEditor.isOneLineMode() && !myIsActiveLookup;
     }
 
     public void guard(Runnable runnable) {

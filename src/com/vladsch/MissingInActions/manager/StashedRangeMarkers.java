@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("WeakerAccess")
 public class StashedRangeMarkers implements Disposable {
     private final ArrayList<RangeMarker> myMarkers = new ArrayList<>();
     private final LineSelectionManager myManager;
@@ -240,6 +241,7 @@ public class StashedRangeMarkers implements Disposable {
         myMarkers.add(index, marker);
     }
 
+    @NotNull
     public RangeMarker[] getRangeMarkers() {
         releaseUnused();
         RangeMarker[] markers = new RangeMarker[myMarkers.size()];

@@ -58,13 +58,13 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
     }
 
     private void pushTag(CharSequence tagName) {
-        myOpenTags.push(tagName instanceof String ? (String)tagName:String.valueOf(tagName));
+        myOpenTags.push(tagName instanceof String ? (String) tagName : String.valueOf(tagName));
     }
 
     private void popTag(CharSequence tagName) {
         if (myOpenTags.isEmpty()) throw new IllegalStateException("Close tag '" + tagName + "' with no tags open");
         String openTag = myOpenTags.peek();
-        if (!openTag.equals(tagName instanceof String ? (String)tagName:String.valueOf(tagName))) throw new IllegalStateException("Close tag '" + tagName + "' does not match '" + openTag + "' in " + tagStack());
+        if (!openTag.equals(tagName instanceof String ? (String) tagName : String.valueOf(tagName))) throw new IllegalStateException("Close tag '" + tagName + "' does not match '" + openTag + "' in " + tagStack());
         myOpenTags.pop();
     }
 
@@ -181,7 +181,6 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
 
         stylerMap.put(FontStyle.class, new FontStyleStyler());
     }
-
     public static HtmlStyler getHtmlStyler(Object item) {
         HtmlStyler styler = stylerMap.get(item.getClass());
         if (styler != null) return styler;
@@ -190,7 +189,7 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
         for (Class value : stylerMap.keySet()) {
             //noinspection unchecked
             if (value.isAssignableFrom(item.getClass())) {
-               styler = stylerMap.get(value);
+                styler = stylerMap.get(value);
             }
         }
 

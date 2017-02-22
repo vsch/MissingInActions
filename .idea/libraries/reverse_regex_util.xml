@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/lib/reverse-regex-util.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../reverse-regex/reverse-regex-util/src/main/java" />
+    </SOURCES>
   </library>
 </component>

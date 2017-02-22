@@ -58,6 +58,7 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.vladsch.MissingInActions.manager.ActionSetType.*;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
+@SuppressWarnings("WeakerAccess")
 public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
     private static final Logger LOG = getInstance("com.vladsch.MissingInActions.manager");
     private static final AnActionEvent LAST_CLEANUP_EVENT = null;
@@ -134,6 +135,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         return myLastSelectionMarker != null && canSaveSelection();
     }
 
+    @NotNull
     public RangeMarker[] getSavedSelections() {
         return myRangeMarkers.getRangeMarkers();
     }

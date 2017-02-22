@@ -470,7 +470,7 @@
                     text="Cancel Found Search Carets"
                     icon="PluginIcons.Cancel_search"
                     description="Cancel Found Search Carets">
-                <keyboard-shortcut first-keystroke="ESCAPE" keymap="$default" />
+                <keyboard-shortcut first-keystroke="ESCAPE" keymap="$default"/>
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.SearchCaretsOptionsAction"
@@ -564,6 +564,55 @@
                 description="Remove Caret or Selection from Isolated Lines">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsModeAction"
+                id="MissingInActions.ToggleWordHighlightsMode"
+                text="Toggle Word Highlights Mode"
+                icon="PluginIcons.Toggle_word_highlights"
+                description="Toggle Word Highlights Mode">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsCaseSensitiveAction"
+                id="MissingInActions.ToggleWordHighlightsCaseSensitive"
+                text="Toggle Case Sensitive Word Highlights"
+                icon="PluginIcons.Toggle_case_sensitive_highlights"
+                description="Toggle Case Sensitive Word Highlights">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.ClearWordHighlightsAction"
+                id="MissingInActions.ClearWordHighlights"
+                text="Clear Word Highlights"
+                icon="PluginIcons.Clear_word_highlights"
+                description="Clear Word Highlights">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.AddWordHighlightAction"
+                id="MissingInActions.AddWordHighlight"
+                text="Add Selection to Word Highlights"
+                icon="PluginIcons.Add_word_highlight"
+                description="Add Selection to Word Highlights">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.RemoveWordHighlightAction"
+                id="MissingInActions.RemoveWordHighlight"
+                text="Remove Selection from Word Highlights"
+                icon="PluginIcons.Remove_word_highlight"
+                description="Remove Selection from Word Highlights">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.KeepWordHighlightedCaretAction"
+                id="MissingInActions.KeepWordHighlightedCaret"
+                text="Keep Word Highlighted Carets"
+                icon="PluginIcons.Keep_word_highlighted_carets"
+                description="Keep Word Highlighted Carets">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.RemoveWordHighlightedCaretAction"
+                id="MissingInActions.RemoveWordHighlightedCaret"
+                text="Remove Word Highlighted Carets"
+                icon="PluginIcons.Remove_word_highlighted_carets"
+                description="Remove Word Highlighted Carets">
+        </action>
+
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
@@ -571,6 +620,14 @@
             <reference id="MissingInActions.ToggleIsolationMode"/>
             <reference id="MissingInActions.AddIsolationLines"/>
             <reference id="MissingInActions.RemoveIsolationLines"/>
+            <separator/>
+            <reference id="MissingInActions.ToggleWordHighlightsMode"/>
+            <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
+            <reference id="MissingInActions.ClearWordHighlights"/>
+            <reference id="MissingInActions.AddWordHighlight"/>
+            <reference id="MissingInActions.RemoveWordHighlight"/>
+            <reference id="MissingInActions.KeepWordHighlightedCaret"/>
+            <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
             <separator/>
             <reference id="MissingInActions.SmartKeepLineCarets"/>
             <reference id="MissingInActions.KeepBlankLineCarets"/>
@@ -587,7 +644,7 @@
             <reference id="MissingInActions.BackwardSearchCaretSpawning"/>
             <reference id="MissingInActions.SearchCaretsOptions"/>
             <!--<action id="MissingInActions.Pattern" class="com.vladsch.MissingInActions.actions.pattern.PatternAction" text="Caret Search Pattern">-->
-                <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
+            <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
             <!--</action>-->
             <reference id="MissingInActions.AcceptFoundCarets"/>
             <reference id="MissingInActions.CancelFoundCarets"/>
@@ -601,11 +658,10 @@
             <reference id="MissingInActions.SwapLastSelectionText"/>
             <separator/>
 
-            <add-to-group group-id="MainToolBar" anchor="before" relative-to-action="MainToolBarSettings" />
+            <add-to-group group-id="MainToolBar" anchor="before" relative-to-action="MainToolBarSettings"/>
             <add-to-group group-id="NavBarToolBar" anchor="first"/>
         </group>
 
     </actions>
-
 
 </idea-plugin>

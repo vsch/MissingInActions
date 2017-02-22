@@ -27,8 +27,6 @@
 
 ##### Next Release To Do
 
-* [ ] Fix: line selections not working in editor text field in Markdown Navigator add CSS Text
-      field.
 * [ ] Add: status bar with information about selection: lines, code, comment and blank line
       count.
 * [ ] Add: reserved word list exclusion for preserve on paste. If pasting over reserved word
@@ -63,6 +61,33 @@
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
   Spawning` actions toggle actions to show when active.
 
+* Fix: line selections not working in editor text fields in settings
+
+* Add: Word Highlighting Actions, toolbar buttons and settings:
+  * Toggle highlight word mode ![Toggle Word Highlights](../icons/Toggle_word_highlights.png):
+    turns highlighted words on/off. Can be used to turn off highlights without clearing
+    highlight word list.
+  * Toggle highlight word case sensitive mode
+    ![Toggle Case Sensitive Highlights](../icons/Toggle_case_sensitive_highlights.png): toggles
+    highlight word case sensitive matching on/off.
+  * Clear highlighted words ![Clear Word Highlights](../icons/Clear_word_highlights.png): clears
+    all highlighted words.
+  * Add selection to highlighted words ![Add Word Highlight](../icons/Add_word_highlight.png):
+    adds the current carets' selection to list of highlighted words.
+  * Remove selection from highlighted words
+    ![Remove Word Highlight](../icons/Remove_word_highlight.png): adds the current carets'
+    selection to list of highlighted words.
+  * Keep carets whose selections are highlighted words
+    ![Keep Word Highlighted Carets](../icons/Keep_word_highlighted_carets.png): removes all
+    carets without selection or whose selection text is not a highlighted word.
+  * Remove selection from highlighted words.
+    ![Remove Word Highlighted Carets](../icons/Remove_word_highlighted_carets.png): removes all
+    carets whose selection text is a highlighted word.
+  * Setting allows to define the background colors to be used for highlighted words based on
+    hue, saturation and brightness boundaries and steps.
+    
+    ![Assets Tools Settings Extras](../../assets/images/ToolsSettings_WordHighlights.png) 
+
 ### 1.1.5 - Enhancement Release
 
 * Change: Recall selection from list action text from `Recall Selection` to `Selections` to
@@ -82,8 +107,9 @@
 
 ### 1.1.3 - Bug Fix & Enhancement Release
 
-* Change: allow overlapping selection text swapping by eliminating overlapping part of selections
-  from the swap.
+* Change: allow overlapping selection text swapping by eliminating overlapping part of
+  selections from the swap.
+
 * Fix: exception in some cases when swapping text and more than set limit of stored selections
   is already present.
 

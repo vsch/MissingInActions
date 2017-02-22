@@ -37,14 +37,18 @@ import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.util.ColorIterable;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.Utils;
 import com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser;
+import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
 import com.vladsch.MissingInActions.util.ui.Settable;
 import com.vladsch.MissingInActions.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.awt.*;
@@ -125,6 +129,17 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private CheckBoxWithColorChooser myIsolatedForegroundColor;
     private CheckBoxWithColorChooser myIsolatedBackgroundColor;
     private JLabel myVersion;
+    private JSpinner myGradientSaturationMin;
+    private JSpinner myGradientSaturationMax;
+    private JSpinner myGradientSaturationSteps;
+    private JSpinner myGradientBrightnessMin;
+    private JSpinner myGradientBrightnessMax;
+    private JSpinner myGradientBrightnessSteps;
+    private JSpinner myGradientHueMin;
+    private JSpinner myGradientHueMax;
+    private JSpinner myGradientHueSteps;
+    private JTextPane myHighlightGradientPane;
+    private JLabel mySampleText;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -166,6 +181,15 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myAutoIndent, i::isAutoIndent, i::setAutoIndent),
                         component(myAutoIndentDelay, i::getAutoIndentDelay, i::setAutoIndentDelay),
                         component(mySelectionStashLimit, i::getSelectionStashLimit, i::setSelectionStashLimit),
+                        component(myGradientSaturationMin, i::getSaturationMin, i::setSaturationMin),
+                        component(myGradientSaturationMax, i::getSaturationMax, i::setSaturationMax),
+                        component(myGradientSaturationSteps, i::getSaturationSteps, i::setSaturationSteps),
+                        component(myGradientBrightnessMin, i::getBrightnessMin, i::setBrightnessMin),
+                        component(myGradientBrightnessMax, i::getBrightnessMax, i::setBrightnessMax),
+                        component(myGradientBrightnessSteps, i::getBrightnessSteps, i::setBrightnessSteps),
+                        component(myGradientHueMin, i::getHueMin, i::setHueMin),
+                        component(myGradientHueMax, i::getHueMax, i::setHueMax),
+                        component(myGradientHueSteps, i::getHueSteps, i::setHueSteps),
                         component(myCopyLineOrLineSelection, i::isCopyLineOrLineSelection, i::setCopyLineOrLineSelection),
                         component(myDeleteOperations, i::isDeleteOperations, i::setDeleteOperations),
                         component(myDuplicateAtStartOrEnd, i::isDuplicateAtStartOrEnd, i::setDuplicateAtStartOrEnd),
@@ -232,6 +256,15 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                                     component(mySearchStartMatchedCaretColor, i::searchStartMatchedCaretColorRGB, i::searchStartMatchedCaretColorRGB),
                                     component(mySearchFoundCaretColor, i::searchFoundCaretColorRGB, i::searchFoundCaretColorRGB),
                                     component(myRecalledSelectionColor, i::recalledSelectionColorRGB, i::recalledSelectionColorRGB),
+                                    component(myGradientSaturationMin, i::getSaturationMin, i::setSaturationMin),
+                                    component(myGradientSaturationMax, i::getSaturationMax, i::setSaturationMax),
+                                    component(myGradientSaturationSteps, i::getSaturationSteps, i::setSaturationSteps),
+                                    component(myGradientBrightnessMin, i::getBrightnessMin, i::setBrightnessMin),
+                                    component(myGradientBrightnessMax, i::getBrightnessMax, i::setBrightnessMax),
+                                    component(myGradientBrightnessSteps, i::getBrightnessSteps, i::setBrightnessSteps),
+                                    component(myGradientHueMin, i::getHueMin, i::setHueMin),
+                                    component(myGradientHueMax, i::getHueMax, i::setHueMax),
+                                    component(myGradientHueSteps, i::getHueSteps, i::setHueSteps),
                             };
                         }
                     };
@@ -263,6 +296,23 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             myRemovePrefixOnPaste.setSelected(valid);
             myAddPrefixOnPaste.setSelected(valid);
         });
+
+        ChangeListener changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateGradient();
+            }
+        };
+
+        myGradientSaturationMin.addChangeListener(changeListener);
+        myGradientSaturationMax.addChangeListener(changeListener);
+        myGradientSaturationSteps.addChangeListener(changeListener);
+        myGradientBrightnessMin.addChangeListener(changeListener);
+        myGradientBrightnessMax.addChangeListener(changeListener);
+        myGradientBrightnessSteps.addChangeListener(changeListener);
+        myGradientHueMin.addChangeListener(changeListener);
+        myGradientHueMax.addChangeListener(changeListener);
+        myGradientHueSteps.addChangeListener(changeListener);
 
         myEditingCommitter = new EditingCommitter();
         IdeEventQueue.getInstance().addDispatcher(myEditingCommitter, this);
@@ -304,6 +354,55 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 "</div></body></html>";
         myCaretVisualAttributesPane.setText(out);
         myMainPanel.validate();
+    }
+
+    private void updateGradient() {
+        HtmlBuilder html = new HtmlBuilder();
+        html.tag("html").style("margin:2px;vertical-align:middle;").attr(mySampleText.getFont()).tag("body");
+
+        ColorIterable.ColorIterator iterator = new ColorIterable(
+                (int) myGradientHueMin.getValue(),
+                (int) myGradientHueMax.getValue(),
+                (int) myGradientHueSteps.getValue(),
+                (int) myGradientSaturationMin.getValue(),
+                (int) myGradientSaturationMax.getValue(),
+                (int) myGradientSaturationSteps.getValue(),
+                (int) myGradientBrightnessMin.getValue(),
+                (int) myGradientBrightnessMax.getValue(),
+                (int) myGradientBrightnessSteps.getValue()
+        ).iterator();
+
+        while (iterator.hasNext()) {
+            Color hsbColor = iterator.next();
+
+            if (iterator.isHueStart() && iterator.getHueSteps() > 1) {
+                html.append("<br>");
+            }
+
+            if (iterator.isSaturationStart() && iterator.getSaturationSteps() > 1) {
+                html.append("<br>");
+            }
+
+            com.vladsch.MissingInActions.util.ui.BackgroundColor color = com.vladsch.MissingInActions.util.ui.BackgroundColor.of(hsbColor);
+            html.attr(color).span(String.format("%03d ", iterator.getIndex() + 1));
+        }
+
+        html.closeTag("body");
+        html.closeTag("html");
+        //myHighlightGradientPane.setVisible(true);
+        myHighlightGradientPane.setText(html.toString());
+        //myHighlightGradientPane.revalidate();
+        //Component component = myHighlightGradientPane;
+        //
+        //List<Component> components = new ArrayList<>();
+        //while (component != null && component != myMainPanel) {
+        //    components.add(component);
+        //    component = component.getParent();
+        //}
+        //
+        //for (int i = components.size(); i-- > 0; ) {
+        //    components.get(i).revalidate();
+        //}
     }
 
     // @formatter:off
@@ -368,6 +467,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         components.reset(mySettings);
 
         updateOptions(false);
+        updateGradient();
     }
 
     @Override
@@ -485,6 +585,16 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         final SpinnerNumberModel limitModel = new SpinnerNumberModel(10, 1, 50, 1);
         mySelectionStashLimit = new JSpinner(limitModel);
+
+        myGradientSaturationMin = new JSpinner(new SpinnerNumberModel(10, 0, 100, 1));
+        myGradientSaturationMax = new JSpinner(new SpinnerNumberModel(10, 0, 100, 1));
+        myGradientSaturationSteps = new JSpinner(new SpinnerNumberModel(16, 1, 32, 1));
+        myGradientBrightnessMin = new JSpinner(new SpinnerNumberModel(100, 0, 100, 1));
+        myGradientBrightnessMax = new JSpinner(new SpinnerNumberModel(100, 0, 100, 1));
+        myGradientBrightnessSteps = new JSpinner(new SpinnerNumberModel(16, 1, 32, 1));
+        myGradientHueMin = new JSpinner(new SpinnerNumberModel(0, 0, 360, 6));
+        myGradientHueMax = new JSpinner(new SpinnerNumberModel(0, 0, 360, 6));
+        myGradientHueSteps = new JSpinner(new SpinnerNumberModel(24, 1, 60, 1));
 
         mySetVirtualSpace = new HyperlinkLabel();
         mySetVirtualSpace.addHyperlinkListener(new HyperlinkListener() {
