@@ -78,9 +78,10 @@ public class CaseFormatPreserver {
             @NotNull EditorCaret editorCaret
             , final @Nullable String[] prefixList
             , final @Nullable PrefixOnPastePatternType prefixType
+            , final int separators
     ) {
         final Caret caret = editorCaret.getCaret();
-        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList);
+        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList, separators);
     }
 
     public void studyFormatBefore(
@@ -89,6 +90,7 @@ public class CaseFormatPreserver {
             , final int selectionStart
             , final int selectionEnd
             , final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList
+            , final int separators
     ) {
         int beforeOffset = offset;
         int afterOffset = beforeOffset;
@@ -105,8 +107,8 @@ public class CaseFormatPreserver {
         int expandedBeforeOffset = getPreviousWordStartAtOffset(chars, beforeOffset, EditHelpers.WORD_IDENTIFIER, false, true);
         int expandedAfterOffset = getNextWordEndAtOffset(chars, afterOffset, EditHelpers.WORD_IDENTIFIER, false, true);
 
-        InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset);
-        InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset);
+        InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset, separators);
+        InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset, separators);
 
         toScreamingSnakeCase = e.isScreamingSnakeCase() || e.hasUnderscore() && e.hasNoLowerCase() && e.hasUpperCase();
         if (!toScreamingSnakeCase) {
@@ -230,6 +232,22 @@ public class CaseFormatPreserver {
         return 0;
     }
 
+    public static int separators(
+            final boolean preserveCamelCase
+            , final boolean preserveSnakeCase
+            , final boolean preserveScreamingSnakeCase
+            , final boolean preserveDashCase
+            , final boolean preserveDotCase
+            , final boolean preserveSlashCase
+    ) {
+        int separators = 0;
+        if (preserveCamelCase || preserveSnakeCase || preserveScreamingSnakeCase) separators |= StudiedWord.UNDER;
+        if (preserveDashCase) separators |= StudiedWord.DASH;
+        if (preserveDotCase) separators |= StudiedWord.DOT;
+        if (preserveSlashCase) separators |= StudiedWord.SLASH;
+        return separators;
+    }
+
     public InsertedRangeContext preserveFormatAfter(
             final BasedSequence chars
             , final @NotNull TextRange range
@@ -247,7 +265,16 @@ public class CaseFormatPreserver {
 
         if (isSingleLineChar) {
             // remove prefixes first so camel case adjustment works right
-            i = new InsertedRangeContext(chars, range.getStartOffset(), range.getEndOffset());
+            int separators = separators(
+                    preserveCamelCase
+                    , preserveSnakeCase
+                    , preserveScreamingSnakeCase
+                    , preserveDashCase
+                    , preserveDotCase
+                    , preserveSlashCase
+            );
+
+            i = new InsertedRangeContext(chars, range.getStartOffset(), range.getEndOffset(), separators);
             int caretDelta = 0;
 
             if (!i.isIsolated() || hadSelection) {

@@ -526,6 +526,13 @@
                 description="Recall Selection from List">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
+                id="MissingInActions.RecallSelectionListButton"
+                text=""
+                icon="PluginIcons.Recall_selection_list"
+                description="Recall Selection from List">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.SwapSelectionAction"
                 id="MissingInActions.SwapLastSelection"
                 text="Swap Last Selection"
@@ -536,6 +543,13 @@
         <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
                 id="MissingInActions.SwapSelectionTextList"
                 text="Swap Text"
+                icon="PluginIcons.Swap_selection_list_text"
+                description="Swap Selection Text from List">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
+                id="MissingInActions.SwapSelectionTextListButton"
+                text=""
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>
@@ -630,9 +644,9 @@
             <reference id="MissingInActions.ClearWordHighlights"/>
             <reference id="MissingInActions.AddWordHighlight"/>
             <reference id="MissingInActions.RemoveWordHighlight"/>
+            <separator/>
             <reference id="MissingInActions.KeepWordHighlightedCaret"/>
             <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
-            <separator/>
             <reference id="MissingInActions.SmartKeepLineCarets"/>
             <reference id="MissingInActions.KeepBlankLineCarets"/>
             <reference id="MissingInActions.StraightenCarets"/>
@@ -654,11 +668,11 @@
             <reference id="MissingInActions.CancelFoundCarets"/>
 
             <separator/>
-            <reference id="MissingInActions.RecallSelectionList"/>
+            <reference id="MissingInActions.RecallSelectionListButton"/>
             <reference id="MissingInActions.RecallLastSelection"/>
             <reference id="MissingInActions.SwapLastSelection"/>
             <separator/>
-            <reference id="MissingInActions.SwapSelectionTextList"/>
+            <reference id="MissingInActions.SwapSelectionTextListButton"/>
             <reference id="MissingInActions.SwapLastSelectionText"/>
             <separator/>
 

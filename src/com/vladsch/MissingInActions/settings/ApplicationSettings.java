@@ -26,6 +26,7 @@ import com.intellij.openapi.components.*;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.vladsch.MissingInActions.util.CaseFormatPreserver;
 import com.vladsch.MissingInActions.util.ui.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -215,6 +216,17 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         } else {
             myGradientBrightnessSteps = brightnessSteps;
         }
+    }
+
+    public int getPreserveOnPasteSeparators() {
+        return CaseFormatPreserver.separators(
+                this.isPreserveCamelCaseOnPaste()
+                , this.isPreserveSnakeCaseOnPaste()
+                , this.isPreserveScreamingSnakeCaseOnPaste()
+                , this.isPreserveDashCaseOnPaste()
+                , this.isPreserveDotCaseOnPaste()
+                , this.isPreserveSlashCaseOnPaste()
+        );
     }
 
     public int getHueMin() { return UIUtil.isUnderDarcula() ? myDarkGradientHueMin : myGradientHueMin; }

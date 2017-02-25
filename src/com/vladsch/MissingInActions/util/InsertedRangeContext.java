@@ -37,6 +37,7 @@ import static java.lang.Character.*;
 public class InsertedRangeContext {
     // final
     public final BasedSequence charSequence;
+    private final int mySeparators;
     public final int expandedBeforeOffset;
     public final int beforeOffset;
     public final int afterOffset;
@@ -60,8 +61,9 @@ public class InsertedRangeContext {
     private StudiedWord myStudiedWord;
     private boolean myPrefixRemoved;
 
-    public InsertedRangeContext(@NotNull BasedSequence charSequence, int beforeOffset, int afterOffset) {
+    public InsertedRangeContext(@NotNull BasedSequence charSequence, int beforeOffset, int afterOffset, int separators) {
         this.charSequence = charSequence;
+        mySeparators = separators;
         this.textLength = charSequence.length();
 
         if (beforeOffset < 0) beforeOffset = 0;
@@ -90,7 +92,7 @@ public class InsertedRangeContext {
         this.isWordEndAtEnd = isWordEnd(charSequence, afterOffset, false);
 
         myWord = inserted;
-        myStudiedWord = StudiedWord.of(myWord);
+        myStudiedWord = StudiedWord.of(myWord, mySeparators);
         myCaretDelta = 0;
         myPrefixRemoved = false;
     }
@@ -128,7 +130,7 @@ public class InsertedRangeContext {
     @NotNull
     public StudiedWord studiedWord() {
         if (myWord.equals(myStudiedWord.getWord())) return myStudiedWord;
-        myStudiedWord = StudiedWord.of(myWord);
+        myStudiedWord = StudiedWord.of(myWord, mySeparators);
         return myStudiedWord;
     }
 
@@ -434,17 +436,17 @@ public class InsertedRangeContext {
 
     public boolean isIsolated() { return expandedPrefix.isEmpty() && expandedSuffix.isEmpty(); }
 
-    public boolean isExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isCamelCase(); }
-    public boolean isExpandedPascalCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isPascalCase(); }
-    public boolean isExpandedSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isSnakeCase(); }
-    public boolean isExpandedScreamingSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).isScreamingSnakeCase(); }
+    public boolean isExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isCamelCase(); }
+    public boolean isExpandedPascalCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isPascalCase(); }
+    public boolean isExpandedSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isSnakeCase(); }
+    public boolean isExpandedScreamingSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isScreamingSnakeCase(); }
 
     public boolean canBeCamelCase() { return studiedWord().canBeCamelCase(); }
     public boolean canBePascalCase() { return studiedWord().canBePascalCase(); }
     public boolean canBeSnakeCase() { return studiedWord().canBeSnakeCase(); }
     public boolean canBeScreamingSnakeCase() { return studiedWord().canBeScreamingSnakeCase(); }
 
-    public boolean canBeExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix).canBeCamelCase(); }
+    public boolean canBeExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).canBeCamelCase(); }
 
     @NotNull public InsertedRangeContext makeCamelCase() { myWord = studiedWord().makeCamelCase(); return this; }
     @NotNull public InsertedRangeContext makeProperCamelCase() { myWord = studiedWord().makeProperCamelCase(); return this; }

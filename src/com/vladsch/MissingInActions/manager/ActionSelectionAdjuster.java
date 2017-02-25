@@ -973,9 +973,12 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             Params params = new Params(snapshot);
             params.timestamp = myEditor.getDocument().getModificationStamp();
 
+            int separators = settings.getPreserveOnPasteSeparators();
+
             params.preserver.studyFormatBefore(editorCaret
                     , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
                     , settings.getRemovePrefixOnPastePatternType()
+                    , separators
             );
 
             Caret caret = editorCaret.getCaret();

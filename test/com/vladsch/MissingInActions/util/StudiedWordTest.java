@@ -28,217 +28,217 @@ import static org.junit.Assert.assertEquals;
 public class StudiedWordTest {
     @Test
     public void test_isScreamingSnakeCase() throws Exception {
-        assertEquals(true, StudiedWord.of("_A").isScreamingSnakeCase());
-        assertEquals(true, StudiedWord.of("_123A").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("_123").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("123").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("a").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("A").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("_a").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("_123a").isScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of(" _A").isScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("_A", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("_123A", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("_123", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("_a", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("_123a", StudiedWord.UNDER).isScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of(" _A", StudiedWord.UNDER).isScreamingSnakeCase());
     }
 
     @Test
     public void test_isSnakeCase() throws Exception {
-        assertEquals(true, StudiedWord.of("_a").isSnakeCase());
-        assertEquals(true, StudiedWord.of("_123a").isSnakeCase());
-        assertEquals(false, StudiedWord.of("_123").isSnakeCase());
-        assertEquals(false, StudiedWord.of("123").isSnakeCase());
-        assertEquals(false, StudiedWord.of("a").isSnakeCase());
-        assertEquals(false, StudiedWord.of("A").isSnakeCase());
-        assertEquals(false, StudiedWord.of("_A").isSnakeCase());
-        assertEquals(false, StudiedWord.of("_123A").isSnakeCase());
-        assertEquals(false, StudiedWord.of(" _A").isSnakeCase());
+        assertEquals(true, StudiedWord.of("_a", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(true, StudiedWord.of("_123a", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("_123", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of("_123A", StudiedWord.UNDER).isSnakeCase());
+        assertEquals(false, StudiedWord.of(" _A", StudiedWord.UNDER).isSnakeCase());
     }
 
     @Test
     public void test_isCamelCase() throws Exception {
-        assertEquals(true, StudiedWord.of("aA").isCamelCase());
-        assertEquals(true, StudiedWord.of("Aa").isCamelCase());
-        assertEquals(false, StudiedWord.of("123aA").isCamelCase());
-        assertEquals(false, StudiedWord.of("123Aa").isCamelCase());
-        assertEquals(false, StudiedWord.of("123a").isCamelCase());
-        assertEquals(false, StudiedWord.of("A").isCamelCase());
-        assertEquals(false, StudiedWord.of("_a").isCamelCase());
-        assertEquals(false, StudiedWord.of("_123a").isCamelCase());
-        assertEquals(false, StudiedWord.of("_123").isCamelCase());
-        assertEquals(false, StudiedWord.of("123").isCamelCase());
-        assertEquals(false, StudiedWord.of("a").isCamelCase());
-        assertEquals(false, StudiedWord.of("A").isCamelCase());
-        assertEquals(false, StudiedWord.of("_A").isCamelCase());
-        assertEquals(false, StudiedWord.of("_123A").isCamelCase());
-        assertEquals(false, StudiedWord.of("_A").isCamelCase());
+        assertEquals(true, StudiedWord.of("aA", StudiedWord.UNDER).isCamelCase());
+        assertEquals(true, StudiedWord.of("Aa", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("123aA", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("123Aa", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("123a", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_a", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_123a", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_123", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_123A", StudiedWord.UNDER).isCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isCamelCase());
     }
 
     @Test
     public void test_isProperCamelCase() throws Exception {
-        assertEquals(true, StudiedWord.of("aA").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("Aa").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("123aA").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("123Aa").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("Aa").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("123a").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("A").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_a").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_123a").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_123").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("123").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("a").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("A").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_A").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_123A").isProperCamelCase());
-        assertEquals(false, StudiedWord.of("_A").isProperCamelCase());
+        assertEquals(true, StudiedWord.of("aA", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("Aa", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("123aA", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("123Aa", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("Aa", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("123a", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_a", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_123a", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_123", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_123A", StudiedWord.UNDER).isProperCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isProperCamelCase());
     }
 
     @Test
     public void test_isPascalCase() throws Exception {
-        assertEquals(true, StudiedWord.of("Aa").isPascalCase());
-        assertEquals(false, StudiedWord.of("aA").isPascalCase());
-        assertEquals(false, StudiedWord.of("123aA").isPascalCase());
-        assertEquals(false, StudiedWord.of("123Aa").isPascalCase());
-        assertEquals(false, StudiedWord.of("123a").isPascalCase());
-        assertEquals(false, StudiedWord.of("A").isPascalCase());
-        assertEquals(false, StudiedWord.of("_a").isPascalCase());
-        assertEquals(false, StudiedWord.of("_123a").isPascalCase());
-        assertEquals(false, StudiedWord.of("_123").isPascalCase());
-        assertEquals(false, StudiedWord.of("123").isPascalCase());
-        assertEquals(false, StudiedWord.of("a").isPascalCase());
-        assertEquals(false, StudiedWord.of("A").isPascalCase());
-        assertEquals(false, StudiedWord.of("_A").isPascalCase());
-        assertEquals(false, StudiedWord.of("_123A").isPascalCase());
-        assertEquals(false, StudiedWord.of("_A").isPascalCase());
+        assertEquals(true, StudiedWord.of("Aa", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("aA", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("123aA", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("123Aa", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("123a", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_a", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_123a", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_123", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_123A", StudiedWord.UNDER).isPascalCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).isPascalCase());
     }
 
     @Test
     public void test_canBeScreamingSnakeCase() throws Exception {
-        assertEquals(true, StudiedWord.of("a_").canBeScreamingSnakeCase());
-        assertEquals(true, StudiedWord.of("_a").canBeScreamingSnakeCase());
-        assertEquals(true, StudiedWord.of("aB").canBeScreamingSnakeCase());
-        assertEquals(true, StudiedWord.of("BaA").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("Ba").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("a").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("A").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("A_").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("123_").canBeScreamingSnakeCase());
-        assertEquals(false, StudiedWord.of("123").canBeScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("a_", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("_a", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("aB", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(true, StudiedWord.of("BaA", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("Ba", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("A_", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("123_", StudiedWord.UNDER).canBeScreamingSnakeCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).canBeScreamingSnakeCase());
     }
 
     @Test
     public void test_canBeSnakeCase() throws Exception {
-        assertEquals(false, StudiedWord.of("a_").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("_a").canBeSnakeCase());
-        assertEquals(true, StudiedWord.of("aB").canBeSnakeCase());
-        assertEquals(true, StudiedWord.of("BaA").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("Ba").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("a").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("A").canBeSnakeCase());
-        assertEquals(true, StudiedWord.of("A_").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("123_").canBeSnakeCase());
-        assertEquals(false, StudiedWord.of("123").canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("a_", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("_a", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(true, StudiedWord.of("aB", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(true, StudiedWord.of("BaA", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("Ba", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(true, StudiedWord.of("A_", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("123_", StudiedWord.UNDER).canBeSnakeCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).canBeSnakeCase());
     }
 
     @Test
     public void test_canBeCamelCase() throws Exception {
-        assertEquals(true, StudiedWord.of("a_a").canBeCamelCase());
-        assertEquals(true, StudiedWord.of("a_A").canBeCamelCase());
-        assertEquals(true, StudiedWord.of("A_a").canBeCamelCase());
-        assertEquals(true, StudiedWord.of("A_A").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("A_").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("_A").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("aB").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("Ba").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("a").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("A").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("a_").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("123_").canBeCamelCase());
-        assertEquals(false, StudiedWord.of("123").canBeCamelCase());
+        assertEquals(true, StudiedWord.of("a_a", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(true, StudiedWord.of("a_A", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(true, StudiedWord.of("A_a", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(true, StudiedWord.of("A_A", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("A_", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("aB", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("Ba", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("a_", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("123_", StudiedWord.UNDER).canBeCamelCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).canBeCamelCase());
     }
 
     @Test
     public void test_canBeProperCamelCase() throws Exception {
-        assertEquals(true, StudiedWord.of("a_a").canBeProperCamelCase());
-        assertEquals(true, StudiedWord.of("a_A").canBeProperCamelCase());
-        assertEquals(true, StudiedWord.of("A_a").canBeProperCamelCase());
-        assertEquals(true, StudiedWord.of("A_A").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("Abc").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("A_").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("_A").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("aB").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("Ba").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("a").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("A").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("a_").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("123_").canBeProperCamelCase());
-        assertEquals(false, StudiedWord.of("123").canBeProperCamelCase());
+        assertEquals(true, StudiedWord.of("a_a", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(true, StudiedWord.of("a_A", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(true, StudiedWord.of("A_a", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(true, StudiedWord.of("A_A", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("Abc", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("A_", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("aB", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("Ba", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("a_", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("123_", StudiedWord.UNDER).canBeProperCamelCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).canBeProperCamelCase());
     }
 
     @Test
     public void test_canBePascalCase() throws Exception {
-        assertEquals(false, StudiedWord.of("a_aa").canBePascalCase());
-        assertEquals(true, StudiedWord.of("aa_a").canBePascalCase());
-        assertEquals(true, StudiedWord.of("aa_aa").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A_AA").canBePascalCase());
-        assertEquals(true, StudiedWord.of("AA_A").canBePascalCase());
-        assertEquals(true, StudiedWord.of("AA_AA").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A_aa").canBePascalCase());
-        assertEquals(true, StudiedWord.of("Aa_a").canBePascalCase());
-        assertEquals(true, StudiedWord.of("Aa_aa").canBePascalCase());
-        assertEquals(false, StudiedWord.of("aBc").canBePascalCase());
-        assertEquals(false, StudiedWord.of("a_Aa").canBePascalCase());
-        assertEquals(true, StudiedWord.of("aa_A").canBePascalCase());
-        assertEquals(true, StudiedWord.of("aa_Aa").canBePascalCase());
-        assertEquals(true, StudiedWord.of("aa_aA").canBePascalCase());
-        assertEquals(false, StudiedWord.of("aBc").canBePascalCase());
-        assertEquals(false, StudiedWord.of("a_a").canBePascalCase());
-        assertEquals(false, StudiedWord.of("a_A").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A_a").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A_A").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A_").canBePascalCase());
-        assertEquals(false, StudiedWord.of("_A").canBePascalCase());
-        assertEquals(false, StudiedWord.of("aB").canBePascalCase());
-        assertEquals(false, StudiedWord.of("Ba").canBePascalCase());
-        assertEquals(false, StudiedWord.of("a").canBePascalCase());
-        assertEquals(false, StudiedWord.of("A").canBePascalCase());
-        assertEquals(false, StudiedWord.of("a_").canBePascalCase());
-        assertEquals(false, StudiedWord.of("123_").canBePascalCase());
-        assertEquals(false, StudiedWord.of("123").canBePascalCase());
+        assertEquals(false, StudiedWord.of("a_aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("aa_a", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("aa_aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A_AA", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("AA_A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("AA_AA", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A_aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("Aa_a", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("Aa_aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("aBc", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("a_Aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("aa_A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("aa_Aa", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(true, StudiedWord.of("aa_aA", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("aBc", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("a_a", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("a_A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A_a", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A_A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A_", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("_A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("aB", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("Ba", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("a", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("A", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("a_", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("123_", StudiedWord.UNDER).canBePascalCase());
+        assertEquals(false, StudiedWord.of("123", StudiedWord.UNDER).canBePascalCase());
     }
 
     @Test
     public void test_makeMixedSnakeCase() throws Exception {
-        assertEquals("a_B", StudiedWord.of("aB").makeMixedSnakeCase());
-        assertEquals("a_Bc", StudiedWord.of("aBc").makeMixedSnakeCase());
-        assertEquals("ABC", StudiedWord.of("ABC").makeMixedSnakeCase());
-        assertEquals("abc_Def_Hij", StudiedWord.of("abcDefHij").makeMixedSnakeCase());
-        assertEquals("Abc_Def_Hij", StudiedWord.of("AbcDefHij").makeMixedSnakeCase());
+        assertEquals("a_B", StudiedWord.of("aB", StudiedWord.UNDER).makeMixedSnakeCase());
+        assertEquals("a_Bc", StudiedWord.of("aBc", StudiedWord.UNDER).makeMixedSnakeCase());
+        assertEquals("ABC", StudiedWord.of("ABC", StudiedWord.UNDER).makeMixedSnakeCase());
+        assertEquals("abc_Def_Hij", StudiedWord.of("abcDefHij", StudiedWord.UNDER).makeMixedSnakeCase());
+        assertEquals("Abc_Def_Hij", StudiedWord.of("AbcDefHij", StudiedWord.UNDER).makeMixedSnakeCase());
     }
 
     @Test
     public void test_makeCamelCase() throws Exception {
-        assertEquals("abcDef", StudiedWord.of("abcDef").makeCamelCase());
-        assertEquals("AbcDef", StudiedWord.of("AbcDef").makeCamelCase());
-        assertEquals("abcDef", StudiedWord.of("Abc_Def").makeCamelCase());
-        assertEquals("abcDef", StudiedWord.of("abc_def").makeCamelCase());
-        assertEquals("abcDef", StudiedWord.of("ABC_DEF").makeCamelCase());
+        assertEquals("abcDef", StudiedWord.of("abcDef", StudiedWord.UNDER).makeCamelCase());
+        assertEquals("AbcDef", StudiedWord.of("AbcDef", StudiedWord.UNDER).makeCamelCase());
+        assertEquals("abcDef", StudiedWord.of("Abc_Def", StudiedWord.UNDER).makeCamelCase());
+        assertEquals("abcDef", StudiedWord.of("abc_def", StudiedWord.UNDER).makeCamelCase());
+        assertEquals("abcDef", StudiedWord.of("ABC_DEF", StudiedWord.UNDER).makeCamelCase());
     }
 
     @Test
     public void test_makeScreamingSnakeCase() throws Exception {
-        assertEquals("ABC_DEF", StudiedWord.of("abcDef").makeScreamingSnakeCase());
-        assertEquals("ABC_DEF", StudiedWord.of("AbcDef").makeScreamingSnakeCase());
-        assertEquals("ABC_DEF", StudiedWord.of("Abc_Def").makeScreamingSnakeCase());
-        assertEquals("ABC_DEF", StudiedWord.of("abc_def").makeScreamingSnakeCase());
-        assertEquals("ABC_DEF", StudiedWord.of("ABC_DEF").makeScreamingSnakeCase());
+        assertEquals("ABC_DEF", StudiedWord.of("abcDef", StudiedWord.UNDER).makeScreamingSnakeCase());
+        assertEquals("ABC_DEF", StudiedWord.of("AbcDef", StudiedWord.UNDER).makeScreamingSnakeCase());
+        assertEquals("ABC_DEF", StudiedWord.of("Abc_Def", StudiedWord.UNDER).makeScreamingSnakeCase());
+        assertEquals("ABC_DEF", StudiedWord.of("abc_def", StudiedWord.UNDER).makeScreamingSnakeCase());
+        assertEquals("ABC_DEF", StudiedWord.of("ABC_DEF", StudiedWord.UNDER).makeScreamingSnakeCase());
     }
 
     @Test
     public void test_makeSnakeCase() throws Exception {
-        assertEquals("abc_def", StudiedWord.of("abcDef").makeSnakeCase());
-        assertEquals("abc_def", StudiedWord.of("AbcDef").makeSnakeCase());
-        assertEquals("abc_def", StudiedWord.of("Abc_Def").makeSnakeCase());
-        assertEquals("abc_def", StudiedWord.of("abc_def").makeSnakeCase());
-        assertEquals("abc_def", StudiedWord.of("ABC_DEF").makeSnakeCase());
+        assertEquals("abc_def", StudiedWord.of("abcDef", StudiedWord.UNDER).makeSnakeCase());
+        assertEquals("abc_def", StudiedWord.of("AbcDef", StudiedWord.UNDER).makeSnakeCase());
+        assertEquals("abc_def", StudiedWord.of("Abc_Def", StudiedWord.UNDER).makeSnakeCase());
+        assertEquals("abc_def", StudiedWord.of("abc_def", StudiedWord.UNDER).makeSnakeCase());
+        assertEquals("abc_def", StudiedWord.of("ABC_DEF", StudiedWord.UNDER).makeSnakeCase());
     }
 
     @Test

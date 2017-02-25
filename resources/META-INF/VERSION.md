@@ -48,7 +48,12 @@
 
 ### 1.1.7 - Enhancement Release
 
+* Fix: conversion from dash, dot and slash to snake case was not working.
+
 * Add: hide disabled toolbar buttons option to settings
+
+* Add: button versions of recall selection and swap text to eliminate button text to save
+  toolbar real-estate
 
 ### 1.1.6 - Enhancement Release
 

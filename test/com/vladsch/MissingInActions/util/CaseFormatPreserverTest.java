@@ -79,12 +79,32 @@ public class CaseFormatPreserverTest {
 
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         final BasedSequence chars = BasedSequenceImpl.of(template);
-        preserver.studyFormatBefore(chars, offset, start, end, patternType, prefixes);
+        int separators = CaseFormatPreserver.separators(
+                camelCase,
+                snakeCase,
+                screamingSnakeCase,
+                dashCase,
+                dotCase,
+                slashCase
+        );
+        preserver.studyFormatBefore(chars, offset, start, end, patternType, prefixes, separators);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
         String ranged = range.substring(edited);
         final BasedSequence chars1 = BasedSequenceImpl.of(edited);
-        InsertedRangeContext i = preserver.preserveFormatAfter(chars1, range, camelCase, snakeCase, screamingSnakeCase, dashCase, dotCase, slashCase, addPrefix, patternType, prefixes);
+        InsertedRangeContext i = preserver.preserveFormatAfter(
+                chars1,
+                range,
+                camelCase,
+                snakeCase,
+                screamingSnakeCase,
+                dashCase,
+                dotCase,
+                slashCase,
+                addPrefix,
+                patternType,
+                prefixes
+        );
 
         String result = i == null ? edited : edited.substring(0, start) + i.word() + edited.substring(start + pasted.length() - i.getCaretDelta());
         return result;
@@ -162,10 +182,34 @@ public class CaseFormatPreserverTest {
         s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
+        s = preserved(
+                "editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n",
+                "LastPastedClipboardCarets",
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                patternType,
+                prefixes
+        );
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
+        s = preserved(
+                "editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n",
+                "LastPastedClipboardCarets",
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                patternType,
+                prefixes
+        );
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
         s = preserved("       [CamelCase]|\n", "myLastSelectionMarker", true, true, true, true, true, true, true, patternType, prefixes);
@@ -200,6 +244,12 @@ public class CaseFormatPreserverTest {
 
         s = preserved("[SORTED]|\n", "flat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAT\n", s);
+
+        s = preserved("[SCREAMING_SNAKE]|\n", "dash-case-name", true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("DASH_CASE_NAME\n", s);
+
+        s = preserved("[dash-case-name]|\n", "SCREAMING_SNAKE", true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("screaming-snake\n", s);
     }
 
     @Test
@@ -270,10 +320,34 @@ public class CaseFormatPreserverTest {
         s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
 
-        s = preserved("editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
+        s = preserved(
+                "editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n",
+                "LastPastedClipboardCarets",
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                patternType,
+                prefixes
+        );
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
-        s = preserved("editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n", "LastPastedClipboardCarets", true, true, true, true, true, true, true, patternType, prefixes);
+        s = preserved(
+                "editor.putUserData(|[LAST_PASTED_CLIPBOARD_CONTEXT], clipboardCaretContent)\n",
+                "LastPastedClipboardCarets",
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                patternType,
+                prefixes
+        );
         assertEquals("editor.putUserData(LAST_PASTED_CLIPBOARD_CARETS, clipboardCaretContent)\n", s);
 
         s = preserved("editor.[getTestString]|()\n", "myReplacement", true, true, true, true, true, true, true, patternType, prefixes);
@@ -305,6 +379,12 @@ public class CaseFormatPreserverTest {
 
         s = preserved("[SORTED]|\n", "flat", true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("FLAT\n", s);
+
+        s = preserved("[SCREAMING_SNAKE]|\n", "dash-case-name", true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("DASH_CASE_NAME\n", s);
+
+        s = preserved("[dash-case-name]|\n", "SCREAMING_SNAKE", true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("screaming-snake\n", s);
     }
 
     @Test

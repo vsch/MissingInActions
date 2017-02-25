@@ -77,8 +77,10 @@ public class StudiedWord {
     private final int mySecondFlags;
     private final int myLastFlags;
     private final int myWordFlags;
+    private final int mySeparators;
 
-    public StudiedWord(final CharSequence word) {
+    public StudiedWord(final CharSequence word, int separators) {
+        mySeparators = separators;
         myWord = word;
         myFirstFlags = myWord.length() == 0 ? EMPTY : flags(myWord.charAt(0));
         mySecondFlags = myWord.length() < 2 ? EMPTY : flags(myWord.charAt(1));
@@ -86,8 +88,8 @@ public class StudiedWord {
         myLastFlags = myWord.length() == 0 ? EMPTY : flags(myWord.charAt(myWord.length() - 1));
     }
 
-    public static StudiedWord of(CharSequence word) {
-        return new StudiedWord(word);
+    public static StudiedWord of(CharSequence word, int separators) {
+        return new StudiedWord(word, separators);
     }
 
     public CharSequence getWord() {
@@ -217,14 +219,28 @@ public class StudiedWord {
     public String makeMixedSeparatorCase(char separator) {
         StringBuilder sb = new StringBuilder();
         int iMax = myWord.length();
+        boolean removeSeparator = (flags(separator) & mySeparators) != 0;
         boolean wasLower = false;
+
         for (int i = 0; i < iMax; i++) {
             char c = myWord.charAt(i);
             if (Character.isUpperCase(c)) {
                 if (wasLower) sb.append(separator);
+                sb.append(c);
+                wasLower = false;
+            } else {
+                if (Character.isLowerCase(c)) {
+                    wasLower = true;
+                    sb.append(c);
+                } else {
+                    wasLower = false;
+                    if ((mySeparators & flags(c)) != 0) {
+                        sb.append(separator);
+                    } else {
+                        sb.append(c);
+                    }
+                }
             }
-            wasLower = Character.isLowerCase(c);
-            sb.append(c);
         }
         return sb.toString();
     }
@@ -247,13 +263,13 @@ public class StudiedWord {
 
     public String makeCamelCase() {
         StringBuilder sb = new StringBuilder();
-        if (some(UNDER)) {
+        if (some(mySeparators)) {
             int iMax = myWord.length();
             boolean toUpper = false;
 
             for (int i = 0; i < iMax; i++) {
                 char c = myWord.charAt(i);
-                if (c == '_') {
+                if ((mySeparators & flags(c)) != 0) {
                     toUpper = true;
                 } else {
                     if (toUpper) sb.append(Character.toUpperCase(c));
@@ -315,7 +331,7 @@ public class StudiedWord {
     public boolean canBeMixedSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeMixedSnakeCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingSnakeCase();
         }
         return false;
     }
@@ -323,7 +339,7 @@ public class StudiedWord {
     public boolean canBeScreamingSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeScreamingSnakeCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSnakeCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingSnakeCase();
         }
         return false;
     }
@@ -331,7 +347,7 @@ public class StudiedWord {
     public boolean canBeSnakeCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeSnakeCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isSnakeCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isSnakeCase();
         }
         return false;
     }
@@ -339,7 +355,7 @@ public class StudiedWord {
     public boolean canBeMixedDashCase() {
         if (only(DASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DASH | LOWER | UPPER)) {
             String word = makeMixedDashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingDashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingDashCase();
         }
         return false;
     }
@@ -347,7 +363,7 @@ public class StudiedWord {
     public boolean canBeScreamingDashCase() {
         if (only(DASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DASH | LOWER | UPPER)) {
             String word = makeScreamingDashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingDashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingDashCase();
         }
         return false;
     }
@@ -355,7 +371,7 @@ public class StudiedWord {
     public boolean canBeDashCase() {
         if (only(DASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DASH | LOWER | UPPER)) {
             String word = makeDashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isDashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isDashCase();
         }
         return false;
     }
@@ -363,7 +379,7 @@ public class StudiedWord {
     public boolean canBeMixedDotCase() {
         if (only(DOT | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DOT | LOWER | UPPER)) {
             String word = makeMixedDotCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingDotCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingDotCase();
         }
         return false;
     }
@@ -371,7 +387,7 @@ public class StudiedWord {
     public boolean canBeScreamingDotCase() {
         if (only(DOT | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DOT | LOWER | UPPER)) {
             String word = makeScreamingDotCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingDotCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingDotCase();
         }
         return false;
     }
@@ -379,7 +395,7 @@ public class StudiedWord {
     public boolean canBeDotCase() {
         if (only(DOT | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(DOT | LOWER | UPPER)) {
             String word = makeDotCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isDotCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isDotCase();
         }
         return false;
     }
@@ -387,7 +403,7 @@ public class StudiedWord {
     public boolean canBeMixedSlashCase() {
         if (only(SLASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(SLASH | LOWER | UPPER)) {
             String word = makeMixedSlashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSlashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingSlashCase();
         }
         return false;
     }
@@ -395,7 +411,7 @@ public class StudiedWord {
     public boolean canBeScreamingSlashCase() {
         if (only(SLASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(SLASH | LOWER | UPPER)) {
             String word = makeScreamingSlashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isScreamingSlashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isScreamingSlashCase();
         }
         return false;
     }
@@ -403,7 +419,7 @@ public class StudiedWord {
     public boolean canBeSlashCase() {
         if (only(SLASH | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(SLASH | LOWER | UPPER)) {
             String word = makeSlashCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isSlashCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isSlashCase();
         }
         return false;
     }
@@ -411,7 +427,7 @@ public class StudiedWord {
     public boolean canBeCamelCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeCamelCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isCamelCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isCamelCase();
         }
         return false;
     }
@@ -419,7 +435,7 @@ public class StudiedWord {
     public boolean canBeProperCamelCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makeProperCamelCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isProperCamelCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isProperCamelCase();
         }
         return false;
     }
@@ -427,7 +443,7 @@ public class StudiedWord {
     public boolean canBePascalCase() {
         if (only(UNDER | UPPER | LOWER | DIGITS) && some(LOWER | UPPER) && first(UNDER | LOWER | UPPER)) {
             String word = makePascalCase();
-            return !word.equals(myWord) && StudiedWord.of(word).isPascalCase();
+            return !word.equals(myWord) && StudiedWord.of(word, mySeparators).isPascalCase();
         }
         return false;
     }
