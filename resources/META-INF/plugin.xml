@@ -80,7 +80,20 @@
         <div xmlns="http://www.w3.org/1999/html">
             <h3>1.1.7 - Enhancement Release</h3>
             <ul>
-                <li>Add: hide disabled toolbar buttons option to settings</li>
+                <li>
+                    <p>Fix: Exclude $ from being considered as part of identifier for purposes of determining word
+                        start/end boundary for highlighted words.</p>
+                </li>
+                <li>
+                    <p>Fix: conversion from dash, dot and slash to snake case was not working.</p>
+                </li>
+                <li>
+                    <p>Add: hide disabled toolbar buttons option to settings</p>
+                </li>
+                <li>
+                    <p>Add: button versions of recall selection and swap text to eliminate button text to save
+                        toolbar real-estate</p>
+                </li>
             </ul>
             <h3>1.1.6 - Enhancement Release</h3>
             <ul>

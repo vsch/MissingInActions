@@ -199,6 +199,12 @@ public class Plugin implements ApplicationComponent, Disposable {
     }
 
     public void addHighlightWord(CharSequence word, boolean beginWord, boolean endWord, Boolean caseSensitive) {
+        if (beginWord && (word.length() == 0 || word.charAt(0) == '$')) {
+            beginWord = false;
+        }
+        if (endWord && (word.length() == 0 || word.charAt(word.length() - 1) == '$')) {
+            endWord = false;
+        }
         int flags = (beginWord ? BEGIN_WORD : 0) | (endWord ? END_WORD : 0) | (caseSensitive == null ? 0 : caseSensitive ? CASE_INSENSITIVE : CASE_INSENSITIVE);
         String wordText = word instanceof String ? (String) word : String.valueOf(word);
         if (myHighlightWords.containsKey(wordText)) {

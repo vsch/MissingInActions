@@ -48,6 +48,9 @@
 
 ### 1.1.7 - Enhancement Release
 
+* Fix: Exclude $ from being considered as part of identifier for purposes of determining word
+  start/end boundary for highlighted words.
+
 * Fix: conversion from dash, dot and slash to snake case was not working.
 
 * Add: hide disabled toolbar buttons option to settings
