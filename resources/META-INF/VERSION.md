@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.2.0 - Enhancement Release](#120---enhancement-release)
 - [1.1.7 - Enhancement Release](#117---enhancement-release)
 - [1.1.6 - Enhancement Release](#116---enhancement-release)
 - [1.1.5 - Enhancement Release](#115---enhancement-release)
@@ -45,6 +46,10 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.2.0 - Enhancement Release
+
+* release
 
 ### 1.1.7 - Enhancement Release
 

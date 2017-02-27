@@ -2,7 +2,7 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.1.7 from this repo]
+[Download Latest 1.2.0 from this repo]
 
 [TOC]: #
 
@@ -65,9 +65,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.1.7 - Enhancement Release
+## Version 1.2.0 - Enhancement Release
 
-[Version Notes][] [Download Latest 1.1.7 from this repo][]
+[Version Notes][] [Download Latest 1.2.0 from this repo][]
 
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
   Spawning` actions toggle actions to show when active.
@@ -422,7 +422,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.1.7 from this repo]: ../../raw/master/dist/MissingInActions.1.1.7.zip
+[Download Latest 1.2.0 from this repo]: ../../raw/master/dist/MissingInActions.1.2.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
