@@ -7,7 +7,7 @@
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.1.7 - Enhancement Release](#version-117---enhancement-release)
+- [Version 1.2.0 - Enhancement Release](#version-120---enhancement-release)
 - [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
 - [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
 - [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
@@ -20,7 +20,7 @@
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
     - [Auto Line Selections](#auto-line-selections)
 
-
+               
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
 * Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
