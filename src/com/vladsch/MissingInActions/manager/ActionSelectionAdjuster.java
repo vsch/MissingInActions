@@ -38,6 +38,8 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.CaretMoveAction;
+import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
 import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
 import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -169,7 +171,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         if (caretSpawningHandler != null) {
             if (myManager.getStartCaretStates() != null) {
-                if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_SEARCH_CARET_ACTION)) {
+                if (action instanceof CaretSearchAwareAction || myAdjustmentsMap.isInSet(action.getClass(), SEARCH_AWARE_CARET_ACTION)) {
+                    // do nothing the action will handle it
+                } else if (action instanceof CaretMoveAction || myAdjustmentsMap.isInSet(action.getClass(), MOVE_SEARCH_CARET_ACTION)) {
                     // create start position carets
                     myEditor.getCaretModel().setCaretsAndSelections(myManager.getStartCaretStates());
 

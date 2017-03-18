@@ -1,7 +1,7 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
     <option name="myName" value="Plugin Description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true" profileName="Plugin Description">
-      <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true">
+      <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="true" showSelectionInPreview="true">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.panel" providerName="Default - Swing" />
         </PanelProvider>
@@ -10,6 +10,7 @@
         <PegdownExtensions>
           <option name="ABBREVIATIONS" value="true" />
           <option name="ANCHORLINKS" value="false" />
+          <option name="ASIDE" value="false" />
           <option name="ATXHEADERSPACE" value="true" />
           <option name="AUTOLINKS" value="true" />
           <option name="DEFINITIONS" value="true" />

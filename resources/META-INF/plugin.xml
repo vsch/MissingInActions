@@ -72,12 +72,21 @@
         ]]>
     </description>
 
-    <version>1.2.0</version>
+    <version>1.2.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.2.2 - Bug Fix Release</h3>
+            <ul>
+                <li>Fix: #15, Selection continuation with the mouse and Shift modifier is broken</li>
+            </ul>
+            <h3>1.2.1 - Enhancement Release</h3>
+            <ul>
+                <li>Add: multi-caret search accept not found carets to allow excluding carets with matching
+                    search position.</li>
+            </ul>
             <h3>1.2.0 - Enhancement Release</h3>
             <ul>
                 <li>
@@ -482,6 +491,13 @@
                     description="Accept Found Search Carets">
             </action>
 
+            <action class="com.vladsch.MissingInActions.actions.pattern.AcceptNotFoundCaretsAction"
+                    id="MissingInActions.AcceptNotFoundCarets"
+                    text="Accept Not Found Search Carets"
+                    icon="PluginIcons.Accept_inverted_search"
+                    description="Accept Not Found Search Carets">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction"
                     id="MissingInActions.CancelFoundCarets"
                     text="Cancel Found Search Carets"
@@ -678,6 +694,7 @@
             <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
             <!--</action>-->
             <reference id="MissingInActions.AcceptFoundCarets"/>
+            <reference id="MissingInActions.AcceptNotFoundCarets"/>
             <reference id="MissingInActions.CancelFoundCarets"/>
 
             <separator/>

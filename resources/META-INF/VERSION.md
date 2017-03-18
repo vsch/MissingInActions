@@ -3,6 +3,8 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.2.2 - Bug Fix Release](#122---bug-fix-release)
+- [1.2.1 - Enhancement Release](#121---enhancement-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
 - [1.1.7 - Enhancement Release](#117---enhancement-release)
 - [1.1.6 - Enhancement Release](#116---enhancement-release)
@@ -46,6 +48,15 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.2.2 - Bug Fix Release
+
+* Fix: #15, Selection continuation with the mouse and Shift modifier is broken
+
+### 1.2.1 - Enhancement Release
+
+* Add: multi-caret search accept not found carets action to allow excluding carets with matching
+  search position.
 
 ### 1.2.0 - Enhancement Release
 

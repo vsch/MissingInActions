@@ -28,6 +28,7 @@ import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CancelSearchCaretsAction extends EditorAction {
+public class CancelSearchCaretsAction extends EditorAction implements CaretSearchAwareAction {
     public CancelSearchCaretsAction() {
         super(new Handler());
     }

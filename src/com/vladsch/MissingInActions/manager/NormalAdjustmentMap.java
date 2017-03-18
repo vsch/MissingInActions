@@ -392,7 +392,12 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.carets.SmartRemoveLineCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.StraightenCaretsAction.class
                 , com.vladsch.MissingInActions.actions.pattern.SearchCaretsOptionsAction.class
-                , com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction.class
+                //, com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction.class
+        );
+
+        // here are all caret move actions that manipulate both search and found carets
+        addActionSet(ActionSetType.SEARCH_AWARE_CARET_ACTION
+                //, com.vladsch.MissingInActions.actions.pattern.AcceptNotFoundCaretsAction.class
         );
     }
 }

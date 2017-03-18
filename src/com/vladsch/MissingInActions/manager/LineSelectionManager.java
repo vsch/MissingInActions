@@ -788,8 +788,10 @@ public class LineSelectionManager implements
                 }
 
                 Caret caret = myEditor.getCaretModel().getPrimaryCaret();
-                if (caret.hasSelection()) {
-                    caret.moveToOffset(caret.getSelectionStart());
+                if (caret.hasSelection() && caret.getOffset() != caret.getSelectionStart() && caret.getOffset() != caret.getSelectionEnd()) {
+                    // Issue #15, incorrect selection extension when using shift key
+                    EditorCaret editorCaret = getEditorCaret(caret);
+                    caret.moveToOffset(editorCaret.isStartAnchor() ? caret.getSelectionEnd() : caret.getSelectionStart());
                 }
             }
         }

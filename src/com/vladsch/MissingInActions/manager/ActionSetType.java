@@ -35,4 +35,7 @@ public enum ActionSetType {
 
     // used for search/filter multi-caret
     MOVE_SEARCH_CARET_ACTION,
+
+    // do nothing about carets for these
+    SEARCH_AWARE_CARET_ACTION,
 }

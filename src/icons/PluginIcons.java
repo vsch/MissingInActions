@@ -31,6 +31,7 @@ public class PluginIcons {
     }
 
     public static final Icon Accept_search = load("/icons/Accept_search.png");
+    public static final Icon Accept_inverted_search = load("/icons/Accept_inverted_search.png");
     public static final Icon Backward_search = load("/icons/Backward_search.png");
     public static final Icon Cancel_search = load("/icons/Cancel_search.png");
     public static final Icon Clipboard_carets = load("/icons/Clipboard_carets.png");

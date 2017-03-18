@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.2.0 from this repo]
+[Download Latest 1.2.2 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122---bug-fix--enhancement-release)
 - [Version 1.2.0 - Enhancement Release](#version-120---enhancement-release)
 - [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
 - [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
@@ -20,16 +21,19 @@
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
     - [Auto Line Selections](#auto-line-selections)
 
-               
+
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
 * Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
   previous selection from a list.
+
 * Isolate Lines mode to make a group of lines stand out from the rest. Handy way to isolate a
   copy of existing method for modification and not accidentally modify the original text instead
   of the copy.
+
 * Enable Auto Indent Lines after move line/selection up or down actions to have them indented
   automatically.
+
 * Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
   match case and style of identifier at destination when you paste, undo to get results before
   MIA adjusted them.
@@ -44,15 +48,19 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields, static
   fields, getters and setters.
+
 * Enable Auto Line Selections and select full lines without loosing time or column position by
   moving the caret to the start of line when selecting or pasting.
 
   **Choose** whether you want to **paste full line** selections: **above** or **below** the
   current line regardless of the caret's column.
+
 * Toggle between selection and multiple carets on selected lines to save time re-selecting the
   same text again.
+
 * Filter multiple carets saves you time when creating multiple carets by removing carets on
   blank or comment lines so you can edit only code lines.
+
 * Enhanced Paste from History dialog:
   * **combine**, **arrange** and **reverse** the order of content entries
   * **combine multiple** clipboard contents **with caret information intact**
@@ -62,12 +70,20 @@ Adds missing editor actions for end of word navigation but that is just the begi
   * **duplicate line/block for each caret** in the clipboard content for multiple caret
     selections and paste content into each selection
   * see caret information stored on the clipboard for each content entry
+
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.2.0 - Enhancement Release
+## Version 1.2.2 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.2.0 from this repo][]
+[Version Notes][] [Download Latest 1.2.2 from this repo][]
+
+* Fix: #15, Selection continuation with the mouse and Shift modifier is broken
+
+* Add: multi-caret search accept not found carets action to allow excluding carets with matching
+  search position. ![Accept Inverted Search](resources/icons/Accept_inverted_search.png)
+
+## Version 1.2.0 - Enhancement Release
 
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
   Spawning` actions toggle actions to show when active.
@@ -422,7 +438,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.2.0 from this repo]: ../../raw/master/dist/MissingInActions.1.2.0.zip
+[Download Latest 1.2.2 from this repo]: ../../raw/master/dist/MissingInActions.1.2.2.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
