@@ -41,7 +41,7 @@ public class SwapSelectionAction extends EditorAction {
     @Override
     public void update(final AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
+        //e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
     private static class Handler extends EditorActionHandler {

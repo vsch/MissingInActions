@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.2.3 - Bug Fix Release](#123---bug-fix-release)
 - [1.2.2 - Bug Fix Release](#122---bug-fix-release)
 - [1.2.1 - Enhancement Release](#121---enhancement-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
@@ -48,6 +49,10 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.2.3 - Bug Fix Release
+
+* Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
 
 ### 1.2.2 - Bug Fix Release
 
