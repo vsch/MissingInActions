@@ -7,6 +7,7 @@
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123---bug-fix--enhancement-release)
 - [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122---bug-fix--enhancement-release)
 - [Version 1.2.0 - Enhancement Release](#version-120---enhancement-release)
 - [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
@@ -74,9 +75,13 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.2.2 - Bug Fix & Enhancement Release
+## Version 1.2.3 - Bug Fix & Enhancement Release
 
 [Version Notes][] [Download Latest 1.2.3 from this repo][]
+
+* Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
+
+## Version 1.2.2 - Bug Fix & Enhancement Release
 
 * Fix: #15, Selection continuation with the mouse and Shift modifier is broken
 
