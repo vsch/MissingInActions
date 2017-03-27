@@ -72,24 +72,24 @@
         ]]>
     </description>
 
-    <version>1.2.3</version>
+    <version>1.3.0</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.2.3 - Bug Fix Release</h3>
+            <h3>1.3.0 - Bug Fix Release</h3>
             <ul>
-                <li>Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions</li>
-            </ul>
-            <h3>1.2.2 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: #15, Selection continuation with the mouse and Shift modifier is broken</li>
-            </ul>
-            <h3>1.2.1 - Enhancement Release</h3>
-            <ul>
-                <li>Add: multi-caret search accept not found carets to allow excluding carets with matching
-                    search position.</li>
+                <li>
+                    <p>Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions</p>
+                </li>
+                <li>
+                    <p>Fix: #15, Selection continuation with the mouse and Shift modifier is broken</p>
+                </li>
+                <li>
+                    <p>Add: multi-caret search accept not found carets action to allow excluding carets with matching
+                        search position.</p>
+                </li>
             </ul>
             <h3>1.2.0 - Enhancement Release</h3>
             <ul>
