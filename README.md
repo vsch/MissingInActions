@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.2.3 from this repo]
+[Download Latest 1.3.0 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.3.0 - Bug Fix & Enhancement Release](#version-130---bug-fix--enhancement-release)
 - [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123---bug-fix--enhancement-release)
 - [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122---bug-fix--enhancement-release)
 - [Version 1.2.0 - Enhancement Release](#version-120---enhancement-release)
@@ -75,9 +76,11 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.2.3 - Bug Fix & Enhancement Release
+## Version 1.3.0 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.2.3 from this repo][]
+[Version Notes][] [Download Latest 1.3.0 from this repo][]
+
+## Version 1.2.3 - Bug Fix & Enhancement Release
 
 * Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
 
@@ -443,7 +446,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.2.3 from this repo]: ../../raw/master/dist/MissingInActions.1.2.3.zip
+[Download Latest 1.3.0 from this repo]: ../../raw/master/dist/MissingInActions.1.3.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
