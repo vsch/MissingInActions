@@ -26,6 +26,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -62,13 +63,15 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
     public void actionPerformed(final AnActionEvent e) {
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (editor != null) {
-            Document document = editor.getDocument();
-            CharSequence chars = document.getCharsSequence();
-            Plugin plugin = Plugin.getInstance();
+            final Document document = editor.getDocument();
+            final CaretModel caretModel = editor.getCaretModel();
+            final CharSequence chars = document.getCharsSequence();
+            final Plugin plugin = Plugin.getInstance();
 
-            List<Caret> removedCarets = new ArrayList<>();
+            final List<Caret> removedCarets = new ArrayList<>();
+            int removedCaretCount = 0;
 
-            for (Caret caret : editor.getCaretModel().getAllCarets()) {
+            for (Caret caret : caretModel.getAllCarets()) {
                 boolean isHighlighted = false;
                 if (caret.hasSelection()) {
                     isHighlighted = plugin.isWordHighlighted(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
@@ -76,11 +79,17 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
 
                 if (myIsRemoveCaret == isHighlighted) {
                     removedCarets.add(caret);
+                    removedCaretCount++;
                 }
             }
 
-            for (Caret caret : removedCarets) {
-                editor.getCaretModel().removeCaret(caret);
+            if (removedCaretCount == caretModel.getCaretCount()) {
+                caretModel.removeSecondaryCarets();
+                caretModel.getPrimaryCaret().removeSelection();
+            } else {
+                for (Caret caret : removedCarets) {
+                    caretModel.removeCaret(caret);
+                }
             }
         }
     }

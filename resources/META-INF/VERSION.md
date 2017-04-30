@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.3.2 - Bug Fix Release](#132---bug-fix-release)
 - [1.3.0 - Bug Fix Release](#130---bug-fix-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
 - [1.1.7 - Enhancement Release](#117---enhancement-release)
@@ -48,6 +49,13 @@
 
 &nbsp;</details>
 
+### 1.3.2 - Bug Fix Release
+
+* Fix: Remove highlighted word carets would not remove the last selection if all carets
+  contained highlighted word selections
+
+* Fix: size of color chip when using HiDPI displays that need scaling.
+
 ### 1.3.0 - Bug Fix Release
 
 * Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
@@ -81,6 +89,7 @@
 * Fix: line selections not working in editor text fields in settings
 
 * Add: Word Highlighting Actions, toolbar buttons and settings:
+
   * Toggle highlight word mode
     ![Toggle Word Highlights](/resources/icons/Toggle_word_highlights%402x.png): turns
     highlighted words on/off. Can be used to turn off highlights without clearing highlight word
@@ -179,6 +188,7 @@
   carets. Also does color and weight change if 2017 EAP.
 
 * Add: number generating action. For now only for multiple carets.
+
   * Sequences 0-9, A-Z for number bases 2-36
   * Prefix/Suffix options to add to generated number
   * Sequences can be 0 left filled to any width
@@ -189,6 +199,7 @@
   at caret and whether there is a selection.
 
   * if a single caret exists then:
+
     * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
       a non-space. Will select the intervening spaces for each caret
     * if caret is on identifier start then will spawn a caret for every occurrence of identifier
@@ -198,7 +209,6 @@
       identifier and select the matched identifier portion
     * otherwise will spawn a caret on every occurrence of the character at caret, selecting
       trimmed intervening characters between carets.
-
   * if multiple carets exist then spawning of only a single carets is done by using the pattern
     as determined by the primary caret per above rules with addition of hex (with or without 0x
     prefix), decimal or octal will search for numeric sequence.
@@ -222,17 +232,18 @@
     search starts and where the pattern is matched. Plugin configuration settings under settings
     in Tools > Missing In Actions:
 
+
 * behavior is also affected by number of carets and selection:
+
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
     lines
   * any selection for a caret is used to expand the range for that caret to include the
     selection and caret offset.
-
-  For best use, define two shortcuts: one for forward spawning action and one for backward one.
-  I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
-  Since these are taken on OS X, I assigned `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward
-  spawning search instead. A bit awkward but usable.
+    For best use, define two shortcuts: one for forward spawning action and one for backward one.
+    I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
+    Since these are taken on OS X, I assigned `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward
+    spawning search instead. A bit awkward but usable.
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
@@ -269,6 +280,7 @@
 * Fix: `StraightenCarets` action now disabled if there are selections
 
 * Add: Dupe for Clipboard carets will also handle multi-caret input:
+
   * duplicated block spans all carets
     * if have selections
       * then only keep carets with selections
@@ -281,10 +293,10 @@
           duplicate, and remove them, duplicating the rest of the carets
     * clipboard data is duplicated for every caret so that the first block will have first caret
       content for every caret in the block, second second, etc
+      If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
+      after dupe, the clipboard will contain 9 carets:
+      text1,text1,text1,text2,text2,text2,text3,text3,text3
 
-    If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
-    after dupe, the clipboard will contain 9 carets:
-    text1,text1,text1,text2,text2,text2,text3,text3,text3
 
 * Add: MultiPaste override for all editor fields to make it consistent across the IDE.
 
@@ -348,16 +360,16 @@
   4. paste
 
 * Add: smart paste functionality.
+
   * preserve camel/pascal case, screaming snake case and snake case on char paste based on
     context of where it is pasted and what is pasted.
   * remove prefix on paste if pasting text next to or inside an identifier, with two
     configurable prefixes by default: `my` and `our`
-
-  The two combined together allow you to select a member with prefix and paste it anywhere. MIA
-  will adjust the pasted text to match the format at destination: camel case, snake case,
-  screaming snake case. Inserting and deleting underscores as needed, adjusting case after the
-  pasted text if needed. 90% of the time there is no need to edit results after pasting, the
-  other 10% hit undo and get the text as it was before MIA modified it.
+    The two combined together allow you to select a member with prefix and paste it anywhere. MIA
+    will adjust the pasted text to match the format at destination: camel case, snake case,
+    screaming snake case. Inserting and deleting underscores as needed, adjusting case after the
+    pasted text if needed. 90% of the time there is no need to edit results after pasting, the
+    other 10% hit undo and get the text as it was before MIA modified it.
 
 * Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
   caret filtering and spawning actions.
@@ -370,6 +382,7 @@
 * Add: line comment caret remove/keep actions. Rename the others to fit in the remove/keep
   format. Line Comment is a line that either begins with a line comment prefix, or one that
   begins with a block comment prefix and ends in a block comment prefix.
+
   * `MissingInActions.KeepBlankLineCarets`: keep only carets on blank lines
   * `MissingInActions.KeepCodeLineCarets`: keep only carets on lines which are not blank and not
     line comments
@@ -385,8 +398,7 @@
   * `MissingInActions.SmartRemoveLineCarets`: opposite of smart keep. Useful for isolating
     carets so unneeded lines can be deleted. If have carets on code lines, remove code lines;
     else if have carets on line comment lines then remove comment lines, else nothing.
-
-  In all cases if the operation would remove all carets then nothing is done.
+    In all cases if the operation would remove all carets then nothing is done.
 
 ### 0.7.2 - Refactoring and Code Cleanup
 
@@ -434,8 +446,10 @@
 
   Allows fast duplication of a block of code up, instead of always down and having to move it up
   over a copy of itself.
+
 * Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
   full lines if the trimming or expansion affects whitespace chars only.
+
 * Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
   remembers if it was turned on from the panel and if line mode is disabled offers a link to
   disable it.
@@ -499,6 +513,7 @@
 * Add: Switch selection direction to move the caret to the other end of the selection
 * Add: caret straightening and toggle between selection and multiple carets to allow quick
   creation of multiple carets with line filtering:
+
   * on all lines
   * only on non-blank lines
   * only on blank lines

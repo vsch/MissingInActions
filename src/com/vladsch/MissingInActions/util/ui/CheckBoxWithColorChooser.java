@@ -19,6 +19,7 @@ package com.vladsch.MissingInActions.util.ui;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.ui.ClickListener;
 import com.intellij.ui.ColorChooser;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,7 +162,7 @@ public class CheckBoxWithColorChooser extends JPanel {
         }
 
         public Dimension getPreferredSize() {
-            return new Dimension(12, 12);
+            return new Dimension(JBUI.scale(12), JBUI.scale(12));
         }
     }
 }
