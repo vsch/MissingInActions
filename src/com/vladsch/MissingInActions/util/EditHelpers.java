@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.codeInsight.editorActions.TextBlockTransferable;
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
+import com.intellij.ide.util.EditorHelper;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.Language;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -33,6 +34,7 @@ import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
+import com.intellij.openapi.editor.impl.EditorTextRepresentationHelper;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.AbstractFileType;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -251,7 +253,8 @@ public class EditHelpers {
 
         if (stopAtIndent == 0 && (stopAtLeadingBlanks || stopAtStartOfLine)) {
             int firstNonBlank = countWhiteSpace(document.getCharsSequence(), lineStartOffset, document.getLineEndOffset(lineNumber));
-            if (stopAtLeadingBlanks && position.column > firstNonBlank) {
+            LogicalPosition firstNonBlankPosition = editor.offsetToLogicalPosition(lineStartOffset + firstNonBlank);
+            if (stopAtLeadingBlanks && position.column > firstNonBlankPosition.column) {
                 stopAtIndent = lineStartOffset + firstNonBlank;
             } else if (stopAtStartOfLine && (position.column != 0 || singleLine)) {
                 stopAtIndent = lineStartOffset;

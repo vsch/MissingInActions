@@ -2,11 +2,12 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.3.0 from this repo]
+[Download Latest 1.3.4 from this repo]
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.3.4 - Bug Fix Release](#version-134---bug-fix-release)
 - [Version 1.3.0 - Bug Fix & Enhancement Release](#version-130---bug-fix--enhancement-release)
 - [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123---bug-fix--enhancement-release)
 - [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122---bug-fix--enhancement-release)
@@ -76,9 +77,25 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
+## Version 1.3.4 - Bug Fix Release
+
+[Version Notes][] [Download Latest 1.3.4 from this repo][]
+
+* Fix: #17, Caret don't move across tab-indented lines
+
+* Fix: Remove highlighted word carets would not remove the last selection if all carets
+  contained highlighted word selections
+
+* Fix: size of color chip when using HiDPI displays that need scaling.
+
 ## Version 1.3.0 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.3.0 from this repo][]
+* Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
+
+* Fix: #15, Selection continuation with the mouse and Shift modifier is broken
+
+* Add: multi-caret search accept not found carets action to allow excluding carets with matching
+  search position.
 
 ## Version 1.2.3 - Bug Fix & Enhancement Release
 
@@ -446,7 +463,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.3.0 from this repo]: ../../raw/master/dist/MissingInActions.1.3.0.zip
+[Download Latest 1.3.4 from this repo]: ../../raw/master/dist/MissingInActions.1.3.4.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.3.4 - Bug Fix Release](#134---bug-fix-release)
 - [1.3.2 - Bug Fix Release](#132---bug-fix-release)
 - [1.3.0 - Bug Fix Release](#130---bug-fix-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
@@ -48,6 +49,10 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.3.4 - Bug Fix Release
+
+* Fix: #17, Caret don't move across tab-indented lines
 
 ### 1.3.2 - Bug Fix Release
 
