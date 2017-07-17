@@ -2,7 +2,7 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.3.4 from this repo]
+[Download Latest 1.4.0 from this repo]
 
 [TOC]: #
 
@@ -20,7 +20,7 @@
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
-    - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
+    - [What you didnt know you were missing](#what-you-didnt-know-you-were-missing)
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
     - [Auto Line Selections](#auto-line-selections)
 
@@ -79,7 +79,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 ## Version 1.3.4 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.3.4 from this repo][]
+[Version Notes][] [Download Latest 1.4.0 from this repo][]
 
 * Fix: #17, Caret don't move across tab-indented lines
 
@@ -463,7 +463,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.3.4 from this repo]: ../../raw/master/dist/MissingInActions.1.3.4.zip
+[Download Latest 1.4.0 from this repo]: ../../raw/master/dist/MissingInActions.1.4.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

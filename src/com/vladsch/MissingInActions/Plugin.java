@@ -543,14 +543,18 @@ public class Plugin implements ApplicationComponent, Disposable {
         assert editor.getProject() != null;
 
         PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-        projectComponent.addEditorActiveLookupListener(editor, listener, parentDisposable);
+        if (projectComponent != null) {
+            projectComponent.addEditorActiveLookupListener(editor, listener, parentDisposable);
+        }
     }
 
     public void removeEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
         assert editor.getProject() != null;
 
         PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-        projectComponent.removeEditorActiveLookupListener(editor, listener);
+        if (projectComponent != null) {
+            projectComponent.removeEditorActiveLookupListener(editor, listener);
+        }
     }
 
     // EditorFactoryListener
@@ -565,10 +569,12 @@ public class Plugin implements ApplicationComponent, Disposable {
 
         if (editor.getProject() != null) {
             PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-            projectComponent.editorCreated(editor);
-            myDelayedRunner.addRunnable(editor, () -> {
-                projectComponent.editorReleased(editor);
-            });
+            if (projectComponent != null) {
+                projectComponent.editorCreated(editor);
+                myDelayedRunner.addRunnable(editor, () -> {
+                    projectComponent.editorReleased(editor);
+                });
+            }
         }
 
         if (mySettings.isOverrideStandardPaste()) {

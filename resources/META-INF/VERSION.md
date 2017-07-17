@@ -3,8 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.3.4 - Bug Fix Release](#134---bug-fix-release)
-- [1.3.2 - Bug Fix Release](#132---bug-fix-release)
+- [1.4.0 - Bug Fix Release](#140---bug-fix-release)
 - [1.3.0 - Bug Fix Release](#130---bug-fix-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
 - [1.1.7 - Enhancement Release](#117---enhancement-release)
@@ -50,11 +49,11 @@
 
 &nbsp;</details>
 
-### 1.3.4 - Bug Fix Release
+### 1.4.0 - Bug Fix Release
+
+* Fix: NPE when projects are being rapidly opened and closed.
 
 * Fix: #17, Caret don't move across tab-indented lines
-
-### 1.3.2 - Bug Fix Release
 
 * Fix: Remove highlighted word carets would not remove the last selection if all carets
   contained highlighted word selections
@@ -237,18 +236,16 @@
     search starts and where the pattern is matched. Plugin configuration settings under settings
     in Tools > Missing In Actions:
 
-
 * behavior is also affected by number of carets and selection:
 
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
     lines
   * any selection for a caret is used to expand the range for that caret to include the
-    selection and caret offset.
-    For best use, define two shortcuts: one for forward spawning action and one for backward one.
-    I was used to having these on my Ctrl+Tab for forward and Ctrl+Shift+Tab for backward search.
-    Since these are taken on OS X, I assigned `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward
-    spawning search instead. A bit awkward but usable.
+    selection and caret offset. For best use, define two shortcuts: one for forward spawning
+    action and one for backward one. I was used to having these on my Ctrl+Tab for forward and
+    Ctrl+Shift+Tab for backward search. Since these are taken on OS X, I assigned `⌥⌘⇥` for
+    forward and `⌥⌘⇧⇥` for backward spawning search instead. A bit awkward but usable.
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
@@ -297,11 +294,9 @@
         * otherwise, assume that the first and last caret were used to mark the span of lines to
           duplicate, and remove them, duplicating the rest of the carets
     * clipboard data is duplicated for every caret so that the first block will have first caret
-      content for every caret in the block, second second, etc
-      If there are 3 carets with text1, text2 and text3 on clipboard and 3 carets in the line then
-      after dupe, the clipboard will contain 9 carets:
-      text1,text1,text1,text2,text2,text2,text3,text3,text3
-
+      content for every caret in the block, second second, etc If there are 3 carets with text1,
+      text2 and text3 on clipboard and 3 carets in the line then after dupe, the clipboard will
+      contain 9 carets: text1,text1,text1,text2,text2,text2,text3,text3,text3
 
 * Add: MultiPaste override for all editor fields to make it consistent across the IDE.
 
@@ -369,12 +364,12 @@
   * preserve camel/pascal case, screaming snake case and snake case on char paste based on
     context of where it is pasted and what is pasted.
   * remove prefix on paste if pasting text next to or inside an identifier, with two
-    configurable prefixes by default: `my` and `our`
-    The two combined together allow you to select a member with prefix and paste it anywhere. MIA
-    will adjust the pasted text to match the format at destination: camel case, snake case,
-    screaming snake case. Inserting and deleting underscores as needed, adjusting case after the
-    pasted text if needed. 90% of the time there is no need to edit results after pasting, the
-    other 10% hit undo and get the text as it was before MIA modified it.
+    configurable prefixes by default: `my` and `our` The two combined together allow you to
+    select a member with prefix and paste it anywhere. MIA will adjust the pasted text to match
+    the format at destination: camel case, snake case, screaming snake case. Inserting and
+    deleting underscores as needed, adjusting case after the pasted text if needed. 90% of the
+    time there is no need to edit results after pasting, the other 10% hit undo and get the text
+    as it was before MIA modified it.
 
 * Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
   caret filtering and spawning actions.
@@ -402,8 +397,8 @@
     lines then remove non-comment lines, else nothing.
   * `MissingInActions.SmartRemoveLineCarets`: opposite of smart keep. Useful for isolating
     carets so unneeded lines can be deleted. If have carets on code lines, remove code lines;
-    else if have carets on line comment lines then remove comment lines, else nothing.
-    In all cases if the operation would remove all carets then nothing is done.
+    else if have carets on line comment lines then remove comment lines, else nothing. In all
+    cases if the operation would remove all carets then nothing is done.
 
 ### 0.7.2 - Refactoring and Code Cleanup
 
@@ -437,15 +432,21 @@
   * Copy: if no selection before then leave the caret column unchanged
   * Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
     action, if selection was line selection before then restore caret column position after
+
 * Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
   for bug in IDE action that does not adjust selection start if it is not at the left margin.
+
 * Add: Select pasted text option to keep the selection so it can be operated on with option to
   only select if pasted text contains at least one line--contains end of line.
+
 * Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
   the left margin.
+
 * Add: option to remove selection created by toggle case. Will leave selection made before in
   tact.
+
 * Fix: delete to line end not eol was deleting one character less than end of line
+
 * Add: Option to fix duplicate line or selection to duplicate before the selection if caret is
   at the head of the selection (actually if the selection was started from the end).
 
@@ -458,19 +459,25 @@
 * Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
   remembers if it was turned on from the panel and if line mode is disabled offers a link to
   disable it.
+
 * Add: Identifier Word variations, will only stop on java identifiers, spaces and
   non-identifiers are treated as equal
+
 * Add: Customized Word variations can set if these will stop on:
   * start of line/end of line
   * indent/trailing blanks on a line
   * identifier camel humps or word camel humps rules
   * normal, stay on same line and stay on same line in multi-caret mode
+
 * Add: action to toggle camel humps mode, with option to make mouse setting follow camel humps
   setting.
+
 * Add: action to toggle identifier/word mode for customized word actions, customized next word
   is taken as the value to toggle with the rest following.
+
 * Add: Delete and Backspace white space only, used to pull jagged edge alignment into a straight
   line.
+
 * Add: settings UI for custom next/prev word end/start, start of word and end of word variations
 
 ### 0.6.2 - Bug Fix and Features

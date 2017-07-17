@@ -393,7 +393,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         html.closeTag("body");
         html.closeTag("html");
         //myHighlightGradientPane.setVisible(true);
-        myHighlightGradientPane.setText(html.toString());
+        myHighlightGradientPane.setText(html.toFinalizedString());
         //myHighlightGradientPane.revalidate();
         //Component component = myHighlightGradientPane;
         //

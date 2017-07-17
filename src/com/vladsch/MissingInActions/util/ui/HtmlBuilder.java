@@ -36,7 +36,6 @@ import java.util.Stack;
 
 public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
     private final Appendable myBuilder;
-    private final Stack<String> myOpenTags = new Stack<>();
 
     public HtmlBuilder() {
         super(new StringBuilder());
@@ -53,46 +52,24 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
         myBuilder = getAppendable();
     }
 
-    private String tagStack() {
-        return UtilKt.splice(myOpenTags, ", ", true);
-    }
-
-    private void pushTag(CharSequence tagName) {
-        myOpenTags.push(tagName instanceof String ? (String) tagName : String.valueOf(tagName));
-    }
-
-    private void popTag(CharSequence tagName) {
-        if (myOpenTags.isEmpty()) throw new IllegalStateException("Close tag '" + tagName + "' with no tags open");
-        String openTag = myOpenTags.peek();
-        if (!openTag.equals(tagName instanceof String ? (String) tagName : String.valueOf(tagName))) throw new IllegalStateException("Close tag '" + tagName + "' does not match '" + openTag + "' in " + tagStack());
-        myOpenTags.pop();
-    }
-
-    @Override
-    protected void tagOpened(final CharSequence tagName) {
-        pushTag(tagName);
-    }
-
-    @Override
-    protected void tagClosed(final CharSequence tagName) {
-        popTag(tagName);
-    }
-
     @SuppressWarnings({ "UnusedReturnValue", "WeakerAccess" })
     public HtmlBuilder closeAllTags() {
-        while (!myOpenTags.isEmpty()) {
-            String tag = myOpenTags.peek();
+        while (!getOpenTags().isEmpty()) {
+            CharSequence tag = getOpenTags().peek();
             closeTag(tag);
         }
         return this;
     }
 
-    @Override
-    public String toString() {
+    public String toFinalizedString() {
         //if (!myOpenTags.isEmpty()) throw new IllegalStateException("Unclosed tags on toHtml call: " + tagStack());
         closeAllTags();
-        blankLine();
         flush();
+        return myBuilder.toString();
+    }
+
+    @Override
+    public String toString() {
         return myBuilder.toString();
     }
 
@@ -182,6 +159,7 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
 
         stylerMap.put(FontStyle.class, new FontStyleStyler());
     }
+
     public static HtmlStyler getHtmlStyler(Object item) {
         HtmlStyler styler = stylerMap.get(item.getClass());
         if (styler != null) return styler;

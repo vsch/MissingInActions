@@ -412,7 +412,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
 
             myViewPanel.setVisible(false);
             myTextPane.setVisible(true);
-            myTextPane.setText(html.toString());
+            myTextPane.setText(html.toFinalizedString());
             myTextPane.revalidate();
             myTextPane.getParent().revalidate();
             myTextPane.getParent().getParent().revalidate();

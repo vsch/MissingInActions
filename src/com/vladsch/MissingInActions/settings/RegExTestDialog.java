@@ -287,7 +287,7 @@ public class RegExTestDialog extends DialogWrapper {
 
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
-            sampleSet.resultHtml = html.toString();
+            sampleSet.resultHtml = html.toFinalizedString();
             sampleSet.toolTipText = warning;
         } else if (!myIsBadRegEx) {
             HtmlBuilder html = new HtmlBuilder();
@@ -304,7 +304,7 @@ public class RegExTestDialog extends DialogWrapper {
 
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
-            sampleSet.resultHtml = html.toString();
+            sampleSet.resultHtml = html.toFinalizedString();
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
             HtmlBuilder html = new HtmlBuilder();
@@ -318,7 +318,7 @@ public class RegExTestDialog extends DialogWrapper {
 
             myViewPanel.setVisible(false);
             myTextPane.setVisible(true);
-            myTextPane.setText(html.toString());
+            myTextPane.setText(html.toFinalizedString());
             myTextPane.revalidate();
             myTextPane.getParent().revalidate();
             myTextPane.getParent().getParent().revalidate();

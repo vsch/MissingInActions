@@ -19,5 +19,7 @@
     <orderEntry type="module" module-name="intelliJAPI" scope="PROVIDED" />
     <orderEntry type="library" name="flexmark-util" level="project" />
     <orderEntry type="library" name="reverse-regex-util" level="project" />
+    <orderEntry type="library" name="R User Library" level="project" />
+    <orderEntry type="library" name="R Skeletons" level="application" />
   </component>
 </module>
