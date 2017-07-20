@@ -4,6 +4,8 @@
 **You can download it on the [JetBrains plugin page].** or
 [Download Latest 1.4.0 from this repo]
 
+[![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
+
 [TOC]: #
 
 ### Table of Contents
@@ -20,7 +22,7 @@
 - [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
 - [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
-    - [What you didnt know you were missing](#what-you-didnt-know-you-were-missing)
+    - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
     - [Auto Line Selections](#auto-line-selections)
 
