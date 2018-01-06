@@ -23,7 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Iterator;
 
 public class ColorIterable implements Iterable<Color> {

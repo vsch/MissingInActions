@@ -36,7 +36,8 @@ import com.vladsch.MissingInActions.actions.MultiplePasteActionBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JComponent;
 
 // same as duplicate but shows clipboard history popup first
 public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActionBase {
@@ -48,6 +49,16 @@ public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActi
         } else {
             return new DuplicateForClipboardCaretsAction();
         }
+    }
+
+    @Override
+    protected boolean wantDuplicatedUserData() {
+        return false;
+    }
+
+    @Override
+    protected boolean isReplaceAware(@NotNull final Editor editor, final boolean recreateCaretsAction) {
+        return true;
     }
 
     @Nullable

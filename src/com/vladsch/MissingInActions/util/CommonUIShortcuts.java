@@ -28,7 +28,7 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.keymap.KeymapUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.KeyStroke;
 
 public class CommonUIShortcuts {
     public static final String ACTION_MOVE_LINE_UP_ACTION = "MoveLineUp";

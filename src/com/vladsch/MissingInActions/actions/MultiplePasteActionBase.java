@@ -33,11 +33,13 @@ import com.intellij.openapi.editor.impl.DocumentMarkupModel;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.ide.CopyPasteManager.ContentChangedListener;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.MultiPasteOptionsPane;
 import com.vladsch.MissingInActions.util.*;
@@ -45,16 +47,15 @@ import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,16 +65,20 @@ import java.util.List;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
 public abstract class MultiplePasteActionBase extends AnAction implements DumbAware {
-    private static final Logger LOG = getInstance("com.vladsch.MissingInActions.actions");
-    private String myEolText;
+    static final Logger LOG = getInstance("com.vladsch.MissingInActions.actions");
+    String myEolText;
 
     public MultiplePasteActionBase() {
         setEnabledInModalContext(true);
         myEolText = "⏎";
     }
 
+    protected abstract boolean wantDuplicatedUserData();
+
     @NotNull
     protected abstract AnAction getPasteAction(@NotNull Editor editor, boolean recreateCaretsAction);
+
+    protected abstract boolean isReplaceAware(@NotNull Editor editor, boolean recreateCaretsAction);
 
     @Nullable
     protected abstract Action getPasteAction(@NotNull JComponent focusedComponent);
@@ -100,8 +105,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
         final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && getCreateWithCaretsName(editor.getCaretModel().getCaretCount()) != null;
         final MultiPasteOptionsPane myEmptyContentDescription = new MultiPasteOptionsPane();
-        final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
-        final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
+        //final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
+        //final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
         final boolean[] recreateCarets = new boolean[] { false };
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
@@ -113,8 +118,13 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         //noinspection unchecked
         final ContentChooser<Transferable>[] choosers = new ContentChooser[] { null };
         AwtRunnable listUpdater = new AwtRunnable(true, () -> {
-            if (choosers[0] != null) choosers[0].updateListContents();
+            if (choosers[0] != null) {
+                choosers[0].updateListContents(true);
+                updateClipboardData(editor, copyPasteManager, myEmptyContentDescription);
+            }
         });
+
+        updateClipboardData(editor, copyPasteManager, myEmptyContentDescription);
 
         choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), true, true) {
             @Override
@@ -177,6 +187,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                     // convert multi caret text to \n separated ranges
                     final String[] texts = caretContent.getTexts();
+                    //noinspection VariableNotUsedInsideIf
                     if (texts != null) {
                         updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
 
@@ -208,14 +219,12 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         };
 
                         viewer.getContentComponent().addFocusListener(focusAdapter);
-                        delayedRunner.addRunnable(() -> {
-                            viewer.getContentComponent().removeFocusListener(focusAdapter);
-                        });
+                        delayedRunner.addRunnable(() -> viewer.getContentComponent().removeFocusListener(focusAdapter));
                     }
                 }
             }
 
-            private void updateEditorHighlightRegions(@NotNull Editor viewer, ClipboardCaretContent caretContent, boolean multiPasteShowEolInViewer) {
+            void updateEditorHighlightRegions(@NotNull Editor viewer, ClipboardCaretContent caretContent, boolean multiPasteShowEolInViewer) {
                 final TextRange[] textRanges = caretContent.getTextRanges();
                 final int iMax = textRanges.length;
                 MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
@@ -245,9 +254,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         try {
                             final String data = (String) content.getTransferData(DataFlavor.stringFlavor);
                             return data.isEmpty();
-                        } catch (UnsupportedFlavorException e1) {
-                            LOG.error("", e1);
-                        } catch (IOException e1) {
+                        } catch (UnsupportedFlavorException | IOException e1) {
                             LOG.error("", e1);
                         }
                     }
@@ -283,11 +290,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             protected void listKeyPressed(final KeyEvent event) {
                 ContentChooser<Transferable> chooser = choosers[0];
                 if (event.getKeyCode() != 0 && chooser != null) {
-                    if (event.getKeyCode() == KeyEvent.VK_UP && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
+                    if (event.getKeyCode() == KeyEvent.VK_UP && (event.getModifiers() & InputEvent.ALT_MASK) != 0) {
                         // move selection up
                         moveSelections(chooser, true);
                         event.consume();
-                    } else if (event.getKeyCode() == KeyEvent.VK_DOWN && (event.getModifiers() & KeyEvent.ALT_MASK) != 0) {
+                    } else if (event.getKeyCode() == KeyEvent.VK_DOWN && (event.getModifiers() & InputEvent.ALT_MASK) != 0) {
                         moveSelections(chooser, false);
                         event.consume();
                     }
@@ -301,6 +308,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 if (canCreateMultiCarets) {
                     Action[] multiCaretActions = new Action[actions.length + 1];
                     System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
+                    //noinspection SerializableInnerClassWithNonSerializableOuterClass
                     Action createWithMultiCarets = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
@@ -319,7 +327,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             @NotNull
             @Override
             protected Action[] createLeftSideActions() {
+                //noinspection SerializableInnerClassWithNonSerializableOuterClass
                 Action showOptionsAction = new OkAction() {
+                    @SuppressWarnings("SerializableStoresNonSerializable")
                     @Override
                     protected void doAction(final ActionEvent e) {
                         final boolean showOptions = !settings.isMultiPasteShowOptions();
@@ -350,7 +360,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 myEmptyContentDescription.setSettingsChangedRunnable(() -> {
                     if (choosers[0] != null) {
                         final int[] indices = choosers[0].getSelectedIndices();
-                        choosers[0].updateListContents();
+                        choosers[0].updateListContents(false);
                         choosers[0].setSelectedIndices(indices);
                     }
                 });
@@ -433,7 +443,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     }
                 }
 
-                chooser.updateListContents();
+                chooser.updateListContents(true);
                 int index = 0;
                 if (moveUp) {
                     for (int i = anchorIndex; index < indices.length; i++) indices[index++] = i;
@@ -479,12 +489,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         };
 
         final ContentChooser<Transferable> chooser = choosers[0];
-        final CopyPasteManager.ContentChangedListener contentChangedListener = new CopyPasteManager.ContentChangedListener() {
-            @Override
-            public void contentChanged(@Nullable final Transferable oldTransferable, final Transferable newTransferable) {
-                if (!inContentManipulation[0]) {
-                    listUpdater.run();
-                }
+        final ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> {
+            if (!inContentManipulation[0]) {
+                listUpdater.run();
             }
         };
 
@@ -510,7 +517,65 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             if (editor != null) {
                 if (editor.isViewer()) return;
 
+                LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+                String[] userData = null;
+                if (settings.isIncludeUserDefinedMacro()) {
+                    if (settings.isUserDefinedMacroClipContent()) {
+                        final Transferable[] allContents = copyPasteManager.getAllContents();
+                        int index = 0;
+                        for (Transferable item : allContents) {
+                            final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
+                            if (caretContent != null && caretContent.allChars()) {
+                                if (index == myEmptyContentDescription.getSelectedClipboardContentIndex()) {
+                                    userData = caretContent.getTexts();
+                                    break;
+                                }
+                                index++;
+                            }
+                        }
+                    } else {
+                        userData = new String[] { settings.getUserDefinedMacroReplace() };
+                    }
+                }
+
+                manager.setOnPasteReplacementText(EditHelpers.getOnPasteReplacements(editor));
+
+                if (settings.isIncludeUserDefinedMacro()) {
+                    if (userData != null && userData.length > 0) {
+                        String search = settings.getUserDefinedMacroSearch();
+                        if (!search.isEmpty()) {
+                            manager.setOnPasteUserSearchPattern(new SearchPattern(search, settings.isRegexUserDefinedMacro()));
+                        }
+                    }
+                } else {
+                    manager.setOnPasteUserSearchPattern(null);
+                }
+
+                if (settings.isIncludeUserDefinedMacro()) {
+                    if (userData != null && userData.length > 0) {
+                        String search = settings.getUserDefinedMacroSearch();
+                        if (!search.isEmpty()) {
+                            manager.setOnPasteUserSearchPattern(new SearchPattern(search, settings.isRegexUserDefinedMacro()));
+                            manager.setOnPasteUserReplacementText(userData[0]);
+                        }
+                    }
+                }
+
+                //int selectedIndex = myEmptyContentDescription.getSelectedClipboardContentIndex();
                 final AnAction pasteAction = getPasteAction(editor, recreateCarets[0]);
+
+                if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets[0]) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
+                    // need to create the replaced content
+                    final Transferable contents = CopyPasteManager.getInstance().getContents();
+                    if (contents != null) {
+                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+                        if (clipboardCaretContent != null) {
+                            Transferable mergedTransferable = (userData != null && userData.length > 1) ? EditHelpers.getReplacedTransferable(editor, clipboardCaretContent, userData)
+                                    : EditHelpers.getReplacedTransferable(editor, clipboardCaretContent);
+                            CopyPasteManager.getInstance().setContents(mergedTransferable);
+                        }
+                    }
+                }
 
                 AnActionEvent newEvent = new AnActionEvent(e.getInputEvent(),
                         DataManager.getInstance().getDataContext(focusedComponent),
@@ -528,40 +593,26 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         }
     }
 
+    public static void updateClipboardData(final Editor editor, final CopyPasteManagerEx copyPasteManager, final MultiPasteOptionsPane myEmptyContentDescription) {
+        ArrayList<String> selections = new ArrayList<>();
+        final Transferable[] allContents = copyPasteManager.getAllContents();
+        int index = 0;
+        for (Transferable item : allContents) {
+            final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
+            if (caretContent != null && caretContent.allChars()) {
+                String displayName = String.format("%d - [%d] %s", index, caretContent.getCaretCount(), caretContent.getStringRep(30, null, false, false));
+                selections.add(displayName);
+            }
+            index++;
+        }
+        myEmptyContentDescription.updatedClipboardContents(selections);
+    }
+
     @NotNull
-    private String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
+    String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
         final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, content);
         if (caretContent != null) {
-            // convert multi caret text to \n separated ranges
-            StringBuilder sb = new StringBuilder();
-            final String[] texts = caretContent.getTexts();
-            if (texts != null) {
-                int iMax = caretContent.getCaretCount();
-                for (int i = 0; i < iMax; i++) {
-                    //noinspection ConstantConditions
-                    if (caretContent.isFullLine(i)) {
-                        if (showEOL) {
-                            sb.append(texts[i].substring(0, texts[i].length() - 1));
-                            sb.append(myEolText);
-                            if (!removeFullLineEOL || i < iMax - 1) {
-                                sb.append('\n');
-                            }
-                        } else {
-                            if (removeFullLineEOL && i == iMax - 1) {
-                                sb.append(texts[i].substring(0, texts[i].length() - 1));
-                            } else {
-                                sb.append(texts[i]);
-                            }
-                        }
-                    } else {
-                        sb.append(texts[i]);
-                        if (addCharFinalEOL || i < iMax - 1) {
-                            sb.append('\n');
-                        }
-                    }
-                }
-                return sb.toString();
-            }
+            return caretContent.getStringRep(0, showEOL ? myEolText : null, addCharFinalEOL, removeFullLineEOL);
         }
         return "";
     }
@@ -597,6 +648,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
         @Override
         public boolean equals(final Object obj) {
+            //noinspection CallToSimpleGetterFromWithinClass
             return obj instanceof CaretIconRenderer && ((CaretIconRenderer) obj).getIcon() == myIcon;
         }
 

@@ -24,7 +24,7 @@ package com.vladsch.MissingInActions.util.ui;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,6 +67,11 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
     public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude) {
         Set<ComboBoxAdaptable> excluded = new HashSet<>(Arrays.asList(exclude));
 
+        //if (excluded.contains(myDefault)) {
+        //    throw new IllegalStateException("Default item cannot be excluded");
+        //}
+
+        comboBox.removeAllItems();
         for (E item : myDefault.getValues()) {
             if (!excluded.contains(item)) {
                 String displayName = item.getDisplayName();
@@ -74,6 +79,24 @@ public class ComboBoxAdapterImpl<E extends ComboBoxAdaptable<E>> implements Comb
                 comboBox.addItem(displayName);
             }
         }
+    }
+
+    @Override
+    public boolean setComboBoxSelection(final JComboBox comboBox, final ComboBoxAdaptable selection) {
+        int iMax = comboBox.getItemCount();
+        int defaultIndex = 0;
+        for (int i = 0; i < iMax; i++) {
+            final Object item = comboBox.getItemAt(i);
+            if (item.equals(selection.getDisplayName())) {
+                comboBox.setSelectedIndex(i);
+                return true;
+            }
+            if (item.equals(myDefault.getDisplayName())) {
+                defaultIndex = i;
+            }
+        }
+        comboBox.setSelectedIndex(defaultIndex);
+        return false;
     }
 
     @Override

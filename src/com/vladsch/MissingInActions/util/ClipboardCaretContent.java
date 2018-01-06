@@ -124,6 +124,12 @@ public class ClipboardCaretContent {
                 range = clipboardCaretContent.myTextRanges[caretIndex];
             }
         }
+
+        if (range != null) {
+            final int length = editor.getDocument().getTextLength();
+            if (range.getStartOffset() >= length) range = TextRange.from(length, length);
+            else if (range.getEndOffset() > length) range = TextRange.from(range.getStartOffset(), length);
+        }
         return range;
     }
 
@@ -422,5 +428,45 @@ public class ClipboardCaretContent {
             else if (normalizedText.contains("\n")) charLines.set(0);
             return new ClipboardCaretContent(content, new TextRange[] { new TextRange(caretOffset, caretOffset + normalizedText.length()) }, null, false, null, 1, 1, fullLines, charLines, null, false, false);
         }
+    }
+
+    @NotNull
+    public String getStringRep(final int maxLen, final String showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
+        // convert multi caret text to \n separated ranges
+        StringBuilder sb = new StringBuilder();
+        final String[] texts = this.getTexts();
+        if (texts != null) {
+            int iMax = myCaretCount;
+            for (int i = 0; i < iMax; i++) {
+                //noinspection ConstantConditions
+                if (maxLen > 0 && sb.length() >= maxLen) {
+                    if (sb.length() == maxLen) sb.append(' ');
+                    break;
+                }
+                if (this.isFullLine(i)) {
+                    if (showEOL != null) {
+                        sb.append(texts[i].substring(0, texts[i].length() - 1));
+                        if (!removeFullLineEOL || i < iMax - 1) {
+                            sb.append(showEOL);
+                            sb.append('\n');
+                        }
+                    } else {
+                        if (removeFullLineEOL && i == iMax - 1) {
+                            sb.append(texts[i].substring(0, texts[i].length() - 1));
+                        } else {
+                            sb.append(texts[i]);
+                        }
+                    }
+                } else {
+                    sb.append(texts[i]);
+                    if (addCharFinalEOL || i < iMax - 1) {
+                        sb.append('\n');
+                    }
+                }
+            }
+            final String s = sb.toString();
+            return maxLen > 0 && s.length() >= maxLen ? s.substring(0,maxLen) + "..." : s;
+        }
+        return "";
     }
 }

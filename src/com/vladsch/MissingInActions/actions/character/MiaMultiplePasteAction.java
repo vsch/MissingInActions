@@ -31,7 +31,8 @@ import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsActi
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.text.DefaultEditorKit;
 
 public class MiaMultiplePasteAction extends MultiplePasteActionBase {
@@ -43,6 +44,16 @@ public class MiaMultiplePasteAction extends MultiplePasteActionBase {
         } else {
             return ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
         }
+    }
+
+    @Override
+    protected boolean wantDuplicatedUserData() {
+        return true;
+    }
+
+    @Override
+    protected boolean isReplaceAware(@NotNull final Editor editor, final boolean recreateCaretsAction) {
+        return recreateCaretsAction;
     }
 
     @Nullable

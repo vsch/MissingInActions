@@ -72,12 +72,52 @@
         ]]>
     </description>
 
-    <version>1.4.0</version>
+    <version>1.4.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.4.2 - Enhancement Release</h3>
+            <ul>
+                <li>
+                    <p>Add: replace arbitrary string to another string on paste. Useful for quick pasting of
+                        template code with changes without needing to edit after paste (treat this as a user
+                        provided macro variable).</p>
+                    <p>Can add RegEx search or plain string. Plain string search is case sensitive.</p>
+                </li>
+                <li>
+                    <p>Add: replace user string on paste and duplicate for every character caret of another content.
+                        Plain string search is not case sensitive.</p>
+                    <p>For example: if pasting <code>int FormatAbc(int abc) { myAbc = abc; return myAbc; }</code> with the user
+                        search string set to <code>Abc</code>, with clipboard data for the replacement contains 3 carets with
+                        <code>def</code>, <code>myHij</code> and <code>setKlmnop</code> then the paste will result in the following being pasted in:</p>
+                    <pre><code>int FormatDef(int def) { myDef = def; return myDef; }
+int FormatHij(int hij) { myHij = hij; return myHij; }
+int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
+</code></pre>
+                </li>
+                <li>
+                    <p>Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
+                        only file name derivations are supported. When pasting in a file with name
+                        <code>multi-line-image-url</code> the following will be changed as shown:</p>
+                    <ul>
+                        <li><code>__Filename__</code> to <code>multi-line-image-url</code> (as is)</li>
+                        <li><code>__FILENAME__</code> to <code>MULTILINEIMAGEURL</code> (uppercase)</li>
+                        <li><code>__filename__</code> to <code>multilineimageurl</code> (lowercase)</li>
+                        <li><code>__FileName__</code> to <code>MultiLineImageUrl</code> (pascal case)</li>
+                        <li><code>__fileName__</code> to <code>multiLineImageUrl</code> (camel case)</li>
+                        <li><code>__file-name__</code> to <code>multi-line-image-url</code> (dash case)</li>
+                        <li><code>__FILE-NAME__</code> to <code>MULTI-LINE-IMAGE-URL</code> (screaming dash case)</li>
+                        <li><code>__file.name__</code> to <code>multi.line.image.url</code> (dot case)</li>
+                        <li><code>__FILE.NAME__</code> to <code>MULTI.LINE.IMAGE.URL</code> (screaming dot case)</li>
+                        <li><code>__file_name__</code> to <code>multi_line_image_url</code> (snake case)</li>
+                        <li><code>__FILE_NAME__</code> to <code>MULTI_LINE_IMAGE_URL</code> (screaming snake case)</li>
+                        <li><code>__file/name__</code> to <code>multi/line/image/url</code> (slash case)</li>
+                        <li><code>__FILE/NAME__</code> to <code>MULTI/LINE/IMAGE/URL</code> (screaming slash case)</li>
+                    </ul>
+                </li>
+            </ul>
             <h3>1.4.0 - Bug Fix Release</h3>
             <ul>
                 <li>

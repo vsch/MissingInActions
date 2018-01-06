@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +45,11 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
     public static Static<CaretAdjustmentType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NONE));
 
     @Override
+    public ComboBoxAdapter<CaretAdjustmentType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -51,7 +57,4 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
 
     @NotNull
     public CaretAdjustmentType[] getValues() { return values(); }
-
-    @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

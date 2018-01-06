@@ -116,9 +116,9 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             Range selRange = studiedCarets.range;
 
             // we need to duplicate the content, each caret in content duplicated for number of caret copies
-            if (carets.size() > 1) {
+            if (carets.size() > 1 || manager.haveOnPasteReplacements()) {
                 // make dupes so that the block carets are duped
-                mergedTransferable = EditHelpers.getSplitRepeatedTransferable(clipboardCaretContent, carets.size());
+                mergedTransferable = EditHelpers.getSplitRepeatedTransferable(editor, clipboardCaretContent, carets.size());
             }
 
             // now we are ready to duplicate selRange block, and put carets on each duplicate relative to the first block which will not be included

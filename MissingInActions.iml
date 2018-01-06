@@ -21,5 +21,6 @@
     <orderEntry type="library" name="reverse-regex-util" level="project" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
+    <orderEntry type="library" name="KotlinJavaRuntime" level="application" />
   </component>
 </module>

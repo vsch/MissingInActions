@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,6 +113,11 @@ public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPasteP
     public static Static<PrefixOnPastePatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CAMEL));
 
     @Override
+    public ComboBoxAdapter<PrefixOnPastePatternType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -119,7 +125,4 @@ public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPasteP
 
     @NotNull
     public PrefixOnPastePatternType[] getValues() { return values(); }
-
-    @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

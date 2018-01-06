@@ -30,6 +30,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.markup.*;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
@@ -37,19 +38,26 @@ import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHan
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
+import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.MissingInActions.util.*;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
 
@@ -90,6 +98,10 @@ public class LineSelectionManager implements
     @Nullable private List<RangeMarker> myIsolationMarkers;
     @Nullable private List<RangeHighlighter> myWordHighlighters;
     private OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
+    private HashMap<String, String> myOnPasteReplacementMap = null;
+    private SearchPattern myOnPasteUserSearchPattern = null;
+    @NotNull private String myOnPasteUserReplacementText = "";
+    private Pattern myOnPasteSearchPattern = null;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -188,6 +200,142 @@ public class LineSelectionManager implements
     @Nullable
     public RangeLimitedCaretSpawningHandler getCaretSpawningHandler() {
         return myCaretSpawningHandler;
+    }
+
+    @Nullable
+    public HashMap<String, String> getOnPasteReplacementMap() {
+        return myOnPasteReplacementMap;
+    }
+
+    public SearchPattern getOnPasteUserSearchPattern() {
+        return myOnPasteUserSearchPattern;
+    }
+
+    public void setOnPasteReplacementText(@Nullable final HashMap<String, String> onPasteReplacementMap) {
+        myOnPasteReplacementMap = onPasteReplacementMap == null ? null : new HashMap<String, String>(onPasteReplacementMap);
+        myOnPasteSearchPattern = null;
+    }
+
+    public void setOnPasteUserSearchPattern(@Nullable SearchPattern pattern) {
+        if (pattern != null) {
+            try {
+                if (pattern.isRegex()) {
+                    Pattern test = Pattern.compile(pattern.getPatternText());
+                }
+                myOnPasteUserSearchPattern = pattern;
+                myOnPasteSearchPattern = null;
+            } catch (PatternSyntaxException ignored) {
+                myOnPasteSearchPattern = null;
+            }
+        }
+        myOnPasteSearchPattern = null;
+    }
+
+    public void setOnPasteUserReplacementText(@NotNull String replacementString) {
+        myOnPasteUserReplacementText = replacementString;
+    }
+
+    public boolean haveOnPasteReplacements() {
+        return (myOnPasteReplacementMap != null && !myOnPasteReplacementMap.isEmpty()) || myOnPasteUserSearchPattern != null;
+    }
+
+    @Nullable
+    public String replaceOnPaste(@NotNull String text) {
+        if (myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) {
+            return text;
+        }
+
+        Pattern pattern = getOnPastePattern();
+        Matcher matcher = pattern.matcher(text);
+
+        int lastPos = 0;
+        final StringBuilder sb = new StringBuilder();
+        final ApplicationSettings settings = ApplicationSettings.getInstance();
+        final boolean smartReplace = settings.isUserDefinedMacroSmartReplace();
+        final BasedSequence chars = BasedSequenceImpl.of(text);
+        CaseFormatPreserver preserver = new CaseFormatPreserver();
+        int separators = settings.getPreserveOnPasteSeparators();
+        final PrefixOnPastePatternType patternType = settings.getRemovePrefixOnPastePatternType();
+        final String[] prefixes = settings.getPrefixesOnPasteList();
+
+        while (matcher.find()) {
+            final int start = matcher.start();
+            int end = matcher.end();
+            if (lastPos < start) {
+                sb.append(text, lastPos, start);
+            }
+
+            String replace = myOnPasteReplacementMap.get(matcher.group());
+            if (replace != null) {
+                sb.append(replace);
+            } else {
+                // must be user text
+                if (smartReplace) {
+                    preserver.studyFormatBefore(chars, 0, start, end, patternType, prefixes, separators);
+                    String edited = sb.toString() + myOnPasteUserReplacementText + text.substring(end);
+                    final TextRange range = new TextRange(sb.length(), sb.length() + myOnPasteUserReplacementText.length());
+                    final BasedSequence chars1 = BasedSequenceImpl.of(edited);
+
+                    InsertedRangeContext i = preserver.preserveFormatAfter(
+                            chars1,
+                            range
+                            , settings.isPreserveCamelCaseOnPaste()
+                            , settings.isPreserveSnakeCaseOnPaste()
+                            , settings.isPreserveScreamingSnakeCaseOnPaste()
+                            , settings.isPreserveDashCaseOnPaste()
+                            , settings.isPreserveDotCaseOnPaste()
+                            , settings.isPreserveSlashCaseOnPaste()
+                            , settings.isAddPrefixOnPaste()
+                            , settings.getRemovePrefixOnPastePatternType()
+                            , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
+                    );
+
+                    if (i == null) {
+                        // as is
+                        sb.append(myOnPasteUserReplacementText);
+                    } else {
+                        // extract the changed paste replacement
+                        sb.append(i.word());
+                        if (i.getCaretDelta() > 0) {
+                            // changed the next character(s), we grab it too
+                            sb.append(edited.substring(sb.length() + myOnPasteUserReplacementText.length() - i.getCaretDelta()));
+                            end += i.getCaretDelta();
+                        }
+                    }
+                } else {
+                    sb.append(myOnPasteUserReplacementText);
+                }
+            }
+            lastPos = end;
+        }
+
+        if (lastPos < text.length()) {
+            sb.append(text, lastPos, text.length());
+        }
+
+        return sb.toString();
+    }
+
+    public Pattern getOnPastePattern() {
+        if (myOnPasteSearchPattern == null) {
+            StringBuilder sb = new StringBuilder();
+            String splice = "";
+            for (String search : myOnPasteReplacementMap.keySet()) {
+                sb.append(splice);
+
+                sb.append(SearchPattern.getPatternText(search, false, true));
+                splice = "|";
+            }
+
+            if (myOnPasteUserSearchPattern != null) {
+                sb.append(splice);
+                sb.append(myOnPasteUserSearchPattern.getPatternText(myOnPasteUserSearchPattern.isRegex() || !ApplicationSettings.getInstance().isUserDefinedMacroClipContent()));
+                splice = "|";
+            }
+
+            myOnPasteSearchPattern = Pattern.compile(sb.toString());
+        }
+        return myOnPasteSearchPattern;
     }
 
     public void clearSearchFoundCarets() {

@@ -21,7 +21,8 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class CustomizedBoundaryLabelForm {
     private JPanel myMainPanel;

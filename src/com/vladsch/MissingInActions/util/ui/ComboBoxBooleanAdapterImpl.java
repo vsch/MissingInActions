@@ -21,7 +21,7 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +38,7 @@ public class ComboBoxBooleanAdapterImpl<E extends ComboBoxAdaptable<E>> extends 
     public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude) {
         Set<ComboBoxAdaptable> excluded = new HashSet<>(Arrays.asList(exclude));
 
+        comboBox.removeAllItems();
         for (E item : myDefault.getValues()) {
             if (item == myDefault || item == myNonDefault) {
                 //noinspection unchecked

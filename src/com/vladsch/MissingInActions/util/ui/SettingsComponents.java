@@ -23,7 +23,10 @@ package com.vladsch.MissingInActions.util.ui;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
 
 public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {

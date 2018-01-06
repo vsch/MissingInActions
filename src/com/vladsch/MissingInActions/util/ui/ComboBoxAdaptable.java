@@ -23,14 +23,23 @@ package com.vladsch.MissingInActions.util.ui;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
 
-public interface ComboBoxAdaptable<E> {
+public interface ComboBoxAdaptable<E extends ComboBoxAdaptable<E>> {
     String getDisplayName();
     String name();
     int getIntValue();
+    ComboBoxAdapter<E> getAdapter();
     E[] getValues();
-    boolean isDefault();
+
+    // these have default implementations
+    default boolean isDefault() {
+        return this == getAdapter().getDefault();
+    }
+
+    default boolean setComboBoxSelection(JComboBox comboBox) {
+        return getAdapter().setComboBoxSelection(comboBox, this);
+    }
 
     class Static<T extends ComboBoxAdaptable<T>> implements ComboBoxAdapter<T> {
         protected final @NotNull ComboBoxAdapter<T> ADAPTER;
@@ -76,6 +85,11 @@ public interface ComboBoxAdaptable<E> {
         @Override
         public void fillComboBox(JComboBox comboBox, ComboBoxAdaptable[] exclude) { ADAPTER.fillComboBox(comboBox, exclude); }
 
+        @Override
+        public boolean setComboBoxSelection(JComboBox comboBox, final ComboBoxAdaptable selection) {
+            return ADAPTER.setComboBoxSelection(comboBox, selection);
+        }
+
         @NotNull
         @Override
         public T findEnum(int intValue) { return ADAPTER.findEnum(intValue); }
@@ -101,6 +115,11 @@ public interface ComboBoxAdaptable<E> {
     class StaticBoolean<T extends ComboBoxAdaptable<T>> extends Static<T> implements ComboBoxBooleanAdapter<T> {
         public StaticBoolean(@NotNull ComboBoxBooleanAdapter<T> ADAPTER) {
             super(ADAPTER);
+        }
+
+        @Override
+        public boolean setComboBoxSelection(final JComboBox comboBox, final ComboBoxAdaptable selection) {
+            return ADAPTER.setComboBoxSelection(comboBox, selection);
         }
 
         @Override

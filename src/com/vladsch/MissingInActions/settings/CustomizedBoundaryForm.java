@@ -25,7 +25,8 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBRadioButton;
 import com.vladsch.MissingInActions.util.EditHelpers;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class CustomizedBoundaryForm {
     private JPanel myMainPanel;

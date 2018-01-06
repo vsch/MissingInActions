@@ -22,6 +22,7 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -75,7 +76,7 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
                 return SeparatorFrequencyType.NONE;
         }
     }
-    
+
     public String getDefaultSeparator() {
         switch (intValue) {
             case 10: return ",";
@@ -86,7 +87,7 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
                 return "";
         }
     }
-    
+
     public String getDefaultTemplate() {
         switch (intValue) {
             case 10: return "0";
@@ -97,7 +98,7 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
                 return "";
         }
     }
-    
+
     public final int intValue;
     public final @NotNull String displayName;
 
@@ -109,6 +110,11 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
     public static Static<NumberingBaseType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(BASE_10));
 
     @Override
+    public ComboBoxAdapter<NumberingBaseType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -116,7 +122,4 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
 
     @NotNull
     public NumberingBaseType[] getValues() { return values(); }
-
-    @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

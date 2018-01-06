@@ -21,7 +21,7 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import java.awt.*;
+import java.awt.Font;
 
 @SuppressWarnings("WeakerAccess")
 public class FontStyle {

@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,11 @@ public enum CaretThicknessType implements ComboBoxAdaptable<CaretThicknessType> 
     public static Static<CaretThicknessType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NORMAL));
 
     @Override
+    public ComboBoxAdapter<CaretThicknessType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -49,7 +55,4 @@ public enum CaretThicknessType implements ComboBoxAdaptable<CaretThicknessType> 
 
     @NotNull
     public CaretThicknessType[] getValues() { return values(); }
-
-    @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

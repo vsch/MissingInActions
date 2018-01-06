@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.4.2 - Enhancement Release](#142---enhancement-release)
 - [1.4.0 - Bug Fix Release](#140---bug-fix-release)
 - [1.3.0 - Bug Fix Release](#130---bug-fix-release)
 - [1.2.0 - Enhancement Release](#120---enhancement-release)
@@ -47,7 +48,46 @@
       indent.
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
-&nbsp;</details>
+&nbsp;</details>`
+
+### 1.4.2 - Enhancement Release
+
+* Add: replace arbitrary string to another string on paste. Useful for quick pasting of
+      template code with changes without needing to edit after paste (treat this as a user
+      provided macro variable).
+
+  Can add RegEx search or plain string. Plain string search is case sensitive.
+
+* Add: replace user string on paste and duplicate for every character caret of another content.
+  Plain string search is not case sensitive.
+
+  For example: if pasting `int FormatAbc(int abc) { myAbc = abc; return myAbc; } ` with the user
+  search string set to `Abc`, with clipboard data for the replacement contains 3 carets with
+  `def`, `myHij` and `setKlmnop` then the paste will result in the following being pasted in:
+
+  ```
+  int FormatDef(int def) { myDef = def; return myDef; }
+  int FormatHij(int hij) { myHij = hij; return myHij; }
+  int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
+  ```
+
+* Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
+  only file name derivations are supported. When pasting in a file with name
+  `multi-line-image-url` the following will be changed as shown:
+
+  * `__Filename__` to `multi-line-image-url` (as is)
+  * `__FILENAME__` to `MULTILINEIMAGEURL` (uppercase)
+  * `__filename__` to `multilineimageurl` (lowercase)
+  * `__FileName__` to `MultiLineImageUrl` (pascal case)
+  * `__fileName__` to `multiLineImageUrl` (camel case)
+  * `__file-name__` to `multi-line-image-url` (dash case)
+  * `__FILE-NAME__` to `MULTI-LINE-IMAGE-URL` (screaming dash case)
+  * `__file.name__` to `multi.line.image.url` (dot case)
+  * `__FILE.NAME__` to `MULTI.LINE.IMAGE.URL` (screaming dot case)
+  * `__file_name__` to `multi_line_image_url` (snake case)
+  * `__FILE_NAME__` to `MULTI_LINE_IMAGE_URL` (screaming snake case)
+  * `__file/name__` to `multi/line/image/url` (slash case)
+  * `__FILE/NAME__` to `MULTI/LINE/IMAGE/URL` (screaming slash case)
 
 ### 1.4.0 - Bug Fix Release
 

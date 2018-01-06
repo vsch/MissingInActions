@@ -23,13 +23,15 @@ package com.vladsch.MissingInActions.util.ui;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
 
 public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
     boolean isAdaptable(ComboBoxAdaptable type);
     boolean onFirst(int intValue, OnMap map);
     boolean onAll(int intValue, OnMap map);
     void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
+    @SuppressWarnings("UnusedReturnValue")
+    boolean setComboBoxSelection(JComboBox comboBox, final ComboBoxAdaptable selection);
     @NotNull E findEnum(int intValue);
     @NotNull E findEnum(String displayName);
     @NotNull E findEnumName(String name);

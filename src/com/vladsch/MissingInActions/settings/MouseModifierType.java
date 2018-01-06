@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +42,11 @@ public enum MouseModifierType implements ComboBoxAdaptable<MouseModifierType> {
     public static Static<MouseModifierType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CTRL_CHAR));
 
     @Override
+    public ComboBoxAdapter<MouseModifierType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -48,7 +54,4 @@ public enum MouseModifierType implements ComboBoxAdaptable<MouseModifierType> {
 
     @NotNull
     public MouseModifierType[] getValues() { return values(); }
-
-    @Override
-    public boolean isDefault() { return this == ADAPTER.getDefault(); }
 }

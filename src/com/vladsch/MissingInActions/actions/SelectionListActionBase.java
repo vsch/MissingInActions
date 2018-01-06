@@ -46,9 +46,12 @@ import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
 abstract public class SelectionListActionBase extends ComboBoxAction implements DumbAware {
     private final static Key<RangeHighlighter> RANGE_HIGHLIGHTER = Key.create("MIA_RANGE_HIGHLIGHTER");

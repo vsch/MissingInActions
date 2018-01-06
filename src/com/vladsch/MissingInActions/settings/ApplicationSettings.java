@@ -62,6 +62,7 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean         myMultiPasteShowOptions = true;
     private boolean         myMultiPastePreserveOriginal = true;
     private boolean         myMultiPasteDeleteRepeatedCaretData = true;
+    private boolean         myReplaceMacroVariables = false;
     private boolean         myOverrideStandardPaste = false;
     private boolean         myPreserveCamelCaseOnPaste = false;
     private boolean         myPreserveScreamingSnakeCaseOnPaste = false;
@@ -136,6 +137,12 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private int             myDarkGradientBrightnessMax = 30;
     private int             myDarkGradientBrightnessSteps = 2;
     private boolean         myHideDisabledButtons = false;
+    private boolean         myIncludeUserDefinedMacro = false;
+    private boolean         myRegexUserDefinedMacro = false;
+    private boolean         myUserDefinedMacroClipContent = false;
+    private @NotNull String myUserDefinedMacroSearch = "";
+    private @NotNull String myUserDefinedMacroReplace = "";
+    private boolean         myUserDefinedMacroSmartReplace = true;
     // @formatter:on
 
     public boolean isHideDisabledButtons() {
@@ -145,6 +152,48 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public void setHideDisabledButtons(final boolean hideDisabledButtons) {
         myHideDisabledButtons = hideDisabledButtons;
     }
+
+    public boolean isUserDefinedMacroSmartReplace() {
+        return myUserDefinedMacroSmartReplace;
+    }
+
+    public void setUserDefinedMacroSmartReplace(final boolean userDefinedMacroSmartReplace) {
+        myUserDefinedMacroSmartReplace = userDefinedMacroSmartReplace;
+    }
+
+    public boolean isIncludeUserDefinedMacro() {
+        return myIncludeUserDefinedMacro;
+    }
+
+    public void setIncludeUserDefinedMacro(final boolean includeUserDefinedMacro) {
+        myIncludeUserDefinedMacro = includeUserDefinedMacro;
+    }
+
+    public boolean isUserDefinedMacroClipContent() {
+        return myUserDefinedMacroClipContent;
+    }
+
+    public void setUserDefinedMacroClipContent(final boolean userDefinedMacroClipContent) {
+        myUserDefinedMacroClipContent = userDefinedMacroClipContent;
+    }
+
+    public boolean isRegexUserDefinedMacro() {
+        return myRegexUserDefinedMacro;
+    }
+
+    public void setRegexUserDefinedMacro(final boolean regexUserDefinedMacro) {
+        myRegexUserDefinedMacro = regexUserDefinedMacro;
+    }
+
+    @NotNull
+    public String getUserDefinedMacroSearch() { return myUserDefinedMacroSearch; }
+
+    public void setUserDefinedMacroSearch(@NotNull final String userDefinedMacroSearch) { myUserDefinedMacroSearch = userDefinedMacroSearch; }
+
+    @NotNull
+    public String getUserDefinedMacroReplace() { return myUserDefinedMacroReplace; }
+
+    public void setUserDefinedMacroReplace(@NotNull final String userDefinedMacroReplace) { myUserDefinedMacroReplace = userDefinedMacroReplace; }
 
     public void setHueMin(final int hueMin) {
         if (UIUtil.isUnderDarcula()) {
@@ -478,8 +527,8 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public NumberingBaseOptions getNumberingBaseOptions(int numberingBase) {
         assert numberingBase >= NumberingBaseType.MIN_BASE && numberingBase <= NumberingBaseType.MAX_BASE;
-        if (numberingBase == 0) return myLastNumberingBaseOptions_0.copy();
-        if (numberingBase == 1) return myLastNumberingBaseOptions_1.copy();
+        //if (numberingBase == 0) return myLastNumberingBaseOptions_0.copy();
+        //if (numberingBase == 1) return myLastNumberingBaseOptions_1.copy();
         if (numberingBase == 2) return myLastNumberingBaseOptions_2.copy();
         if (numberingBase == 3) return myLastNumberingBaseOptions_3.copy();
         if (numberingBase == 4) return myLastNumberingBaseOptions_4.copy();
@@ -830,6 +879,10 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public boolean isMultiPasteDeleteRepeatedCaretData() { return myMultiPasteDeleteRepeatedCaretData; }
 
     public void setMultiPasteDeleteRepeatedCaretData(boolean multiPasteDeleteRepeatedCaretData) { myMultiPasteDeleteRepeatedCaretData = multiPasteDeleteRepeatedCaretData; }
+
+    public boolean isReplaceMacroVariables() { return myReplaceMacroVariables; }
+
+    public void setReplaceMacroVariables(boolean replaceMacroVariables) { myReplaceMacroVariables = replaceMacroVariables; }
 
     public boolean isSelectPastedMultiCaret() { return mySelectPastedMultiCaret; }
 

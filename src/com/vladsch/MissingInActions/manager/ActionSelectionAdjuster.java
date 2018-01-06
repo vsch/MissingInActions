@@ -40,7 +40,7 @@ import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.CaretMoveAction;
 import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
-import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
+import com.vladsch.MissingInActions.actions.DeleteAfterPasteTransferableData;
 import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
@@ -48,6 +48,7 @@ import com.vladsch.MissingInActions.settings.LinePasteCaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.SelectionPredicateType;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.ValueRunnable;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -953,7 +954,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             if (caretContent != null && settings.isMultiPasteDeleteRepeatedCaretData()) {
                 Transferable[] allContents = copyPasteManager.getAllContents();
                 final Transferable transferable = allContents.length > 0 ? allContents[0] : null;
-                if (transferable != null && transferable.isDataFlavorSupported(SplitMergedTransferableData.FLAVOR)) {
+                if (transferable != null && transferable.isDataFlavorSupported(DeleteAfterPasteTransferableData.FLAVOR)) {
                     // we delete this one, it is a repeat and only useful for exact copy of duped lines, but on after action of all nested actions are done
                     myAfterActionsCleanup.addAfterAction(LAST_CLEANUP_EVENT, () -> {
                         copyPasteManager.removeContent(transferable);
@@ -1008,9 +1009,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                         if (caretContent != null) {
                             TextRange rawRange = ClipboardCaretContent.getLastPastedTextRange(myEditor, snapshot.getIndex());
                             if (rawRange != null) {
-                                CharSequence beforeShift = rawRange.subSequence(editorCaret.getDocumentChars());
+                                final BasedSequence documentChars = editorCaret.getDocumentChars();
+                                CharSequence beforeShift = rawRange.subSequence(documentChars);
                                 TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
-                                CharSequence afterShift = range.subSequence(editorCaret.getDocumentChars());
+                                CharSequence afterShift = range.subSequence(documentChars);
                                 editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
                                 if (!editorCaret.hasLines()) {

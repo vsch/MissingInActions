@@ -24,7 +24,6 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.codeInsight.editorActions.TextBlockTransferable;
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
-import com.intellij.ide.util.EditorHelper;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.Language;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -34,7 +33,6 @@ import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.editor.impl.EditorImpl;
-import com.intellij.openapi.editor.impl.EditorTextRepresentationHelper;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.AbstractFileType;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -47,11 +45,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.vladsch.MissingInActions.actions.SplitMergedTransferableData;
+import com.vladsch.MissingInActions.actions.DeleteAfterPasteTransferableData;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -59,7 +58,7 @@ import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPasswordField;
 import java.awt.datatransfer.Transferable;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -1280,19 +1279,23 @@ public class EditHelpers {
     public static Transferable getSplitRepeatedTransferable(@NotNull Editor editor, Transferable content, int repeatCount) {
         ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, content);
         if (clipboardCaretContent != null) {
-            return getSplitRepeatedTransferable(clipboardCaretContent, repeatCount);
+            return getSplitRepeatedTransferable(editor, clipboardCaretContent, repeatCount);
         }
         return content;
     }
 
     @NotNull
-    public static Transferable getSplitRepeatedTransferable(ClipboardCaretContent clipboardCaretContent, int repeatCount) {
+    public static Transferable getSplitRepeatedTransferable(
+            final @NotNull Editor editor,
+            ClipboardCaretContent clipboardCaretContent,
+            int repeatCount
+    ) {
         Transferable mergedTransferable;
-        List<Transferable> list = new ArrayList<>(clipboardCaretContent.getCaretCount());
         String sep = "\n";
         int iMax1 = clipboardCaretContent.getCaretCount();
         final String[] texts = clipboardCaretContent.getTexts();
         assert texts != null;
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
         StringBuilder sb = new StringBuilder();
         List<TextRange> ranges = new ArrayList<>();
@@ -1301,21 +1304,20 @@ public class EditHelpers {
             for (int j = 0; j < repeatCount; j++) {
                 if (clipboardCaretContent.isFullLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(texts[i]);
+                    sb.append(manager.replaceOnPaste(texts[i]));
                     int endOffset = sb.length();
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else if (clipboardCaretContent.isCharLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(texts[i]);
+                    sb.append(manager.replaceOnPaste(texts[i]));
                     int endOffset = sb.length();
                     sb.append(sep);
-
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else {
                     int startOffset = sb.length();
-                    sb.append(texts[i]);
+                    sb.append(manager.replaceOnPaste(texts[i]));
                     int endOffset = sb.length();
-                    sb.append(sep);
+                    if (iMax1 > 1 || repeatCount > 1) sb.append(sep);
                     ranges.add(new TextRange(startOffset, endOffset));
                 }
             }
@@ -1332,9 +1334,106 @@ public class EditHelpers {
         }
 
         transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
-        transferableData.add(new SplitMergedTransferableData(startOffsets, endOffsets));
+        transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
         mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
         return mergedTransferable;
+    }
+
+    @NotNull
+    public static Transferable getReplacedTransferable(
+            final @NotNull Editor editor,
+            ClipboardCaretContent clipboardCaretContent,
+            String[] userData
+    ) {
+        Transferable mergedTransferable;
+        String sep = "\n";
+        int iMax1 = clipboardCaretContent.getCaretCount();
+        final String[] texts = clipboardCaretContent.getTexts();
+        assert texts != null;
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        String userMacroSearch = ApplicationSettings.getInstance().getUserDefinedMacroSearch();
+
+        StringBuilder sb = new StringBuilder();
+        List<TextRange> ranges = new ArrayList<>();
+
+        // here we build a single text based on permutations
+
+        int jMax = userData.length;
+        for (int i = 0; i < iMax1; i++) {
+            for (int j = 0; j < jMax; j++) {
+                // update manager's replacement
+                manager.setOnPasteUserReplacementText(userData[j]);
+                if (clipboardCaretContent.isFullLine(i)) {
+                    int startOffset = sb.length();
+                    sb.append(manager.replaceOnPaste(texts[i]));
+                    int endOffset = sb.length();
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else if (clipboardCaretContent.isCharLine(i)) {
+                    int startOffset = sb.length();
+                    sb.append(manager.replaceOnPaste(texts[i]));
+                    int endOffset = sb.length();
+                    sb.append(sep);
+                    ranges.add(new TextRange(startOffset, endOffset));
+                } else {
+                    int startOffset = sb.length();
+                    sb.append(manager.replaceOnPaste(texts[i]));
+                    int endOffset = sb.length();
+                    //if (iMax1 > 1 || jMax > 1) sb.append(sep);
+                    ranges.add(new TextRange(startOffset, endOffset));
+                }
+            }
+        }
+
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[ranges.size()];
+        int[] endOffsets = new int[ranges.size()];
+        int i = 0;
+        for (TextRange range : ranges) {
+            startOffsets[i] = range.getStartOffset();
+            endOffsets[i] = range.getEndOffset();
+            i++;
+        }
+
+        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
+        mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+        return mergedTransferable;
+    }
+
+    @NotNull
+    public static Transferable getReplacedTransferable(
+            final @NotNull Editor editor,
+            ClipboardCaretContent clipboardCaretContent
+    ) {
+        return getSplitRepeatedTransferable(editor, clipboardCaretContent, 1);
+    }
+
+    @Nullable
+    public static HashMap<String, String> getOnPasteReplacements(final @NotNull Editor editor) {
+        final ApplicationSettings settings = ApplicationSettings.getInstance();
+        if (settings.isReplaceMacroVariables() && editor instanceof EditorEx) {
+            final EditorEx editorEx = (EditorEx) editor;
+            final Project project = editorEx.getProject();
+            final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editorEx.getVirtualFile());
+            HashMap<String, String> map = new HashMap<>();
+            StudiedWord word = new StudiedWord(editorEx.getVirtualFile().getNameWithoutExtension(), StudiedWord.DOT | StudiedWord.DASH | StudiedWord.UNDER | StudiedWord.SLASH | StudiedWord.SPACE);
+            final String pascalCase = word.makePascalCase();
+            map.put("__Filename__", word.getWord().toString());
+            map.put("__FILENAME__", pascalCase.toUpperCase());
+            map.put("__filename__", pascalCase.toLowerCase());
+            map.put("__FileName__", pascalCase);
+            map.put("__fileName__", word.makeProperCamelCase());
+            map.put("__file-name__", word.makeDashCase());
+            map.put("__FILE-NAME__", word.makeScreamingDashCase());
+            map.put("__file.name__", word.makeDotCase());
+            map.put("__FILE.NAME__", word.makeScreamingDotCase());
+            map.put("__file_name__", word.makeSnakeCase());
+            map.put("__FILE_NAME__", word.makeScreamingSnakeCase());
+            map.put("__file/name__", word.makeSlashCase());
+            map.put("__FILE/NAME__", word.makeScreamingSlashCase());
+            return map;
+        }
+        return null;
     }
 
     @NotNull

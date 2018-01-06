@@ -2,13 +2,15 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.4.0 from this repo]
+[Download Latest 1.4.2 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
+- [Version 1.4.0 - Bug Fix Release](#version-140---bug-fix-release)
 - [Version 1.3.4 - Bug Fix Release](#version-134---bug-fix-release)
 - [Version 1.3.0 - Bug Fix & Enhancement Release](#version-130---bug-fix--enhancement-release)
 - [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123---bug-fix--enhancement-release)
@@ -79,9 +81,62 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.3.4 - Bug Fix Release
+## Version 1.4.2 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.4.0 from this repo][]
+[Version Notes][] [Download Latest 1.4.2 from this repo][]
+
+* Add: replacement of content strings on paste:
+
+  * Replace arbitrary string to another string on paste. Useful for quick pasting of
+    template code with changes without needing to edit after paste (treat this as a user
+    provided macro variable).
+
+    Can add RegEx search or plain string. Plain string search is case sensitive.
+
+  * Add: replace user string on paste and duplicate for every character caret of another
+    content. Plain string search is not case sensitive.
+
+    For example: if pasting `int FormatAbc(int abc) { myAbc = abc; return myAbc; } ` with the
+    user search string set to `Abc`, with clipboard data for the replacement contains 3 carets
+    with `def`, `myHij` and `setKlmnop` then the paste will result in the following being pasted
+    in:
+
+    ```
+    int FormatDef(int def) { myDef = def; return myDef; }
+    int FormatHij(int hij) { myHij = hij; return myHij; }
+    int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
+    ```
+
+  * Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
+    only file name derivations are supported. When pasting in a file with name
+    `multi-line-image-url` the following will be changed as shown:
+
+    * `__Filename__` to `multi-line-image-url` (as is)
+    * `__FILENAME__` to `MULTILINEIMAGEURL` (uppercase)
+    * `__filename__` to `multilineimageurl` (lowercase)
+    * `__FileName__` to `MultiLineImageUrl` (pascal case)
+    * `__fileName__` to `multiLineImageUrl` (camel case)
+    * `__file-name__` to `multi-line-image-url` (dash case)
+    * `__FILE-NAME__` to `MULTI-LINE-IMAGE-URL` (screaming dash case)
+    * `__file.name__` to `multi.line.image.url` (dot case)
+    * `__FILE.NAME__` to `MULTI.LINE.IMAGE.URL` (screaming dot case)
+    * `__file_name__` to `multi_line_image_url` (snake case)
+    * `__FILE_NAME__` to `MULTI_LINE_IMAGE_URL` (screaming snake case)
+    * `__file/name__` to `multi/line/image/url` (slash case)
+    * `__FILE/NAME__` to `MULTI/LINE/IMAGE/URL` (screaming slash case)
+
+## Version 1.4.0 - Bug Fix Release
+
+* Fix: NPE when projects are being rapidly opened and closed.
+
+* Fix: #17, Caret don't move across tab-indented lines
+
+* Fix: Remove highlighted word carets would not remove the last selection if all carets
+  contained highlighted word selections
+
+* Fix: size of color chip when using HiDPI displays that need scaling.
+
+## Version 1.3.4 - Bug Fix Release
 
 * Fix: #17, Caret don't move across tab-indented lines
 
@@ -465,7 +520,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.4.0 from this repo]: ../../raw/master/dist/MissingInActions.1.4.0.zip
+[Download Latest 1.4.2 from this repo]: ../../raw/master/dist/MissingInActions.1.4.2.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

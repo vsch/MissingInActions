@@ -30,7 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
 
 import static com.vladsch.MissingInActions.manager.CaretEx.HAVE_VISUAL_ATTRIBUTES;
 

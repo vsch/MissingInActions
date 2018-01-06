@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
+import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
 import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,11 @@ public enum SeparatorFrequencyType implements ComboBoxAdaptable<SeparatorFrequen
     public static Static<SeparatorFrequencyType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EVERY_3));
 
     @Override
+    public ComboBoxAdapter<SeparatorFrequencyType> getAdapter() {
+        return ADAPTER;
+    }
+
+    @Override
     public int getIntValue() { return intValue; }
 
     @NotNull
@@ -56,11 +62,6 @@ public enum SeparatorFrequencyType implements ComboBoxAdaptable<SeparatorFrequen
 
     @Override
     public boolean isDefault() {
-        return this == ADAPTER.getDefault();
-    }
-
-    public boolean isDefault(NumberingBaseType baseType) {
-
         return this == ADAPTER.getDefault();
     }
 }

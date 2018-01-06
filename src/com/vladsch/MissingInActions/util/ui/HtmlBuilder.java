@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.util.ui;
 
 import com.intellij.ui.JBColor;
-import com.vladsch.MissingInActions.util.UtilKt;
 import com.vladsch.flexmark.util.html.Attribute;
 import com.vladsch.flexmark.util.html.AttributeImpl;
 import com.vladsch.flexmark.util.html.Attributes;
@@ -30,9 +29,8 @@ import com.vladsch.flexmark.util.html.HtmlFormattingAppendableBase;
 import com.vladsch.flexmark.util.sequence.CharSubSequence;
 
 import javax.swing.plaf.FontUIResource;
-import java.awt.*;
+import java.awt.Font;
 import java.util.HashMap;
-import java.util.Stack;
 
 public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
     private final Appendable myBuilder;

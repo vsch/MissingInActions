@@ -90,7 +90,6 @@ public class CaseFormatPreserverTest {
         preserver.studyFormatBefore(chars, offset, start, end, patternType, prefixes, separators);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
-        String ranged = range.substring(edited);
         final BasedSequence chars1 = BasedSequenceImpl.of(edited);
         InsertedRangeContext i = preserver.preserveFormatAfter(
                 chars1,

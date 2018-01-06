@@ -39,10 +39,10 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.NumberSequenceGenerator;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
 import com.vladsch.MissingInActions.settings.RenumberingDialog;
 import com.vladsch.MissingInActions.util.CaretOffsets;
+import com.vladsch.MissingInActions.util.NumberSequenceGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

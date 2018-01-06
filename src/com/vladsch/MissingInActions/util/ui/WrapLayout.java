@@ -21,7 +21,8 @@
 
 package com.vladsch.MissingInActions.util.ui;
 
-import javax.swing.*;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import java.awt.*;
 
 /**

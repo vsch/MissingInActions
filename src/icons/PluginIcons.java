@@ -23,7 +23,7 @@ package icons;
 
 import com.intellij.openapi.util.IconLoader;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class PluginIcons {
     private static Icon load(String path) {

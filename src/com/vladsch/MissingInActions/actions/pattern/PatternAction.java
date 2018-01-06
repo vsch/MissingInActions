@@ -32,7 +32,7 @@ import com.vladsch.MissingInActions.util.Utils;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.MissingInActions.util.ui.TextFieldAction;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.regex.Pattern;
 
 public class PatternAction extends TextFieldAction {
