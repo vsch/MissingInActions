@@ -3,6 +3,8 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.4.6 - Bug Fix Release](#146---bug-fix-release)
+- [1.4.4 - Bug Fix Release](#144---bug-fix-release)
 - [1.4.2 - Enhancement Release](#142---enhancement-release)
 - [1.4.0 - Bug Fix Release](#140---bug-fix-release)
 - [1.3.0 - Bug Fix Release](#130---bug-fix-release)
@@ -48,7 +50,27 @@
       indent.
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
-&nbsp;</details>`
+&nbsp;</details>
+
+### 1.4.6 - Bug Fix Release
+
+* Fix: change "Recall Selection from List" to "Recall Selection" to shorten toolbar real-estate
+* Fix: change "Swap Selection Text from List" to "Swap Text" to shorten toolbar real-estate
+* Fix: newly opened files would not show word highlights until they were modified.
+
+### 1.4.4 - Bug Fix Release
+
+* Fix: removed "Swap Text" action which did nothing because it was for internal use. Added "Swap
+  Selection Text from List" which was the original intention to show the available list of
+  selections to use for swapping currently selected text and one selected from a list.
+
+* Fix: removed "Selections" action which did nothing because it was for internal use. Added
+  "Recall Selection from List" which was the original intention to show the available list of
+  selections to recall one of them.
+
+* Fix: renamed "Pop Last Selection" to "Recall Last Selection"
+
+* Fix: editor not disposed in renumber dialog
 
 ### 1.4.2 - Enhancement Release
 

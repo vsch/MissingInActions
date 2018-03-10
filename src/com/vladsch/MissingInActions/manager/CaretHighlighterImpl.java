@@ -52,7 +52,7 @@ class CaretHighlighterImpl implements CaretHighlighter {
         }
     }
 
-    private CaretVisualAttributes.Weight getCaretWeight(CaretThicknessType thicknessType) {
+    private static CaretVisualAttributes.Weight getCaretWeight(CaretThicknessType thicknessType) {
         switch (thicknessType) {
             case THIN:
                 return CaretVisualAttributes.Weight.THIN;

@@ -72,12 +72,37 @@
         ]]>
     </description>
 
-    <version>1.4.2</version>
+    <version>1.4.5</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.4.6 - Bug Fix Release</h3>
+            <ul>
+                <li>Fix: change &ldquo;Recall Selection from List&rdquo; to &ldquo;Recall Selection&rdquo; to shorten toolbar real-estate</li>
+                <li>Fix: change &ldquo;Swap Selection Text from List&rdquo; to &ldquo;Swap Text&rdquo; to shorten toolbar real-estate</li>
+                <li>Fix: newly opened files would not show word highlights until they were modified.</li>
+            </ul>
+            <h3>1.4.4 - Bug Fix Release</h3>
+            <ul>
+                <li>
+                    <p>Fix: removed &ldquo;Swap Text&rdquo; action which did nothing because it was for internal use. Added &ldquo;Swap
+                        Selection Text from List&rdquo; which was the original intention to show the available list of
+                        selections to use for swapping currently selected text and one selected from a list.</p>
+                </li>
+                <li>
+                    <p>Fix: removed &ldquo;Selections&rdquo; action which did nothing because it was for internal use. Added
+                        &ldquo;Recall Selection from List&rdquo; which was the original intention to show the available list of
+                        selections to recall one of them.</p>
+                </li>
+                <li>
+                    <p>Fix: renamed &ldquo;Pop Last Selection&rdquo; to &ldquo;Recall Last Selection&rdquo;</p>
+                </li>
+                <li>
+                    <p>Fix: editor not disposed in renumber dialog</p>
+                </li>
+            </ul>
             <h3>1.4.2 - Enhancement Release</h3>
             <ul>
                 <li>
@@ -132,91 +157,6 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
                 </li>
                 <li>
                     <p>Fix: size of color chip when using HiDPI displays that need scaling.</p>
-                </li>
-            </ul>
-            <h3>1.3.0 - Bug Fix Release</h3>
-            <ul>
-                <li>
-                    <p>Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions</p>
-                </li>
-                <li>
-                    <p>Fix: #15, Selection continuation with the mouse and Shift modifier is broken</p>
-                </li>
-                <li>
-                    <p>Add: multi-caret search accept not found carets action to allow excluding carets with matching
-                        search position.</p>
-                </li>
-            </ul>
-            <h3>1.2.0 - Enhancement Release</h3>
-            <ul>
-                <li>
-                    <p>Fix: Exclude $ from being considered as part of identifier for purposes of determining word
-                        start/end boundary for highlighted words.</p>
-                </li>
-                <li>
-                    <p>Fix: conversion from dash, dot and slash to snake case was not working.</p>
-                </li>
-                <li>
-                    <p>Add: hide disabled toolbar buttons option to settings</p>
-                </li>
-                <li>
-                    <p>Add: button versions of recall selection and swap text to eliminate button text to save
-                        toolbar real-estate</p>
-                </li>
-            </ul>
-            <h3>1.1.6 - Enhancement Release</h3>
-            <ul>
-                <li>Change: make <code>Line Selection Mode</code>, <code>Forward Search Caret Spawning</code> and <code>Backward Search Caret Spawning</code> actions toggle actions to show when active.</li>
-            </ul>
-            <h3>1.1.5 - Enhancement Release</h3>
-            <ul>
-                <li>
-                    <p>Change: Recall selection from list action text from <code>Recall Selection</code> to <code>Selections</code> to
-                        shorten the toolbar button.</p>
-                </li>
-                <li>
-                    <p>Change: split settings into tabbed pane per category</p>
-                </li>
-            </ul>
-            <h3>1.1.4 - Enhancement Release</h3>
-            <ul>
-                <li>
-                    <p>Add: Line Isolation Mode to &ldquo;highlight&rdquo; the isolated lines by &ldquo;lowlighting&rdquo; the non isolated
-                        lines. Especially useful when duplicating a method or methods for modification. This allows
-                        isolating the copies which are to be modified so that they are not confused with the
-                        originals.</p>
-                </li>
-                <li>
-                    <p>Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
-                        selection.</p>
-                </li>
-            </ul>
-            <h3>1.1.3 - Bug Fix &amp; Enhancement Release</h3>
-            <ul>
-                <li>Change: allow overlapping selection text swapping by eliminating overlapping part of selections
-                    from the swap.</li>
-                <li>Fix: exception in some cases when swapping text and more than set limit of stored selections
-                    is already present.</li>
-            </ul>
-            <h3>1.1.2 - Enhancement Release</h3>
-            <ul>
-                <li>Fix: bump up version compatibility to 162.*</li>
-            </ul>
-            <h3>1.1.1 - Enhancement Release</h3>
-            <ul>
-                <li>Fix: exception caused by api change</li>
-            </ul>
-            <h3>1.1.0 - Enhancement Release</h3>
-            <ul>
-                <li>
-                    <p>Add: Selection Stack to automatically store the last N selections for a file</p>
-                </li>
-                <li>
-                    <p>Add: Recall/Swap selection actions and toolbar buttons</p>
-                </li>
-                <li>
-                    <p>Add: Swap Selection Text actions and toolbar buttons to swap currently selected text with text
-                        from a stored selection.</p>
                 </li>
             </ul>
         </div>
@@ -603,21 +543,21 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
 
         <action class="com.vladsch.MissingInActions.actions.PopSelectionAction"
                 id="MissingInActions.RecallLastSelection"
-                text="Pop Last Selection"
+                text="Recall Last Selection"
                 icon="PluginIcons.Recall_selection"
-                description="Pop Selection">
+                description="Recall Last Selection">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
                 id="MissingInActions.RecallSelectionList"
-                text="Selections"
+                text=""
                 icon="PluginIcons.Recall_selection_list"
-                description="Recall Selection from List">
+                description="Recall Selection List">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
                 id="MissingInActions.RecallSelectionListButton"
-                text=""
+                text="Recall Selection"
                 icon="PluginIcons.Recall_selection_list"
                 description="Recall Selection from List">
         </action>
@@ -631,14 +571,14 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
 
         <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
                 id="MissingInActions.SwapSelectionTextList"
-                text="Swap Text"
+                text=""
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
                 id="MissingInActions.SwapSelectionTextListButton"
-                text=""
+                text="Swap Text"
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>

@@ -88,7 +88,7 @@ public class LineSelectionManager implements
     private boolean myIsSelectionEndExtended;
     private boolean myIsSelectionStartExtended;
     private final CaretHighlighter myCaretHighlighter;
-    private ApplicationSettings mySettings;
+    ApplicationSettings mySettings;
     @Nullable private RangeLimitedCaretSpawningHandler myCaretSpawningHandler;
     @Nullable private Set<CaretEx> myStartCarets;
     @Nullable private Set<CaretEx> myStartMatchedCarets;
@@ -97,7 +97,7 @@ public class LineSelectionManager implements
     @Nullable private List<RangeHighlighter> myIsolationHighlighters;
     @Nullable private List<RangeMarker> myIsolationMarkers;
     @Nullable private List<RangeHighlighter> myWordHighlighters;
-    private OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
+    OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
     private HashMap<String, String> myOnPasteReplacementMap = null;
     private SearchPattern myOnPasteUserSearchPattern = null;
     @NotNull private String myOnPasteUserReplacementText = "";
@@ -126,17 +126,20 @@ public class LineSelectionManager implements
 
     public LineSelectionManager(Editor editor) {
         myEditor = editor;
+        //noinspection ThisEscapedInObjectConstruction
         myPositionFactory = new EditorPositionFactory(this);
 
         // this can fail if caret visual attributes are not implemented in the IDE (since 2017.1)
         CaretHighlighter caretHighlighter;
         try {
+            //noinspection ThisEscapedInObjectConstruction
             caretHighlighter = new CaretHighlighterImpl(this);
             //caretHighlighter = CaretHighlighter.NULL;
         } catch (Throwable ignored) {
             caretHighlighter = CaretHighlighter.NULL;
         }
 
+        //noinspection ThisEscapedInObjectConstruction
         Plugin.getInstance().addHighlightWordListener(new HighlightWordsListener() {
             @Override
             public void highlightedWordsChanged() {
@@ -160,11 +163,13 @@ public class LineSelectionManager implements
         LafManager.getInstance().addLafManagerListener(myLafManagerListener);
 
         myCaretHighlighter = caretHighlighter;
+        //noinspection ThisEscapedInObjectConstruction
         myActionSelectionAdjuster = new ActionSelectionAdjuster(this, NormalAdjustmentMap.getInstance());
 
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
 
+        //noinspection ThisEscapedInObjectConstruction
         myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
         myCaretSpawningHandler = null;
@@ -190,7 +195,11 @@ public class LineSelectionManager implements
             }
         };
 
+        //noinspection ThisEscapedInObjectConstruction
         myEditor.getDocument().addDocumentListener(documentListener, this);
+
+        // update if they exist
+        updateHighlightWords();
     }
 
     public static boolean isCaretAttributeAvailable() {
@@ -359,19 +368,6 @@ public class LineSelectionManager implements
         myDelayedRunner.runAllFor(ESCAPE_SEARCH);
     }
 
-    public void clearSearchFoundHighlights() {
-        Set<Long> excludeList = null;
-
-        myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
-
-        //noinspection ConstantConditions
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
-        myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
-
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
-        myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
-    }
-
     @Nullable
     public List<CaretState> getStartCaretStates() {
         return myStartCaretStates;
@@ -417,7 +413,6 @@ public class LineSelectionManager implements
         myCaretSpawningHandler = caretSpawningHandler;
     }
 
-    @Nullable
     public void setStartCaretStates(@Nullable final List<CaretState> startCaretStates) {
         myStartCaretStates = startCaretStates;
     }
@@ -434,23 +429,13 @@ public class LineSelectionManager implements
         } else {
             myStartCarets = new HashSet<>(carets.size());
             CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
-            for (Caret caret : carets) {
-                if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
-
-                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
-                    myCaretHighlighter.setPrimaryCaret(null);
-                    myPrimaryCaret = null;
-                }
-                myStartCarets.add(new CaretEx(caret));
-            }
-
+            getMatchedCarets(carets, excludeList, myPrimaryCaret, myStartCarets);
             myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
         }
     }
 
     private void setStartMatchedCarets(@Nullable final Collection<Caret> carets) {
-        Set<Long> excludeList = null;
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        Set<Long> excludeList = CaretEx.getExcludedCoordinates(null, myFoundCarets);
 
         myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
         if (carets == null) {
@@ -458,17 +443,20 @@ public class LineSelectionManager implements
         } else {
             myStartMatchedCarets = new HashSet<>(carets.size());
             CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
-            for (Caret caret : carets) {
-                if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
-
-                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
-                    myCaretHighlighter.setPrimaryCaret(null);
-                    myPrimaryCaret = null;
-                }
-                myStartMatchedCarets.add(new CaretEx(caret));
-            }
-
+            getMatchedCarets(carets, excludeList, myPrimaryCaret, myStartMatchedCarets);
             myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
+        }
+    }
+
+    private void getMatchedCarets(@NotNull final Collection<Caret> carets, final Set<Long> excludeList, CaretEx myPrimaryCaret, final Set<CaretEx> matchedCarets) {
+        for (Caret caret : carets) {
+            if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
+
+            if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+                myCaretHighlighter.setPrimaryCaret(null);
+                myPrimaryCaret = null;
+            }
+            matchedCarets.add(new CaretEx(caret));
         }
     }
 
@@ -617,17 +605,22 @@ public class LineSelectionManager implements
         }
     }
 
-    private void clearIsolationHighlighters() {
-        if (myIsolationHighlighters != null) {
+    private void clearHighlighters(List<RangeHighlighter> highlighters) {
+        if (highlighters != null) {
             MarkupModel markupModel = myEditor.getMarkupModel();
-            for (RangeHighlighter marker : myIsolationHighlighters) {
+            for (RangeHighlighter marker : highlighters) {
                 if (marker.isValid()) {
                     markupModel.removeHighlighter(marker);
                     marker.dispose();
                 }
             }
-            myIsolationHighlighters = null;
+            myEditor.getContentComponent().invalidate();
         }
+    }
+
+    private void clearIsolationHighlighters() {
+        clearHighlighters(myIsolationHighlighters);
+        myIsolationHighlighters = null;
     }
 
     public void setIsolatedLines(@Nullable BitSet bitSet, @Nullable Boolean isolatedMode) {
@@ -641,19 +634,11 @@ public class LineSelectionManager implements
     }
 
     private void removeWordHighlights() {
-        if (myWordHighlighters != null) {
-            MarkupModel markupModel = myEditor.getMarkupModel();
-            for (RangeHighlighter marker : myWordHighlighters) {
-                if (marker.isValid()) {
-                    markupModel.removeHighlighter(marker);
-                    marker.dispose();
-                }
-            }
-            myWordHighlighters = null;
-        }
+        clearHighlighters(myWordHighlighters);
+        myWordHighlighters = null;
     }
 
-    private void updateHighlightWords() {
+    void updateHighlightWords() {
         Plugin plugin = Plugin.getInstance();
 
         removeWordHighlights();
@@ -798,7 +783,7 @@ public class LineSelectionManager implements
         return false;
     }
 
-    private void settingsChanged(@NotNull ApplicationSettings settings) {
+    void settingsChanged(@NotNull ApplicationSettings settings) {
         // unhook all the stuff for settings registration
         mySettings = settings;
 

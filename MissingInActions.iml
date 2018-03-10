@@ -14,13 +14,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="TEST" name="kotlin-test" level="application" />
-    <orderEntry type="library" name="KotlinJavaRuntime" level="application" />
     <orderEntry type="module" module-name="intelliJAPI" scope="PROVIDED" />
     <orderEntry type="library" name="flexmark-util" level="project" />
     <orderEntry type="library" name="reverse-regex-util" level="project" />
-    <orderEntry type="library" name="R User Library" level="project" />
-    <orderEntry type="library" name="R Skeletons" level="application" />
-    <orderEntry type="library" name="KotlinJavaRuntime" level="application" />
+    <orderEntry type="library" name="Kotlin Runtime" level="project" />
   </component>
 </module>

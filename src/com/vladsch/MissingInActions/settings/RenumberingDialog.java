@@ -52,7 +52,7 @@ public class RenumberingDialog extends DialogWrapper {
     private final @NotNull EditorEx myEditor;
     private final @NotNull EditorEx myViewer;
 
-    public RenumberingDialog(JComponent parent, @NotNull EditorEx editor) {
+    private RenumberingDialog(JComponent parent, @NotNull EditorEx editor) {
         super(parent, false);
 
         setTitle(Bundle.message("renumber.title"));
@@ -205,6 +205,7 @@ public class RenumberingDialog extends DialogWrapper {
         RenumberingDialog dialog = new RenumberingDialog(parent, editor);
         boolean save = dialog.showAndGet();
         dialog.saveSettings();
+        dialog.releaseEditor();
         return save;
     }
 
@@ -241,11 +242,17 @@ public class RenumberingDialog extends DialogWrapper {
         return (EditorEx) editor;
     }
 
+    private void releaseEditor() {
+        if (!myViewer.isDisposed()) {
+            EditorFactory.getInstance().releaseEditor(myViewer);
+        }
+    }
+
     private void createUIComponents() {
         myNumberingOptionsForm = new NumberingOptionsForm(ApplicationSettings.getInstance().getLastNumberingOptions());
     }
 
-    private void ignoreErrors(Runnable runnable) {
+    private static void ignoreErrors(Runnable runnable) {
         try {
             runnable.run();
         } catch (Throwable ignored) {

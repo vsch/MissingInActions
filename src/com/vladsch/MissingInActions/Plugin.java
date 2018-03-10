@@ -74,9 +74,9 @@ public class Plugin implements ApplicationComponent, Disposable {
     final private HashMap<AnActionEvent, Editor> myActionEventEditorMap;
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
     final private HashSet<Editor> myPasteOverrideEditors;
-    final private HashSet<HighlightWordsListener> myHighlightWordListeners;
+    final HashSet<HighlightWordsListener> myHighlightWordListeners;
     final private AnAction myMultiPasteAction;
-    private ApplicationSettings mySettings;
+    ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
     private Color[] myHighlightColors;
     private int myHighlightColorRepeatIndex;
@@ -118,6 +118,7 @@ public class Plugin implements ApplicationComponent, Disposable {
             }
         };
 
+        //noinspection ThisEscapedInObjectConstruction
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
         myDelayedRunner.addRunnable(messageBusConnection::disconnect);
@@ -146,7 +147,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         if (myHighlightWords.containsKey(wordText)) return true;
         if (!myHighlightWordsCaseSensitive) {
             updateHighlightPattern();
-            if (myHighlightCaseInsensitiveWordIndices != null && myHighlightCaseInsensitiveWordIndices.containsKey(wordText.toLowerCase())) return true;
+            return myHighlightCaseInsensitiveWordIndices != null && myHighlightCaseInsensitiveWordIndices.containsKey(wordText.toLowerCase());
         }
         return false;
     }
@@ -211,10 +212,8 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
         int flags = (beginWord ? BEGIN_WORD : 0) | (endWord ? END_WORD : 0) | (caseSensitive == null ? 0 : caseSensitive ? CASE_INSENSITIVE : CASE_INSENSITIVE);
         String wordText = word instanceof String ? (String) word : String.valueOf(word);
-        if (myHighlightWords.containsKey(wordText)) {
-            // remove and add so flags will be modified and it will be moved to the end of list (which is considered the head)
-            myHighlightWords.remove(wordText);
-        }
+        // remove and add so flags will be modified and it will be moved to the end of list (which is considered the head)
+        myHighlightWords.remove(wordText);
 
         myHighlightWords.put(wordText, flags);
         myHighlightPattern = null;
@@ -331,7 +330,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         EditorFactory.getInstance().addEditorFactoryListener(editorFactoryListener, this);
         myDelayedRunner.addRunnable(() -> {
             Set<Editor> editorSet = myLineSelectionManagers.keySet();
-            Editor[] editors = editorSet.toArray(new Editor[editorSet.size()]);
+            Editor[] editors = editorSet.toArray(new Editor[0]);
             for (Editor editor : editors) {
                 LineSelectionManager manager = myLineSelectionManagers.remove(editor);
                 if (manager != null) {
@@ -399,7 +398,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
     }
 
-    private void beforeActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
+    void beforeActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
         Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
         if (editor != null) {
             myActionEventEditorMap.put(event, editor);
@@ -419,7 +418,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
     }
 
-    private void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
+    void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
         Editor editor = myActionEventEditorMap.remove(event);
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
@@ -437,7 +436,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
     }
 
-    private void beforeEditorTyping(final char c, final DataContext dataContext) {
+    void beforeEditorTyping(final char c, final DataContext dataContext) {
         Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
@@ -478,7 +477,7 @@ public class Plugin implements ApplicationComponent, Disposable {
 
     }
 
-    private void settingsChanged(@NotNull ApplicationSettings settings) {
+    void settingsChanged(@NotNull ApplicationSettings settings) {
         myDelayedRunner.runAllFor(myMultiPasteAction);
         mySettings = settings;
 
@@ -537,13 +536,13 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
     }
 
-    public void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
+    public static void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
         assert editor.getProject() != null;
         addEditorActiveLookupListener(editor, listener, null);
     }
 
     @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
-    public void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener, @Nullable Disposable parentDisposable) {
+    public static void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener, @Nullable Disposable parentDisposable) {
         assert editor.getProject() != null;
 
         PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
@@ -552,7 +551,7 @@ public class Plugin implements ApplicationComponent, Disposable {
         }
     }
 
-    public void removeEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
+    public static void removeEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
         assert editor.getProject() != null;
 
         PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
@@ -562,7 +561,7 @@ public class Plugin implements ApplicationComponent, Disposable {
     }
 
     // EditorFactoryListener
-    private void editorCreated(@NotNull EditorFactoryEvent event) {
+    void editorCreated(@NotNull EditorFactoryEvent event) {
         final Editor editor = event.getEditor();
         LineSelectionManager manager = new LineSelectionManager(editor);
         myLineSelectionManagers.put(editor, manager);
@@ -588,7 +587,7 @@ public class Plugin implements ApplicationComponent, Disposable {
     }
 
     // EditorFactoryListener
-    private void editorReleased(@NotNull EditorFactoryEvent event) {
+    void editorReleased(@NotNull EditorFactoryEvent event) {
         myDelayedRunner.runAllFor(event.getEditor());
     }
 
@@ -626,7 +625,7 @@ public class Plugin implements ApplicationComponent, Disposable {
     //    }
     //}
 
-    private boolean dispatch(@NotNull final AWTEvent e) {
+    boolean dispatch(@NotNull final AWTEvent e) {
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
                 return component instanceof JTextComponent;

@@ -1065,27 +1065,29 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     private void updateLastPastedClipboardCarets(final Transferable transferable, final LinePasteCaretAdjustmentType adjustment, boolean setIfNone) {
         // if we already saved state, it means we might have adjusted caret position for line selections of the clipboard content at the time
         // we need to restore caret column positions to undo adjustments made for clipboard content that no longer applies
-        final ClipboardCaretContent lastClipboardData = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
-        if (lastClipboardData != null) {
-            int i = 0;
-            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                EditorPosition position = myManager.getPositionFactory().fromPosition(caret.getLogicalPosition());
-                final EditorPosition atColumn = position.atColumn(lastClipboardData.getCaretColumn(i++));
-                if (atColumn != position) {
-                    caret.moveToLogicalPosition(atColumn);
+        if (!myEditor.isDisposed()) {
+            final ClipboardCaretContent lastClipboardData = ClipboardCaretContent.getLastPastedClipboardCarets(myEditor);
+            if (lastClipboardData != null) {
+                int i = 0;
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    EditorPosition position = myManager.getPositionFactory().fromPosition(caret.getLogicalPosition());
+                    final EditorPosition atColumn = position.atColumn(lastClipboardData.getCaretColumn(i++));
+                    if (atColumn != position) {
+                        caret.moveToLogicalPosition(atColumn);
+                    }
                 }
             }
-        }
 
-        if (lastClipboardData != null || setIfNone) {
-            final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
-                if (!caret.hasSelection() && isFullLine) {
-                    caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
-                }
-                return caret.getOffset();
-            }) : null;
+            if (lastClipboardData != null || setIfNone) {
+                final ClipboardCaretContent clipboardData = transferable != null ? ClipboardCaretContent.saveLastPastedCaretsForTransferable(myEditor, transferable, adjustment == LinePasteCaretAdjustmentType.NONE ? null : (caret, isFullLine) -> {
+                    if (!caret.hasSelection() && isFullLine) {
+                        caret.moveToOffset(adjustment.getPastePosition(myManager.getPositionFactory().fromPosition(caret.getLogicalPosition())).getOffset());
+                    }
+                    return caret.getOffset();
+                }) : null;
 
-            ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, clipboardData);
+                ClipboardCaretContent.setLastPastedClipboardCarets(myEditor, clipboardData);
+            }
         }
     }
 

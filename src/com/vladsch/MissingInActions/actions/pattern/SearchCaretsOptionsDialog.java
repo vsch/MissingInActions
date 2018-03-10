@@ -170,7 +170,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         return (EditorEx) editor;
     }
 
-    private void ignoreErrors(Runnable runnable) {
+    private static void ignoreErrors(Runnable runnable) {
         try {
             runnable.run();
         } catch (Throwable ignored) {
