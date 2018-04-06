@@ -38,8 +38,8 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
 @State(
         name = "MissingInActions",
         storages = {
-                @Storage(file = StoragePathMacros.APP_CONFIG + "/MissingInAction.xml", roamingType = RoamingType.DISABLED, deprecated = true),
-                @Storage(file = StoragePathMacros.APP_CONFIG + "/MissingInActions.xml"/*, roamingType = RoamingType.DISABLED*/)
+                @Storage(file = "MissingInAction.xml", roamingType = RoamingType.DISABLED, deprecated = true),
+                @Storage(file = "MissingInActions.xml")
         }
 )
 @SuppressWarnings("WeakerAccess")

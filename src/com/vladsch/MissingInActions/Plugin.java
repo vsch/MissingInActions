@@ -238,12 +238,22 @@ public class Plugin implements ApplicationComponent, Disposable {
         if (myHighlightPattern == null && !myHighlightWords.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             String sep = "";
-            int i = myHighlightWords.size();
-            myHighlightWordIndices = new HashMap<>(myHighlightWords.size());
-            myHighlightCaseInsensitiveWordIndices = new HashMap<>(myHighlightWords.size());
+            int iMax = myHighlightWords.size();
+            myHighlightWordIndices = new HashMap<>(iMax);
+            myHighlightCaseInsensitiveWordIndices = new HashMap<>(iMax);
             boolean isCaseSensitive = true;
 
-            for (Map.Entry<String, Integer> entry : myHighlightWords.entrySet()) {
+            ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(myHighlightWords.entrySet());
+            Map<String, Integer> originalOrderMap = new HashMap<>(iMax);
+
+            int i = 0;
+            for (Map.Entry<String, Integer> entry : entries) {
+                originalOrderMap.put(entry.getKey(), i++);
+            }
+
+            entries.sort(Comparator.comparing((entry) -> -entry.getKey().length()));
+
+            for (Map.Entry<String, Integer> entry : entries) {
                 sb.append(sep);
                 sep = "|";
 
@@ -264,9 +274,9 @@ public class Plugin implements ApplicationComponent, Disposable {
                 if ((entry.getValue() & END_WORD) != 0) sb.append("\\b");
 
                 if (isCaseSensitive) {
-                    myHighlightWordIndices.put(entry.getKey(), --i);
+                    myHighlightWordIndices.put(entry.getKey(), originalOrderMap.get(entry.getKey()));
                 } else {
-                    myHighlightCaseInsensitiveWordIndices.put(entry.getKey().toLowerCase(), --i);
+                    myHighlightCaseInsensitiveWordIndices.put(entry.getKey().toLowerCase(), originalOrderMap.get(entry.getKey()));
                 }
             }
 

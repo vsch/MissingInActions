@@ -1411,7 +1411,7 @@ public class EditHelpers {
     @Nullable
     public static HashMap<String, String> getOnPasteReplacements(final @NotNull Editor editor) {
         final ApplicationSettings settings = ApplicationSettings.getInstance();
-        if (settings.isReplaceMacroVariables() && editor instanceof EditorEx) {
+        if (settings.isReplaceMacroVariables() && editor instanceof EditorEx && ((EditorEx) editor).getVirtualFile() != null) {
             final EditorEx editorEx = (EditorEx) editor;
             final Project project = editorEx.getProject();
             final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editorEx.getVirtualFile());

@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [Next: 1.4.8 - Bug Fix Release](#next-148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
 - [1.4.2 - Enhancement Release](#142---enhancement-release)
@@ -51,6 +52,14 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### Next: 1.4.8 - Bug Fix Release
+
+* Fix: caret spawning search forward/backward regex when word starts or ends on `$` which regex
+  does not consider an identifier character so `\b` does not handle the word break properly.
+* Fix: Highlights sorted in reverse length order to allow longer matches to succeed before
+  possibly shorter sub-strings.
+* Fix: @NotNull argument must not be null exception.
 
 ### 1.4.6 - Bug Fix Release
 
