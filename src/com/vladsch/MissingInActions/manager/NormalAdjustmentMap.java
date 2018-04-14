@@ -99,6 +99,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
 
                 , com.vladsch.MissingInActions.actions.line.ToLineSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToggleSelectionAnchorAction.class
+                , com.vladsch.MissingInActions.actions.line.ClearIsolatedLinesAction.class
                 , com.vladsch.MissingInActions.actions.line.ToCharacterSelectionAction.class
                 , com.vladsch.MissingInActions.actions.line.ToggleLineCharacterSelectionAction.class
 
@@ -382,10 +383,12 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , com.vladsch.MissingInActions.actions.carets.RemoveCodeLineCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.PrimaryCaretToNextAction.class
                 , com.vladsch.MissingInActions.actions.carets.KeepBlankLineCaretsAction.class
+                , com.vladsch.MissingInActions.actions.carets.KeepSelectionCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.KeepLineCommentCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.PrimaryCaretToPrevAction.class
                 , com.vladsch.MissingInActions.actions.carets.MovePrimaryCaretToNextPrevCaretBase.class
                 , com.vladsch.MissingInActions.actions.carets.RemoveBlankLineCaretsAction.class
+                , com.vladsch.MissingInActions.actions.carets.RemoveSelectionCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.KeepCodeLineCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.RemoveLineCommentCaretsAction.class
                 , com.vladsch.MissingInActions.actions.carets.SmartKeepLineCaretsAction.class

@@ -97,12 +97,13 @@ public class NumberActionHandler extends EditorActionHandler {
                             carets.add(offsets);
                         } else {
                             // add number at caret but may need to add virtual spaces
-                            int virtualSpaces = caret1.getLogicalPosition().column - (editor.getDocument().getLineEndOffset(caretLine) - editor.getDocument().getLineStartOffset(caretLine));
+                            int virtualSpaces = caret1.getVisualPosition().column - (editor.getDocument().getLineEndOffset(caretLine) - editor.getDocument().getLineStartOffset(caretLine));
                             if (lastVirtual > 0) {
                                 virtualSpaces -= lastVirtual;
                                 lastVirtual += virtualSpaces;
                             } else {
                                 lastVirtual = virtualSpaces;
+                                if (virtualSpaces < 0) virtualSpaces = 0;
                             }
 
                             StringBuilder sb = new StringBuilder();
@@ -110,8 +111,14 @@ public class NumberActionHandler extends EditorActionHandler {
                             while (i-- > 0) sb.append(' ');
                             sb.append(number);
                             final int offset = caret1.getOffset();
+                            int lengthOffset = 0;
+                            if (offset == document.getTextLength()) {
+                                // end of file, no EOL
+                                sb.append('\n');
+                                lengthOffset = -1;
+                            }
                             document.insertString(offset, sb);
-                            CaretOffsets offsets = new CaretOffsets(offset + sb.length(), offset + virtualSpaces, offset + sb.length());
+                            CaretOffsets offsets = new CaretOffsets(offset + sb.length() + lengthOffset, offset + virtualSpaces, offset + sb.length() + lengthOffset);
                             carets.add(offsets);
                         }
                     }

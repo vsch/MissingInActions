@@ -49,31 +49,37 @@ import static com.vladsch.MissingInActions.actions.carets.RemoveLineCaretsAction
 public class RemoveLineCaretsActionBase extends AnAction implements LineSelectionAware {
 
     public enum OpType {
-        REMOVE_NONE(false, false, false),
-        REMOVE_SMART(false, false, false),  // if has code lines, remove code lines else if has comment remove comment else keep all
-        REMOVE_BLANK_LINES(true, false, false),
-        REMOVE_LINE_COMMENTS(false, true, false),
-        REMOVE_CODE_LINES(false, false, true),
-        REMOVE_NON_BLANK_LINES(false, true, true),
-        REMOVE_NON_LINE_COMMENTS(true, false, true),
-        REMOVE_NON_CODE_LINES(true, true, false),
-        KEEP_ALL(false, false, false),
-        KEEP_SMART(false, false, false),    // if has code lines, remove non code lines else if has comment remove blank else keep all
-        KEEP_BLANK_LINES(false, true, true),
-        KEEP_LINE_COMMENTS(true, false, true),
-        KEEP_CODE_LINES(true, true, false),
-        KEEP_NON_BLANK_LINES(true, false, false),
-        KEEP_NON_LINE_COMMENTS(false, true, false),
-        KEEP_NON_CODE_LINES(false, false, true);
+        REMOVE_NONE(false, false, false, false, false),
+        REMOVE_SMART(false, false, false, false, false),  // if has code lines, remove code lines else if has comment remove comment else keep all
+        REMOVE_BLANK_LINES(true, false, false, false, false),
+        REMOVE_LINE_COMMENTS(false, true, false, false, false),
+        REMOVE_CODE_LINES(false, false, true, false, false),
+        REMOVE_NON_BLANK_LINES(false, true, true, false, false),
+        REMOVE_NON_LINE_COMMENTS(true, false, true, false, false),
+        REMOVE_NON_CODE_LINES(true, true, false, false, false),
+        REMOVE_WITH_SELECTION(false, false, false, true, false),
+        KEEP_ALL(false, false, false, false, false),
+        KEEP_SMART(false, false, false, false, false),    // if has code lines, remove non code lines else if has comment remove blank else keep all
+        KEEP_BLANK_LINES(false, true, true, false, false),
+        KEEP_LINE_COMMENTS(true, false, true, false, false),
+        KEEP_CODE_LINES(true, true, false, false, false),
+        KEEP_NON_BLANK_LINES(true, false, false, false, false),
+        KEEP_NON_LINE_COMMENTS(false, true, false, false, false),
+        KEEP_NON_CODE_LINES(false, false, true, false, false),
+        REMOVE_WITHOUT_SELECTION(false, false, false, false, true),;
 
         public final boolean removeBlankLines;
         public final boolean removeLineComments;
         public final boolean removeCodeLines;
+        public final boolean removeWithSelection;
+        public final boolean removeWithoutSelection;
 
-        OpType(boolean removeBlankLines, boolean removeLineComments, boolean removeCodeLines) {
+        OpType(boolean removeBlankLines, boolean removeLineComments, boolean removeCodeLines, boolean removeWithSelection, boolean removeWithoutSelection) {
             this.removeBlankLines = removeBlankLines;
             this.removeLineComments = removeLineComments;
             this.removeCodeLines = removeCodeLines;
+            this.removeWithSelection = removeWithSelection;
+            this.removeWithoutSelection = removeWithoutSelection;
         }
     }
 
@@ -117,19 +123,29 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             boolean hadCodeLine = false;
             boolean hadLineComment = false;
             boolean hadBlankLine = false;
+            boolean hadSelection = false;
+            boolean hadNoSelection = false;
 
             for (Caret caret : caretModel.getAllCarets()) {
-                final int lineNumber = doc.getLineNumber(caret.getOffset());
-                final int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                final int lineStartOffset = doc.getLineStartOffset(lineNumber);
-
-                if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
-                    hadBlankLine = true;
-                } else {
-                    if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
-                        hadLineComment = true;
+                if (myOpType == REMOVE_WITH_SELECTION || myOpType == REMOVE_WITHOUT_SELECTION) {
+                    if (caret.hasSelection()) {
+                        hadSelection = true;
                     } else {
-                        hadCodeLine = true;
+                        hadNoSelection = true;
+                    }
+                } else {
+                    final int lineNumber = doc.getLineNumber(caret.getOffset());
+                    final int lineEndOffset = doc.getLineEndOffset(lineNumber);
+                    final int lineStartOffset = doc.getLineStartOffset(lineNumber);
+
+                    if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
+                        hadBlankLine = true;
+                    } else {
+                        if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
+                            hadLineComment = true;
+                        } else {
+                            hadCodeLine = true;
+                        }
                     }
                 }
             }
@@ -154,26 +170,41 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
             boolean allRemoved = opType.removeBlankLines && !(hadCodeLine || hadLineComment)
                     || opType.removeLineComments && !(hadBlankLine || hadCodeLine)
-                    || opType.removeCodeLines && !(hadBlankLine || hadLineComment);
+                    || opType.removeCodeLines && !(hadBlankLine || hadLineComment)
+                    || opType.removeWithSelection && !(hadNoSelection)
+                    || opType.removeWithoutSelection && !(hadSelection);
 
-            if (!allRemoved && (opType.removeBlankLines && hadBlankLine || opType.removeLineComments && hadLineComment || opType.removeCodeLines && hadCodeLine)) {
-                for (Caret caret : caretModel.getAllCarets()) {
-                    final int lineNumber = doc.getLineNumber(caret.getOffset());
-                    final int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                    final int lineStartOffset = doc.getLineStartOffset(lineNumber);
-
-                    if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
-                        if (opType.removeBlankLines) {
-                            editor.getCaretModel().removeCaret(caret);
-                        }
-                    } else {
-                        if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
-                            if (opType.removeLineComments) {
+            if (!allRemoved) {
+                if (opType.removeWithoutSelection && hadNoSelection ||
+                        opType.removeWithSelection && hadSelection ||
+                        opType.removeBlankLines && hadBlankLine ||
+                        opType.removeLineComments && hadLineComment ||
+                        opType.removeCodeLines && hadCodeLine) {
+                    for (Caret caret : caretModel.getAllCarets()) {
+                        if (opType.removeWithSelection || opType.removeWithoutSelection) {
+                            if (opType.removeWithSelection && caret.hasSelection() || opType.removeWithoutSelection && !caret.hasSelection()) {
                                 editor.getCaretModel().removeCaret(caret);
                             }
                         } else {
-                            if (opType.removeCodeLines) {
-                                editor.getCaretModel().removeCaret(caret);
+                            final int lineNumber = doc.getLineNumber(caret.getOffset());
+                            final int lineEndOffset = doc.getLineEndOffset(lineNumber);
+                            final int lineStartOffset = doc.getLineStartOffset(lineNumber);
+
+                            if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
+
+                                if (opType.removeBlankLines) {
+                                    editor.getCaretModel().removeCaret(caret);
+                                }
+                            } else {
+                                if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
+                                    if (opType.removeLineComments) {
+                                        editor.getCaretModel().removeCaret(caret);
+                                    }
+                                } else {
+                                    if (opType.removeCodeLines) {
+                                        editor.getCaretModel().removeCaret(caret);
+                                    }
+                                }
                             }
                         }
                     }

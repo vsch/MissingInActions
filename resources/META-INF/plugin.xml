@@ -391,6 +391,20 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
                     description="Keep Blank Line Carets">
             </action>
 
+            <action class="com.vladsch.MissingInActions.actions.carets.KeepSelectionCaretsAction"
+                    id="MissingInActions.KeepSelectionCarets"
+                    text="Keep Carets with Selection"
+                    icon="PluginIcons.Keep_carets_with_selection"
+                    description="Keep Carets with Selection">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.carets.RemoveSelectionCaretsAction"
+                    id="MissingInActions.RemoveSelectionCarets"
+                    text="Remove Carets with Selection"
+                    icon="PluginIcons.Remove_carets_with_selection"
+                    description="Remove Carets with Selection">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.carets.KeepLineCommentCaretsAction"
                     id="MissingInActions.KeepLineCommentCarets"
                     text="Keep Line Comment Carets"
@@ -597,6 +611,13 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
                 description="Toggle Line Isolation Mode">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.line.ClearIsolatedLinesAction"
+                id="MissingInActions.ClearIsolatedLines"
+                text="Clear Isolated Lines"
+                icon="PluginIcons.Clear_isolated_lines"
+                description="Clear Isolated Lines">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.line.AddIsolationLinesAction"
                 id="MissingInActions.AddIsolationLines"
                 text="Add Caret or Selection to Isolated Lines"
@@ -667,6 +688,7 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
             <reference id="MissingInActions.ToggleIsolationMode"/>
             <reference id="MissingInActions.AddIsolationLines"/>
             <reference id="MissingInActions.RemoveIsolationLines"/>
+            <reference id="MissingInActions.ClearIsolatedLines"/>
             <separator/>
             <reference id="MissingInActions.ToggleWordHighlightsMode"/>
             <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
@@ -679,6 +701,8 @@ int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
             <reference id="MissingInActions.SmartKeepLineCarets"/>
             <reference id="MissingInActions.KeepBlankLineCarets"/>
             <reference id="MissingInActions.StraightenCarets"/>
+            <reference id="MissingInActions.KeepSelectionCarets"/>
+            <reference id="MissingInActions.RemoveSelectionCarets"/>
             <separator/>
             <reference id="MissingInActions.Number"/>
             <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>

@@ -133,7 +133,7 @@ public class RenumberingDialog extends DialogWrapper {
                     // add number at caret but may need to add virtual spaces
                     sb.append(chars.subSequence(offset, caret.getOffset()));
 
-                    int virtualSpaces = caret.getLogicalPosition().column - (myEditor.getDocument().getLineEndOffset(caretLine) - myEditor.getDocument().getLineStartOffset(caretLine));
+                    int virtualSpaces = caret.getVisualPosition().column - (myEditor.getDocument().getLineEndOffset(caretLine) - myEditor.getDocument().getLineStartOffset(caretLine));
                     if (lastVirtual > 0) {
                         virtualSpaces -= lastVirtual;
                         lastVirtual += virtualSpaces;
@@ -154,10 +154,10 @@ public class RenumberingDialog extends DialogWrapper {
 
             if (offset >= 0 && line >= 0) {
                 final int endOffset = myEditor.getDocument().getLineEndOffset(line);
-                if (offset < endOffset + 1) {
-                    sb.append(chars.subSequence(offset, endOffset + 1));
-                    offset = endOffset;
+                if (offset < endOffset) {
+                    sb.append(chars.subSequence(offset, endOffset));
                 }
+                sb.append('\n');
             }
         });
 

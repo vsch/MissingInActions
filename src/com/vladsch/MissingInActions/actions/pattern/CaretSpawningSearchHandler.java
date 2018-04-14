@@ -259,8 +259,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     while (end < range.getEnd() && isIdentifierPart(chars.charAt(end))) end++;
                     BasedSequence text = chars.subSequence(offset, end);
                     boolean hexPrefix = text.startsWith("0x", true);
-                    String endBreak = text.charAt(text.length()-1) == '$' ? "(?!\\Q$\\E|\\w)" :"\\b";
-                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" :"\\b";
+                    String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
+                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
                     if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
@@ -289,9 +289,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                         myPattern = ForwardPattern.compile("(" + Pattern.quote(text.toString()) + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
-                    // neither, just look for the character
-                    String quote = Pattern.quote(String.valueOf(c));
-                    myPattern = ForwardPattern.compile(quote + "\\s*([^" + quote + "]*)\\s*");
+                    // neither, just look for the character span of matching characters
+                    int end = offset;
+                    while (end < range.getEnd() && c == chars.charAt(end)) end++;
+                    BasedSequence text = chars.subSequence(offset, end);
+                    String quote = Pattern.quote(text.toString());
+                    myPattern = ForwardPattern.compile("(" + quote + ")");
                 }
             } else {
                 // check what is behind of caret
@@ -309,8 +312,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     BasedSequence text = chars.subSequence(start, offset);
                     boolean hexPrefix = text.startsWith("0x", true);
 
-                    String endBreak = text.charAt(text.length()-1) == '$' ? "(?!\\Q$\\E|\\w)" :"\\b";
-                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" :"\\b";
+                    String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
+                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
 
                     if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
                             || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
@@ -339,9 +342,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                         myPattern = ReversePattern.compile(startBreak + "(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
-                    // neither, just look for the character
-                    String quote = Pattern.quote(String.valueOf(c));
-                    myPattern = ReversePattern.compile("\\s*([^" + quote + "]*)\\s*" + quote);
+                    // neither, just look for the character span of matching characters
+                    int start = offset;
+                    while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
+                    BasedSequence text = chars.subSequence(start, offset);
+                    String quote = Pattern.quote(text.toString());
+                    myPattern = ReversePattern.compile("("+ quote + ")");
                 }
             }
         }

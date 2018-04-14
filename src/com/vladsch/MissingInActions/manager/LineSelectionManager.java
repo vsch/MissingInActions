@@ -593,7 +593,7 @@ public class LineSelectionManager implements
         }
     }
 
-    private void clearIsolationMarkers() {
+    public void clearIsolationMarkers() {
         if (myIsolationMarkers != null) {
             for (RangeMarker marker : myIsolationMarkers) {
                 if (marker.isValid()) {

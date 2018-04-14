@@ -57,6 +57,7 @@ public class PluginIcons {
     public static final Icon Swap_selection_text = load("/icons/Swap_selection_text.png");
     public static final Icon Swap_selection_list_text = load("/icons/Swap_selection_list_text.png");
     public static final Icon Toggle_isolated_mode = load("/icons/Toggle_isolated_mode.png");
+    public static final Icon Clear_isolated_lines = load("/icons/Clear_isolated_lines.png");
     public static final Icon Add_isolated_lines = load("/icons/Add_isolated_lines.png");
     public static final Icon Remove_isolated_lines = load("/icons/Remove_isolated_lines.png");
     public static final Icon Clear_word_highlights = load("/icons/Clear_word_highlights.png");
@@ -66,4 +67,6 @@ public class PluginIcons {
     public static final Icon Toggle_case_sensitive_highlights = load("/icons/Toggle_case_sensitive_highlights.png");
     public static final Icon Keep_word_highlighted_carets = load("/icons/Keep_word_highlighted_carets.png");
     public static final Icon Remove_word_highlighted_carets = load("/icons/Remove_word_highlighted_carets.png");
+    public static final Icon Keep_carets_with_selection = load("/icons/Keep_carets_with_selection.png");
+    public static final Icon Remove_carets_with_selection = load("/icons/Remove_carets_with_selection.png");
 }

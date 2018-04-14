@@ -55,6 +55,15 @@
 
 ### Next: 1.4.8 - Bug Fix Release
 
+* Add: multi-caret actions: keep-carets with selection and keep carets without selection.
+* Add: clear isolated lines action to clear isolation. Select All, add to isolated is
+  un-intuitive.
+* Fix: numbering without selections for carets would mess up selections.
+* Fix: exception when inserting number sequence with last caret being on the last line of the
+  document without an EOL.
+* Change: search spawning caret action when non-identifier or space now will search for a span
+  of matching characters. For example caret on `&&` will spawn a caret on every occurrence of
+  `&&` instead of just `&` as before which produced a useless result 99% of the time.
 * Fix: caret spawning search forward/backward regex when word starts or ends on `$` which regex
   does not consider an identifier character so `\b` does not handle the word break properly.
 * Fix: Highlights sorted in reverse length order to allow longer matches to succeed before
