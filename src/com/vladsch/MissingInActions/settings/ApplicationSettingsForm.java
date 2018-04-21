@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
@@ -47,10 +48,7 @@ import com.vladsch.MissingInActions.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -117,30 +115,35 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JCheckBox myHideDisabledButtons;
     JSpinner myAutoIndentDelay;
     JSpinner mySelectionStashLimit;
-    private JComboBox myPrimaryCaretThickness;
-    private CheckBoxWithColorChooser myPrimaryCaretColor;
-    private JComboBox mySearchStartCaretThickness;
-    private CheckBoxWithColorChooser mySearchStartCaretColor;
-    private JComboBox mySearchStartFoundCaretThickness;
-    private CheckBoxWithColorChooser mySearchStartMatchedCaretColor;
-    private JComboBox mySearchFoundCaretThickness;
-    private CheckBoxWithColorChooser mySearchFoundCaretColor;
-    private JTextPane myCaretVisualAttributesPane;
-    private CheckBoxWithColorChooser myRecalledSelectionColor;
-    private CheckBoxWithColorChooser myIsolatedForegroundColor;
-    private CheckBoxWithColorChooser myIsolatedBackgroundColor;
-    private JLabel myVersion;
-    private JSpinner myGradientSaturationMin;
-    private JSpinner myGradientSaturationMax;
-    private JSpinner myGradientSaturationSteps;
-    private JSpinner myGradientBrightnessMin;
-    private JSpinner myGradientBrightnessMax;
-    private JSpinner myGradientBrightnessSteps;
-    private JSpinner myGradientHueMin;
-    private JSpinner myGradientHueMax;
-    private JSpinner myGradientHueSteps;
-    private JTextPane myHighlightGradientPane;
-    private JLabel mySampleText;
+    JComboBox myPrimaryCaretThickness;
+    CheckBoxWithColorChooser myPrimaryCaretColor;
+    JComboBox mySearchStartCaretThickness;
+    CheckBoxWithColorChooser mySearchStartCaretColor;
+    JComboBox mySearchStartFoundCaretThickness;
+    CheckBoxWithColorChooser mySearchStartMatchedCaretColor;
+    JComboBox mySearchFoundCaretThickness;
+    CheckBoxWithColorChooser mySearchFoundCaretColor;
+    JTextPane myCaretVisualAttributesPane;
+    CheckBoxWithColorChooser myRecalledSelectionColor;
+    CheckBoxWithColorChooser myIsolatedForegroundColor;
+    CheckBoxWithColorChooser myIsolatedBackgroundColor;
+    JLabel myVersion;
+    JSpinner myGradientSaturationMin;
+    JSpinner myGradientSaturationMax;
+    JSpinner myGradientSaturationSteps;
+    JSpinner myGradientBrightnessMin;
+    JSpinner myGradientBrightnessMax;
+    JSpinner myGradientBrightnessSteps;
+    JSpinner myGradientHueMin;
+    JSpinner myGradientHueMax;
+    JSpinner myGradientHueSteps;
+    JTextPane myHighlightGradientPane;
+    JLabel mySampleText;
+    JBTextField mySpliceDelimiterText;
+    JBTextField myOpenQuoteText;
+    JBTextField myClosedQuoteText;
+    private JLabel mySpliceDelimiterTextLabel;
+    JBCheckBox myQuoteSplicedItems;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -203,6 +206,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myMultiPasteShowEolInList, i::isMultiPasteShowEolInList, i::setMultiPasteShowEolInList),
                         component(myMultiPasteShowEolInViewer, i::isMultiPasteShowEolInViewer, i::setMultiPasteShowEolInViewer),
                         component(myMultiPasteShowInstructions, i::isMultiPasteShowInstructions, i::setMultiPasteShowInstructions),
+                        component(myQuoteSplicedItems, i::isQuoteSplicedItems, i::setQuoteSplicedItems),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),
@@ -214,6 +218,9 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myPreserveSlashCaseOnPaste, i::isPreserveSlashCaseOnPaste, i::setPreserveSlashCaseOnPaste),
                         component(myRemovePrefixOnPaste, i::isRemovePrefixOnPaste, i::setRemovePrefixOnPaste),
                         component(myPrefixOnPasteText, i::getPrefixesOnPasteText, i::setPrefixesOnPasteText),
+                        component(mySpliceDelimiterText, i::getSpliceDelimiterText, i::setSpliceDelimiterText),
+                        component(myOpenQuoteText, i::getOpenQuoteText, i::setOpenQuoteText),
+                        component(myClosedQuoteText, i::getClosedQuoteText, i::setClosedQuoteText),
                         component(mySelectionEndExtended, i::isSelectionEndExtended, i::setSelectionEndExtended),
                         component(mySelectionStartExtended, i::isSelectionStartExtended, i::setSelectionStartExtended),
                         component(mySelectPasted, i::isSelectPasted, i::setSelectPasted),
@@ -292,6 +299,22 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myOverrideStandardPaste.addActionListener(actionListener);
         myRemovePrefixOnPastePattern.addActionListener(actionListener);
         myAutoLineMode.addActionListener(e -> updateOptions(true));
+
+        final DocumentAdapter documentAdapter = new DocumentAdapter() {
+            @Override
+            protected void textChanged(final DocumentEvent e) {
+                updateOptions(false);
+            }
+        };
+        final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
+            @Override
+            protected void textChanged(final DocumentEvent e) {
+                myClosedQuoteText.setText(EditHelpers.getCorrespondingQuoteLike(myOpenQuoteText.getText()));
+                updateOptions(false);
+            }
+        };
+        myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
+        myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
 
         myEditRegExButton.addActionListener(e -> {
             boolean valid = RegExTestDialog.showDialog(myMainPanel, this);
@@ -410,8 +433,9 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
     // @formatter:off
     @NotNull @Override public String getPatternText() { return myPrefixOnPasteText.getText().trim(); }
-    @NotNull @Override public String getSampleText() { return myRegexSampleText; }
     @Override public void setPatternText(final String patternText) { myPrefixOnPasteText.setText(patternText); }
+
+    @NotNull @Override public String getSampleText() { return myRegexSampleText; }
     @Override public void setSampleText(final String sampleText) { myRegexSampleText = sampleText; }
     @Override public boolean isCaseSensitive() { return true; }
     @Override public boolean isBackwards() { return false; }
@@ -521,10 +545,15 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySelectPastedPredicate.setEnabled(mySelectPasted.isEnabled() && mySelectPasted.isSelected());
         mySelectPastedMultiCaretPredicate.setEnabled(mySelectPastedMultiCaret.isEnabled() && mySelectPastedMultiCaret.isSelected());
         myMultiPasteShowInstructions.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        mySpliceDelimiterText.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myOpenQuoteText.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myClosedQuoteText.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        mySpliceDelimiterTextLabel.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPastePreserveOriginal.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteDeleteRepeatedCaretData.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myQuoteSplicedItems.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected() && !(myOpenQuoteText.getText().isEmpty() && myClosedQuoteText.getText().isEmpty()));
 
         final boolean regexPrefixes = PrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == PrefixOnPastePatternType.REGEX;
         final boolean enablePrefixes = !regexPrefixes &&

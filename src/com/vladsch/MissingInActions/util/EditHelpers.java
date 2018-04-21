@@ -724,8 +724,8 @@ public class EditHelpers {
             }
         }
 
-        if (lineMode) {
-            // expand range to start/end of line
+        if (lineMode && (!singleLine || !caret.hasSelection())) {
+            // expand range to start/end of line but not if caret has selection and is singleLine search spawning
             int startOffset = document.getLineStartOffset(document.getLineNumber(start));
             int endOffset = document.getLineEndOffset(document.getLineNumber(end));
 
@@ -1335,6 +1335,94 @@ public class EditHelpers {
 
         transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
         transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
+        mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+        return mergedTransferable;
+    }
+
+    @NotNull
+    public static String getCorrespondingQuoteLike(final String openingText) {
+         StringBuilder sb = new StringBuilder(openingText.length());
+         int iMax = openingText.length();
+         for (int i = iMax; i-- > 0; ) {
+             sb.append(getCorrespondingQuoteLike(openingText.charAt(i)));
+         }
+         return sb.toString();
+    }
+
+    public static final String QUOTES = "'\"`«»";
+    public static final String QUOTE_LIKE = "''\"\"``()[]{}||//\\\\<>«»";
+
+    public static char getCorrespondingQuoteLike(final char openingChar) {
+        int pos = QUOTE_LIKE.indexOf(openingChar);
+        if (pos == -1) return openingChar;
+        if (pos % 2 == 0) {
+            // opening quote
+            return QUOTE_LIKE.charAt(pos + 1);
+        } else {
+            // closing quote
+            return QUOTE_LIKE.charAt(pos - 1);
+        }
+    }
+
+    public static boolean isQuote(char c) {
+        return QUOTES.indexOf(c) != -1;
+    }
+
+    public static boolean startsWithQuote(String text) {
+        return !text.isEmpty() && isQuote(text.charAt(0));
+    }
+
+    public static boolean endsWithQuote(String text) {
+        return !text.isEmpty() && isQuote(text.charAt(text.length() - 1));
+    }
+
+    @NotNull
+    public static Transferable getJoinedTransferable(ClipboardCaretContent clipboardCaretContent, final String delimiter, boolean quoteSplicedItems, final String openQuote, final String closeQuote) {
+        Transferable mergedTransferable;
+        String sep = "";
+        int iMax1 = clipboardCaretContent.getCaretCount();
+        final String[] texts = clipboardCaretContent.getTexts();
+        assert texts != null;
+
+        StringBuilder sb = new StringBuilder();
+
+        if (openQuote.isEmpty() && closeQuote.isEmpty()) {
+            quoteSplicedItems = false;
+        }
+
+        // here we build a single text based on spliced lines
+        for (int i = 0; i < iMax1; i++) {
+            // update manager's replacement
+            String[] lines = texts[i].split("\n");
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (!trimmed.isEmpty()) {
+                    sb.append(sep);
+                    if (quoteSplicedItems && !((openQuote.isEmpty() || trimmed.startsWith(openQuote)) && (closeQuote.isEmpty() || trimmed.endsWith(closeQuote)))) {
+                        int startOffset = !openQuote.isEmpty() && trimmed.startsWith(openQuote) ? 1 : 0;
+                        int endOffset = !closeQuote.isEmpty() && trimmed.endsWith(closeQuote) ? -1 : 0;
+
+                        if (startOffset == 0) sb.append(openQuote);
+                        if (openQuote.equals("\"") && closeQuote.equals("\"")) {
+                            sb.append(trimmed.replace("\"", "\\\""));
+                        } else if (openQuote.equals("'") && closeQuote.equals("'")) {
+                            sb.append(trimmed.replace("'", "\\'"));
+                        } else {
+                            sb.append(trimmed);
+                        }
+                        if (endOffset == 0) sb.append(closeQuote);
+                    } else {
+                        sb.append(trimmed);
+                    }
+                    sep = delimiter;
+                }
+            }
+        }
+
+        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+        int[] startOffsets = new int[] { 0 };
+        int[] endOffsets = new int[] { sb.length() };
+
         mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
         return mergedTransferable;
     }

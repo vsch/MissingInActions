@@ -108,7 +108,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         //final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         //final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
-        final boolean[] recreateCarets = new boolean[] { false };
+        final int[] alternateAction = new int[] { 0 };
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
         final DelayedRunner delayedRunner = new DelayedRunner();
 
@@ -306,19 +306,31 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             protected Action[] createActions() {
                 Action[] actions = super.createActions();
                 if (canCreateMultiCarets) {
-                    Action[] multiCaretActions = new Action[actions.length + 1];
+                    Action[] multiCaretActions = new Action[actions.length + 2];
                     System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
                     //noinspection SerializableInnerClassWithNonSerializableOuterClass
                     Action createWithMultiCarets = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
-                            recreateCarets[0] = true;
+                            alternateAction[0] = 1;
                             super.doAction(e);
                         }
                     };
                     final String name = getCreateWithCaretsName(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
-                    multiCaretActions[actions.length] = createWithMultiCarets;
+                    multiCaretActions[actions.length + 1] = createWithMultiCarets;
+
+                    // create merge comma separate
+                    Action spliceCommaSeparated = new OkAction() {
+                        @Override
+                        protected void doAction(final ActionEvent e) {
+                            alternateAction[0] = 2;
+                            super.doAction(e);
+                        }
+                    };
+
+                    spliceCommaSeparated.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
+                    multiCaretActions[actions.length] = spliceCommaSeparated;
                     return multiCaretActions;
                 }
                 return actions;
@@ -562,9 +574,26 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 }
 
                 //int selectedIndex = myEmptyContentDescription.getSelectedClipboardContentIndex();
-                final AnAction pasteAction = getPasteAction(editor, recreateCarets[0]);
+                boolean recreateCarets = alternateAction[0] == 1;
+                if (alternateAction[0] == 2) {
+                    // we handle the splicing and adding this content to the clipboard
+                    final Transferable contents = CopyPasteManager.getInstance().getContents();
+                    if (contents != null) {
+                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+                        if (clipboardCaretContent != null) {
+                            Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
+                                    , settings.getSpliceDelimiterText()
+                                    , settings.isQuoteSplicedItems()
+                                    , settings.getOpenQuoteText()
+                                    , settings.getClosedQuoteText());
+                            CopyPasteManager.getInstance().setContents(mergedTransferable);
+                        }
+                    }
+                }
 
-                if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets[0]) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
+                final AnAction pasteAction = getPasteAction(editor, recreateCarets);
+
+                if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
                     // need to create the replaced content
                     final Transferable contents = CopyPasteManager.getInstance().getContents();
                     if (contents != null) {

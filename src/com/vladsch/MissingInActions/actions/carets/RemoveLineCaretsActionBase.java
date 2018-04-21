@@ -116,6 +116,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
         if (caretModel.getCaretCount() > 1) {
             OpType opType = myOpType;
+            OpType opType2 = null;
             final Project project = editor.getProject();
             final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
             final LineCommentProcessor lineCommentProcessor = psiFile == null ? null : new LineCommentProcessor(editor, psiFile);
@@ -138,6 +139,12 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                     final int lineEndOffset = doc.getLineEndOffset(lineNumber);
                     final int lineStartOffset = doc.getLineStartOffset(lineNumber);
 
+                    if (caret.hasSelection()) {
+                        hadSelection = true;
+                    } else {
+                        hadNoSelection = true;
+                    }
+
                     if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
                         hadBlankLine = true;
                     } else {
@@ -158,6 +165,10 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                 } else {
                     opType = REMOVE_NON_BLANK_LINES;
                 }
+
+                if (hadSelection && hadNoSelection) {
+                    opType2 = REMOVE_WITHOUT_SELECTION;
+                }
             } else if (myOpType == REMOVE_SMART) {
                 if (hadCodeLine) {
                     opType = REMOVE_CODE_LINES;
@@ -165,6 +176,10 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                     opType = REMOVE_LINE_COMMENTS;
                 } else {
                     opType = REMOVE_BLANK_LINES;
+                }
+
+                if (hadSelection && hadNoSelection) {
+                    opType2 = REMOVE_WITH_SELECTION;
                 }
             }
 
@@ -189,6 +204,13 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                             final int lineNumber = doc.getLineNumber(caret.getOffset());
                             final int lineEndOffset = doc.getLineEndOffset(lineNumber);
                             final int lineStartOffset = doc.getLineStartOffset(lineNumber);
+
+                            if (opType2 != null) {
+                                if (opType2.removeWithSelection && caret.hasSelection() || opType2.removeWithoutSelection && !caret.hasSelection()) {
+                                    editor.getCaretModel().removeCaret(caret);
+                                    continue;
+                                }
+                            }
 
                             if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
 

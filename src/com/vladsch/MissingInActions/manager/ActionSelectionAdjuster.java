@@ -969,7 +969,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         final boolean inWriteAction = (settings.isPreserveCamelCaseOnPaste()
                 || settings.isPreserveSnakeCaseOnPaste()
                 || settings.isPreserveScreamingSnakeCaseOnPaste()
-                || settings.isRemovePrefixOnPaste() && !(settings.getPrefixesOnPasteText().isEmpty()))
+                || (settings.isRemovePrefixOnPaste() || settings.isAddPrefixOnPaste()) && !(settings.getPrefixesOnPasteText().isEmpty()))
                 && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION);
 
         final int[] cumulativeCaretDelta = new int[] { 0 };
@@ -981,7 +981,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             int separators = settings.getPreserveOnPasteSeparators();
 
             params.preserver.studyFormatBefore(editorCaret
-                    , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
+                    , (settings.isRemovePrefixOnPaste() || settings.isAddPrefixOnPaste()) ? settings.getPrefixesOnPasteList() : null
                     , settings.getRemovePrefixOnPastePatternType()
                     , separators
             );
@@ -1020,15 +1020,17 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                             , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
                                                     || (myEditor.getCaretModel().getCaretCount() > 1
                                                     && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
-                                            ), settings.isPreserveCamelCaseOnPaste()
+                                            )
+                                            , settings.isPreserveCamelCaseOnPaste()
                                             , settings.isPreserveSnakeCaseOnPaste()
                                             , settings.isPreserveScreamingSnakeCaseOnPaste()
                                             , settings.isPreserveDashCaseOnPaste()
                                             , settings.isPreserveDotCaseOnPaste()
                                             , settings.isPreserveSlashCaseOnPaste()
-                                            , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
-                                            , settings.getRemovePrefixOnPastePatternType()
+                                            , settings.isRemovePrefixOnPaste()
                                             , settings.isAddPrefixOnPaste()
+                                            , settings.getPrefixesOnPasteList()
+                                            , settings.getRemovePrefixOnPastePatternType()
                                     );
                                 } else {
                                     if (caretContent.isFullLine(snapshot.getIndex())) {

@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [Next: 1.4.8 - Bug Fix Release](#next-148---bug-fix-release)
+- [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
 - [1.4.2 - Enhancement Release](#142---enhancement-release)
@@ -53,8 +53,21 @@
 
 &nbsp;</details>
 
-### Next: 1.4.8 - Bug Fix Release
+### 1.4.8 - Bug Fix Release
 
+* Fix: on paste add prefixes would only be honored if remove prefixes was enabled
+* Fix: camel case preserve paste, adding a non-letter/digit prefix to not uppercase first letter
+  of pasted content. To fix auto prefixing of `$` for php when pasting non-variable name over
+  variable.
+* Add: Single line caret spawning search now enabled with carets on multiple lines if at least
+  one line has more than one caret. This allows the spawning carets to spawn on multiple lines,
+  extending usefulness of this beyond single line search spawn.
+* Add: Single line caret spawning search now limits the spawned carets to the existing selection
+  of the caret, if there is one. This allows spawning carets in a limited text range.
+* Add: Smart Keep/Remove carets add remove non-selection carets if both selection and
+  non-selection carets exist.
+* Add: paste selection dialog options to join lines/multiple caret content and optionally quote
+  individual items with open quote, close quote and delimiter text customizable.
 * Add: multi-caret actions: keep-carets with selection and keep carets without selection.
 * Add: clear isolated lines action to clear isolation. Select All, add to isolated is
   un-intuitive.

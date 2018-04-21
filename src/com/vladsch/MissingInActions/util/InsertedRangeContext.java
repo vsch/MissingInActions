@@ -474,7 +474,7 @@ public class InsertedRangeContext {
     public boolean last(final int flags) { return myStudiedWord.last(flags); }
 
     public InsertedRangeContext prefixWithCamelCase(final String prefix) {
-        if (!studiedWord().first(UPPER)) prefixToUpperCase(1);
+        if (!studiedWord().first(UPPER) && Character.isLetterOrDigit(prefix.charAt(prefix.length()-1))) prefixToUpperCase(1);
         prefixWith(prefix);
         return this;
     }

@@ -191,9 +191,10 @@ public class CaseFormatPreserver {
             , final boolean preserveDashCase
             , final boolean preserveDotCase
             , final boolean preserveSlashCase
+            , final boolean removePrefix
+            , final boolean addPrefix
             , final @Nullable String[] prefixList
             , final @Nullable PrefixOnPastePatternType prefixType
-            , final boolean addPrefix
     ) {
         InsertedRangeContext i = preserveFormatAfter(
                 editorCaret.getDocumentChars()
@@ -204,7 +205,10 @@ public class CaseFormatPreserver {
                 , preserveDashCase
                 , preserveDotCase
                 , preserveSlashCase
-                , addPrefix, prefixType, prefixList
+                , removePrefix
+                , addPrefix
+                , prefixType
+                , prefixList
         );
 
         if (i != null) {
@@ -257,7 +261,10 @@ public class CaseFormatPreserver {
             , final boolean preserveDashCase
             , final boolean preserveDotCase
             , final boolean preserveSlashCase
-            , final boolean addPrefix, final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList
+            , final boolean removePrefix
+            , final boolean addPrefix
+            , final @Nullable PrefixOnPastePatternType prefixType
+            , final @Nullable String[] prefixList
     ) {
         BasedSequence insertedRange = (BasedSequence) range.subSequence(chars);
         boolean isSingleLineChar = insertedRange.indexOf('\n') == -1;
@@ -281,13 +288,14 @@ public class CaseFormatPreserver {
                 PrefixOnPastePatternType patternType = prefixType == null ? PrefixOnPastePatternType.ADAPTER.getDefault() : prefixType;
 
                 String matchedPrefix = i.getMatchedPrefix(patternType, prefixList);
-                if (!matchedPrefix.isEmpty()) {
+                if (!matchedPrefix.isEmpty() && removePrefix) {
                     if (hadWordWithPrefix.equals(matchedPrefix)) {
                         // leave the prefix
                     } else {
                         // won't be replaced by add, we remove it here
                         // need to check if we are replacing snake case or screaming snake case with a snake cased/screaming snake cased prefix
-                        if (i.studiedWord().only(UPPER | LOWER | DIGITS)) {
+                        // but need to remove non-letter prefixes if so requested
+                        if (i.studiedWord().only(UPPER | LOWER | DIGITS) || !StudiedWord.of(matchedPrefix, separators).only(UPPER | LOWER | DIGITS | UNDER)) {
                             i.removePrefixesOnce(patternType, prefixList);
                         }
                     }
@@ -323,8 +331,10 @@ public class CaseFormatPreserver {
                         if (addPrefix && hadStartOfWord && !hadWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(patternType, hadWordWithPrefix, prefixList)) {
                             // prefix replaced
                         } else if (startWasUpperCase && i.isLowerCaseAtStart()) {
-                            i.removePrefixesOnce(patternType, prefixList);
-                            i.prefixToUpperCase(1);
+                            if (removePrefix) {
+                                i.removePrefixesOnce(patternType, prefixList);
+                                i.prefixToUpperCase(1);
+                            }
                         } else {
                             if (startWasLowerCase && i.isUpperCaseAtStart() && !i.hasNoLowerCaseAfterPrefix(1)) {
                                 i.prefixToLowerCase(1);

@@ -72,92 +72,41 @@
         ]]>
     </description>
 
-    <version>1.4.7</version>
+    <version>1.4.8</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.6 - Bug Fix Release</h3>
+            <h3>1.4.8 - Bug Fix Release</h3>
             <ul>
-                <li>Fix: change &ldquo;Recall Selection from List&rdquo; to &ldquo;Recall Selection&rdquo; to shorten toolbar real-estate</li>
-                <li>Fix: change &ldquo;Swap Selection Text from List&rdquo; to &ldquo;Swap Text&rdquo; to shorten toolbar real-estate</li>
-                <li>Fix: newly opened files would not show word highlights until they were modified.</li>
-            </ul>
-            <h3>1.4.4 - Bug Fix Release</h3>
-            <ul>
-                <li>
-                    <p>Fix: removed &ldquo;Swap Text&rdquo; action which did nothing because it was for internal use. Added &ldquo;Swap
-                        Selection Text from List&rdquo; which was the original intention to show the available list of
-                        selections to use for swapping currently selected text and one selected from a list.</p>
-                </li>
-                <li>
-                    <p>Fix: removed &ldquo;Selections&rdquo; action which did nothing because it was for internal use. Added
-                        &ldquo;Recall Selection from List&rdquo; which was the original intention to show the available list of
-                        selections to recall one of them.</p>
-                </li>
-                <li>
-                    <p>Fix: renamed &ldquo;Pop Last Selection&rdquo; to &ldquo;Recall Last Selection&rdquo;</p>
-                </li>
-                <li>
-                    <p>Fix: editor not disposed in renumber dialog</p>
-                </li>
-            </ul>
-            <h3>1.4.2 - Enhancement Release</h3>
-            <ul>
-                <li>
-                    <p>Add: replace arbitrary string to another string on paste. Useful for quick pasting of
-                        template code with changes without needing to edit after paste (treat this as a user
-                        provided macro variable).</p>
-                    <p>Can add RegEx search or plain string. Plain string search is case sensitive.</p>
-                </li>
-                <li>
-                    <p>Add: replace user string on paste and duplicate for every character caret of another content.
-                        Plain string search is not case sensitive.</p>
-                    <p>For example: if pasting <code>int FormatAbc(int abc) { myAbc = abc; return myAbc; }</code> with the user
-                        search string set to <code>Abc</code>, with clipboard data for the replacement contains 3 carets with
-                        <code>def</code>, <code>myHij</code> and <code>setKlmnop</code> then the paste will result in the following being pasted in:</p>
-                    <pre><code>int FormatDef(int def) { myDef = def; return myDef; }
-int FormatHij(int hij) { myHij = hij; return myHij; }
-int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
-</code></pre>
-                </li>
-                <li>
-                    <p>Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
-                        only file name derivations are supported. When pasting in a file with name
-                        <code>multi-line-image-url</code> the following will be changed as shown:</p>
-                    <ul>
-                        <li><code>__Filename__</code> to <code>multi-line-image-url</code> (as is)</li>
-                        <li><code>__FILENAME__</code> to <code>MULTILINEIMAGEURL</code> (uppercase)</li>
-                        <li><code>__filename__</code> to <code>multilineimageurl</code> (lowercase)</li>
-                        <li><code>__FileName__</code> to <code>MultiLineImageUrl</code> (pascal case)</li>
-                        <li><code>__fileName__</code> to <code>multiLineImageUrl</code> (camel case)</li>
-                        <li><code>__file-name__</code> to <code>multi-line-image-url</code> (dash case)</li>
-                        <li><code>__FILE-NAME__</code> to <code>MULTI-LINE-IMAGE-URL</code> (screaming dash case)</li>
-                        <li><code>__file.name__</code> to <code>multi.line.image.url</code> (dot case)</li>
-                        <li><code>__FILE.NAME__</code> to <code>MULTI.LINE.IMAGE.URL</code> (screaming dot case)</li>
-                        <li><code>__file_name__</code> to <code>multi_line_image_url</code> (snake case)</li>
-                        <li><code>__FILE_NAME__</code> to <code>MULTI_LINE_IMAGE_URL</code> (screaming snake case)</li>
-                        <li><code>__file/name__</code> to <code>multi/line/image/url</code> (slash case)</li>
-                        <li><code>__FILE/NAME__</code> to <code>MULTI/LINE/IMAGE/URL</code> (screaming slash case)</li>
-                    </ul>
-                </li>
-            </ul>
-            <h3>1.4.0 - Bug Fix Release</h3>
-            <ul>
-                <li>
-                    <p>Fix: NPE when projects are being rapidly opened and closed.</p>
-                </li>
-                <li>
-                    <p>Fix: #17, Caret don&rsquo;t move across tab-indented lines</p>
-                </li>
-                <li>
-                    <p>Fix: Remove highlighted word carets would not remove the last selection if all carets
-                        contained highlighted word selections</p>
-                </li>
-                <li>
-                    <p>Fix: size of color chip when using HiDPI displays that need scaling.</p>
-                </li>
+                <li>Fix: on paste add prefixes would only be honored if remove prefixes was enabled</li>
+                <li>Fix: camel case preserve paste, adding a non-letter/digit prefix to not uppercase first letter
+                    of pasted content. To fix auto prefixing of <code>$</code> for php when pasting non-variable name over
+                    variable.</li>
+                <li>Add: Single line caret spawning search now enabled with carets on multiple lines if at least
+                    one line has more than one caret. This allows the spawning carets to spawn on multiple lines,
+                    extending usefulness of this beyond single line search spawn.</li>
+                <li>Add: Single line caret spawning search now limits the spawned carets to the existing selection
+                    of the caret, if there is one. This allows spawning carets in a limited text range.</li>
+                <li>Add: Smart Keep/Remove carets add remove non-selection carets if both selection and
+                    non-selection carets exist.</li>
+                <li>Add: paste selection dialog options to join lines/multiple caret content and optionally quote
+                    individual items with open quote, close quote and delimiter text customizable.</li>
+                <li>Add: multi-caret actions: keep-carets with selection and keep carets without selection.</li>
+                <li>Add: clear isolated lines action to clear isolation. Select All, add to isolated is
+                    un-intuitive.</li>
+                <li>Fix: numbering without selections for carets would mess up selections.</li>
+                <li>Fix: exception when inserting number sequence with last caret being on the last line of the
+                    document without an EOL.</li>
+                <li>Change: search spawning caret action when non-identifier or space now will search for a span
+                    of matching characters. For example caret on <code>&amp;&amp;</code> will spawn a caret on every occurrence of
+                    <code>&amp;&amp;</code> instead of just <code>&amp;</code> as before which produced a useless result 99% of the time.</li>
+                <li>Fix: caret spawning search forward/backward regex when word starts or ends on <code>$</code> which regex
+                    does not consider an identifier character so <code>\b</code> does not handle the word break properly.</li>
+                <li>Fix: Highlights sorted in reverse length order to allow longer matches to succeed before
+                    possibly shorter sub-strings.</li>
+                <li>Fix: @NotNull argument must not be null exception.</li>
             </ul>
         </div>
         ]]></change-notes>

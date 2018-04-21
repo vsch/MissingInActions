@@ -142,6 +142,10 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private boolean         myUserDefinedMacroClipContent = false;
     private @NotNull String myUserDefinedMacroSearch = "";
     private @NotNull String myUserDefinedMacroReplace = "";
+    private @NotNull String mySpliceDelimiterText = ", ";
+    private @NotNull String myOpenQuoteText = "\"";
+    private @NotNull String myClosedQuoteText = "\"";
+    private boolean myQuoteSplicedItems = false;
     private boolean         myUserDefinedMacroSmartReplace = true;
     // @formatter:on
 
@@ -177,6 +181,14 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myUserDefinedMacroClipContent = userDefinedMacroClipContent;
     }
 
+    public boolean isQuoteSplicedItems() {
+        return myQuoteSplicedItems;
+    }
+
+    public void setQuoteSplicedItems(final boolean quoteSplicedItems) {
+        myQuoteSplicedItems = quoteSplicedItems;
+    }
+
     public boolean isRegexUserDefinedMacro() {
         return myRegexUserDefinedMacro;
     }
@@ -194,6 +206,18 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     public String getUserDefinedMacroReplace() { return myUserDefinedMacroReplace; }
 
     public void setUserDefinedMacroReplace(@NotNull final String userDefinedMacroReplace) { myUserDefinedMacroReplace = userDefinedMacroReplace; }
+
+    @NotNull
+    public String getSpliceDelimiterText() { return mySpliceDelimiterText; }
+    public void setSpliceDelimiterText(@NotNull final String spliceDelimiterText) { mySpliceDelimiterText = spliceDelimiterText; }
+
+    @NotNull
+    public String getOpenQuoteText() { return myOpenQuoteText; }
+    public void setOpenQuoteText(@NotNull final String openQuoteText) { myOpenQuoteText = openQuoteText; }
+
+    @NotNull
+    public String getClosedQuoteText() { return myClosedQuoteText; }
+    public void setClosedQuoteText(@NotNull final String closedQuoteText) { myClosedQuoteText = closedQuoteText; }
 
     public void setHueMin(final int hueMin) {
         if (UIUtil.isUnderDarcula()) {
@@ -269,12 +293,12 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     public int getPreserveOnPasteSeparators() {
         return CaseFormatPreserver.separators(
-                this.isPreserveCamelCaseOnPaste()
-                , this.isPreserveSnakeCaseOnPaste()
-                , this.isPreserveScreamingSnakeCaseOnPaste()
-                , this.isPreserveDashCaseOnPaste()
-                , this.isPreserveDotCaseOnPaste()
-                , this.isPreserveSlashCaseOnPaste()
+                myPreserveCamelCaseOnPaste
+                , myPreserveSnakeCaseOnPaste
+                , myPreserveScreamingSnakeCaseOnPaste
+                , myPreserveDashCaseOnPaste
+                , myPreserveDotCaseOnPaste
+                , myPreserveSlashCaseOnPaste
         );
     }
 

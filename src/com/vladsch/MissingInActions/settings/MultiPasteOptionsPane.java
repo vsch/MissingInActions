@@ -23,7 +23,9 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.Utils;
 
 import javax.swing.*;
@@ -32,6 +34,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class MultiPasteOptionsPane {
     final ApplicationSettings mySettings;
@@ -50,6 +54,11 @@ public class MultiPasteOptionsPane {
     JTextField myUserDefinedMacroSearch;
     JTextField myUserDefinedMacroReplace;
     JComboBox<String> myUserDefinedMacroReplaceClipContent;
+    JBTextField mySpliceDelimiterText;
+    JBTextField myOpenQuoteText;
+    JBTextField myClosedQuoteText;
+    JBCheckBox myQuoteSplicedItems;
+    JLabel mySpliceDelimiterTextLabel;
     Runnable mySettingsChangedRunnable;
     String myTextContent;
 
@@ -69,6 +78,10 @@ public class MultiPasteOptionsPane {
         myUserDefinedMacroClipContent.setSelected(mySettings.isUserDefinedMacroClipContent());
         myUserDefinedMacroSmartReplace.setSelected(mySettings.isUserDefinedMacroSmartReplace());
         myUserDefinedMacroSearch.setText(mySettings.getUserDefinedMacroSearch());
+        mySpliceDelimiterText.setText(mySettings.getSpliceDelimiterText());
+        myOpenQuoteText.setText(mySettings.getOpenQuoteText());
+        myClosedQuoteText.setText(mySettings.getClosedQuoteText());
+        myQuoteSplicedItems.setSelected(mySettings.isQuoteSplicedItems());
         myUserDefinedMacroReplace.setText(mySettings.getUserDefinedMacroReplace());
 
         myShowInstructions.addActionListener(event -> {
@@ -99,6 +112,7 @@ public class MultiPasteOptionsPane {
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
         myUserDefinedMacroSmartReplace.addActionListener(userMacroActionListener);
         myRegexUserDefinedMacro.addActionListener(actionListener);
+        myQuoteSplicedItems.addActionListener(actionListener);
 
         final DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
@@ -106,8 +120,20 @@ public class MultiPasteOptionsPane {
                 updateSettings(false);
             }
         };
+
+        final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
+            @Override
+            protected void textChanged(final DocumentEvent e) {
+                myClosedQuoteText.setText(EditHelpers.getCorrespondingQuoteLike(myOpenQuoteText.getText()));
+                updateSettings(false);
+            }
+        };
         myUserDefinedMacroSearch.getDocument().addDocumentListener(documentAdapter);
         myUserDefinedMacroReplace.getDocument().addDocumentListener(documentAdapter);
+        mySpliceDelimiterText.getDocument().addDocumentListener(documentAdapter);
+        myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
+        myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
+        myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
 
         updateUIState();
 
@@ -125,6 +151,10 @@ public class MultiPasteOptionsPane {
         mySettings.setUserDefinedMacroClipContent(myUserDefinedMacroClipContent.isSelected());
         mySettings.setUserDefinedMacroSmartReplace(myUserDefinedMacroSmartReplace.isSelected());
         mySettings.setUserDefinedMacroSearch(myUserDefinedMacroSearch.getText());
+        mySettings.setSpliceDelimiterText(mySpliceDelimiterText.getText());
+        mySettings.setOpenQuoteText(myOpenQuoteText.getText());
+        mySettings.setClosedQuoteText(myClosedQuoteText.getText());
+        mySettings.setQuoteSplicedItems(myQuoteSplicedItems.isSelected());
         mySettings.setUserDefinedMacroReplace(myUserDefinedMacroReplace.getText());
 
         updateUIState();
@@ -145,6 +175,8 @@ public class MultiPasteOptionsPane {
 
         myUserDefinedMacroReplace.setVisible(!myUserDefinedMacroClipContent.isSelected());
         myUserDefinedMacroReplaceClipContent.setVisible(myUserDefinedMacroClipContent.isSelected());
+
+        myQuoteSplicedItems.setEnabled(!(myOpenQuoteText.getText().isEmpty() && myClosedQuoteText.getText().isEmpty()));
     }
 
     private void updateTextPane() {

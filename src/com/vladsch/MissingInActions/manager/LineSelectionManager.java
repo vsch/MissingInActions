@@ -294,9 +294,10 @@ public class LineSelectionManager implements
                             , settings.isPreserveDashCaseOnPaste()
                             , settings.isPreserveDotCaseOnPaste()
                             , settings.isPreserveSlashCaseOnPaste()
+                            , settings.isRemovePrefixOnPaste()
                             , settings.isAddPrefixOnPaste()
                             , settings.getRemovePrefixOnPastePatternType()
-                            , settings.isRemovePrefixOnPaste() ? settings.getPrefixesOnPasteList() : null
+                            , settings.getPrefixesOnPasteList()
                     );
 
                     if (i == null) {

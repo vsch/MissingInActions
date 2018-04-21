@@ -156,8 +156,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         int previousCaretLine = -1;
         boolean haveMultipleCaretsPerLine = false;
         boolean haveMultiLineSelection = false;
-        int caretCount = editor.getCaretModel().getCaretCount();
-        boolean haveMultipleCarets = caretCount > 1;
+        //int caretCount = editor.getCaretModel().getCaretCount();
+        boolean haveMultipleCaretLines = false;
 
         for (Caret caret1 : editor.getCaretModel().getAllCarets()) {
             int caretLine = caret1.getLogicalPosition().line;
@@ -173,16 +173,18 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
             if (!haveMultipleCaretsPerLine && previousCaretLine != -1) {
                 if (caretLine == previousCaretLine) {
                     haveMultipleCaretsPerLine = true;
+                } else {
+                    haveMultipleCaretLines = true;
                 }
             }
             previousCaretLine = caretLine;
 
-            if (haveMultiLineSelection && haveMultipleCaretsPerLine) break;
+            if (haveMultiLineSelection && haveMultipleCaretsPerLine && haveMultipleCaretLines) break;
         }
 
         myLineMode = !haveMultipleCaretsPerLine;
         mySingleLine = !haveMultiLineSelection;
-        mySingleMatch = haveMultipleCarets;
+        mySingleMatch = haveMultiLineSelection || (haveMultipleCaretLines && !haveMultipleCaretsPerLine);
         myMoveFirstMatch = !mySingleMatch;
         myPattern = null;
         myStartSearchCarets = null;
@@ -347,7 +349,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
                     BasedSequence text = chars.subSequence(start, offset);
                     String quote = Pattern.quote(text.toString());
-                    myPattern = ReversePattern.compile("("+ quote + ")");
+                    myPattern = ReversePattern.compile("(" + quote + ")");
                 }
             }
         }
