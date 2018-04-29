@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.4.9 - Bug Fix Release](#149---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -52,6 +53,19 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 
 &nbsp;</details>
+
+### 1.4.9 - Bug Fix Release
+
+* Add: customizable backspace and delete actions with variations: spaces, alternating word, word
+  excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
+* Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+  corresponding line in replace. Third pane is options, each is a character: `c` - case
+  sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
+* Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
+* Fix: plugin description forgot to update in plugin.xml for 1.4.8
+* Change: change caret search regex for multi-caret search on non-identifier character c to c
+  instead of exact c count, and caret spawning regex to match the exact char count with
+  preceding and following character not being c to prevent finding stretches with greater count.
 
 ### 1.4.8 - Bug Fix Release
 

@@ -144,6 +144,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBTextField myClosedQuoteText;
     private JLabel mySpliceDelimiterTextLabel;
     JBCheckBox myQuoteSplicedItems;
+    CustomDeleteBackspaceForm myCustomDeleteBackspaceForm;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -366,7 +367,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         myCaretVisualAttributesPane.validate();
         myMainPanel.validate();
-
+        myCustomDeleteBackspaceForm.reset(mySettings);
         updateOptions(true);
     }
 
@@ -462,6 +463,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || !myRegexSampleText.equals(mySettings.getRegexSampleText())
 
                 || components.isModified(mySettings)
+                || myCustomDeleteBackspaceForm.isModified(mySettings)
                 ;
     }
 
@@ -480,6 +482,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             EditorSettingsExternalizable settings = EditorSettingsExternalizable.getInstance();
             settings.setMouseClickSelectionHonorsCamelWords(settings.isCamelWords());
         }
+
+        myCustomDeleteBackspaceForm.apply(mySettings);
     }
 
     public void reset() {
@@ -492,6 +496,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myRegexSampleText = mySettings.getRegexSampleText();
 
         components.reset(mySettings);
+        myCustomDeleteBackspaceForm.reset(mySettings);
 
         updateOptions(false);
         updateGradient();

@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.ui.JBColor;
@@ -146,8 +147,276 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private @NotNull String myOpenQuoteText = "\"";
     private @NotNull String myClosedQuoteText = "\"";
     private boolean myQuoteSplicedItems = false;
-    private boolean         myUserDefinedMacroSmartReplace = true;
+    private boolean myUserDefinedMacroSmartReplace = true;
+    boolean         myBulkSearchCaseSensitive = true;
+    boolean         myBulkSearchWholeWord = true;
+    @NotNull String myBulkSearchText = "";
+    @NotNull String myBulkSearchReplaceText = "";
+    @NotNull String myBulkSearchOptionsText = "";
+
+    // customizable delete/backspace
+    @NotNull String myDeleteSpacesRegEx = "(\\s+)";
+    @NotNull String myBackspaceSpacesRegEx = "(\\s+)";
+    @NotNull String myDeleteAlternatingRegEx = "(\\s+|[\\w]+|[^\\w\\s]+)";
+    @NotNull String myBackspaceAlternatingRegEx = "(\\s+|[\\w]+|[^\\w\\s]+)";
+    @NotNull String myDeleteWordExcludingSpaceRegEx = "(\\s[^\\s]+|\\s{2,}|[^\\s]+)";
+    @NotNull String myBackspaceWordExcludingSpaceRegEx = "([^\\s]+\\s|\\s{2,}|[^\\s]+)";
+    @NotNull String myDeleteWordRegEx = "((?<=\\s|^)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)(?:\\s+(?=\\s|$)|))";
+    @NotNull String myBackspaceWordRegEx = "((?:[\\w]+|[^\\w]+)\\s*|(?<=\\s|^)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)\\s*(?=\\s|$))";
+    boolean myDeleteLineBound = false;
+    boolean myDeleteMultiCaretLineBound = true;
+    boolean myBackspaceLineBound = false;
+    boolean myBackspaceMultiCaretLineBound = true;
+
+    @NotNull String[] myDeleteBackspaceTests = new String[]{
+            "      sample        ",
+            "Sample Text with     =    random([]).test ;     ",
+            "Sam|ple Text with     =    random([]).test ;     ",
+            "Sample Text with     =    random([]).te|st ;     ",
+    };
+    @NotNull String[] myDeleteBackspaceTestCaretMarkers = new String[]{
+            "|",
+            "|",
+            "|",
+            "|",
+    };
     // @formatter:on
+
+    @NotNull
+    public String[] getDeleteBackspaceTestCaretMarkers() {
+        return myDeleteBackspaceTestCaretMarkers;
+    }
+
+    public void setDeleteBackspaceTestCaretMarkers(@NotNull final String[] deleteBackspaceTestCaretMarkers) {
+        myDeleteBackspaceTestCaretMarkers = deleteBackspaceTestCaretMarkers;
+    }
+
+    @NotNull
+    public String[] getDeleteBackspaceTests() {
+        return myDeleteBackspaceTests;
+    }
+
+    public void setDeleteBackspaceTests(@NotNull final String[] deleteBackspaceTests) {
+        myDeleteBackspaceTests = deleteBackspaceTests;
+    }
+
+    @NotNull
+    public String getDeleteWordExcludingSpaceRegEx() {
+        return myDeleteWordExcludingSpaceRegEx;
+    }
+
+    public void setDeleteWordExcludingSpaceRegEx(@NotNull final String deleteWordExcludingSpaceRegEx) {
+        myDeleteWordExcludingSpaceRegEx = deleteWordExcludingSpaceRegEx;
+    }
+
+    @NotNull
+    public String getBackspaceWordExcludingSpaceRegEx() {
+        return myBackspaceWordExcludingSpaceRegEx;
+    }
+
+    public void setBackspaceWordExcludingSpaceRegEx(@NotNull final String backspaceWordExcludingSpaceRegEx) {
+        myBackspaceWordExcludingSpaceRegEx = backspaceWordExcludingSpaceRegEx;
+    }
+
+    @NotNull
+    public String getDeleteSpacesRegEx() {
+        return myDeleteSpacesRegEx;
+    }
+
+    public void setDeleteSpacesRegEx(@NotNull final String deleteSpacesRegEx) {
+        myDeleteSpacesRegEx = deleteSpacesRegEx;
+    }
+
+    @NotNull
+    public String getDeleteAlternatingRegEx() {
+        return myDeleteAlternatingRegEx;
+    }
+
+    public void setDeleteAlternatingRegEx(@NotNull final String deleteAlternatingRegEx) {
+        myDeleteAlternatingRegEx = deleteAlternatingRegEx;
+    }
+
+    @NotNull
+    public String getDeleteWordRegEx() {
+        return myDeleteWordRegEx;
+    }
+
+    public void setDeleteWordRegEx(@NotNull final String deleteWordRegEx) {
+        myDeleteWordRegEx = deleteWordRegEx;
+    }
+
+    @NotNull
+    public String getBackspaceSpacesRegEx() {
+        return myBackspaceSpacesRegEx;
+    }
+
+    public void setBackspaceSpacesRegEx(@NotNull final String backspaceSpacesRegEx) {
+        myBackspaceSpacesRegEx = backspaceSpacesRegEx;
+    }
+
+    @NotNull
+    public String getBackspaceAlternatingRegEx() {
+        return myBackspaceAlternatingRegEx;
+    }
+
+    public void setBackspaceAlternatingRegEx(@NotNull final String backspaceAlternatingRegEx) {
+        myBackspaceAlternatingRegEx = backspaceAlternatingRegEx;
+    }
+
+    @NotNull
+    public String getBackspaceWordRegEx() {
+        return myBackspaceWordRegEx;
+    }
+
+    public void setBackspaceWordRegEx(@NotNull final String backspaceWordRegEx) {
+        myBackspaceWordRegEx = backspaceWordRegEx;
+    }
+
+    @NotNull
+    public boolean isDeleteLineBound() {
+        return myDeleteLineBound;
+    }
+
+    public void setDeleteLineBound(@NotNull final boolean deleteLineBound) {
+        myDeleteLineBound = deleteLineBound;
+    }
+
+    @NotNull
+    public boolean isDeleteMultiCaretLineBound() {
+        return myDeleteMultiCaretLineBound;
+    }
+
+    public void setDeleteMultiCaretLineBound(@NotNull final boolean deleteMultiCaretLineBound) {
+        myDeleteMultiCaretLineBound = deleteMultiCaretLineBound;
+    }
+
+    @NotNull
+    public boolean isBackspaceLineBound() {
+        return myBackspaceLineBound;
+    }
+
+    public void setBackspaceLineBound(@NotNull final boolean backspaceLineBound) {
+        myBackspaceLineBound = backspaceLineBound;
+    }
+
+    @NotNull
+    public boolean isBackspaceMultiCaretLineBound() {
+        return myBackspaceMultiCaretLineBound;
+    }
+
+    public void setBackspaceMultiCaretLineBound(@NotNull final boolean backspaceMultiCaretLineBound) {
+        myBackspaceMultiCaretLineBound = backspaceMultiCaretLineBound;
+    }
+
+    public boolean isBulkSearchCaseSensitive() {
+        return myBulkSearchCaseSensitive;
+    }
+
+    public void setBulkSearchCaseSensitive(final boolean bulkSearchCaseSensitive) {
+        myBulkSearchCaseSensitive = bulkSearchCaseSensitive;
+    }
+
+    public boolean isBulkSearchWholeWord() {
+        return myBulkSearchWholeWord;
+    }
+
+    public void setBulkSearchWholeWord(final boolean bulkSearchWholeWord) {
+        myBulkSearchWholeWord = bulkSearchWholeWord;
+    }
+
+    @NotNull
+    public String getBulkSearchText() {
+        return myBulkSearchText;
+    }
+
+    public void setBulkSearchText(@NotNull final String bulkSearchText) {
+        myBulkSearchText = bulkSearchText;
+    }
+
+    @NotNull
+    public String getBulkSearchReplaceText() {
+        return myBulkSearchReplaceText;
+    }
+
+    public void setBulkSearchReplaceText(@NotNull final String bulkSearchReplaceText) {
+        myBulkSearchReplaceText = bulkSearchReplaceText;
+    }
+
+    @NotNull
+    public String getBulkSearchOptionsText() {
+        return myBulkSearchOptionsText;
+    }
+
+    public void setBulkSearchOptionsText(@NotNull final String bulkSearchOptionsText) {
+        myBulkSearchOptionsText = bulkSearchOptionsText;
+    }
+
+    static class BulkSearchSettings implements BulkSearchSettingsHolder {
+        final ApplicationSettings mySettings;
+
+        public BulkSearchSettings(final ApplicationSettings settings) {
+            mySettings = settings;
+        }
+
+        @NotNull
+        @Override
+        public String getSearchText() {
+            return mySettings.myBulkSearchText;
+        }
+
+        @NotNull
+        @Override
+        public String getReplaceText() {
+            return mySettings.myBulkSearchReplaceText;
+        }
+
+        @NotNull
+        @Override
+        public String getOptionsText() {
+            return mySettings.myBulkSearchOptionsText;
+        }
+
+        @Override
+        public void setSearchText(final String searchText) {
+            mySettings.myBulkSearchText = searchText == null ? "" : searchText;
+
+        }
+
+        @Override
+        public void setReplaceText(final String replaceText) {
+            mySettings.myBulkSearchReplaceText = replaceText == null ? "" : replaceText;
+
+        }
+
+        @Override
+        public void setOptionsText(final String optionsText) {
+            mySettings.myBulkSearchOptionsText = optionsText == null ? "" : optionsText;
+        }
+
+        @Override
+        public boolean isCaseSensitive() {
+            return mySettings.myBulkSearchCaseSensitive;
+        }
+
+        @Override
+        public boolean isWholeWord() {
+            return mySettings.myBulkSearchWholeWord;
+        }
+
+        @Override
+        public void setCaseSensitive(final boolean isCaseSensitive) {
+            mySettings.myBulkSearchCaseSensitive = isCaseSensitive;
+        }
+
+        @Override
+        public void setWholeWord(final boolean isWholeWord) {
+            mySettings.myBulkSearchWholeWord = isWholeWord;
+        }
+    }
+
+    public BulkSearchSettingsHolder getBulkSearchSettingsHolder() {
+        return new BulkSearchSettings(this);
+    }
 
     public boolean isHideDisabledButtons() {
         return myHideDisabledButtons;

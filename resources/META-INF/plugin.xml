@@ -58,6 +58,7 @@
                         <li><strong>paste and re-create multiple carets</strong> from information already stored on the clipboard</li>
                         <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the
                             first line</strong> of the block, ready for multi-caret select and paste</li>
+                        <li><strong>splice</strong> individual entries into delimited list, optionally quoting each entry</li>
                         <li>see caret information stored on the clipboard for each content entry</li>
                     </ul>
                 </li>
@@ -68,16 +69,30 @@
                 <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
             <p><strong>Bug tracking &amp; feature requests:
                 <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Issues</span></a></strong></p>
+
         </div>
         ]]>
     </description>
 
-    <version>1.4.8</version>
+    <version>1.4.9</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.4.9 - Bug Fix Release</h3>
+            <ul>
+                <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
+                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
+                <li>Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+                    corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
+                    sensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> - begin word boundary.</li>
+                <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
+                <li>Fix: plugin description forgot to update in plugin.xml for 1.4.8</li>
+                <li>Change: change caret search regex for multi-caret search on non-identifier character c to c
+                    instead of exact c count, and caret spawning regex to match the exact char count with
+                    preceding and following character not being c to prevent finding stretches with greater count.</li>
+            </ul>
             <h3>1.4.8 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: on paste add prefixes would only be honored if remove prefixes was enabled</li>
@@ -261,6 +276,54 @@
                     id="MissingInActions.BackspaceSpaces"
                     text="Backspace spaces"
                     description="Backspace spaces">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceAlternatingAction"
+                    id="MissingInActions.CustomBackspaceAlternating"
+                    text="Custom Backspace Alternating Word"
+                    description="Custom Backspace Alternating Word">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceSpacesAction"
+                    id="MissingInActions.CustomBackspaceSpaces"
+                    text="Custom Backspace Spaces"
+                    description="Custom Backspace Spaces">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordAction"
+                    id="MissingInActions.CustomBackspaceWord"
+                    text="Custom Backspace Word"
+                    description="Custom Backspace Word">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordExcludingSpaceAction"
+                    id="MissingInActions.CustomBackspaceWordExcludingSpace"
+                    text="Custom Backspace Word Excluding Single Space"
+                    description="Custom Backspace Word Excluding Single Space">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingAction"
+                    id="MissingInActions.CustomDeleteAlternating"
+                    text="Custom Delete Alternating Word"
+                    description="Custom Delete Alternating Word">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteSpacesAction"
+                    id="MissingInActions.CustomDeleteSpaces"
+                    text="Custom Delete Spaces"
+                    description="Custom Delete Spaces">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordAction"
+                    id="MissingInActions.CustomDeleteWord"
+                    text="Custom Delete Word"
+                    description="Custom Delete Word">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceAction"
+                    id="MissingInActions.CustomDeleteWordExcludingSpace"
+                    text="Custom Delete Word Excluding Single Space"
+                    description="Custom Delete Word Excluding Space">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.character.DeleteSpacesAction"
@@ -475,6 +538,7 @@
                     icon="PluginIcons.Search_options"
                     description="Search Carets Options">
             </action>
+
         </group>
 
         <action class="com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction"
@@ -511,14 +575,14 @@
                 description="Recall Last Selection">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
+        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListActionMia"
                 id="MissingInActions.RecallSelectionList"
                 text=""
                 icon="PluginIcons.Recall_selection_list"
                 description="Recall Selection List">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
+        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListActionMia"
                 id="MissingInActions.RecallSelectionListButton"
                 text="Recall Selection"
                 icon="PluginIcons.Recall_selection_list"
@@ -532,14 +596,14 @@
                 description="Swap Selection">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
+        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListActionMia"
                 id="MissingInActions.SwapSelectionTextList"
                 text=""
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
+        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListActionMia"
                 id="MissingInActions.SwapSelectionTextListButton"
                 text="Swap Text"
                 icon="PluginIcons.Swap_selection_list_text"
@@ -630,9 +694,18 @@
                 description="Remove Word Highlighted Carets">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.BulkSearchAction"
+                id="MissingInActions.BulkSearchReplace"
+                text="Bulk Search/Replace..."
+                icon="PluginIcons.Bulk_search"
+                description="Bulk Search/Replace...">
+        </action>
+
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
+            <separator/>
+            <reference id="MissingInActions.BulkSearchReplace"/>
             <separator/>
             <reference id="MissingInActions.ToggleIsolationMode"/>
             <reference id="MissingInActions.AddIsolationLines"/>

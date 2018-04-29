@@ -129,8 +129,11 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
     @Override
     public void caretsChanged(final Editor editor) {
-        myStartCarets = editor.getCaretModel().getCaretsAndSelections();
-        myStartSearchCarets = new HashSet<>(editor.getCaretModel().getAllCarets());
+        if (mySingleMatch) {
+            // search forwards/backwards
+            myStartCarets = editor.getCaretModel().getCaretsAndSelections();
+            myStartSearchCarets = new HashSet<>(editor.getCaretModel().getAllCarets());
+        }
         myPatternCaret = editor.getCaretModel().getPrimaryCaret();
     }
 
@@ -145,10 +148,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         myStartSearchCarets = null;
         myPatternCaret = null;
 
-        if (mySingleMatch) {
-            // this is search forward/backward
-            caretsChanged(editor);
-        }
+        caretsChanged(editor);
     }
 
     @Override
@@ -158,6 +158,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
         boolean haveMultiLineSelection = false;
         //int caretCount = editor.getCaretModel().getCaretCount();
         boolean haveMultipleCaretLines = false;
+        boolean haveMultipleCarets = editor.getCaretModel().getCaretCount() > 1;
 
         for (Caret caret1 : editor.getCaretModel().getAllCarets()) {
             int caretLine = caret1.getLogicalPosition().line;
@@ -182,19 +183,17 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
             if (haveMultiLineSelection && haveMultipleCaretsPerLine && haveMultipleCaretLines) break;
         }
 
-        myLineMode = !haveMultipleCaretsPerLine;
         mySingleLine = !haveMultiLineSelection;
-        mySingleMatch = haveMultiLineSelection || (haveMultipleCaretLines && !haveMultipleCaretsPerLine);
+        mySingleMatch = !haveMultipleCaretsPerLine && haveMultipleCarets;
+        myLineMode = mySingleMatch;
         myMoveFirstMatch = !mySingleMatch;
         myPattern = null;
         myStartSearchCarets = null;
         myPatternCaret = null;
         myCaretToEndGroup = false;
 
-        if (mySingleMatch) {
-            // this is search forward/backward
-            caretsChanged(editor);
-        }
+        // get primary caret
+        caretsChanged(editor);
     }
 
     @Override
@@ -236,12 +235,10 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     @Nullable
     @Override
     protected RegExPattern getPattern(@NotNull final LineSelectionManager manager, @NotNull Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
-        if (!mySingleMatch || myPattern == null) {
+        if (myPattern == null) {
             EditorPosition caretPos = manager.getPositionFactory().fromPosition(caret.getLogicalPosition());
             int offset = caretPos.getOffset();
             int endOfLineColumn = caretPos.atEndColumn().column;
-
-            myPattern = null;
 
             if (!myBackwards) {
                 // check what is ahead of caret
@@ -291,12 +288,18 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                         myPattern = ForwardPattern.compile("(" + Pattern.quote(text.toString()) + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
-                    // neither, just look for the character span of matching characters
-                    int end = offset;
-                    while (end < range.getEnd() && c == chars.charAt(end)) end++;
-                    BasedSequence text = chars.subSequence(offset, end);
-                    String quote = Pattern.quote(text.toString());
-                    myPattern = ForwardPattern.compile("(" + quote + ")");
+                    if (mySingleMatch) {
+                        // now just look for a continuous span of characters
+                        String quote = Pattern.quote(String.valueOf(c));
+                        myPattern = ForwardPattern.compile("(" + quote + "+)");
+                    } else {
+                        // neither, just look for the character span of matching characters
+                        int end = offset;
+                        while (end < range.getEnd() && c == chars.charAt(end)) end++;
+                        BasedSequence text = chars.subSequence(offset, end);
+                        String quote = Pattern.quote(text.toString());
+                        myPattern = ForwardPattern.compile("(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")");
+                    }
                 }
             } else {
                 // check what is behind of caret
@@ -344,12 +347,18 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                         myPattern = ReversePattern.compile(startBreak + "(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     }
                 } else {
-                    // neither, just look for the character span of matching characters
-                    int start = offset;
-                    while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
-                    BasedSequence text = chars.subSequence(start, offset);
-                    String quote = Pattern.quote(text.toString());
-                    myPattern = ReversePattern.compile("(" + quote + ")");
+                    if (mySingleMatch) {
+                        // now just look for a continuous span of characters
+                        String quote = Pattern.quote(String.valueOf(c));
+                        myPattern = ReversePattern.compile("(" + quote + "+)");
+                    } else {
+                        // neither, just look for the character span of matching characters
+                        int start = offset;
+                        while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
+                        BasedSequence text = chars.subSequence(start, offset);
+                        String quote = Pattern.quote(text.toString());
+                        myPattern = ReversePattern.compile("(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")");
+                    }
                 }
             }
         }

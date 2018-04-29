@@ -25,9 +25,18 @@ import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.JBColor;
+import com.vladsch.MissingInActions.util.ui.BackgroundColor;
+import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
+import org.jetbrains.annotations.Contract;
 
+import javax.annotation.Nullable;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import java.awt.Color;
+import java.awt.Font;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
 public class Utils {
@@ -134,6 +143,54 @@ public class Utils {
         }
         sb.append(suffix);
         return sb.toString();
+    }
+
+    public static String repeat(String text, int repeatCount) {
+        if (repeatCount > 0) {
+            StringBuilder sb = new StringBuilder(text.length() * repeatCount);
+            while (repeatCount-- > 0) {
+                sb.append(text);
+            }
+            return sb.toString();
+        }
+        return "";
+    }
+
+    @Nullable
+    @Contract("!null, _ -> !null; null, _-> null")
+    public static String toHtmlError(@Nullable String err, boolean withContext) {
+        if (err == null) return null;
+
+        if (withContext) {
+            Matcher matcher = Pattern.compile("(?:^|\n)(.*\n)(\\s*)\\^(\n?)$").matcher(err);
+            if (matcher.find()) {
+                String group = matcher.group(2);
+                if (group != null && !group.isEmpty()) {
+                    int prevLineStart = matcher.group(1) != null ? matcher.start(1) : matcher.start(2);
+                    String lastLine = repeat("&nbsp;", group.length());
+                    err = err.substring(0, prevLineStart) + "<span style=\"font-family:monospaced\">" + err.substring(prevLineStart, matcher.start(2)).replace(" ", "&nbsp;") + lastLine + "^</span>" + group;
+                }
+            }
+        }
+        return err.replace("\n", "<br>");
+    }
+
+    public static void setRegExError(String error, JTextPane jTextPane, final Font textFont, final BackgroundColor validTextFieldBackground, final BackgroundColor warningTextFieldBackground) {
+        HtmlBuilder html = new HtmlBuilder();
+        html.tag("html").style("margin:2px;vertical-align:middle;").attr(validTextFieldBackground, textFont).tag("body");
+        //noinspection ConstantConditions
+        html.attr(warningTextFieldBackground).tag("div");
+        html.append(toHtmlError(error, true));
+        html.closeTag("div");
+        html.closeTag("body");
+        html.closeTag("html");
+
+        jTextPane.setVisible(true);
+        jTextPane.setText(html.toFinalizedString());
+        jTextPane.revalidate();
+        jTextPane.getParent().revalidate();
+        jTextPane.getParent().getParent().revalidate();
+
     }
 }
 

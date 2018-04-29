@@ -9,6 +9,8 @@
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.4.9 - Bug Fix Release](#version-149---bug-fix-release)
+    - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
 - [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
 - [Version 1.4.0 - Bug Fix Release](#version-140---bug-fix-release)
@@ -82,9 +84,57 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
+## Version 1.4.9 - Bug Fix Release
+
+[Version Notes][] [Download Latest 1.4.9 from this repo][]
+
+* Add: customizable backspace and delete actions with variations: spaces, alternating word, word
+  excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
+* Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+  corresponding line in replace. Third pane is options, each is a character: `c` - case
+  sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
+* Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
+* Fix: plugin description forgot to update in plugin.xml for 1.4.8
+* Change: change caret search regex for multi-caret search on non-identifier character c to c
+  instead of exact c count, and caret spawning regex to match the exact char count with
+  preceding and following character not being c to prevent finding stretches with greater count.
+
+### 1.4.8 - Bug Fix Release
+
+* Fix: on paste add prefixes would only be honored if remove prefixes was enabled
+* Fix: camel case preserve paste, adding a non-letter/digit prefix to not uppercase first letter
+  of pasted content. To fix auto prefixing of `$` for php when pasting non-variable name over
+  variable.
+* Add: Single line caret spawning search now enabled with carets on multiple lines if at least
+  one line has more than one caret. This allows the spawning carets to spawn on multiple lines,
+  extending usefulness of this beyond single line search spawn.
+* Add: Single line caret spawning search now limits the spawned carets to the existing selection
+  of the caret, if there is one. This allows spawning carets in a limited text range.
+* Add: Smart Keep/Remove carets add remove non-selection carets if both selection and
+  non-selection carets exist.
+* Add: paste selection dialog options to join lines/multiple caret content and optionally quote
+  individual items with open quote, close quote and delimiter text customizable.
+* Add: multi-caret actions: keep-carets with selection and keep carets without selection.
+* Add: clear isolated lines action to clear isolation. Select All, add to isolated is
+  un-intuitive.
+* Fix: numbering without selections for carets would mess up selections.
+* Fix: exception when inserting number sequence with last caret being on the last line of the
+  document without an EOL.
+* Change: search spawning caret action when non-identifier or space now will search for a span
+  of matching characters. For example caret on `&&` will spawn a caret on every occurrence of
+  `&&` instead of just `&` as before which produced a useless result 99% of the time.
+* Fix: caret spawning search forward/backward regex when word starts or ends on `$` which regex
+  does not consider an identifier character so `\b` does not handle the word break properly.
+* Fix: Highlights sorted in reverse length order to allow longer matches to succeed before
+  possibly shorter sub-strings.
+* Fix: @NotNull argument must not be null exception.
+
+
 ## Version 1.4.6 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.4.6 from this repo][]
+* Fix: change "Recall Selection from List" to "Recall Selection" to shorten toolbar real-estate
+* Fix: change "Swap Selection Text from List" to "Swap Text" to shorten toolbar real-estate
+* Fix: newly opened files would not show word highlights until they were modified.
 
 ## Version 1.4.2 - Bug Fix Release
 
@@ -523,7 +573,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.4.6 from this repo]: ../../raw/master/dist/MissingInActions.1.4.6.zip
+[Download Latest 1.4.9 from this repo]: ../../raw/master/dist/MissingInActions.1.4.9.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

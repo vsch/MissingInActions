@@ -37,10 +37,8 @@ import com.vladsch.MissingInActions.manager.CaretEx;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.RegExSettingsHolder;
-import com.vladsch.MissingInActions.util.HelpersKt;
 import com.vladsch.MissingInActions.util.Utils;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
-import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -400,21 +398,8 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
         } else {
-            HtmlBuilder html = new HtmlBuilder();
-            html.tag("html").style("margin:2px;vertical-align:middle;").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
-            //noinspection ConstantConditions
-            html.attr(warningBackground).tag("div");
-            html.append(HelpersKt.toHtmlError(error, true));
-            html.closeTag("div");
-            html.closeTag("body");
-            html.closeTag("html");
-
             myViewPanel.setVisible(false);
-            myTextPane.setVisible(true);
-            myTextPane.setText(html.toFinalizedString());
-            myTextPane.revalidate();
-            myTextPane.getParent().revalidate();
-            myTextPane.getParent().getParent().revalidate();
+            Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }
