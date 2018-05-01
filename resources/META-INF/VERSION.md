@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.9 - Bug Fix Release](#149---bug-fix-release)
+- [1.4.10 - Bug Fix Release](#1410---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -54,8 +54,9 @@
 
 &nbsp;</details>
 
-### 1.4.9 - Bug Fix Release
+### 1.4.10 - Bug Fix Release
 
+* Add: presets and import/export to bulk search/replace to allow selecting a set of presets.
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
 * Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by

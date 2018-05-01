@@ -21,10 +21,7 @@
 
 package com.vladsch.MissingInActions.manager;
 
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
-import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.*;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +50,12 @@ public class EditorPosition extends LogicalPosition {
     @NotNull
     public EditorPositionFactory getFactory() {
         return myFactory;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public VisualPosition toVisualPosition() {
+        return myFactory.getEditor().logicalToVisualPosition(this);
     }
 
     @SuppressWarnings("WeakerAccess")

@@ -248,7 +248,7 @@ public class LineSelectionManager implements
         return (myOnPasteReplacementMap != null && !myOnPasteReplacementMap.isEmpty()) || myOnPasteUserSearchPattern != null;
     }
 
-    @Nullable
+    @NotNull
     public String replaceOnPaste(@NotNull String text) {
         if (myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) {
             return text;

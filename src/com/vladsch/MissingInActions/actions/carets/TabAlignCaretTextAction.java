@@ -29,6 +29,8 @@
  */
 package com.vladsch.MissingInActions.actions.carets;
 
+import com.intellij.application.options.CodeStyle;
+import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -37,8 +39,15 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
@@ -99,30 +108,39 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                 }
             }
 
-            CodeStyleSettings styleSettings = CodeStyleSettingsManager.getSettings(editor.getProject());
-            int tabSize = styleSettings.getTabSize(editor.getVirtualFile().getFileType());
-            column += column % tabSize == 0 && unevenColumns ? 0 : tabSize - (column % tabSize);
+            Project project = editor.getProject();
+            if (project != null) {
+                VirtualFile virtualFile = editor.getVirtualFile();
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+                Language language = psiFile == null ? null : psiFile.getLanguage();
+                FileType fileType = virtualFile.getFileType();
+                @SuppressWarnings("deprecation")
+                CommonCodeStyleSettings styleSettings = psiFile != null ? CodeStyle.getLanguageSettings(psiFile, language) : CodeStyleSettingsManager.getSettings(project);
+                IndentOptions indentOptions = styleSettings.getIndentOptions();
+                int tabSize = indentOptions == null ? 4 : indentOptions.TAB_SIZE;
+                column += column % tabSize == 0 && unevenColumns ? 0 : tabSize - (column % tabSize);
 
-            // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
-            int finalColumn = column;
-            carets.sort((o1, o2) -> o2.getOffset() - o1.getOffset());
+                // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
+                int finalColumn = column;
+                carets.sort((o1, o2) -> Comparing.compare(o2.getOffset(), o1.getOffset()));
 
-            WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
-                for (Caret caret : carets) {
-                    EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                    int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
+                WriteCommandAction.runWriteCommandAction(project, () -> {
+                    for (Caret caret : carets) {
+                        EditorPosition position = f.fromPosition(caret.getLogicalPosition());
+                        int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
 
-                    int count = finalColumn - position.column - spaces;
-                    if (count <= 0 || position.column >= position.atEndColumn().column) {
+                        int count = finalColumn - position.column - spaces;
+                        if (count <= 0 || position.column >= position.atEndColumn().column) {
+                            caret.moveToLogicalPosition(position.atColumn(finalColumn));
+                            continue;
+                        }
+
+                        int offset = position.getOffset() + spaces;
+                        doc.insertString(offset, RepeatedCharSequence.of(' ', count));
                         caret.moveToLogicalPosition(position.atColumn(finalColumn));
-                        continue;
                     }
-
-                    int offset = position.getOffset() + spaces;
-                    doc.insertString(offset, RepeatedCharSequence.of(' ', count));
-                    caret.moveToLogicalPosition(position.atColumn(finalColumn));
-                }
-            });
+                });
+            }
         }
     }
 

@@ -31,14 +31,23 @@ import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
+import com.intellij.openapi.fileChooser.ex.FileSaverDialogImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.settings.BulkSearchSettingsHolder;
+import com.vladsch.MissingInActions.settings.BulkSearchReplace;
+import com.vladsch.MissingInActions.settings.BulkSearchReplaceSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.Utils;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
@@ -46,6 +55,8 @@ import com.vladsch.ReverseRegEx.util.ForwardMatcher;
 import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.ReverseMatcher;
 import com.vladsch.ReverseRegEx.util.ReversePattern;
+import com.vladsch.boxed.json.BoxedJsObject;
+import com.vladsch.boxed.json.BoxedJson;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +68,10 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.regex.Matcher;
@@ -79,14 +93,18 @@ public class BulkReplaceDialog extends DialogWrapper {
     private JButton myExclude;
     private JButton mySwapSearchReplace;
     private JButton myGetFromClipboard;
+    JComboBox<String> myPresets;
+    private JButton mySavePreset;
+    private JButton myManageActions;
     private boolean myIsBadRegEx;
+    private JBPopupMenu myPopupMenuActions;
 
-    private final @NotNull EditorEx myEditor;
-    final @NotNull EditorEx mySearchEditor;
-    final @NotNull EditorEx myReplaceEditor;
-    private final @NotNull EditorEx myOptionsEditor;
+    EditorEx myEditor;
+    EditorEx mySearchEditor;
+    EditorEx myReplaceEditor;
+    EditorEx myOptionsEditor;
 
-    private final BulkSearchSettingsHolder mySettingsHolder;
+    final BulkSearchReplaceSettings mySettings;
 
     String myPatternText = null;
     ForwardPattern myForwardPattern = null;
@@ -99,6 +117,7 @@ public class BulkReplaceDialog extends DialogWrapper {
     ArrayList<TextRange> mySearchRanges = null;
     ArrayList<TextRange> myReplaceRanges = null;
     ArrayList<TextRange> myOptionsRanges = null;
+    final DocumentListener myDocumentListener;
     int myFoundIndex = -1;
     boolean myFoundBackwards = false;
     boolean myInUpdate = false;
@@ -121,32 +140,50 @@ public class BulkReplaceDialog extends DialogWrapper {
 
     public boolean saveSettings(boolean onlySamples) {
         // save settings return false if regex is not valid
-        //mySettingsHolder.setSampleText(mySampleText.getText());
+        //mySettings.setSampleText(mySampleText.getText());
 
         if (!onlySamples) {
-            mySettingsHolder.setWholeWord(myWholeWord.isSelected());
-            mySettingsHolder.setCaseSensitive(myCaseSensitive.isSelected());
-            mySettingsHolder.setSearchText(mySearchEditor.getDocument().getText().trim());
-            mySettingsHolder.setReplaceText(myReplaceEditor.getDocument().getText().trim());
-            mySettingsHolder.setOptionsText(myOptionsEditor.getDocument().getText().trim());
+            mySettings.getSearchReplace().setWholeWord(myWholeWord.isSelected());
+            mySettings.getSearchReplace().setCaseSensitive(myCaseSensitive.isSelected());
+            mySettings.getSearchReplace().setSearchText(mySearchEditor.getDocument().getText().trim());
+            mySettings.getSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText().trim());
+            mySettings.getSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText().trim());
         }
 
         return onlySamples || checkRegEx(mySearchEditor.getDocument().getText()).isEmpty();
     }
 
-    public BulkReplaceDialog(JComponent parent, @NotNull BulkSearchSettingsHolder settingsHolder, @NotNull EditorEx editor) {
+    public void disposeEditors() {
+        if (myEditor != null) {
+            // release the editors
+            mySearchEditor.getDocument().removeDocumentListener(myDocumentListener);
+            myReplaceEditor.getDocument().removeDocumentListener(myDocumentListener);
+            myOptionsEditor.getDocument().removeDocumentListener(myDocumentListener);
+
+            EditorFactory.getInstance().releaseEditor(mySearchEditor);
+            EditorFactory.getInstance().releaseEditor(myReplaceEditor);
+            EditorFactory.getInstance().releaseEditor(myOptionsEditor);
+
+            myEditor = null;
+            mySearchEditor = null;
+            myReplaceEditor = null;
+            myOptionsEditor = null;
+        }
+    }
+
+    public BulkReplaceDialog(JComponent parent, @NotNull BulkSearchReplaceSettings searchReplaceSettings, @NotNull EditorEx editor) {
         super(parent, false);
 
         setTitle(Bundle.message("caret-search.options-dialog.title"));
 
-        mySettingsHolder = settingsHolder;
-        String searchText = settingsHolder.getSearchText();
-        String replaceText = settingsHolder.getReplaceText();
-        String optionsText = settingsHolder.getOptionsText();
+        mySettings = searchReplaceSettings;
+        String searchText = mySettings.getSearchReplace().getSearchText();
+        String replaceText = mySettings.getSearchReplace().getReplaceText();
+        String optionsText = mySettings.getSearchReplace().getOptionsText();
 
-        boolean caseSensitive = mySettingsHolder.isCaseSensitive();
+        boolean caseSensitive = mySettings.getSearchReplace().isCaseSensitive();
         myCaseSensitive.setSelected(caseSensitive);
-        myWholeWord.setSelected(mySettingsHolder.isWholeWord());
+        myWholeWord.setSelected(mySettings.getSearchReplace().isWholeWord());
 
         mySampleText.setVisible(false);
 
@@ -154,98 +191,102 @@ public class BulkReplaceDialog extends DialogWrapper {
         mySearchEditor = createIdeaEditor(searchText);
         myReplaceEditor = createIdeaEditor(replaceText);
         myOptionsEditor = createIdeaEditor(optionsText);
+
         mySearchViewPanel.add(mySearchEditor.getComponent(), BorderLayout.CENTER);
         myReplaceViewPanel.add(myReplaceEditor.getComponent(), BorderLayout.CENTER);
         myOptionsViewPanel.add(myOptionsEditor.getComponent(), BorderLayout.CENTER);
 
-        final DocumentListener documentListener = new DocumentListener() {
+        myDocumentListener = new DocumentListener() {
             @Override
             public void documentChanged(final com.intellij.openapi.editor.event.DocumentEvent event) {
                 updateOptions();
             }
         };
 
-        mySearchEditor.getDocument().addDocumentListener(documentListener);
-        myReplaceEditor.getDocument().addDocumentListener(documentListener);
-        myOptionsEditor.getDocument().addDocumentListener(documentListener);
+        mySearchEditor.getDocument().addDocumentListener(myDocumentListener);
+        myReplaceEditor.getDocument().addDocumentListener(myDocumentListener);
+        myOptionsEditor.getDocument().addDocumentListener(myDocumentListener);
 
-        final ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                updateOptions();
-            }
-        };
+        final ActionListener actionListener = e -> updateOptions();
 
-        myFindNext.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                findNext();
-            }
-        });
+        myFindNext.addActionListener(e -> findNext());
 
-        myFindPrevious.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                findPrevious();
-            }
-        });
+        myFindPrevious.addActionListener(e -> findPrevious());
 
-        myReplace.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                replace();
+        myReplace.addActionListener(e -> replace());
+
+        myReplaceAll.addActionListener(e -> replaceAll());
+
+        myExclude.addActionListener(e -> exclude());
+
+        mySavePreset.addActionListener(e -> {
+            String presetName = (String) myPresets.getEditor().getItem();
+            BulkSearchReplace oldSettings = mySettings.getPreset(presetName);
+            saveSettings(false);
+
+            mySettings.savePreset(presetName);
+            if (oldSettings == null) {
+                // reload
+                fillPresets();
             }
         });
 
-        myReplaceAll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                replaceAll();
+        //myPresets.addItemListener(e -> {
+        //    int tmp = 0;
+        //});
+
+        myPopupMenuActions = new JBPopupMenu("Actions");
+        final JBMenuItem exportXML = new JBMenuItem(Bundle.message("bulk-search.export-xml.label"));
+        final JBMenuItem importXML = new JBMenuItem(Bundle.message("bulk-search.import-xml.label"));
+        final JBMenuItem exportJSON = new JBMenuItem(Bundle.message("bulk-search.export-json.label"));
+        final JBMenuItem importJSON = new JBMenuItem(Bundle.message("bulk-search.import-json.label"));
+        final JBMenuItem deletePreset = new JBMenuItem(Bundle.message("bulk-search.delete.label"));
+
+        myPresets.addActionListener(e -> {
+            if (!myInUpdate) {
+                int selected = myPresets.getSelectedIndex();
+                if (selected != -1) {
+                    // recall the given prefix
+                    String presetName = myPresets.getItemAt(selected);
+                    mySettings.loadPreset(presetName);
+                    settingsChanged(false);
+                    deletePreset.setEnabled(true);
+                } else {
+                    mySettings.setPresetName(null);
+                    deletePreset.setEnabled(false);
+                }
             }
         });
 
-        myExclude.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                exclude();
-            }
+        mySwapSearchReplace.addActionListener(e -> {
+            myInUpdate = true;
+            String searchText1 = mySearchEditor.getDocument().getText();
+            String replaceText1 = myReplaceEditor.getDocument().getText();
+            ApplicationManager.getApplication().runWriteAction(() -> {
+                mySearchEditor.getDocument().setText(replaceText1);
+                myReplaceEditor.getDocument().setText(searchText1);
+            });
+            myInUpdate = false;
+            updateOptions();
         });
 
-        mySwapSearchReplace.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                myInUpdate = true;
-                String searchText = mySearchEditor.getDocument().getText();
-                String replaceText = myReplaceEditor.getDocument().getText();
-                ApplicationManager.getApplication().runWriteAction(() -> {
-                    mySearchEditor.getDocument().setText(replaceText);
-                    myReplaceEditor.getDocument().setText(searchText);
-                });
-                myInUpdate = false;
-                updateOptions();
-            }
-        });
+        myGetFromClipboard.addActionListener(e -> {
+            final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+            final Transferable[] contents = copyPasteManager.getAllContents();
+            if (contents.length > 1) {
+                // we take top two
+                try {
+                    final String replaceText12 = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
+                    final String searchText12 = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
+                    myInUpdate = true;
+                    ApplicationManager.getApplication().runWriteAction(() -> {
+                        mySearchEditor.getDocument().setText(searchText12);
+                        myReplaceEditor.getDocument().setText(replaceText12);
+                    });
+                    myInUpdate = false;
+                    updateOptions();
+                } catch (UnsupportedFlavorException | IOException e1) {
 
-        myGetFromClipboard.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
-                final Transferable[] contents = copyPasteManager.getAllContents();
-                if (contents.length > 1) {
-                    // we take top two
-                    try {
-                        final String replaceText = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
-                        final String searchText = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
-                        myInUpdate = true;
-                        ApplicationManager.getApplication().runWriteAction(() -> {
-                            mySearchEditor.getDocument().setText(searchText);
-                            myReplaceEditor.getDocument().setText(replaceText);
-                        });
-                        myInUpdate = false;
-                        updateOptions();
-                    } catch (UnsupportedFlavorException | IOException e1) {
-
-                    }
                 }
             }
         });
@@ -253,14 +294,303 @@ public class BulkReplaceDialog extends DialogWrapper {
         myCaseSensitive.addActionListener(actionListener);
         myWholeWord.addActionListener(actionListener);
 
+        myPresets.setEditable(true);
+
+        deletePreset.addActionListener(e -> {
+            String presetName = (String) myPresets.getSelectedItem();
+            if (presetName != null) {
+                BulkSearchReplace removed = mySettings.getPresets().remove(presetName);
+                if (removed != null) {
+                    mySettings.setPresetName(null);
+                    fillPresets();
+                    myPresets.setSelectedIndex(-1);
+                }
+            }
+        });
+
+        exportXML.addActionListener(e -> {
+            String title = Bundle.message("bulk-search.export.title");
+            String description = Bundle.message("bulk-search.export.description");
+            FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "xml");
+            FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
+            final Project project = myEditor.getProject() != null ? myEditor.getProject() : ProjectUtil.guessCurrentProject(myMainPanel);
+            if (project != null) {
+                VirtualFileWrapper file = saveDialog.save(project.getBaseDir(), "bulk-search-replace.xml");
+                if (file != null) {
+                    try {
+                        FileUtil.createParentDirs(file.getFile());
+                        FileOutputStream fileWriter = new FileOutputStream(file.getFile());
+                        BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings(mySettings);
+                        XMLEncoder xmlEncoder = new XMLEncoder(fileWriter, "UTF-8", true, 0);
+                        xmlEncoder.writeObject(externalizedSettings);
+                        xmlEncoder.close();
+                        fileWriter.close();
+                        //JDOMUtil.write(root, file.getFile(), "\n");
+                    } catch (IOException e1) {
+                        Messages.showErrorDialog(e1.getMessage(), "Export Failure");
+                    }
+                }
+            }
+        });
+
+        importXML.addActionListener(e -> {
+            FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
+            String title = Bundle.message("bulk-search.import.title");
+            String description = Bundle.message("bulk-search.import.description");
+            fileChooserDescriptor.setTitle(title);
+            fileChooserDescriptor.setDescription(description);
+            final Project project = myEditor.getProject() != null ? myEditor.getProject() : ProjectUtil.guessCurrentProject(myMainPanel);
+            FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, project);
+            String lastImport = project.getBasePath() + "/" + "bulk-search-replace.xml";
+            VirtualFile lastImportFile = project.getBaseDir();
+            if (!lastImport.isEmpty()) {
+                File file = new File(lastImport);
+                try {
+                    lastImportFile = VirtualFileManager.getInstance().findFileByUrl(file.toURI().toURL().toString());
+                } catch (MalformedURLException ignore) {
+                    //ignore.printStackTrace();
+                }
+            }
+
+            VirtualFile[] files = fileChooserDialog.choose(project, lastImportFile);
+            if (files.length > 0) {
+                try {
+                    BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(files[0].getPath()));
+                    XMLDecoder decoder = new XMLDecoder(inputStream, this, e1 -> {
+                        e1.printStackTrace();
+                    }, this.getClass().getClassLoader());
+
+                    Object object = decoder.readObject();
+                    BulkSearchReplaceSettings externalizedSettings = (BulkSearchReplaceSettings) object;
+                    decoder.close();
+                    inputStream.close();
+                    if (externalizedSettings != null) {
+                        mySettings.copyFrom(externalizedSettings);
+                        settingsChanged(true);
+                    } else {
+                        Messages.showErrorDialog("File does not contain exported Bulk Search/Replace settings.", "Import Failure");
+                    }
+                } catch (Exception e1) {
+                    Messages.showErrorDialog(e1.getMessage(), "Import Failure");
+                }
+            }
+        });
+
+        exportJSON.addActionListener(e -> {
+            String title = Bundle.message("bulk-search.export.title");
+            String description = Bundle.message("bulk-search.export.description");
+            FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "json");
+            FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
+            final Project project = myEditor.getProject() != null ? myEditor.getProject() : ProjectUtil.guessCurrentProject(myMainPanel);
+            if (project != null) {
+                VirtualFileWrapper file = saveDialog.save(project.getBaseDir(), "bulk-search-replace.json");
+                if (file != null) {
+                    try {
+                        FileUtil.createParentDirs(file.getFile());
+                        FileWriter fileWriter = new FileWriter(file.getFile());
+                        BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings(mySettings);
+                        BoxedJsObject settings = BoxedJson.of();
+                        BoxedJsObject presets = BoxedJson.of();
+                        settings.put("presets", presets);
+
+                        exportJSONPresets(presets);
+                        fileWriter.write(settings.toString());
+
+                        fileWriter.close();
+                        //JDOMUtil.write(root, file.getFile(), "\n");
+                    } catch (IOException e1) {
+                        Messages.showErrorDialog(e1.getMessage(), "Export Failure");
+                    }
+                }
+            }
+        });
+
+        importJSON.addActionListener(e -> {
+            FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
+            String title = Bundle.message("bulk-search.import.title");
+            String description = Bundle.message("bulk-search.import.description");
+            fileChooserDescriptor.setTitle(title);
+            fileChooserDescriptor.setDescription(description);
+            final Project project = myEditor.getProject() != null ? myEditor.getProject() : ProjectUtil.guessCurrentProject(myMainPanel);
+            FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, project);
+            String lastImport = project.getBasePath() + "/" + "bulk-search-replace.json";
+            VirtualFile lastImportFile = project.getBaseDir();
+            if (!lastImport.isEmpty()) {
+                File file = new File(lastImport);
+                try {
+                    lastImportFile = VirtualFileManager.getInstance().findFileByUrl(file.toURI().toURL().toString());
+                } catch (MalformedURLException ignore) {
+                    //ignore.printStackTrace();
+                }
+            }
+
+            VirtualFile[] files = fileChooserDialog.choose(project, lastImportFile);
+            if (files.length > 0) {
+                try {
+                    BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(files[0].getPath()));
+                    BoxedJsObject settings = BoxedJson.from(inputStream);
+                    inputStream.close();
+
+                    BoxedJsObject presets = settings.getJsObject("presets");
+                    BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings();
+
+                    if (presets.isValid() && importFromJSON(externalizedSettings, presets)) {
+                        mySettings.copyFrom(externalizedSettings);
+                        settingsChanged(true);
+                    } else {
+                        Messages.showErrorDialog("File does not contain exported Bulk Search/Replace settings.", "Import Failure");
+                    }
+                } catch (Exception e1) {
+                    Messages.showErrorDialog(e1.getMessage(), "Import Failure");
+                }
+            }
+        });
+
+        myPopupMenuActions.add(exportJSON);
+        myPopupMenuActions.add(importJSON);
+        myPopupMenuActions.addSeparator();
+        myPopupMenuActions.add(exportXML);
+        myPopupMenuActions.add(importXML);
+        myPopupMenuActions.addSeparator();
+        myPopupMenuActions.add(deletePreset);
+
+        myManageActions.setComponentPopupMenu(myPopupMenuActions);
+
+        myManageActions.addActionListener(e -> {
+            myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100);
+        });
+
         copyEditorSettings(mySearchEditor);
         copyEditorSettings(myReplaceEditor);
         copyEditorSettings(myOptionsEditor);
 
+        fillPresets();
         updateOptions();
 
         init();
     }
+
+    private boolean importFromJSON(final BulkSearchReplaceSettings settings, final BoxedJsObject presets) {
+        boolean hadPreset = false;
+
+        for (String presetName : presets.keySet()) {
+            BoxedJsObject preset = presets.getJsObject(presetName);
+            if (preset.isValid()) {
+                StringBuilder search = new StringBuilder();
+                StringBuilder replace = new StringBuilder();
+
+                boolean hadSearch = false;
+                for (String searchText : preset.keySet()) {
+                    String replaceText = preset.getString(searchText);
+                    search.append(searchText).append("\n");
+                    replace.append(replaceText).append("\n");
+                    hadSearch = true;
+                }
+
+                if (hadSearch) {
+                    hadPreset = true;
+                    BulkSearchReplace searchReplaceSettings = new BulkSearchReplace();
+                    searchReplaceSettings.setSearchText(search.toString());
+                    searchReplaceSettings.setReplaceText(replace.toString());
+                    settings.getPresets().put(presetName, searchReplaceSettings);
+                }
+            }
+        }
+
+        return hadPreset;
+    }
+
+    private void exportJSONPresets(final BoxedJsObject presets) {
+        // we export presets only
+        ArrayList<String> keySet = new ArrayList<>(mySettings.getPresets().keySet());
+        keySet.sort(Comparator.naturalOrder());
+
+        for (String presetName : keySet) {
+            BoxedJsObject preset = BoxedJson.of();
+            presets.put(presetName, preset);
+
+            BulkSearchReplace replaceSettings = mySettings.getPreset(presetName);
+            String[] search = replaceSettings.getSearchText().split("\n");
+            String[] replace = replaceSettings.getReplaceText().split("\n");
+            String[] options = replaceSettings.getOptionsText().split("\n");
+
+            int searchLines = search.length;
+            int replaceLines = replace.length;
+            int optionsLines = options.length;
+            int iMax = Math.max(searchLines, Math.max(replaceLines, optionsLines));
+
+            boolean hadErrors = false;
+            for (int i = 0; i < iMax; i++) {
+                String searchText = null;
+                String replaceText = null;
+                String optionsText = "";
+
+                if (i < searchLines) searchText = search[i];
+                if (i < replaceLines) replaceText = replace[i];
+                if (i < optionsLines) optionsText = options[i];
+
+                if (searchText != null && !searchText.isEmpty()) {
+                    if (replaceText == null) {
+                        // TODO: missing, use empty and highlight
+                        replaceText = "";
+                    }
+                    preset.put(searchText, replaceText);
+                } else {
+                    if (replaceText != null && !replaceText.isEmpty()) {
+                        // TODO: highlight as ignored
+                        hadErrors = true;
+                    }
+                }
+            }
+        }
+    }
+
+    public void settingsChanged(final boolean loadPresets) {
+        myInUpdate = true;
+        // update dialog
+        String searchText1 = mySettings.getSearchReplace().getSearchText();
+        String replaceText1 = mySettings.getSearchReplace().getReplaceText();
+        String optionsText1 = mySettings.getSearchReplace().getOptionsText();
+
+        WriteCommandAction.runWriteCommandAction(myEditor.getProject(), () -> {
+            mySearchEditor.getDocument().setText(searchText1);
+            myReplaceEditor.getDocument().setText(replaceText1);
+            myOptionsEditor.getDocument().setText(optionsText1);
+        });
+
+        boolean caseSensitive1 = mySettings.getSearchReplace().isCaseSensitive();
+        myCaseSensitive.setSelected(caseSensitive1);
+        myWholeWord.setSelected(mySettings.getSearchReplace().isWholeWord());
+
+        if (loadPresets) {
+            fillPresets();
+        }
+
+        myInUpdate = false;
+        updateOptions();
+    }
+
+    public void fillPresets() {
+        myPresets.removeAllItems();
+        ArrayList<String> presetNames = new ArrayList<>(mySettings.getPresets().keySet());
+        presetNames.sort(Comparator.naturalOrder());
+        String presetName = mySettings.getPresetName();
+
+        for (String item : presetNames) {
+            myPresets.addItem(item);
+        }
+
+        if (presetName != null) {
+            myPresets.setSelectedItem(presetName);
+        } else {
+            myPresets.setSelectedIndex(-1);
+        }
+    }
+
+    //private void createUIComponents() {
+    //    //noinspection UndesirableClassUsage
+    //    myPresets = new JComboBox();
+    //}
 
     protected EditorEx createIdeaEditor(CharSequence charSequence) {
         Document doc = EditorFactory.getInstance().createDocument(charSequence);
@@ -528,6 +858,7 @@ public class BulkReplaceDialog extends DialogWrapper {
     private static void updateFoundRange(final TextRange range, final EditorEx editor) {
         if (range != null) {
             editor.getCaretModel().getPrimaryCaret().setSelection(range.getStartOffset(), range.getEndOffset());
+            EditHelpers.scrollToSelection(editor);
         } else {
             int offset = editor.getCaretModel().getOffset();
             editor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
@@ -748,17 +1079,30 @@ outer:
         return myMainPanel;
     }
 
+    protected class MyCancelAction extends DialogWrapperAction {
+        MyCancelAction() {
+            super(Bundle.message("bulk-search.close-button.label"));
+        }
+
+        @Override
+        protected void doAction(ActionEvent e) {
+            doCancelAction();
+        }
+    }
+
     @NotNull
     @Override
     protected Action[] createActions() {
         super.createDefaultActions();
-        return new Action[] { getOKAction()/*, getCancelAction()*/ };
+        return new Action[] { /*getOKAction(),*/ new MyCancelAction() };
     }
 
-    public static boolean showDialog(JComponent parent, @NotNull BulkSearchSettingsHolder settingsHolder, @NotNull EditorEx editor) {
+    public static boolean showDialog(JComponent parent, @NotNull BulkSearchReplaceSettings settingsHolder, @NotNull EditorEx editor) {
         BulkReplaceDialog dialog = new BulkReplaceDialog(parent, settingsHolder, editor);
         boolean save = dialog.showAndGet();
-        return dialog.saveSettings(false);
+        dialog.saveSettings(false);
+        dialog.disposeEditors();
+        return save;
     }
 
     @Nullable
@@ -775,13 +1119,13 @@ outer:
     @Nullable
     @Override
     protected String getDimensionServiceKey() {
-        return "MissingInActions.RegExTestDialog";
+        return "MissingInActions.BulkReplaceDialog";
     }
 
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return mySearchEditor.getContentComponent();
+        return mySearchEditor != null ? mySearchEditor.getContentComponent() : myMainPanel;
     }
 
     private String checkRegEx(final String pattern) {
@@ -816,9 +1160,5 @@ outer:
             Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
-    }
-
-    private void createUIComponents() {
-
     }
 }

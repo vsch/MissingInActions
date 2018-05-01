@@ -946,6 +946,7 @@ public class EditHelpers {
         return editor != null && editor.getContentComponent() instanceof JPasswordField;
     }
 
+/*
     @NotNull
     public static String getFormatterOnTag(@NotNull Project project) {
         return CodeStyleSettingsManager.getSettings(project).FORMATTER_ON_TAG;
@@ -973,6 +974,7 @@ public class EditHelpers {
     public static Pattern getFormatterOffPattern(@NotNull Project project) {
         return CodeStyleSettingsManager.getSettings(project).getFormatterOffPattern();
     }
+*/
 
     public static int getStartOfLineOffset(@NotNull CharSequence charSequence, int offset) {
         return BasedSequenceImpl.of(charSequence).startOfLine(offset);
@@ -1292,7 +1294,7 @@ public class EditHelpers {
     ) {
         Transferable mergedTransferable;
         String sep = "\n";
-        int iMax1 = clipboardCaretContent.getCaretCount();
+        int iMax = clipboardCaretContent.getCaretCount();
         final String[] texts = clipboardCaretContent.getTexts();
         assert texts != null;
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
@@ -1300,43 +1302,56 @@ public class EditHelpers {
         StringBuilder sb = new StringBuilder();
         List<TextRange> ranges = new ArrayList<>();
 
-        for (int i = 0; i < iMax1; i++) {
+        boolean hadChange = false;
+
+        for (int i = 0; i < iMax; i++) {
             for (int j = 0; j < repeatCount; j++) {
+                String replaceOnPaste = manager.replaceOnPaste(texts[i]);
+                if (!replaceOnPaste.equals(texts[i])) hadChange = true;
                 if (clipboardCaretContent.isFullLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(replaceOnPaste);
                     int endOffset = sb.length();
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else if (clipboardCaretContent.isCharLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(replaceOnPaste);
                     int endOffset = sb.length();
                     sb.append(sep);
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(replaceOnPaste);
                     int endOffset = sb.length();
-                    if (iMax1 > 1 || repeatCount > 1) sb.append(sep);
+                    if (iMax > 1 || repeatCount > 1) sb.append(sep);
                     ranges.add(new TextRange(startOffset, endOffset));
                 }
             }
         }
 
-        final List<TextBlockTransferableData> transferableData = new ArrayList<>();
-        int[] startOffsets = new int[ranges.size()];
-        int[] endOffsets = new int[ranges.size()];
-        int i = 0;
-        for (TextRange range : ranges) {
-            startOffsets[i] = range.getStartOffset();
-            endOffsets[i] = range.getEndOffset();
-            i++;
-        }
+        if (hadChange || iMax > 1 && repeatCount > 1) {
+            // have an actual change in content
+            final List<TextBlockTransferableData> transferableData = new ArrayList<>();
+            int[] startOffsets = new int[ranges.size()];
+            int[] endOffsets = new int[ranges.size()];
+            int i = 0;
+            for (TextRange range : ranges) {
+                startOffsets[i] = range.getStartOffset();
+                endOffsets[i] = range.getEndOffset();
+                i++;
+            }
 
-        transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
-        transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
-        mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
-        return mergedTransferable;
+            transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+            if (iMax > 1 && repeatCount > 1) {
+                // only make it auto-deletable if really permuted??
+                transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
+            }
+            mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+            return mergedTransferable;
+
+        } else {
+            return clipboardCaretContent.getContent();
+        }
     }
 
     @NotNull
@@ -1435,7 +1450,7 @@ public class EditHelpers {
     ) {
         Transferable mergedTransferable;
         String sep = "\n";
-        int iMax1 = clipboardCaretContent.getCaretCount();
+        int iMax = clipboardCaretContent.getCaretCount();
         final String[] texts = clipboardCaretContent.getTexts();
         assert texts != null;
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
@@ -1447,7 +1462,7 @@ public class EditHelpers {
         // here we build a single text based on permutations
 
         int jMax = userData.length;
-        for (int i = 0; i < iMax1; i++) {
+        for (int i = 0; i < iMax; i++) {
             for (int j = 0; j < jMax; j++) {
                 // update manager's replacement
                 manager.setOnPasteUserReplacementText(userData[j]);
@@ -1483,6 +1498,10 @@ public class EditHelpers {
         }
 
         transferableData.add(new CaretStateTransferableData(startOffsets, endOffsets));
+        //if (iMax > 1 && jMax > 1) {
+        //    // only make it auto-deletable if really permuted??
+        //    transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
+        //}
         transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
         mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
         return mergedTransferable;

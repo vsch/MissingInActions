@@ -56,7 +56,7 @@ public class BulkSearchAction extends EditorAction {
         @Override
         protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             if (editor instanceof EditorEx) {
-                boolean valid = BulkReplaceDialog.showDialog(editor.getComponent(), ApplicationSettings.getInstance().getBulkSearchSettingsHolder(), (EditorEx) editor);
+                boolean valid = BulkReplaceDialog.showDialog(editor.getComponent(), ApplicationSettings.getInstance().getBulkSearchReplaceSettings(), (EditorEx) editor);
             }
         }
     }

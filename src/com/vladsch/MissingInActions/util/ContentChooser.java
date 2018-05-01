@@ -136,7 +136,7 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     int newSelectionIndex = -1;
-                    for (Object o : myList.getSelectedValues()) {
+                    for (Object o : myList.getSelectedValuesList()) {
                         int i = ((Item) o).index;
                         removeContentAt(myAllContents.get(i));
                         if (newSelectionIndex < 0) {
@@ -360,10 +360,11 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
 
     @NotNull
     public int[] getSelectedIndices() {
-        Object[] values = myList.getSelectedValues();
-        int[] result = new int[values.length];
-        for (int i = 0, length = values.length; i < length; i++) {
-            result[i] = ((Item) values[i]).index;
+        List values = myList.getSelectedValuesList();
+        int iMax = values.size();
+        int[] result = new int[iMax];
+        for (int i = 0; i < iMax; i++) {
+            result[i] = ((Item) values.get(i)).index;
         }
         return result;
     }
@@ -381,7 +382,7 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
     public String getSelectedText() {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (Object o : myList.getSelectedValues()) {
+        for (Object o : myList.getSelectedValuesList()) {
             if (first) first = false;
             else sb.append("\n");
             String s = ((Item) o).longText;

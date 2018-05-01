@@ -21,7 +21,6 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.ui.JBColor;
@@ -148,11 +147,6 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
     private @NotNull String myClosedQuoteText = "\"";
     private boolean myQuoteSplicedItems = false;
     private boolean myUserDefinedMacroSmartReplace = true;
-    boolean         myBulkSearchCaseSensitive = true;
-    boolean         myBulkSearchWholeWord = true;
-    @NotNull String myBulkSearchText = "";
-    @NotNull String myBulkSearchReplaceText = "";
-    @NotNull String myBulkSearchOptionsText = "";
 
     // customizable delete/backspace
     @NotNull String myDeleteSpacesRegEx = "(\\s+)";
@@ -180,7 +174,18 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
             "|",
             "|",
     };
+
+    @NotNull BulkSearchReplaceSettings myBulkSearchReplaceSettings = new BulkSearchReplaceSettings();
     // @formatter:on
+
+    @NotNull
+    public BulkSearchReplaceSettings getBulkSearchReplaceSettings() {
+        return myBulkSearchReplaceSettings;
+    }
+
+    public void setBulkSearchReplaceSettings(@NotNull final BulkSearchReplaceSettings bulkSearchReplaceSettings) {
+        myBulkSearchReplaceSettings.copyFrom(bulkSearchReplaceSettings);
+    }
 
     @NotNull
     public String[] getDeleteBackspaceTestCaretMarkers() {
@@ -272,150 +277,36 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
         myBackspaceWordRegEx = backspaceWordRegEx;
     }
 
-    @NotNull
     public boolean isDeleteLineBound() {
         return myDeleteLineBound;
     }
 
-    public void setDeleteLineBound(@NotNull final boolean deleteLineBound) {
+    public void setDeleteLineBound(final boolean deleteLineBound) {
         myDeleteLineBound = deleteLineBound;
     }
 
-    @NotNull
     public boolean isDeleteMultiCaretLineBound() {
         return myDeleteMultiCaretLineBound;
     }
 
-    public void setDeleteMultiCaretLineBound(@NotNull final boolean deleteMultiCaretLineBound) {
+    public void setDeleteMultiCaretLineBound(final boolean deleteMultiCaretLineBound) {
         myDeleteMultiCaretLineBound = deleteMultiCaretLineBound;
     }
 
-    @NotNull
     public boolean isBackspaceLineBound() {
         return myBackspaceLineBound;
     }
 
-    public void setBackspaceLineBound(@NotNull final boolean backspaceLineBound) {
+    public void setBackspaceLineBound(final boolean backspaceLineBound) {
         myBackspaceLineBound = backspaceLineBound;
     }
 
-    @NotNull
     public boolean isBackspaceMultiCaretLineBound() {
         return myBackspaceMultiCaretLineBound;
     }
 
-    public void setBackspaceMultiCaretLineBound(@NotNull final boolean backspaceMultiCaretLineBound) {
+    public void setBackspaceMultiCaretLineBound(final boolean backspaceMultiCaretLineBound) {
         myBackspaceMultiCaretLineBound = backspaceMultiCaretLineBound;
-    }
-
-    public boolean isBulkSearchCaseSensitive() {
-        return myBulkSearchCaseSensitive;
-    }
-
-    public void setBulkSearchCaseSensitive(final boolean bulkSearchCaseSensitive) {
-        myBulkSearchCaseSensitive = bulkSearchCaseSensitive;
-    }
-
-    public boolean isBulkSearchWholeWord() {
-        return myBulkSearchWholeWord;
-    }
-
-    public void setBulkSearchWholeWord(final boolean bulkSearchWholeWord) {
-        myBulkSearchWholeWord = bulkSearchWholeWord;
-    }
-
-    @NotNull
-    public String getBulkSearchText() {
-        return myBulkSearchText;
-    }
-
-    public void setBulkSearchText(@NotNull final String bulkSearchText) {
-        myBulkSearchText = bulkSearchText;
-    }
-
-    @NotNull
-    public String getBulkSearchReplaceText() {
-        return myBulkSearchReplaceText;
-    }
-
-    public void setBulkSearchReplaceText(@NotNull final String bulkSearchReplaceText) {
-        myBulkSearchReplaceText = bulkSearchReplaceText;
-    }
-
-    @NotNull
-    public String getBulkSearchOptionsText() {
-        return myBulkSearchOptionsText;
-    }
-
-    public void setBulkSearchOptionsText(@NotNull final String bulkSearchOptionsText) {
-        myBulkSearchOptionsText = bulkSearchOptionsText;
-    }
-
-    static class BulkSearchSettings implements BulkSearchSettingsHolder {
-        final ApplicationSettings mySettings;
-
-        public BulkSearchSettings(final ApplicationSettings settings) {
-            mySettings = settings;
-        }
-
-        @NotNull
-        @Override
-        public String getSearchText() {
-            return mySettings.myBulkSearchText;
-        }
-
-        @NotNull
-        @Override
-        public String getReplaceText() {
-            return mySettings.myBulkSearchReplaceText;
-        }
-
-        @NotNull
-        @Override
-        public String getOptionsText() {
-            return mySettings.myBulkSearchOptionsText;
-        }
-
-        @Override
-        public void setSearchText(final String searchText) {
-            mySettings.myBulkSearchText = searchText == null ? "" : searchText;
-
-        }
-
-        @Override
-        public void setReplaceText(final String replaceText) {
-            mySettings.myBulkSearchReplaceText = replaceText == null ? "" : replaceText;
-
-        }
-
-        @Override
-        public void setOptionsText(final String optionsText) {
-            mySettings.myBulkSearchOptionsText = optionsText == null ? "" : optionsText;
-        }
-
-        @Override
-        public boolean isCaseSensitive() {
-            return mySettings.myBulkSearchCaseSensitive;
-        }
-
-        @Override
-        public boolean isWholeWord() {
-            return mySettings.myBulkSearchWholeWord;
-        }
-
-        @Override
-        public void setCaseSensitive(final boolean isCaseSensitive) {
-            mySettings.myBulkSearchCaseSensitive = isCaseSensitive;
-        }
-
-        @Override
-        public void setWholeWord(final boolean isWholeWord) {
-            mySettings.myBulkSearchWholeWord = isWholeWord;
-        }
-    }
-
-    public BulkSearchSettingsHolder getBulkSearchSettingsHolder() {
-        return new BulkSearchSettings(this);
     }
 
     public boolean isHideDisabledButtons() {
@@ -478,14 +369,17 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
 
     @NotNull
     public String getSpliceDelimiterText() { return mySpliceDelimiterText; }
+
     public void setSpliceDelimiterText(@NotNull final String spliceDelimiterText) { mySpliceDelimiterText = spliceDelimiterText; }
 
     @NotNull
     public String getOpenQuoteText() { return myOpenQuoteText; }
+
     public void setOpenQuoteText(@NotNull final String openQuoteText) { myOpenQuoteText = openQuoteText; }
 
     @NotNull
     public String getClosedQuoteText() { return myClosedQuoteText; }
+
     public void setClosedQuoteText(@NotNull final String closedQuoteText) { myClosedQuoteText = closedQuoteText; }
 
     public void setHueMin(final int hueMin) {

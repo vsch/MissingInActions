@@ -99,7 +99,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                         LogicalPosition position = caretState.getCaretPosition();
 
                         if (position != null) {
-                            Caret caret = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(position.toVisualPosition(), i == newIndex);
+                            Caret caret = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editor.logicalToVisualPosition(position), i == newIndex);
                             EditHelpers.restoreState(caret, caretState, true);
                             i++;
                         }
