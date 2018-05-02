@@ -52,7 +52,7 @@ public class SwapLastSelectionTextAction extends EditorAction {
         }
 
         @Override
-        protected boolean isEnabledForCaret( @NotNull final Editor editor, @NotNull final Caret caret, final DataContext dataContext) {
+        protected boolean isEnabledForCaret(@NotNull final Editor editor, @NotNull final Caret caret, final DataContext dataContext) {
             return LineSelectionManager.getInstance(editor).canSwapSelection() && editor.getCaretModel().getCaretCount() == 1;
         }
 

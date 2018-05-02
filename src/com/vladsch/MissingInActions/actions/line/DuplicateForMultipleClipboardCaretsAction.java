@@ -45,7 +45,7 @@ public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActi
     @Override
     protected AnAction getPasteAction(@NotNull final Editor editor, boolean recreateCaretsAction) {
         if (recreateCaretsAction) {
-            return new DuplicateForClipboardCaretsAction(true,false);
+            return new DuplicateForClipboardCaretsAction(true, false);
         } else {
             return new DuplicateForClipboardCaretsAction();
         }

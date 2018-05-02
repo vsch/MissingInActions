@@ -61,7 +61,8 @@ public class ClipboardCaretContent {
     private final boolean myRangeAtTextStart;              // range starts at start of text, so ignore range marker's start
     private final boolean myRangeAtTextEnd;                // range ends at end of text so ignore range marker's end
 
-    private ClipboardCaretContent(@NotNull Transferable content, @NotNull final TextRange[] textRanges
+    private ClipboardCaretContent(
+            @NotNull Transferable content, @NotNull final TextRange[] textRanges
             , @Nullable final int[] caretColumns
             , final boolean hadSelection
             , @Nullable final String[] texts
@@ -465,7 +466,7 @@ public class ClipboardCaretContent {
                 }
             }
             final String s = sb.toString();
-            return maxLen > 0 && s.length() >= maxLen ? s.substring(0,maxLen) + "..." : s;
+            return maxLen > 0 && s.length() >= maxLen ? s.substring(0, maxLen) + "..." : s;
         }
         return "";
     }

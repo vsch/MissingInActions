@@ -37,6 +37,7 @@ public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteC
     /**
      * Convert to caret position for paste depending on where the caret is relative
      * to indent column and setting
+     *
      * @param position caret position
      * @return new caret position, may be the same as input
      */

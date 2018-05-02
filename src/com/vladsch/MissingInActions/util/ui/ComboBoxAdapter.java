@@ -32,11 +32,17 @@ public interface ComboBoxAdapter<E extends ComboBoxAdaptable<E>> {
     void fillComboBox(JComboBox comboBox, ComboBoxAdaptable... exclude);
     @SuppressWarnings("UnusedReturnValue")
     boolean setComboBoxSelection(JComboBox comboBox, final ComboBoxAdaptable selection);
-    @NotNull E findEnum(int intValue);
-    @NotNull E findEnum(String displayName);
-    @NotNull E findEnumName(String name);
-    @NotNull E get(JComboBox comboBox);
-    @NotNull E valueOf(String name);
-    @NotNull E getDefault();
+    @NotNull
+    E findEnum(int intValue);
+    @NotNull
+    E findEnum(String displayName);
+    @NotNull
+    E findEnumName(String name);
+    @NotNull
+    E get(JComboBox comboBox);
+    @NotNull
+    E valueOf(String name);
+    @NotNull
+    E getDefault();
     boolean isBoolean();
 }

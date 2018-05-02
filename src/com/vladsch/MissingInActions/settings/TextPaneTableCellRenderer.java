@@ -69,7 +69,8 @@ public class TextPaneTableCellRenderer extends JPanel implements TableCellRender
         myPane.setText(text);
     }
 
-    public @NotNull String getText() {
+    public @NotNull
+    String getText() {
         return myPane.getText();
     }
 

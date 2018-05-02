@@ -123,6 +123,6 @@ public interface ComboBoxAdaptable<E extends ComboBoxAdaptable<E>> {
         }
 
         @Override
-        public T getNonDefault() {return ((ComboBoxBooleanAdapter<T>)ADAPTER).getNonDefault();}
+        public T getNonDefault() {return ((ComboBoxBooleanAdapter<T>) ADAPTER).getNonDefault();}
     }
 }

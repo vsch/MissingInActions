@@ -37,7 +37,8 @@ import static javax.swing.SwingUtilities.isEventDispatchThread;
  * Useful for triggering actions after a delay that may need to be run before the delay triggers
  */
 public class OneTimeRunnable extends AwtRunnable implements CancellableRunnable {
-    static public final OneTimeRunnable NULL = new OneTimeRunnable(()->{}).cancelled();
+    static public final OneTimeRunnable NULL = new OneTimeRunnable(() -> {
+    }).cancelled();
     final private AtomicBoolean myHasRun;
 
     private OneTimeRunnable cancelled() {
@@ -84,7 +85,7 @@ public class OneTimeRunnable extends AwtRunnable implements CancellableRunnable 
      * @param command the task to execute
      * @return a {@link OneTimeRunnable} which will run after the given
      * delay or if {@link #run()} is invoked before {@link #cancel()} is invoked
-     * @throws NullPointerException       if command is null
+     * @throws NullPointerException if command is null
      */
     public static OneTimeRunnable schedule(int delay, @NotNull Runnable command) {
         OneTimeRunnable runnable = command instanceof OneTimeRunnable ? (OneTimeRunnable) command : new OneTimeRunnable(command);

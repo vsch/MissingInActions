@@ -24,7 +24,7 @@ package com.vladsch.MissingInActions.settings;
 import org.jetbrains.annotations.Nullable;
 
 public class NumberFormatAnalyzer {
-    
+
     @Nullable
     NumberingOptions analyzeNumber(CharSequence word) {
         // first extract any prefix/suffix and guesstimate number base

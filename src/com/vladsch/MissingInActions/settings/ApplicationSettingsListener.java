@@ -26,6 +26,6 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ApplicationSettingsListener {
     Topic<ApplicationSettingsListener> TOPIC = Topic.create("MissingInAction.ApplicationSettingsChanged", ApplicationSettingsListener.class);
-    
+
     void onSettingsChange(@NotNull ApplicationSettings settings);
 }

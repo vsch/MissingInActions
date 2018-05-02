@@ -28,7 +28,8 @@ import com.intellij.openapi.editor.Editor;
 import org.jetbrains.annotations.NotNull;
 
 public interface EditorActionListener {
-    @NotNull Editor getEditor();
+    @NotNull
+    Editor getEditor();
 
     void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event);
 

@@ -68,10 +68,14 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
 
     public SeparatorFrequencyType getSeparatorFrequencyType() {
         switch (intValue) {
-            case 10: return SeparatorFrequencyType.EVERY_3;
-            case 16: return SeparatorFrequencyType.EVERY_4;
-            case 2: return SeparatorFrequencyType.EVERY_8;
-            case 8: return SeparatorFrequencyType.EVERY_3;
+            case 10:
+                return SeparatorFrequencyType.EVERY_3;
+            case 16:
+                return SeparatorFrequencyType.EVERY_4;
+            case 2:
+                return SeparatorFrequencyType.EVERY_8;
+            case 8:
+                return SeparatorFrequencyType.EVERY_3;
             default:
                 return SeparatorFrequencyType.NONE;
         }
@@ -79,10 +83,14 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
 
     public String getDefaultSeparator() {
         switch (intValue) {
-            case 10: return ",";
-            case 16: return "_";
-            case 2: return "_";
-            case 8: return "_";
+            case 10:
+                return ",";
+            case 16:
+                return "_";
+            case 2:
+                return "_";
+            case 8:
+                return "_";
             default:
                 return "";
         }
@@ -90,10 +98,14 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
 
     public String getDefaultTemplate() {
         switch (intValue) {
-            case 10: return "0";
-            case 16: return "0x0";
-            case 2: return "0b0";
-            case 8: return "00";
+            case 10:
+                return "0";
+            case 16:
+                return "0x0";
+            case 2:
+                return "0b0";
+            case 8:
+                return "00";
             default:
                 return "";
         }

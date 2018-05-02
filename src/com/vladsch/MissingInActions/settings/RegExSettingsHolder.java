@@ -24,8 +24,10 @@ package com.vladsch.MissingInActions.settings;
 import org.jetbrains.annotations.NotNull;
 
 public interface RegExSettingsHolder {
-    @NotNull String getPatternText();
-    @NotNull String getSampleText();
+    @NotNull
+    String getPatternText();
+    @NotNull
+    String getSampleText();
     void setPatternText(String pattern1);
     void setSampleText(String sampleText);
     boolean isCaseSensitive();

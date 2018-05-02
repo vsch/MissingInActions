@@ -306,7 +306,7 @@ public class CaseFormatPreserver {
                         || i.studiedWord().only(DASH | LOWER | DIGITS) && preserveDashCase
                         || i.studiedWord().only(DOT | LOWER | DIGITS) && preserveDotCase
                         || i.studiedWord().only(SLASH | LOWER | DIGITS) && preserveSlashCase
-                        ) {
+                ) {
                     if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
                         i.makeScreamingSnakeCase();
                     } else if (preserveSnakeCase && toSnakeCase) {

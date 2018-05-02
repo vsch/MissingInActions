@@ -32,10 +32,8 @@ import javax.swing.JComponent;
 
 public class ApplicationConfigurable implements SearchableConfigurable {
 
-    @Nullable
-    private ApplicationSettingsForm myForm = null;
-    @NotNull
-    final private ApplicationSettings myApplicationSettings;
+    @Nullable private ApplicationSettingsForm myForm = null;
+    @NotNull final private ApplicationSettings myApplicationSettings;
 
     public ApplicationConfigurable(@NotNull ApplicationSettings applicationSettings) {
         myApplicationSettings = applicationSettings;

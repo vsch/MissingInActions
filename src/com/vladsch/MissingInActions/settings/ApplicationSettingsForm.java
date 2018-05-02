@@ -411,7 +411,6 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
             com.vladsch.MissingInActions.util.ui.BackgroundColor color = com.vladsch.MissingInActions.util.ui.BackgroundColor.of(hsbColor);
             html.attr(color).span(String.format("%03d ", iterator.getIndex() + 1));
-
         }
 
         html.closeTag("body");

@@ -31,8 +31,8 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class ToggleBlankLineCaretsLineSelectionAction extends ToggleCaretsLineSelectionActionBase  implements LineSelectionAware {
+public class ToggleBlankLineCaretsLineSelectionAction extends ToggleCaretsLineSelectionActionBase implements LineSelectionAware {
     public ToggleBlankLineCaretsLineSelectionAction() {
-        super(true,false);
+        super(true, false);
     }
 }

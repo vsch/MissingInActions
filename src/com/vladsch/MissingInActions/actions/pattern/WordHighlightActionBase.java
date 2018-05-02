@@ -66,8 +66,8 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
 
             for (Caret caret : editor.getCaretModel().getAllCarets()) {
                 if (caret.hasSelection()) {
-                    boolean startWord = EditHelpers.isWordStart(chars, caret.getSelectionStart(),false);
-                    boolean endWord = EditHelpers.isWordEnd(chars, caret.getSelectionEnd(),false);
+                    boolean startWord = EditHelpers.isWordStart(chars, caret.getSelectionStart(), false);
+                    boolean endWord = EditHelpers.isWordEnd(chars, caret.getSelectionEnd(), false);
                     if (myIsRemoveWord) {
                         plugin.removeHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
                     } else {

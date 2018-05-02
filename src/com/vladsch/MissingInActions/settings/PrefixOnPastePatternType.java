@@ -66,7 +66,7 @@ public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPasteP
      * Convert to caret position for paste depending on where the caret is relative
      * to indent column and setting
      *
-     * @param text    text which is to match to the prefix
+     * @param text     text which is to match to the prefix
      * @param prefixes prefix patterns, if regex then only the first entry is used an it is the match pattern
      * @return matched prefix or empty string if text does not match prefix
      */

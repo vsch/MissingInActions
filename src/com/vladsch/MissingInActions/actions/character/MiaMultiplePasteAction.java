@@ -40,7 +40,7 @@ public class MiaMultiplePasteAction extends MultiplePasteActionBase {
     @Override
     protected AnAction getPasteAction(@NotNull final Editor editor, boolean recreateCaretsAction) {
         if (recreateCaretsAction) {
-            return new DuplicateForClipboardCaretsAction(true,true);
+            return new DuplicateForClipboardCaretsAction(true, true);
         } else {
             return ActionManager.getInstance().getAction(IdeActions.ACTION_PASTE);
         }

@@ -170,7 +170,7 @@ public class StashedRangeMarkers implements Disposable {
 
     public int getStoredIndex(RangeMarker other) {
         int index = 0;
-        for (int i = myMarkers.size(); i-- > 0;) {
+        for (int i = myMarkers.size(); i-- > 0; ) {
             RangeMarker marker = myMarkers.get(i);
             if (marker == null || !marker.isValid()) continue;
 

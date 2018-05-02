@@ -110,10 +110,18 @@ class CaretHighlighterImpl implements CaretHighlighter {
         CaretVisualAttributes attributes = null;
 
         switch (attributeType) {
-            case PRIMARY: attributes = myPrimaryAttributes; break;
-            case START: attributes = myStartAttributes; break;
-            case START_MATCHED: attributes = myStartMatchedAttributes; break;
-            case FOUND: attributes = myFoundAttributes; break;
+            case PRIMARY:
+                attributes = myPrimaryAttributes;
+                break;
+            case START:
+                attributes = myStartAttributes;
+                break;
+            case START_MATCHED:
+                attributes = myStartMatchedAttributes;
+                break;
+            case FOUND:
+                attributes = myFoundAttributes;
+                break;
         }
 
         if (attributes == null) attributes = CaretVisualAttributes.DEFAULT;

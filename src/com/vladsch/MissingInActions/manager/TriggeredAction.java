@@ -45,7 +45,7 @@ public class TriggeredAction {
     public int getDelay() {
         return myDelay.compute();
     }
-    
+
     public boolean isEnabled() {
         return myEnabled.compute();
     }

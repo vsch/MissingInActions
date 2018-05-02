@@ -22,5 +22,5 @@
 package com.vladsch.MissingInActions.actions;
 
 public interface LineSelectionAware {
-    
+
 }

@@ -26,6 +26,6 @@ import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
 public class ClearToLineStartAction extends DumbAwareEditorAction implements LineSelectionAware {
     public ClearToLineStartAction() {
-        super(new DeleteOrClearLineNotEolActionHandler(true,true));
+        super(new DeleteOrClearLineNotEolActionHandler(true, true));
     }
 }

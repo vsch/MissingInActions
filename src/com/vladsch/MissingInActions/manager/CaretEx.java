@@ -36,7 +36,6 @@ public class CaretEx implements Caret {
     private static final Method ourGetVisualAttributes;
     private static final Method ourSetVisualAttributes;
     private final Caret myCaret;
-
     static {
         Method[] methods = Caret.class.getMethods();
         Method getVisualAttributes = null;
@@ -84,7 +83,7 @@ public class CaretEx implements Caret {
     }
 
     public static long getCoordinates(LogicalPosition logicalPosition) {
-        return ((long)logicalPosition.line << 32) | (logicalPosition.column);
+        return ((long) logicalPosition.line << 32) | (logicalPosition.column);
     }
 
     /**

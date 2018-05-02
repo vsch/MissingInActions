@@ -30,7 +30,7 @@ public class CustomBackspaceWordAction extends DumbAwareTextComponentEditorActio
         super(new DeleteRegExActionHandler(new RegExProvider(), true));
     }
 
-    static class RegExProvider implements  RegExDeleteProvider {
+    static class RegExProvider implements RegExDeleteProvider {
 
         @Override
         public String getRegEx() {

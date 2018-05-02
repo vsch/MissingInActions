@@ -32,7 +32,6 @@ import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
-import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Font;
@@ -192,7 +191,6 @@ public class Utils {
         jTextPane.revalidate();
         jTextPane.getParent().revalidate();
         jTextPane.getParent().getParent().revalidate();
-
     }
 
     public static CharSequence suffixWith(final CharSequence text, final CharSequence suffix) {

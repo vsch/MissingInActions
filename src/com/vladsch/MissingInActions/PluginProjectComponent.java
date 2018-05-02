@@ -31,18 +31,14 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileEditor.*;
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.vladsch.MissingInActions.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.FocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -213,7 +209,6 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         mySearchReplaceToolWindow.activate();
     }
 
-
     @Override
     public void projectClosed() {
         myDelayedRunner.runAllFor(myProject);
@@ -248,5 +243,4 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     public static PluginProjectComponent getInstance(@NotNull Project project) {
         return project.getComponent(PluginProjectComponent.class);
     }
-
 }

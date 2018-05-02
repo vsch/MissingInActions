@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
 public class EditorPositionFactory {
-    final public static EditorPositionFactory NULL = new EditorPositionFactory(null,null);
+    final public static EditorPositionFactory NULL = new EditorPositionFactory(null, null);
     final private LineSelectionManager myManager;
     final private Editor myEditor;
 

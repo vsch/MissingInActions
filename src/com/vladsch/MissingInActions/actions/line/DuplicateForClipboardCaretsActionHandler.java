@@ -145,7 +145,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                 copies.add(couple);
             }
 
-            manager.guard(()->{
+            manager.guard(() -> {
                 // create multiple carets, copies from carets, but relative to start of original selection
                 editorCaret.removeSelection();
                 caretModel.removeSecondaryCarets();
@@ -205,7 +205,7 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
 
             EditHelpers.scrollToCaret(editor);
         } else {
-            manager.guard(()->{
+            manager.guard(() -> {
                 EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
 
                 int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();

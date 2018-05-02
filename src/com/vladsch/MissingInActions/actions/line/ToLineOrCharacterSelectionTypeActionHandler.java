@@ -24,7 +24,7 @@
  * User: max
  * Date: May 13, 2002
  * Time: 9:58:23 PM
- * To change template for new class use 
+ * To change template for new class use
  * Code Style | Class Templates options (Tools | IDE Options).
  */
 package com.vladsch.MissingInActions.actions.line;
@@ -76,7 +76,7 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
         assert caret != null;
 
         EditorCaret editorCaret = manager.getEditorCaret(caret);
-        
+
         if (editorCaret.hasSelection()) {
             if (editorCaret.isLine()) {
                 if (wantCharacter()) {

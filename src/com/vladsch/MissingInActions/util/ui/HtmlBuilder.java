@@ -157,7 +157,6 @@ public class HtmlBuilder extends HtmlFormattingAppendableBase<HtmlBuilder> {
 
         stylerMap.put(FontStyle.class, new FontStyleStyler());
     }
-
     public static HtmlStyler getHtmlStyler(Object item) {
         HtmlStyler styler = stylerMap.get(item.getClass());
         if (styler != null) return styler;

@@ -26,7 +26,8 @@ import com.intellij.openapi.editor.Editor;
 import org.jetbrains.annotations.NotNull;
 
 public interface EditorActiveLookupListener extends Disposable {
-    @NotNull Editor getEditor();
+    @NotNull
+    Editor getEditor();
     void enterActiveLookup();
     void exitActiveLookup();
 }

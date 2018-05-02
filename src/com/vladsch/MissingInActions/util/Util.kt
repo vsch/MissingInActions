@@ -216,7 +216,7 @@ fun String?.removeStart(prefix: Char): String {
     return ""
 }
 
-fun <T> Collection<T>.stringSorted(stringer: Function<T, String>):List<T> {
+fun <T> Collection<T>.stringSorted(stringer: Function<T, String>): List<T> {
     return this.sortedBy { stringer.apply(it) }
 }
 
@@ -252,7 +252,6 @@ fun splicer(delimiter: String): (accum: String, elem: String) -> String {
 fun skipEmptySplicer(delimiter: String): (accum: String, elem: String) -> String {
     return { accum, elem -> if (elem.isEmpty()) accum else accum + delimiter + elem }
 }
-
 
 fun StringBuilder.regionMatches(thisOffset: Int, other: String, otherOffset: Int, length: Int, ignoreCase: Boolean = false): Boolean {
     for (i in 0..length - 1) {
@@ -329,7 +328,6 @@ fun String?.appendDelim(delimiter: String, vararg args: String): String {
     return arrayListOf<String?>(this.orEmpty(), *args).splice(delimiter, true)
 }
 
-
 fun <T : Any> Any?.ifNotNull(eval: () -> T?): T? = if (this == null) null else eval()
 
 fun <T : String?> T.nullIfEmpty(): T? = if (this != null && !this.isEmpty()) this else null
@@ -354,7 +352,6 @@ fun repeatChar(char: Char, count: Int): String {
 
     return result
 }
-
 
 fun Int.max(vararg others: Int): Int {
     var max = this;
@@ -484,7 +481,7 @@ fun <K : Any, V : Any> MutableMap<K, V>.putIfMissing(key: K, value: () -> V): V 
     }
 }
 
-fun <T : Any> MutableList<T>.add(vararg items:T) {
+fun <T : Any> MutableList<T>.add(vararg items: T) {
     for (item in items) {
         this.add(item)
     }

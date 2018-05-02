@@ -44,7 +44,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.vladsch.MissingInActions.actions.DeleteAfterPasteTransferableData;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
@@ -61,7 +60,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPasswordField;
 import java.awt.datatransfer.Transferable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static java.lang.Character.*;
@@ -1348,7 +1346,6 @@ public class EditHelpers {
             }
             mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
             return mergedTransferable;
-
         } else {
             return clipboardCaretContent.getContent();
         }
@@ -1356,12 +1353,12 @@ public class EditHelpers {
 
     @NotNull
     public static String getCorrespondingQuoteLike(final String openingText) {
-         StringBuilder sb = new StringBuilder(openingText.length());
-         int iMax = openingText.length();
-         for (int i = iMax; i-- > 0; ) {
-             sb.append(getCorrespondingQuoteLike(openingText.charAt(i)));
-         }
-         return sb.toString();
+        StringBuilder sb = new StringBuilder(openingText.length());
+        int iMax = openingText.length();
+        for (int i = iMax; i-- > 0; ) {
+            sb.append(getCorrespondingQuoteLike(openingText.charAt(i)));
+        }
+        return sb.toString();
     }
 
     public static final String QUOTES = "'\"`«»";

@@ -35,9 +35,9 @@ import java.awt.event.MouseEvent;
 
 /**
  * @author Vladimir Schneider
- *         Added Enabled property propagation to checkbox and repainting of color tab on color change
- *         Added unselected color property to display when checkbox is not selected
- *         Added update runnable to callback on color change
+ * Added Enabled property propagation to checkbox and repainting of color tab on color change
+ * Added unselected color property to display when checkbox is not selected
+ * Added update runnable to callback on color change
  * @author Konstantin Bulenkov
  */
 public class CheckBoxWithColorChooser extends JPanel {

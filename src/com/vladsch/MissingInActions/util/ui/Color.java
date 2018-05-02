@@ -41,8 +41,8 @@ public class Color extends java.awt.Color {
     public final static Color CYAN = new Color(java.awt.Color.CYAN);
     public final static Color BLUE = new Color(java.awt.Color.BLUE);
 
-
     protected Color(java.awt.Color other) { super(other.getRGB()); }
+
     protected Color(int rgb) { super(rgb); }
 
     @NotNull

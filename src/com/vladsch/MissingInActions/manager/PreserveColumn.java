@@ -29,12 +29,12 @@ public enum PreserveColumn {
     WITH_LINE_SELECTION(16);
 
     final int flags;
-    
+
     public static boolean has(int flags, PreserveColumn option) {
         return (flags & option.flags) != 0;
     }
 
-    public static int getFlags(PreserveColumn...options) {
+    public static int getFlags(PreserveColumn... options) {
         int flags = 0;
         for (PreserveColumn option : options) {
             flags |= option.flags;

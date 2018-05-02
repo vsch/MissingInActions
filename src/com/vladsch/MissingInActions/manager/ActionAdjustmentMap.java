@@ -53,19 +53,19 @@ public class ActionAdjustmentMap {
         return myTriggeredActionsMap.containsKey(action);
     }
 
-    public boolean isInSet(Class action, ActionSetType ... setNames) {
+    public boolean isInSet(Class action, ActionSetType... setNames) {
         HashSet<ActionSetType> actionSet = myActionSetMap.get(action);
         if (actionSet != null) {
             for (ActionSetType setName : setNames) {
                 if (actionSet.contains(setName)) return true;
             }
-        } 
+        }
         actionSet = myOptionalActionSetMap.get(action.getName());
         if (actionSet != null) {
             for (ActionSetType setName : setNames) {
                 if (actionSet.contains(setName)) return true;
             }
-        } 
+        }
         return false;
     }
 
@@ -78,17 +78,16 @@ public class ActionAdjustmentMap {
             myAdjustmentsMap.put(action, adjustments);
         }
     }
-    
+
     public void addActionSet(ActionSetType setName, Object... actions) {
         for (Object action : actions) {
             if (action instanceof String) {
-                HashSet<ActionSetType> actionSet = myOptionalActionSetMap.computeIfAbsent((String)action, aClass -> new HashSet<>());
+                HashSet<ActionSetType> actionSet = myOptionalActionSetMap.computeIfAbsent((String) action, aClass -> new HashSet<>());
                 actionSet.add(setName);
-
             } else {
-                HashSet<ActionSetType> actionSet = myActionSetMap.computeIfAbsent((Class)action, aClass -> new HashSet<>());
+                HashSet<ActionSetType> actionSet = myActionSetMap.computeIfAbsent((Class) action, aClass -> new HashSet<>());
                 actionSet.add(setName);
-            } 
+            }
         }
     }
 

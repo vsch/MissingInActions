@@ -220,7 +220,7 @@ public class DelimitedBuilder {
     public <V> DelimitedBuilder appendAll(String delimiter, V[] v, int start, int end) {
         int lastLength = out != null ? out.length() : 0;
         push(delimiter);
-        appendAll(v,start,end);
+        appendAll(v, start, end);
         pop();
 
         if (lastLength != (out != null ? out.length() : 0)) mark();
@@ -228,6 +228,7 @@ public class DelimitedBuilder {
 
         return this;
     }
+
     public <V> DelimitedBuilder appendAll(List<? extends V> v) {
         return appendAll(v, 0, v.size());
     }
@@ -248,7 +249,7 @@ public class DelimitedBuilder {
     public <V> DelimitedBuilder appendAll(String delimiter, List<? extends V> v, int start, int end) {
         int lastLength = out != null ? out.length() : 0;
         push(delimiter);
-        appendAll(v,start,end);
+        appendAll(v, start, end);
         pop();
 
         if (lastLength != (out != null ? out.length() : 0)) mark();

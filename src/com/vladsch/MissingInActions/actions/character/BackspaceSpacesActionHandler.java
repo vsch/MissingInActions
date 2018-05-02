@@ -57,7 +57,7 @@ public class BackspaceSpacesActionHandler extends EditorWriteActionHandler {
         int trailingSpacesCol = pos.getTrimmedEndColumn();
         if (endOffset == pos.atStartOfNextLine().getOffset()) {
             endOffset--;
-        }               
+        }
         int startOffset = getSpacesEndOffset(editor, endOffset);
         if (endOffset > startOffset) {
             Document document = editor.getDocument();
@@ -77,7 +77,7 @@ public class BackspaceSpacesActionHandler extends EditorWriteActionHandler {
         int lineNumber = editor.getCaretModel().getLogicalPosition().line;
         int minOffset = document.getLineStartOffset(lineNumber);
 
-        if (newOffset-1 < minOffset) {
+        if (newOffset - 1 < minOffset) {
             return offset;
         }
 

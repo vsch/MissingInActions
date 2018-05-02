@@ -39,7 +39,7 @@ public class StashedCaretList implements Disposable {
     public StashedCaretList(LineSelectionManager manager) {
         this(manager, Integer.MAX_VALUE);
     }
-    
+
     public StashedCaretList(LineSelectionManager manager, int stashLimit) {
         myManager = manager;
         myStashLimit = stashLimit;
@@ -106,7 +106,7 @@ public class StashedCaretList implements Disposable {
     public boolean isValidAt(int index) {
         return index >= 0 && index < size() && myCarets.get(index) != null;
     }
-    
+
     public void releaseAt(int index) {
         if (isValidAt(index)) {
             StashedSelection caret = myCarets.get(index);
@@ -124,7 +124,7 @@ public class StashedCaretList implements Disposable {
     @Nullable
     public EditorCaretState pop() {
         releaseUnused();
-        EditorCaretState caretState = getRaw(size()-1,true,true);
+        EditorCaretState caretState = getRaw(size() - 1, true, true);
         return caretState;
     }
 
@@ -139,7 +139,7 @@ public class StashedCaretList implements Disposable {
     @Nullable
     public EditorCaretState get(int index) {
         releaseUnused();
-        EditorCaretState caretState = getRaw(index, true,false);
+        EditorCaretState caretState = getRaw(index, true, false);
         return caretState;
     }
 
@@ -176,12 +176,12 @@ public class StashedCaretList implements Disposable {
         EditorCaret editorCaret = myManager.getEditorCaret(caret);
         add(index, caret.getSelectionStart(), caret.getSelectionEnd(), editorCaret.isStartAnchor(), editorCaret.isLine());
     }
-    
+
     public void add(int index, int start, int end, boolean isStartAnchor, boolean isLine) {
         releaseUnused();
 
         if (index < 0 || index >= myStashLimit) {
-            throw new IllegalArgumentException("index "+index+" out of range of [0, " + myStashLimit + ")");
+            throw new IllegalArgumentException("index " + index + " out of range of [0, " + myStashLimit + ")");
         }
 
         RangeMarker marker = myManager.getEditor().getDocument().createRangeMarker(start, end);

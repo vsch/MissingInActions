@@ -36,15 +36,15 @@ public class NextOrPrevWordStartOrEndHandler extends AbstractNextOrPrevWordHandl
     final private boolean myWithSelection;
     final private boolean myInDifferentHumpsMode;
     final private ApplicationSettings mySettings;
-    
+
     public NextOrPrevWordStartOrEndHandler(boolean next, boolean withSelection, boolean inDifferentHumpsMode, BoundaryActionType actionType) {
         super();
-                        
+
         myActionType = actionType;
         myNext = next;
         myWithSelection = withSelection;
         myInDifferentHumpsMode = inDifferentHumpsMode;
-        
+
         mySettings = ApplicationSettings.getInstance();
     }
 
@@ -62,11 +62,11 @@ public class NextOrPrevWordStartOrEndHandler extends AbstractNextOrPrevWordHandl
 
     public int getBoundaryFlags() {
         if (myActionType == BoundaryActionType.WORD_END) {
-            return myNext ? mySettings.getCustomizedNextWordEndBounds(): mySettings.getCustomizedPrevWordEndBounds();
+            return myNext ? mySettings.getCustomizedNextWordEndBounds() : mySettings.getCustomizedPrevWordEndBounds();
         }
         if (myActionType == BoundaryActionType.WORD_START) {
-            return myNext ? mySettings.getCustomizedNextWordStartBounds():mySettings.getCustomizedPrevWordStartBounds();
+            return myNext ? mySettings.getCustomizedNextWordStartBounds() : mySettings.getCustomizedPrevWordStartBounds();
         }
-        return myNext ? mySettings.getCustomizedNextWordBounds(): mySettings.getCustomizedPrevWordBounds();
+        return myNext ? mySettings.getCustomizedNextWordBounds() : mySettings.getCustomizedPrevWordBounds();
     }
 }

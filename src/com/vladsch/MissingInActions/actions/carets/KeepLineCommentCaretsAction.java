@@ -31,7 +31,7 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
-public class KeepLineCommentCaretsAction extends RemoveLineCaretsActionBase  implements LineSelectionAware {
+public class KeepLineCommentCaretsAction extends RemoveLineCaretsActionBase implements LineSelectionAware {
     public KeepLineCommentCaretsAction() {
         super(OpType.KEEP_LINE_COMMENTS);
     }

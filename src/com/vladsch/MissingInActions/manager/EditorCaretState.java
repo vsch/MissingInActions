@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("WeakerAccess")
 public class EditorCaretState extends CaretState {
     final @NotNull EditorPositionFactory myFactory;
-    
+
     public EditorCaretState(@NotNull EditorPositionFactory factory, @Nullable LogicalPosition position, @Nullable LogicalPosition start, @Nullable LogicalPosition end) {
         super(position, start, end);
         myFactory = factory;
@@ -101,9 +101,11 @@ public class EditorCaretState extends CaretState {
     }
 
     @NotNull
-    public EditorCaretState atColumns(@Nullable LogicalPosition otherColumn
+    public EditorCaretState atColumns(
+            @Nullable LogicalPosition otherColumn
             , @Nullable LogicalPosition startColumn
-            , @Nullable LogicalPosition endColumn) {
+            , @Nullable LogicalPosition endColumn
+    ) {
         return otherColumn == null && startColumn == null && endColumn == null
                 ? this : new EditorCaretState(myFactory
                 , atColumn(getCaretPosition(), otherColumn)
@@ -131,9 +133,11 @@ public class EditorCaretState extends CaretState {
     }
 
     @NotNull
-    public EditorCaretState onLines(@Nullable LogicalPosition otherLine
+    public EditorCaretState onLines(
+            @Nullable LogicalPosition otherLine
             , @Nullable LogicalPosition startLine
-            , @Nullable LogicalPosition endLine) {
+            , @Nullable LogicalPosition endLine
+    ) {
         return otherLine == null && startLine == null && endLine == null
                 ? this : new EditorCaretState(myFactory
                 , atColumn(getCaretPosition(), otherLine)

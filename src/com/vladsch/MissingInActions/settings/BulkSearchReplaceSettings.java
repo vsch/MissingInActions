@@ -21,7 +21,10 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.util.xmlb.annotations.*;
+import com.intellij.util.xmlb.annotations.OptionTag;
+import com.intellij.util.xmlb.annotations.Property;
+import com.intellij.util.xmlb.annotations.Transient;
+import com.intellij.util.xmlb.annotations.XMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,15 +86,15 @@ public class BulkSearchReplaceSettings implements Serializable {
     }
 
     @Transient
-    public BulkSearchReplace getPreset(@NotNull final  String presetName) {
+    public BulkSearchReplace getPreset(@NotNull final String presetName) {
         return bulkPresets.get(presetName);
     }
 
-    public BulkSearchReplace savePreset(@NotNull final  String presetName) {
+    public BulkSearchReplace savePreset(@NotNull final String presetName) {
         return bulkPresets.put(presetName, bulkSearchReplace);
     }
 
-    public BulkSearchReplace loadPreset(@NotNull final  String presetName) {
+    public BulkSearchReplace loadPreset(@NotNull final String presetName) {
         BulkSearchReplace searchReplace = bulkPresets.get(presetName);
         if (searchReplace != null) {
             bulkSearchReplace.copyFrom(searchReplace);

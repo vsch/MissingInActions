@@ -30,7 +30,7 @@ public class CustomDeleteAlternatingAction extends DumbAwareTextComponentEditorA
         super(new DeleteRegExActionHandler(new RegExProvider(), false));
     }
 
-    static class RegExProvider implements  RegExDeleteProvider {
+    static class RegExProvider implements RegExDeleteProvider {
 
         @Override
         public String getRegEx() {
