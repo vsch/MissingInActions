@@ -43,7 +43,7 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
         }
 )
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
+public class ApplicationSettings extends BulkSearchReplaceSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
     // @formatter:off
     private boolean         myAddPrefixOnPaste = false;
     private boolean         myAutoIndent = false;
@@ -174,18 +174,6 @@ public class ApplicationSettings implements ApplicationComponent, PersistentStat
             "|",
             "|",
     };
-
-    @NotNull BulkSearchReplaceSettings myBulkSearchReplaceSettings = new BulkSearchReplaceSettings();
-    // @formatter:on
-
-    @NotNull
-    public BulkSearchReplaceSettings getBulkSearchReplaceSettings() {
-        return myBulkSearchReplaceSettings;
-    }
-
-    public void setBulkSearchReplaceSettings(@NotNull final BulkSearchReplaceSettings bulkSearchReplaceSettings) {
-        myBulkSearchReplaceSettings.copyFrom(bulkSearchReplaceSettings);
-    }
 
     @NotNull
     public String[] getDeleteBackspaceTestCaretMarkers() {

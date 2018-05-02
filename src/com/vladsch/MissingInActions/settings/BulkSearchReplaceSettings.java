@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.util.xmlb.annotations.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,9 +30,9 @@ import java.util.HashMap;
 
 //@XmlRootElement(name = "BulkSearchReplaceSettings")
 public class BulkSearchReplaceSettings implements Serializable {
-    final @NotNull BulkSearchReplace mySearchReplace = new BulkSearchReplace();
-    final @NotNull HashMap<String, BulkSearchReplace> myPresets = new HashMap<>();
-    @Nullable String myPresetName = null;
+    @Property @NotNull BulkSearchReplace bulkSearchReplace = new BulkSearchReplace();
+    @XMap @NotNull HashMap<String, BulkSearchReplace> bulkPresets = new HashMap<>();
+    @OptionTag @Nullable String bulkPresetName = null;
 
     public BulkSearchReplaceSettings() {
     }
@@ -41,53 +42,60 @@ public class BulkSearchReplaceSettings implements Serializable {
     }
 
     public void copyFrom(final BulkSearchReplaceSettings other) {
-        mySearchReplace.copyFrom(other.mySearchReplace);
-        myPresets.clear();
-        myPresets.putAll(other.myPresets);
-        myPresetName = other.myPresetName;
+        bulkSearchReplace.copyFrom(other.bulkSearchReplace);
+        bulkPresets.clear();
+        bulkPresets.putAll(other.bulkPresets);
+        bulkPresetName = other.bulkPresetName;
     }
 
     @NotNull
-    public HashMap<String, BulkSearchReplace> getPresets() {
-        return myPresets;
+    @Transient
+    public HashMap<String, BulkSearchReplace> getBulkPresets() {
+        return bulkPresets;
     }
 
-    public void setPresets(@NotNull final HashMap<String, BulkSearchReplace> presets) {
-        myPresets.clear();
-        myPresets.putAll(presets);
+    @Transient
+    public void setBulkPresets(@NotNull final HashMap<String, BulkSearchReplace> bulkPresets) {
+        this.bulkPresets.clear();
+        this.bulkPresets.putAll(bulkPresets);
     }
 
     @Nullable
-    public String getPresetName() {
-        return myPresetName;
+    @Transient
+    public String getBulkPresetName() {
+        return bulkPresetName;
     }
 
-    public void setPresetName(@Nullable final String presetName) {
-        myPresetName = presetName;
+    @Transient
+    public void setBulkPresetName(@Nullable final String bulkPresetName) {
+        this.bulkPresetName = bulkPresetName;
     }
 
     @NotNull
-    public BulkSearchReplace getSearchReplace() {
-        return mySearchReplace;
+    @Transient
+    public BulkSearchReplace getBulkSearchReplace() {
+        return bulkSearchReplace;
     }
 
-    public void setSearchReplace(@NotNull final BulkSearchReplace searchReplace) {
-        mySearchReplace.copyFrom(searchReplace);
+    @Transient
+    public void setBulkSearchReplace(@NotNull final BulkSearchReplace bulkSearchReplace) {
+        this.bulkSearchReplace.copyFrom(bulkSearchReplace);
     }
 
+    @Transient
     public BulkSearchReplace getPreset(@NotNull final  String presetName) {
-        return myPresets.get(presetName);
+        return bulkPresets.get(presetName);
     }
 
     public BulkSearchReplace savePreset(@NotNull final  String presetName) {
-        return myPresets.put(presetName, mySearchReplace);
+        return bulkPresets.put(presetName, bulkSearchReplace);
     }
 
     public BulkSearchReplace loadPreset(@NotNull final  String presetName) {
-        BulkSearchReplace searchReplace = myPresets.get(presetName);
+        BulkSearchReplace searchReplace = bulkPresets.get(presetName);
         if (searchReplace != null) {
-            mySearchReplace.copyFrom(searchReplace);
-            myPresetName = presetName;
+            bulkSearchReplace.copyFrom(searchReplace);
+            bulkPresetName = presetName;
         }
         return searchReplace;
     }

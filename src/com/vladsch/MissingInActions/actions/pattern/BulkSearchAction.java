@@ -28,6 +28,9 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.project.Project;
+import com.vladsch.MissingInActions.PluginProjectComponent;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,13 +53,17 @@ public class BulkSearchAction extends EditorAction {
 
         @Override
         protected boolean isEnabledForCaret(@NotNull final Editor editor, @NotNull final Caret caret, final DataContext dataContext) {
-            return editor instanceof EditorEx;
+            return editor instanceof EditorEx && editor.getProject() != null;
         }
 
         @Override
         protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             if (editor instanceof EditorEx) {
-                boolean valid = BulkReplaceDialog.showDialog(editor.getComponent(), ApplicationSettings.getInstance().getBulkSearchReplaceSettings(), (EditorEx) editor);
+                Project project = editor.getProject();
+                if (project != null) {
+                    PluginProjectComponent.getInstance(project).showBulkSearchReplace();
+                    //boolean valid = BulkReplaceDialog.showDialog(editor.getComponent(), project, ApplicationSettings.getInstance(), (EditorEx) editor);
+                }
             }
         }
     }

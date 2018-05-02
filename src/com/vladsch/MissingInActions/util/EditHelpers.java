@@ -665,9 +665,9 @@ public class EditHelpers {
 
     public static void scrollToSelection(Editor editor) {
         ScrollingModel scrollingModel = editor.getScrollingModel();
-        SelectionModel caretModel = editor.getSelectionModel();
-        scrollingModel.scrollTo(editor.offsetToLogicalPosition(caretModel.getSelectionEnd()), ScrollType.MAKE_VISIBLE);
-        scrollingModel.scrollTo(editor.offsetToLogicalPosition(caretModel.getSelectionStart()), ScrollType.MAKE_VISIBLE);
+        SelectionModel selectionModel = editor.getSelectionModel();
+        scrollingModel.scrollTo(editor.offsetToLogicalPosition(selectionModel.getSelectionEnd()), ScrollType.MAKE_VISIBLE);
+        scrollingModel.scrollTo(editor.offsetToLogicalPosition(selectionModel.getSelectionStart()), ScrollType.MAKE_VISIBLE);
     }
 
     public static void restoreState(@Nullable Caret newCaret, CaretState caretState, boolean alwaysSetSelection) {

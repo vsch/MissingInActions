@@ -26,14 +26,23 @@ import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.vladsch.MissingInActions.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.FocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -42,11 +51,13 @@ import java.util.LinkedHashSet;
 public class PluginProjectComponent implements ProjectComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
-    private final @NotNull Project myProject;
+    final @NotNull Project myProject;
     private final HashMap<Editor, LinkedHashSet<EditorActiveLookupListener>> myActiveLookupListeners;
     private final HashMap<Editor, LinkedHashSet<EditorActiveLookupListener>> myInActiveLookupListeners;
     private final @NotNull DelayedRunner myDelayedRunner;
     private final Plugin myPlugin;
+    BulkSearchReplaceToolWindow mySearchReplaceToolWindow;
+    private FileEditorManagerListener myEditorManagerListener;
 
     public PluginProjectComponent(@NotNull Project project) {
         myProject = project;
@@ -151,15 +162,65 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             }
         }, myProject);
 
+        myEditorManagerListener = new FileEditorManagerListener() {
+            @Override
+            public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+            }
+
+            @Override
+            public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+            }
+
+            @Override
+            public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
+                EditorEx activeEditor = null;
+                FileEditor editor = event.getNewEditor();
+                if (editor != null && editor.getFile() != null) {
+                    Document document = FileDocumentManager.getInstance().getDocument(editor.getFile());
+                    if (document != null) {
+                        Editor[] editors = EditorFactory.getInstance().getEditors(document, myProject);
+                        for (Editor editor1 : editors) {
+                            if (editor1 instanceof EditorEx) {
+                                activeEditor = (EditorEx) editor1;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                mySearchReplaceToolWindow.setActiveEditor(activeEditor);
+                int tmp = 0;
+            }
+        };
+
+        myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, myEditorManagerListener);
+
+        //myDelayedRunner.addRunnable(myProject, () -> {
+        //    myProject.getMessageBus().connect(this).disconnect();
+        //});
+
         myPlugin.projectOpened(myProject);
         myDelayedRunner.addRunnable(myProject, () -> {
             myPlugin.projectClosed(myProject);
         });
+
+        mySearchReplaceToolWindow = new BulkSearchReplaceToolWindow(myProject);
     }
+
+    public void showBulkSearchReplace() {
+        mySearchReplaceToolWindow.activate();
+    }
+
 
     @Override
     public void projectClosed() {
         myDelayedRunner.runAllFor(myProject);
+        if (mySearchReplaceToolWindow != null) {
+            mySearchReplaceToolWindow.unregisterToolWindow();
+            mySearchReplaceToolWindow = null;
+        }
     }
 
     @Override
@@ -187,4 +248,5 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     public static PluginProjectComponent getInstance(@NotNull Project project) {
         return project.getComponent(PluginProjectComponent.class);
     }
+
 }

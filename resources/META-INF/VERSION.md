@@ -56,6 +56,7 @@
 
 ### 1.4.10 - Bug Fix Release
 
+* Add: tool window for bulk search/replace instead of modal
 * Add: presets and import/export to bulk search/replace to allow selecting a set of presets.
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.

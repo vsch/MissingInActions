@@ -703,8 +703,6 @@
 
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
-            <reference id="MissingInActions.ToggleCaretsLineSelection"/>
-            <separator/>
             <reference id="MissingInActions.BulkSearchReplace"/>
             <separator/>
             <reference id="MissingInActions.ToggleIsolationMode"/>
@@ -729,6 +727,8 @@
             <reference id="MissingInActions.Number"/>
             <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>
             <reference id="MissingInActions.TabAlignCaretText"/>
+            <separator/>
+            <reference id="MissingInActions.ToggleCaretsLineSelection"/>
             <separator/>
             <reference id="MissingInActions.PrimaryCaretToNext"/>
             <reference id="MissingInActions.PrimaryCaretToPrev"/>

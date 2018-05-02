@@ -27,6 +27,8 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.JBColor;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
@@ -191,6 +193,16 @@ public class Utils {
         jTextPane.getParent().revalidate();
         jTextPane.getParent().getParent().revalidate();
 
+    }
+
+    public static CharSequence suffixWith(final CharSequence text, final CharSequence suffix) {
+        BasedSequence textSeq = BasedSequenceImpl.of(text);
+        if (!textSeq.isEmpty() && !textSeq.endsWith(suffix)) {
+            StringBuilder sb = new StringBuilder(textSeq.length() + suffix.length());
+            sb.append(text).append(suffix);
+            return sb;
+        }
+        return text;
     }
 }
 
