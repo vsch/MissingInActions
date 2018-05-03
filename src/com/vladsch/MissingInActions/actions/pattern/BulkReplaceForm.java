@@ -320,6 +320,7 @@ public class BulkReplaceForm implements Disposable {
         final JBMenuItem exportJSON = new JBMenuItem(Bundle.message("bulk-search.export-json.label"));
         final JBMenuItem importJSON = new JBMenuItem(Bundle.message("bulk-search.import-json.label"));
         final JBMenuItem deletePreset = new JBMenuItem(Bundle.message("bulk-search.delete.label"));
+        final JBMenuItem clearAllPresets = new JBMenuItem(Bundle.message("bulk-search.clear-all.label"));
 
         myPresets.addActionListener(e -> {
             if (!myInUpdate) {
@@ -429,11 +430,12 @@ public class BulkReplaceForm implements Disposable {
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
             String lastImport = myProject.getBasePath() + "/" + "bulk-search-replace.xml";
-            VirtualFile lastImportFile = myProject.getBaseDir();
+            VirtualFile lastImportFile = null;
             if (!lastImport.isEmpty()) {
                 File file = new File(lastImport);
                 lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             }
+            if (lastImportFile == null) lastImportFile = myProject.getBaseDir();
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
             if (files.length > 0) {
@@ -497,11 +499,12 @@ public class BulkReplaceForm implements Disposable {
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
             String lastImport = myProject.getBasePath() + "/" + "bulk-search-replace.json";
-            VirtualFile lastImportFile = myProject.getBaseDir();
+            VirtualFile lastImportFile = null;
             if (!lastImport.isEmpty()) {
                 File file = new File(lastImport);
                 lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             }
+            if (lastImportFile == null) lastImportFile = myProject.getBaseDir();
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
             if (files.length > 0) {
@@ -525,6 +528,13 @@ public class BulkReplaceForm implements Disposable {
             }
         });
 
+        clearAllPresets.addActionListener(e -> {
+            mySettings.getBulkPresets().clear();
+            mySettings.setBulkPresetName("");
+            mySettings.setBulkSearchReplace(new BulkSearchReplace());
+            settingsChanged(true);
+        });
+
         myPopupMenuActions.add(exportJSON);
         myPopupMenuActions.add(importJSON);
         myPopupMenuActions.addSeparator();
@@ -532,6 +542,8 @@ public class BulkReplaceForm implements Disposable {
         myPopupMenuActions.add(importXML);
         myPopupMenuActions.addSeparator();
         myPopupMenuActions.add(deletePreset);
+        myPopupMenuActions.addSeparator();
+        myPopupMenuActions.add(clearAllPresets);
 
         myManageActions.setComponentPopupMenu(myPopupMenuActions);
 
