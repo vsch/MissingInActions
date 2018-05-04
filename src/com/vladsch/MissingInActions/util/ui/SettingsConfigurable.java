@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file

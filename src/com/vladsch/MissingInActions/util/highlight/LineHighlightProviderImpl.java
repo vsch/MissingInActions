@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LineHighlightProviderImpl extends HighlightProviderBase implements LineHighlightProvider {
-    @Nullable private Map<Integer, Integer> myHighlightLines;
-    int myOriginalOrderIndex = 0;
+    @Nullable protected Map<Integer, Integer> myHighlightLines;
+    protected int myOriginalOrderIndex = 0;
 
     public LineHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);

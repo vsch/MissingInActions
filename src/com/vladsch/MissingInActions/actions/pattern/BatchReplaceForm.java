@@ -253,7 +253,6 @@ public class BatchReplaceForm implements Disposable {
                 if (myIsActive) {
                     LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
                 }
-
             }
 
             updateOptions(true);
@@ -346,7 +345,7 @@ public class BatchReplaceForm implements Disposable {
         LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(myOptionsHighlightProvider);
 
         myHighlightListener = new MainEditorHighlightListener();
-        myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener,this);
+        myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener, this);
 
         myDocumentListener = new EditorDocumentListener();
 
@@ -983,7 +982,7 @@ public class BatchReplaceForm implements Disposable {
             }
         }
 
-        if (!myInUpdate && myEditor != null) {
+        if (!myInUpdate) {
             updateRangeButtons();
             updateFoundRanges();
         }
@@ -1043,6 +1042,7 @@ public class BatchReplaceForm implements Disposable {
 
     void findNext() {
         if (myEditor == null) return;
+
         WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
         myFoundBackwards = false;
 
@@ -1067,6 +1067,7 @@ public class BatchReplaceForm implements Disposable {
 
     void findPrevious() {
         if (myEditor == null) return;
+
         WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
         myFoundBackwards = true;
 
@@ -1337,30 +1338,35 @@ public class BatchReplaceForm implements Disposable {
     }
 
     void updateFoundRanges() {
-        if (myEditor == null) return;
-
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
 
-        LineSelectionManager selectionManager = LineSelectionManager.getInstance(myEditor);
-        selectionManager.updateHighlights();
-        Highlighter highlighter = selectionManager.getHighlighter();
-        if (highlighter instanceof WordHighlighter) {
-            myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
+        if (myEditor == null) {
+            myIndexedWordCounts = new int[0];
+            mySearchHighlightProvider.clearHighlights();
+            myReplaceHighlightProvider.clearHighlights();
+            myOptionsHighlightProvider.clearHighlights();
+        } else {
+            LineSelectionManager selectionManager = LineSelectionManager.getInstance(myEditor);
+            selectionManager.updateHighlights();
+            Highlighter highlighter = selectionManager.getHighlighter();
+            if (highlighter instanceof WordHighlighter) {
+                myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
+            }
+
+            updateFoundRange(mySearchEditor);
+            updateFoundRange(myReplaceEditor);
+            updateFoundRange(myOptionsEditor);
+
+            updateLastEditorSync(null);
+            EditHelpers.scrollToSelection(mySearchEditor);
+            EditHelpers.scrollToSelection(myReplaceEditor);
+            EditHelpers.scrollToSelection(myOptionsEditor);
+
+            LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
+            LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
+            LineSelectionManager.getInstance(myOptionsEditor).updateHighlights();
         }
-
-        updateFoundRange(mySearchEditor);
-        updateFoundRange(myReplaceEditor);
-        updateFoundRange(myOptionsEditor);
-
-        updateLastEditorSync(null);
-        EditHelpers.scrollToSelection(mySearchEditor);
-        EditHelpers.scrollToSelection(myReplaceEditor);
-        EditHelpers.scrollToSelection(myOptionsEditor);
-
-        LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
-        LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
-        LineSelectionManager.getInstance(myOptionsEditor).updateHighlights();
 
         myInUpdate = savedInUpdate;
     }
@@ -1475,6 +1481,11 @@ public class BatchReplaceForm implements Disposable {
         }
 
         @Override
+        public boolean isShowHighlights() {
+            return isHighlightsMode();
+        }
+
+        @Override
         public LineHighlighter getHighlighter(@NotNull final Editor editor) {
             return new EditorLineHighlighter(this, editor);
         }
@@ -1539,7 +1550,7 @@ public class BatchReplaceForm implements Disposable {
                 selectedLine = true;
             }
 
-            if (attributes == null) {
+            if (attributes == null && BatchReplaceForm.this.myEditor != null) {
                 // not used, overridden
                 TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
                 EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
@@ -1556,7 +1567,7 @@ public class BatchReplaceForm implements Disposable {
                     TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
                     EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
                     attributes = uiTheme.getAttributes(attributesKey);
-                } else if (selectedLine || myHighlightAllLines) {
+                } else if ((selectedLine || myHighlightAllLines) && attributes != null) {
                     attributes = new TextAttributes(
                             attributes.getForegroundColor(),
                             attributes.getBackgroundColor(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  * Copyright 2000-2010 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

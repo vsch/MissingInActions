@@ -38,13 +38,13 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 public class WordHighlightProviderImpl extends HighlightProviderBase implements WordHighlightProvider {
-    @Nullable private Map<String, Integer> myHighlightWords;
-    @Nullable private Map<String, Integer> myOriginalIndexMap;
-    int myOriginalOrderIndex = 0;
-    private boolean myHighlightWordsCaseSensitive = true;
-    @Nullable private Pattern myHighlightPattern;
-    @Nullable private Map<String, Integer> myHighlightWordIndices;
-    @Nullable private Map<String, Integer> myHighlightCaseInsensitiveWordIndices;
+    @Nullable protected Map<String, Integer> myHighlightWords;
+    @Nullable protected Map<String, Integer> myOriginalIndexMap;
+    protected int myOriginalOrderIndex = 0;
+    protected boolean myHighlightWordsCaseSensitive = true;
+    @Nullable protected Pattern myHighlightPattern;
+    @Nullable protected Map<String, Integer> myHighlightWordIndices;
+    @Nullable protected Map<String, Integer> myHighlightCaseInsensitiveWordIndices;
 
     public WordHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);

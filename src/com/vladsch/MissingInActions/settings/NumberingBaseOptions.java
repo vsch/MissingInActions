@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -74,7 +74,7 @@ public class NumberingBaseOptions {
     public String getSuffix() { return mySuffix; }
     public String getSeparator() { return mySeparator; }
     public String getDecimalPoint() { return myDecimalPoint; }
-    public boolean isUpperCase() { return myUpperCase; } 
+    public boolean isUpperCase() { return myUpperCase; }
     public int getSeparatorFrequency() { return mySeparatorFrequency; }
     public void setStep(String step) { myStep = step; }
     public void setBitShift(boolean bitShift) { myBitShift = bitShift; }
@@ -85,7 +85,7 @@ public class NumberingBaseOptions {
     public void setSeparator(String separator) { mySeparator = separator; }
     public void setDecimalPoint(String decimalPoint) { myDecimalPoint = decimalPoint; }
     public void setSeparatorFrequency(int separatorFrequency) { mySeparatorFrequency = separatorFrequency; }
-    public void setUpperCase(boolean upperCase) { myUpperCase = upperCase; } 
+    public void setUpperCase(boolean upperCase) { myUpperCase = upperCase; }
     // @formatter:on
 
     @Override

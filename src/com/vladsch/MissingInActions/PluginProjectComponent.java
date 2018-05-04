@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -172,16 +172,13 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             @Override
             public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
                 EditorEx activeEditor = null;
-                FileEditor editor = event.getNewEditor();
-                if (editor != null && editor.getFile() != null) {
-                    Document document = FileDocumentManager.getInstance().getDocument(editor.getFile());
-                    if (document != null) {
-                        Editor[] editors = EditorFactory.getInstance().getEditors(document, myProject);
-                        for (Editor editor1 : editors) {
-                            if (editor1 instanceof EditorEx) {
-                                activeEditor = (EditorEx) editor1;
-                                break;
-                            }
+                FileEditor fileEditor = event.getNewEditor();
+
+                if (fileEditor != null) {
+                    if (fileEditor instanceof TextEditor) {
+                        Editor editor = ((TextEditor) fileEditor).getEditor();
+                        if (editor instanceof EditorEx) {
+                            activeEditor = (EditorEx) editor;
                         }
                     }
                 }
