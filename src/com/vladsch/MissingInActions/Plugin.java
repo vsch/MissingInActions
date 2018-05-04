@@ -25,7 +25,6 @@ import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.ui.LafManager;
-import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
@@ -40,248 +39,58 @@ import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
-import com.vladsch.MissingInActions.util.*;
+import com.vladsch.MissingInActions.util.CommonUIShortcuts;
+import com.vladsch.MissingInActions.util.EditorActionListener;
+import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.MissingInActions.util.UtilKt;
+import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
-import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-public class Plugin implements ApplicationComponent, Disposable {
+public class Plugin extends WordHighlightProviderImpl implements ApplicationComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
     final public static int FEATURE_ENHANCED = 1;
     final public static int FEATURE_DEVELOPMENT = 2;
 
-    final private @NotNull DelayedRunner myDelayedRunner;
     final private HashMap<Editor, LineSelectionManager> myLineSelectionManagers;
     final private HashMap<AnActionEvent, Editor> myActionEventEditorMap;
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
     final private HashSet<Editor> myPasteOverrideEditors;
-    final HashSet<HighlightWordsListener> myHighlightWordListeners;
     final private AnAction myMultiPasteAction;
     ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
-    private Color[] myHighlightColors;
-    private int myHighlightColorRepeatIndex;
-    private Map<String, Integer> myHighlightWords;
-    private OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
-    private boolean myHighlightWordsMode = true;
-    private boolean myHighlightWordsCaseSensitive = true;
-    private final LafManagerListener myLafManagerListener;
-
-    @Nullable private Pattern myHighlightPattern;
-    @Nullable private Map<String, Integer> myHighlightWordIndices;
-    @Nullable private Map<String, Integer> myHighlightCaseInsensitiveWordIndices;
-
-    public static final int BEGIN_WORD = 1;
-    public static final int END_WORD = 2;
-    public static final int CASE_INSENSITIVE = 4;
-    public static final int CASE_SENSITIVE = 8;
 
     public Plugin() {
-        myDelayedRunner = new DelayedRunner();
+        super(ApplicationSettings.getInstance());
         myLineSelectionManagers = new HashMap<>();
         myPasteOverrideEditors = new HashSet<>();
         myMultiPasteAction = new MiaMultiplePasteAction();
         myActionEventEditorMap = new HashMap<>();
         myEditorActionListeners = new HashMap<>();
-        myHighlightWordListeners = new HashSet<>();
         myPasteOverrideComponent = null;
 
-        myLafManagerListener = new LafManagerListener() {
-            UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
-
-            @Override
-            public void lookAndFeelChanged(final LafManager source) {
-                UIManager.LookAndFeelInfo newLookAndFeel = source.getCurrentLookAndFeel();
-                if (lookAndFeel != newLookAndFeel) {
-                    lookAndFeel = newLookAndFeel;
-                    settingsChanged(mySettings);
-                }
-            }
-        };
-
-        //noinspection ThisEscapedInObjectConstruction
-        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
-        myDelayedRunner.addRunnable(messageBusConnection::disconnect);
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
 
-        clearHighlightWords();
-    }
-
-    public void clearHighlightWords() {
-        myHighlightWords = new LinkedHashMap<>();
-        myHighlightPattern = null;
-        myHighlightWordIndices = null;
-        myHighlightCaseInsensitiveWordIndices = null;
-        fireHighlightWordsChanged();
-    }
-
-    @Nullable
-    public Pattern getHighlightPattern() {
-        updateHighlightPattern();
-        return myHighlightPattern;
-    }
-
-    public boolean isWordHighlighted(CharSequence word) {
-        String wordText = word instanceof String ? (String) word : String.valueOf(word);
-        if (myHighlightWords.containsKey(wordText)) return true;
-        if (!myHighlightWordsCaseSensitive) {
-            updateHighlightPattern();
-            return myHighlightCaseInsensitiveWordIndices != null && myHighlightCaseInsensitiveWordIndices.containsKey(wordText.toLowerCase());
-        }
-        return false;
-    }
-
-    public Map<String, Integer> getHighlightWords() {
-        return myHighlightWords;
-    }
-
-    @Nullable
-    public Map<String, Integer> getHighlightWordIndices() {
-        updateHighlightPattern();
-        return myHighlightWordIndices;
-    }
-
-    @Nullable
-    public Map<String, Integer> getHighlightCaseInsensitiveWordIndices() {
-        updateHighlightPattern();
-        return myHighlightCaseInsensitiveWordIndices;
-    }
-
-    public boolean haveHighlightedWords() {
-        return !myHighlightWords.isEmpty();
-    }
-
-    public boolean showHighlightedWords() {
-        return !myHighlightWords.isEmpty() && myHighlightWordsMode;
-    }
-
-    public boolean isHighlightWordsMode() {
-        return myHighlightWordsMode;
-    }
-
-    public void setHighlightWordsMode(final boolean highlightWordsMode) {
-        myHighlightWordsMode = highlightWordsMode;
-        if (haveHighlightedWords()) {
-            fireHighlightWordsChanged();
-        }
-    }
-
-    public boolean isHighlightWordsCaseSensitive() {
-        return myHighlightWordsCaseSensitive;
-    }
-
-    public void setHighlightWordsCaseSensitive(final boolean highlightWordsCaseSensitive) {
-        if (myHighlightWordsCaseSensitive != highlightWordsCaseSensitive) {
-            myHighlightWordsCaseSensitive = highlightWordsCaseSensitive;
-            myHighlightPattern = null;
-            myHighlightWordIndices = null;
-            myHighlightCaseInsensitiveWordIndices = null;
-            if (haveHighlightedWords()) {
-                fireHighlightWordsChanged();
-            }
-        }
-    }
-
-    public void addHighlightWord(CharSequence word, boolean beginWord, boolean endWord, Boolean caseSensitive) {
-        if (beginWord && (word.length() == 0 || word.charAt(0) == '$')) {
-            beginWord = false;
-        }
-        if (endWord && (word.length() == 0 || word.charAt(word.length() - 1) == '$')) {
-            endWord = false;
-        }
-        int flags = (beginWord ? BEGIN_WORD : 0) | (endWord ? END_WORD : 0) | (caseSensitive == null ? 0 : caseSensitive ? CASE_INSENSITIVE : CASE_INSENSITIVE);
-        String wordText = word instanceof String ? (String) word : String.valueOf(word);
-        // remove and add so flags will be modified and it will be moved to the end of list (which is considered the head)
-        myHighlightWords.remove(wordText);
-
-        myHighlightWords.put(wordText, flags);
-        myHighlightPattern = null;
-        myHighlightWordIndices = null;
-        myHighlightCaseInsensitiveWordIndices = null;
-        fireHighlightWordsChanged();
-    }
-
-    public void removeHighlightWord(CharSequence word) {
-        String wordText = word instanceof String ? (String) word : String.valueOf(word);
-        if (myHighlightWords.containsKey(wordText)) {
-            // remove and add
-            myHighlightWords.remove(wordText);
-            myHighlightPattern = null;
-            myHighlightWordIndices = null;
-            myHighlightCaseInsensitiveWordIndices = null;
-            fireHighlightWordsChanged();
-        }
-    }
-
-    private void updateHighlightPattern() {
-        if (myHighlightPattern == null && !myHighlightWords.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            String sep = "";
-            int iMax = myHighlightWords.size();
-            myHighlightWordIndices = new HashMap<>(iMax);
-            myHighlightCaseInsensitiveWordIndices = new HashMap<>(iMax);
-            boolean isCaseSensitive = true;
-
-            ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(myHighlightWords.entrySet());
-            Map<String, Integer> originalOrderMap = new HashMap<>(iMax);
-
-            int i = 0;
-            for (Map.Entry<String, Integer> entry : entries) {
-                originalOrderMap.put(entry.getKey(), i++);
-            }
-
-            entries.sort(Comparator.comparing((entry) -> -entry.getKey().length()));
-
-            for (Map.Entry<String, Integer> entry : entries) {
-                sb.append(sep);
-                sep = "|";
-
-                boolean nextCaseSensitive = myHighlightWordsCaseSensitive;
-                if ((entry.getValue() & CASE_INSENSITIVE) != 0) {
-                    nextCaseSensitive = false;
-                }
-                if ((entry.getValue() & CASE_SENSITIVE) != 0) {
-                    nextCaseSensitive = true;
-                }
-                if (isCaseSensitive != nextCaseSensitive) {
-                    isCaseSensitive = nextCaseSensitive;
-                    sb.append(isCaseSensitive ? "(?-i)" : "(?i)");
-                }
-
-                if ((entry.getValue() & BEGIN_WORD) != 0) sb.append("\\b");
-                sb.append("\\Q").append(entry.getKey()).append("\\E");
-                if ((entry.getValue() & END_WORD) != 0) sb.append("\\b");
-
-                if (isCaseSensitive) {
-                    myHighlightWordIndices.put(entry.getKey(), originalOrderMap.get(entry.getKey()));
-                } else {
-                    myHighlightCaseInsensitiveWordIndices.put(entry.getKey().toLowerCase(), originalOrderMap.get(entry.getKey()));
-                }
-            }
-
-            myHighlightPattern = Pattern.compile(sb.toString());//, myHighlightWordsCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-        }
+        clearHighlights();
     }
 
     @NotNull
@@ -294,36 +103,14 @@ public class Plugin implements ApplicationComponent, Disposable {
         return myLineSelectionManagers.get(editor);
     }
 
-    public void addHighlightWordListener(@NotNull HighlightWordsListener highlightWordsListener, @NotNull Disposable parent) {
-        if (!myHighlightWordListeners.contains(highlightWordsListener)) {
-            myHighlightWordListeners.add(highlightWordsListener);
-            Disposer.register(parent, new Disposable() {
-                @Override
-                public void dispose() {
-                    myHighlightWordListeners.remove(highlightWordsListener);
-                }
-            });
-        }
-    }
-
-    private void fireHighlightWordsChanged() {
-        myHighlightWordsRunner.cancel();
-        if (!myHighlightWordListeners.isEmpty()) {
-            myHighlightWordsRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
-                for (HighlightWordsListener listener : myHighlightWordListeners) {
-                    if (listener == null) continue;
-                    listener.highlightedWordsChanged();
-                }
-            }));
-        }
-    }
-
     @Override
     public void dispose() {
     }
 
     @Override
     public void initComponent() {
+        super.initComponent();
+
         // register editor factory listener
         final EditorFactoryListener editorFactoryListener = new EditorFactoryListener() {
             @Override
@@ -378,7 +165,6 @@ public class Plugin implements ApplicationComponent, Disposable {
             }
         });
 
-        LafManager.getInstance().addLafManagerListener(myLafManagerListener);
     }
 
     public void addEditorActionListener(@NotNull Editor editor, @NotNull EditorActionListener listener) {
@@ -487,7 +273,8 @@ public class Plugin implements ApplicationComponent, Disposable {
 
     }
 
-    void settingsChanged(@NotNull ApplicationSettings settings) {
+    @Override
+    public void settingsChanged(@NotNull ApplicationSettings settings) {
         myDelayedRunner.runAllFor(myMultiPasteAction);
         mySettings = settings;
 
@@ -500,35 +287,7 @@ public class Plugin implements ApplicationComponent, Disposable {
             }
         }
 
-        ColorIterable.ColorIterator iterator = new ColorIterable(
-                mySettings.getHueMin(),
-                mySettings.getHueMax(),
-                mySettings.getHueSteps(),
-                mySettings.getSaturationMin(),
-                mySettings.getSaturationMax(),
-                mySettings.getSaturationSteps(),
-                mySettings.getBrightnessMin(),
-                mySettings.getBrightnessMax(),
-                mySettings.getBrightnessSteps()
-        ).iterator();
-
-        myHighlightColors = new Color[iterator.getMaxIndex()];
-        while (iterator.hasNext()) {
-            Color hsbColor = iterator.next();
-            myHighlightColors[iterator.getIndex()] = hsbColor;
-        }
-
-        myHighlightColorRepeatIndex = myHighlightColors.length - iterator.getHueSteps();
-
-        fireHighlightWordsChanged();
-    }
-
-    public int getHighlightColorRepeatIndex() {
-        return myHighlightColorRepeatIndex;
-    }
-
-    public Color[] getHighlightColors() {
-        return myHighlightColors;
+        super.settingsChanged(settings);
     }
 
     private void registerPasteOverrides(@NotNull Editor editor) {

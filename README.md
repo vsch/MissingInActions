@@ -90,7 +90,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-* Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+* Add: basic Batch search/replace action and dialog. Each line in search will be replaced by
   corresponding line in replace. Third pane is options, each is a character: `c` - case
   sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
@@ -423,7 +423,7 @@ maintain that old war horse which was getting long in the tooth. I was sure that
 to rewrite it for the Mac and decided that I will give it up and get used to IntelliJ way of
 editing.
 
-I made the switch but found for some bulk edits I still preferred to fire up Parallels Desktop
+I made the switch but found for some batch edits I still preferred to fire up Parallels Desktop
 with Windows 10 and do the edit in my old workhorse. I am now in the process of bringing some of
 its features to JetBrains IDEs with my Mia plugin.
 

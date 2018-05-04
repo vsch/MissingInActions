@@ -52,7 +52,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     private final HashMap<Editor, LinkedHashSet<EditorActiveLookupListener>> myInActiveLookupListeners;
     private final @NotNull DelayedRunner myDelayedRunner;
     private final Plugin myPlugin;
-    BulkSearchReplaceToolWindow mySearchReplaceToolWindow;
+    BatchSearchReplaceToolWindow mySearchReplaceToolWindow;
     private FileEditorManagerListener myEditorManagerListener;
 
     public PluginProjectComponent(@NotNull Project project) {
@@ -186,8 +186,9 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
                     }
                 }
 
-                mySearchReplaceToolWindow.setActiveEditor(activeEditor);
-                int tmp = 0;
+                if (mySearchReplaceToolWindow != null) {
+                    mySearchReplaceToolWindow.setActiveEditor(activeEditor);
+                }
             }
         };
 
@@ -202,10 +203,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             myPlugin.projectClosed(myProject);
         });
 
-        mySearchReplaceToolWindow = new BulkSearchReplaceToolWindow(myProject);
+        mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
     }
 
-    public void showBulkSearchReplace() {
+    public void showBatchSearchReplace() {
         mySearchReplaceToolWindow.activate();
     }
 

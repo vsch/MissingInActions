@@ -69,5 +69,5 @@ public class PluginIcons {
     public static final Icon Remove_word_highlighted_carets = load("/icons/Remove_word_highlighted_carets.png");
     public static final Icon Keep_carets_with_selection = load("/icons/Keep_carets_with_selection.png");
     public static final Icon Remove_carets_with_selection = load("/icons/Remove_carets_with_selection.png");
-    public static final Icon Bulk_search = load("/icons/Bulk_search.png");
+    public static final Icon Batch_search = load("/icons/Batch_search.png");
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,10 +19,10 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.util;
+package com.vladsch.MissingInActions.util.highlight;
 
 import java.util.EventListener;
 
-public interface HighlightWordsListener extends EventListener {
-    void highlightedWordsChanged();
+public interface HighlightListener extends EventListener {
+    void highlightsChanged();
 }

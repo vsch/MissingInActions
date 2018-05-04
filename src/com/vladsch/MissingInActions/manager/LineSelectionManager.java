@@ -40,6 +40,9 @@ import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.MissingInActions.util.*;
+import com.vladsch.MissingInActions.util.highlight.HighlightListener;
+import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.Highlighter;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.NotNull;
@@ -96,12 +99,14 @@ public class LineSelectionManager implements
     @Nullable private List<CaretState> myStartCaretStates;
     @Nullable private List<RangeHighlighter> myIsolationHighlighters;
     @Nullable private List<RangeMarker> myIsolationMarkers;
-    @Nullable private List<RangeHighlighter> myWordHighlighters;
-    OneTimeRunnable myHighlightWordsRunner = OneTimeRunnable.NULL;
+    @NotNull HighlightProvider myHighlightProvider = Plugin.getInstance();
+    OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
     private HashMap<String, String> myOnPasteReplacementMap = null;
     private SearchPattern myOnPasteUserSearchPattern = null;
     @NotNull private String myOnPasteUserReplacementText = "";
     private Pattern myOnPasteSearchPattern = null;
+    private final HighlightListener myHighlightListener;
+    @Nullable protected Highlighter myHighlighter = null;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -116,12 +121,37 @@ public class LineSelectionManager implements
         myActionSelectionAdjuster.dispose();
         myMessageBusConnection.disconnect();
         myCaretSpawningHandler = null;
-        LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
     }
 
     @NotNull
     public static LineSelectionManager getInstance(@NotNull Editor editor) {
         return Plugin.getInstance().getSelectionManager(editor);
+    }
+
+    public void setHighlightProvider(@Nullable HighlightProvider highlightProvider) {
+        HighlightProvider oldHighlightProvider = myHighlightProvider;
+        myHighlightProvider = highlightProvider == null ? Plugin.getInstance() : highlightProvider;
+        if (myHighlightProvider != oldHighlightProvider) {
+            removeHighlights();
+
+            if (oldHighlightProvider != Plugin.getInstance()) {
+                // remove listener
+                oldHighlightProvider.removeHighlightListener(myHighlightListener);
+            }
+
+            if (myHighlightProvider != Plugin.getInstance()) {
+                // remove listener
+                myHighlightProvider.addHighlightListener(myHighlightListener, this);
+            }
+
+            myHighlightRunner.cancel();
+
+            myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, this::updateHighlights));
+        }
+    }
+
+    public HighlightProvider getHighlightProvider() {
+        return myHighlightProvider;
     }
 
     public LineSelectionManager(Editor editor) {
@@ -140,12 +170,13 @@ public class LineSelectionManager implements
         }
 
         //noinspection ThisEscapedInObjectConstruction
-        Plugin.getInstance().addHighlightWordListener(new HighlightWordsListener() {
+        myHighlightListener = new HighlightListener() {
             @Override
-            public void highlightedWordsChanged() {
-                updateHighlightWords();
+            public void highlightsChanged() {
+                updateHighlights();
             }
-        }, this);
+        };
+        Plugin.getInstance().addHighlightListener(myHighlightListener, this);
 
         myLafManagerListener = new LafManagerListener() {
             UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
@@ -161,6 +192,9 @@ public class LineSelectionManager implements
         };
 
         LafManager.getInstance().addLafManagerListener(myLafManagerListener);
+        myDelayedRunner.addRunnable(() -> {
+            LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
+        });
 
         myCaretHighlighter = caretHighlighter;
         //noinspection ThisEscapedInObjectConstruction
@@ -186,10 +220,10 @@ public class LineSelectionManager implements
 
             @Override
             public void documentChanged(final com.intellij.openapi.editor.event.DocumentEvent event) {
-                if (Plugin.getInstance().showHighlightedWords()) {
-                    myHighlightWordsRunner.cancel();
-                    myHighlightWordsRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
-                        updateHighlightWords();
+                if (myHighlightProvider.isShowHighlights()) {
+                    myHighlightRunner.cancel();
+                    myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
+                        updateHighlights();
                     }));
                 }
             }
@@ -199,7 +233,7 @@ public class LineSelectionManager implements
         myEditor.getDocument().addDocumentListener(documentListener, this);
 
         // update if they exist
-        updateHighlightWords();
+        updateHighlights();
     }
 
     public static boolean isCaretAttributeAvailable() {
@@ -606,21 +640,8 @@ public class LineSelectionManager implements
         }
     }
 
-    private void clearHighlighters(List<RangeHighlighter> highlighters) {
-        if (highlighters != null) {
-            MarkupModel markupModel = myEditor.getMarkupModel();
-            for (RangeHighlighter marker : highlighters) {
-                if (marker.isValid()) {
-                    markupModel.removeHighlighter(marker);
-                    marker.dispose();
-                }
-            }
-            myEditor.getContentComponent().invalidate();
-        }
-    }
-
     private void clearIsolationHighlighters() {
-        clearHighlighters(myIsolationHighlighters);
+        Highlighter.clearHighlighters(myEditor, myIsolationHighlighters);
         myIsolationHighlighters = null;
     }
 
@@ -634,45 +655,25 @@ public class LineSelectionManager implements
         }
     }
 
-    private void removeWordHighlights() {
-        clearHighlighters(myWordHighlighters);
-        myWordHighlighters = null;
+    public void removeHighlights() {
+        if (myHighlighter != null) {
+            myHighlighter.removeHighlights();
+            myHighlighter = null;
+        }
     }
 
-    void updateHighlightWords() {
-        Plugin plugin = Plugin.getInstance();
+    public Highlighter getHighlighter() {
+        return myHighlighter;
+    }
 
-        removeWordHighlights();
+    public void updateHighlights() {
+        myHighlightRunner.cancel();
 
-        if (plugin.showHighlightedWords()) {
-            Pattern pattern = plugin.getHighlightPattern();
-            Map<String, Integer> indices = plugin.getHighlightWordIndices();
-            Map<String, Integer> caseInsensitiveIndices = plugin.getHighlightCaseInsensitiveWordIndices();
-            if (pattern != null && indices != null && caseInsensitiveIndices != null) {
-                Color[] colors = plugin.getHighlightColors();
-                Document document = myEditor.getDocument();
-                MarkupModel markupModel = myEditor.getMarkupModel();
-                Matcher matcher = pattern.matcher(document.getCharsSequence());
-                int colorRepeatIndex = plugin.getHighlightColorRepeatIndex();
-                int colorRepeatSteps = colors.length - colorRepeatIndex;
-                while (matcher.find()) {
-                    // create a highlighter
-                    Integer index = indices.get(matcher.group());
-                    if (index == null) {
-                        // check for case insensitive word index
-                        index = caseInsensitiveIndices.get(matcher.group().toLowerCase());
-                    }
+        removeHighlights();
 
-                    if (index != null) {
-                        RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(matcher.start(), matcher.end(), HighlighterLayer.SELECTION - 2, new TextAttributes(null, colors[index < colorRepeatIndex ? index : colorRepeatIndex + ((index - colorRepeatIndex) % colorRepeatSteps)], null, EffectType.BOLD_DOTTED_LINE, 0), HighlighterTargetArea.EXACT_RANGE);
-                        if (myWordHighlighters == null) {
-                            myWordHighlighters = new ArrayList<>();
-                        }
-
-                        myWordHighlighters.add(rangeHighlighter);
-                    }
-                }
-            }
+        if (myHighlightProvider.isShowHighlights()) {
+            myHighlighter = myHighlightProvider.getHighlighter(myEditor);
+            myHighlighter.updateHighlights();
         }
     }
 

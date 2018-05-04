@@ -34,8 +34,8 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BulkSearchAction extends EditorAction {
-    public BulkSearchAction() {
+public class BatchSearchAction extends EditorAction {
+    public BatchSearchAction() {
         super(new Handler());
     }
 
@@ -60,8 +60,8 @@ public class BulkSearchAction extends EditorAction {
             if (editor instanceof EditorEx) {
                 Project project = editor.getProject();
                 if (project != null) {
-                    PluginProjectComponent.getInstance(project).showBulkSearchReplace();
-                    //boolean valid = BulkReplaceDialog.showDialog(editor.getComponent(), project, ApplicationSettings.getInstance(), (EditorEx) editor);
+                    PluginProjectComponent.getInstance(project).showBatchSearchReplace();
+                    //boolean valid = BatchReplaceDialog.showDialog(editor.getComponent(), project, ApplicationSettings.getInstance(), (EditorEx) editor);
                 }
             }
         }

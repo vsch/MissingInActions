@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Vladimir Schneider <vladimir.schneider@gmail.com>
+ * Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,22 +19,20 @@
  * under the License.
  */
 
-package com.vladsch.MissingInActions.actions.pattern;
+package com.vladsch.MissingInActions.util.highlight;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.project.DumbAware;
-import com.vladsch.MissingInActions.Plugin;
+import com.intellij.openapi.editor.Editor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ToggleWordHighlightsModeAction extends ToggleAction implements DumbAware {
-    @Override
-    public boolean isSelected(final AnActionEvent e) {
-        e.getPresentation().setEnabled(true);
-        return Plugin.getInstance().isHighlightsMode();
-    }
+import java.util.Map;
 
-    @Override
-    public void setSelected(final AnActionEvent e, final boolean state) {
-        Plugin.getInstance().setHighlightsMode(state);
-    }
+public interface LineHighlightProvider extends HighlightProvider {
+    boolean isLineHighlighted(int line);
+    @Nullable
+    Map<Integer, Integer> getHighlightLines();
+    int getHighlightLineIndex(int line);
+    void addHighlightLine(int line);
+    void removeHighlightLine(int line);
+    LineHighlighter getHighlighter(@NotNull Editor editor);
 }

@@ -56,11 +56,12 @@
 
 ### 1.4.10 - Bug Fix Release
 
-* Add: tool window for bulk search/replace instead of modal
-* Add: presets and import/export to bulk search/replace to allow selecting a set of presets.
+* Add: highlights and caret change handling for batch search/replace.
+* Add: tool window for batch search/replace instead of modal
+* Add: presets and import/export to batch search/replace to allow selecting a set of presets.
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-* Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+* Add: basic Batch search/replace action and dialog. Each line in search will be replaced by
   corresponding line in replace. Third pane is options, each is a character: `c` - case
   sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch

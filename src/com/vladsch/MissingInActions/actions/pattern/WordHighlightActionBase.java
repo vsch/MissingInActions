@@ -48,7 +48,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         boolean selected = false;
 
         if (editor != null && editor.getSelectionModel().hasSelection()) {
-            enabled = !myIsRemoveWord || Plugin.getInstance().haveHighlightedWords();
+            enabled = !myIsRemoveWord || Plugin.getInstance().haveHighlights();
         }
         e.getPresentation().setEnabled(enabled);
         super.update(e);

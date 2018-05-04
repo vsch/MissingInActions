@@ -84,7 +84,7 @@
             <ul>
                 <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
                     excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
-                <li>Add: basic Bulk search/replace action and dialog. Each line in search will be replaced by
+                <li>Add: basic Batch search/replace action and dialog. Each line in search will be replaced by
                     corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
                     sensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> - begin word boundary.</li>
                 <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
@@ -694,16 +694,16 @@
                 description="Remove Word Highlighted Carets">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.pattern.BulkSearchAction"
-                id="MissingInActions.BulkSearchReplace"
-                text="Bulk Search/Replace..."
-                icon="PluginIcons.Bulk_search"
-                description="Bulk Search/Replace...">
+        <action class="com.vladsch.MissingInActions.actions.pattern.BatchSearchAction"
+                id="MissingInActions.BatchSearchReplace"
+                text="Batch Search/Replace..."
+                icon="PluginIcons.Batch_search"
+                description="Batch Search/Replace...">
         </action>
 
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <separator/>
-            <reference id="MissingInActions.BulkSearchReplace"/>
+            <reference id="MissingInActions.BatchSearchReplace"/>
             <separator/>
             <reference id="MissingInActions.ToggleIsolationMode"/>
             <reference id="MissingInActions.AddIsolationLines"/>

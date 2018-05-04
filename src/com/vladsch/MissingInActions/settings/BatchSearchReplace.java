@@ -25,18 +25,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-public class BulkSearchReplace implements Serializable {
+public class BatchSearchReplace implements Serializable {
     boolean myCaseSensitive = true;
     boolean myWholeWord = true;
     @NotNull String mySearchText = "";
     @NotNull String myReplaceText = "";
     @NotNull String myOptionsText = "";
 
-    public BulkSearchReplace() {
+    public BatchSearchReplace() {
 
     }
 
-    BulkSearchReplace(final boolean caseSensitive, final boolean wholeWord, @NotNull final String searchText, @NotNull final String replaceText, @NotNull final String optionsText) {
+    BatchSearchReplace(final boolean caseSensitive, final boolean wholeWord, @NotNull final String searchText, @NotNull final String replaceText, @NotNull final String optionsText) {
         myCaseSensitive = caseSensitive;
         myWholeWord = wholeWord;
         mySearchText = searchText;
@@ -44,7 +44,7 @@ public class BulkSearchReplace implements Serializable {
         myOptionsText = optionsText;
     }
 
-    BulkSearchReplace(final BulkSearchReplace other) {
+    BatchSearchReplace(final BatchSearchReplace other) {
         myCaseSensitive = other.myCaseSensitive;
         myWholeWord = other.myWholeWord;
         mySearchText = other.mySearchText;
@@ -52,7 +52,7 @@ public class BulkSearchReplace implements Serializable {
         myOptionsText = other.myOptionsText;
     }
 
-    public void copyFrom(final BulkSearchReplace other) {
+    public void copyFrom(final BatchSearchReplace other) {
         myCaseSensitive = other.myCaseSensitive;
         myWholeWord = other.myWholeWord;
         mySearchText = other.mySearchText;
@@ -64,16 +64,16 @@ public class BulkSearchReplace implements Serializable {
         return myCaseSensitive;
     }
 
-    public void setCaseSensitive(final boolean bulkSearchCaseSensitive) {
-        myCaseSensitive = bulkSearchCaseSensitive;
+    public void setCaseSensitive(final boolean batchSearchCaseSensitive) {
+        myCaseSensitive = batchSearchCaseSensitive;
     }
 
     public boolean isWholeWord() {
         return myWholeWord;
     }
 
-    public void setWholeWord(final boolean bulkSearchWholeWord) {
-        myWholeWord = bulkSearchWholeWord;
+    public void setWholeWord(final boolean batchSearchWholeWord) {
+        myWholeWord = batchSearchWholeWord;
     }
 
     @NotNull
@@ -81,8 +81,8 @@ public class BulkSearchReplace implements Serializable {
         return mySearchText;
     }
 
-    public void setSearchText(@NotNull final String bulkSearchText) {
-        mySearchText = bulkSearchText;
+    public void setSearchText(@NotNull final String batchSearchText) {
+        mySearchText = batchSearchText;
     }
 
     @NotNull
@@ -90,8 +90,8 @@ public class BulkSearchReplace implements Serializable {
         return myReplaceText;
     }
 
-    public void setReplaceText(@NotNull final String bulkSearchReplaceText) {
-        myReplaceText = bulkSearchReplaceText;
+    public void setReplaceText(@NotNull final String batchSearchReplaceText) {
+        myReplaceText = batchSearchReplaceText;
     }
 
     @NotNull
@@ -99,7 +99,7 @@ public class BulkSearchReplace implements Serializable {
         return myOptionsText;
     }
 
-    public void setOptionsText(@NotNull final String bulkSearchOptionsText) {
-        myOptionsText = bulkSearchOptionsText;
+    public void setOptionsText(@NotNull final String batchSearchOptionsText) {
+        myOptionsText = batchSearchOptionsText;
     }
 }

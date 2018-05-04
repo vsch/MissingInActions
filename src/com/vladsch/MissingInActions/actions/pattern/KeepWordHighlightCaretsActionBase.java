@@ -32,7 +32,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.WordHighlightProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,8 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
         boolean selected = false;
 
         if (editor != null && editor.getSelectionModel().hasSelection()) {
-            enabled = !myIsRemoveCaret || Plugin.getInstance().haveHighlightedWords();
+            final HighlightProvider highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
+            enabled = !myIsRemoveCaret || highlightProvider instanceof WordHighlightProvider && highlightProvider.haveHighlights();
         }
         e.getPresentation().setEnabled(enabled);
         super.update(e);
@@ -66,30 +70,34 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
             final Document document = editor.getDocument();
             final CaretModel caretModel = editor.getCaretModel();
             final CharSequence chars = document.getCharsSequence();
-            final Plugin plugin = Plugin.getInstance();
+            final HighlightProvider highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
+            if (highlightProvider instanceof WordHighlightProvider) {
+                final WordHighlightProvider wordHighlightProvider = (WordHighlightProvider) highlightProvider;
 
-            final List<Caret> removedCarets = new ArrayList<>();
-            int removedCaretCount = 0;
+                final List<Caret> removedCarets = new ArrayList<>();
+                int removedCaretCount = 0;
 
-            for (Caret caret : caretModel.getAllCarets()) {
-                boolean isHighlighted = false;
-                if (caret.hasSelection()) {
-                    isHighlighted = plugin.isWordHighlighted(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
+                for (Caret caret : caretModel.getAllCarets()) {
+                    boolean isHighlighted = false;
+                    if (caret.hasSelection()) {
+                        isHighlighted = wordHighlightProvider.isWordHighlighted(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
+                    }
+
+                    if (myIsRemoveCaret == isHighlighted) {
+                        removedCarets.add(caret);
+                        removedCaretCount++;
+                    }
                 }
 
-                if (myIsRemoveCaret == isHighlighted) {
-                    removedCarets.add(caret);
-                    removedCaretCount++;
+                if (removedCaretCount == caretModel.getCaretCount()) {
+                    caretModel.removeSecondaryCarets();
+                    caretModel.getPrimaryCaret().removeSelection();
+                } else {
+                    for (Caret caret : removedCarets) {
+                        caretModel.removeCaret(caret);
+                    }
                 }
-            }
 
-            if (removedCaretCount == caretModel.getCaretCount()) {
-                caretModel.removeSecondaryCarets();
-                caretModel.getPrimaryCaret().removeSelection();
-            } else {
-                for (Caret caret : removedCarets) {
-                    caretModel.removeCaret(caret);
-                }
             }
         }
     }

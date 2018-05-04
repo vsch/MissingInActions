@@ -23,12 +23,18 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.markup.EffectType;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
@@ -47,15 +53,16 @@ import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.settings.BulkSearchReplace;
-import com.vladsch.MissingInActions.settings.BulkSearchReplaceSettings;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.settings.BatchSearchReplace;
+import com.vladsch.MissingInActions.settings.BatchSearchReplaceSettings;
+import com.vladsch.MissingInActions.util.AwtRunnable;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import com.vladsch.MissingInActions.util.Utils;
+import com.vladsch.MissingInActions.util.highlight.*;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
-import com.vladsch.ReverseRegEx.util.ForwardMatcher;
-import com.vladsch.ReverseRegEx.util.ForwardPattern;
-import com.vladsch.ReverseRegEx.util.ReverseMatcher;
-import com.vladsch.ReverseRegEx.util.ReversePattern;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import org.jetbrains.annotations.NotNull;
@@ -71,15 +78,20 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BulkReplaceForm implements Disposable {
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_INSENSITIVE;
+
+public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
     JPanel myMainPanel;
     JTextField mySampleText;
@@ -100,6 +112,7 @@ public class BulkReplaceForm implements Disposable {
     JButton mySavePreset;
     private JButton myManageActions;
     private JButton myReset;
+    private JBCheckBox myShowHighlights;
     private final JBPopupMenu myPopupMenuActions;
 
     EditorEx myEditor;
@@ -107,19 +120,20 @@ public class BulkReplaceForm implements Disposable {
     EditorEx myReplaceEditor;
     EditorEx myOptionsEditor;
 
-    final BulkSearchReplaceSettings mySettings;
+    final ApplicationSettings mySettings;
 
-    String myPatternText = null;
-    ForwardPattern myForwardPattern = null;
-    ReversePattern myReversePattern = null;
-    ArrayList<String> myReplacementStrings = null;
-    ForwardMatcher myForwardMatcher = null;
-    ReverseMatcher myReverseMatcher = null;
+    HashMap<Integer, Integer> myWordIndexToLineMap = null;
+    HashMap<Integer, SearchData> myLineSearchData = null;
+    int[] myIndexedWordCounts = null;
     TextRange myFoundRange = null;
+    boolean myHighlightAllLines = false;
+
     ArrayList<TextRange> myExcludedRanges = null;
-    ArrayList<TextRange> mySearchRanges = null;
-    ArrayList<TextRange> myReplaceRanges = null;
-    ArrayList<TextRange> myOptionsRanges = null;
+    WordHighlightProvider myEditorSearchHighlightProvider;
+    LineHighlightProvider mySearchHighlightProvider;
+    LineHighlightProvider myReplaceHighlightProvider;
+    LineHighlightProvider myOptionsHighlightProvider;
+
     final DocumentListener myDocumentListener;
     final CaretListener myCaretListener;
     final VisibleAreaListener myVisibleAreaListener;
@@ -127,10 +141,13 @@ public class BulkReplaceForm implements Disposable {
     final Project myProject;
 
     int myFoundIndex = -1;
-    boolean myFoundBackwards = false;
+    Boolean myFoundBackwards = null;
     boolean myInUpdate = false;
     long myLastEditorSync = Long.MIN_VALUE;
     Editor myLastSyncEditor = null;
+    boolean myIsActive = false;
+    OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
+    boolean myPendingForcedUpdate = false;
 
     void updateLastEditorSync(Editor editor) {
         myLastEditorSync = System.currentTimeMillis();
@@ -162,24 +179,20 @@ public class BulkReplaceForm implements Disposable {
         disposeEditors();
     }
 
-    public boolean saveSettings(boolean onlySamples) {
-        // save settings return false if regex is not valid
-        //mySettings.setSampleText(mySampleText.getText());
-
-        if (!onlySamples) {
-            mySettings.getBulkSearchReplace().setWholeWord(myWholeWord.isSelected());
-            mySettings.getBulkSearchReplace().setCaseSensitive(myCaseSensitive.isSelected());
-            mySettings.getBulkSearchReplace().setSearchText(mySearchEditor.getDocument().getText().trim());
-            mySettings.getBulkSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText().trim());
-            mySettings.getBulkSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText().trim());
-        }
-
-        return onlySamples || checkRegEx(mySearchEditor.getDocument().getText()).isEmpty();
+    public void saveSettings() {
+        mySettings.getBatchSearchReplace().setWholeWord(myWholeWord.isSelected());
+        mySettings.getBatchSearchReplace().setCaseSensitive(myCaseSensitive.isSelected());
+        mySettings.getBatchSearchReplace().setSearchText(mySearchEditor.getDocument().getText().trim());
+        mySettings.getBatchSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText().trim());
+        mySettings.getBatchSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText().trim());
+        mySettings.setBatchHighlightAllLines(myShowHighlights.isSelected());
     }
 
     public void disposeEditors() {
         if (mySearchEditor != null) {
             // release the editors
+            setActiveEditor(null);
+
             mySearchEditor.getDocument().removeDocumentListener(myDocumentListener);
             myReplaceEditor.getDocument().removeDocumentListener(myDocumentListener);
             myOptionsEditor.getDocument().removeDocumentListener(myDocumentListener);
@@ -192,6 +205,10 @@ public class BulkReplaceForm implements Disposable {
             myReplaceEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
             myOptionsEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
 
+            LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(null);
+            LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(null);
+            LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(null);
+
             EditorFactory.getInstance().releaseEditor(mySearchEditor);
             EditorFactory.getInstance().releaseEditor(myReplaceEditor);
             EditorFactory.getInstance().releaseEditor(myOptionsEditor);
@@ -200,6 +217,16 @@ public class BulkReplaceForm implements Disposable {
             mySearchEditor = null;
             myReplaceEditor = null;
             myOptionsEditor = null;
+
+            myEditorSearchHighlightProvider.disposeComponent();
+            mySearchHighlightProvider.disposeComponent();
+            myReplaceHighlightProvider.disposeComponent();
+            myOptionsHighlightProvider.disposeComponent();
+
+            myEditorSearchHighlightProvider = null;
+            mySearchHighlightProvider = null;
+            myReplaceHighlightProvider = null;
+            myOptionsHighlightProvider = null;
         }
     }
 
@@ -210,6 +237,7 @@ public class BulkReplaceForm implements Disposable {
 
             if (myEditor != null && !myEditor.isDisposed()) {
                 myEditor.getCaretModel().removeCaretListener(myEditorCaretListener);
+                LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
             }
 
             myEditor = editor;
@@ -219,6 +247,11 @@ public class BulkReplaceForm implements Disposable {
                 copyEditorSettings(myReplaceEditor);
                 copyEditorSettings(myOptionsEditor);
                 myEditor.getCaretModel().addCaretListener(myEditorCaretListener);
+
+                if (myIsActive) {
+                    LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
+                }
+
             }
 
             updateOptions(true);
@@ -228,7 +261,15 @@ public class BulkReplaceForm implements Disposable {
     private class MainEditorCaretListener implements CaretListener {
         @Override
         public void caretPositionChanged(final CaretEvent e) {
-            updateOptions(false);
+            myHighlightRunner.cancel();
+
+            if (!myInUpdate) {
+                myFoundBackwards = null;
+
+                myHighlightRunner = OneTimeRunnable.schedule(100, new AwtRunnable(true, () -> {
+                    updateOptions(false);
+                }));
+            }
         }
 
         @Override
@@ -242,28 +283,45 @@ public class BulkReplaceForm implements Disposable {
         }
     }
 
-    public BulkReplaceForm(@NotNull Project project, @NotNull BulkSearchReplaceSettings searchReplaceSettings) {
+    public BatchReplaceForm(@NotNull Project project, @NotNull ApplicationSettings applicationSettings) {
+        myInUpdate = true;
         myProject = project;
-        mySettings = searchReplaceSettings;
-        String searchText = mySettings.getBulkSearchReplace().getSearchText();
-        String replaceText = mySettings.getBulkSearchReplace().getReplaceText();
-        String optionsText = mySettings.getBulkSearchReplace().getOptionsText();
+        mySettings = applicationSettings;
 
-        boolean caseSensitive = mySettings.getBulkSearchReplace().isCaseSensitive();
+        String searchText = mySettings.getBatchSearchReplace().getSearchText();
+        String replaceText = mySettings.getBatchSearchReplace().getReplaceText();
+        String optionsText = mySettings.getBatchSearchReplace().getOptionsText();
+
+        boolean caseSensitive = mySettings.getBatchSearchReplace().isCaseSensitive();
         myCaseSensitive.setSelected(caseSensitive);
-        myWholeWord.setSelected(mySettings.getBulkSearchReplace().isWholeWord());
+        myWholeWord.setSelected(mySettings.getBatchSearchReplace().isWholeWord());
+        myShowHighlights.setSelected(mySettings.isBatchHighlightAllLines());
 
         mySampleText.setVisible(false);
 
         myEditorCaretListener = new MainEditorCaretListener();
 
-        mySearchEditor = createIdeaEditor(searchText);
-        myReplaceEditor = createIdeaEditor(replaceText);
-        myOptionsEditor = createIdeaEditor(optionsText);
+        mySearchEditor = createIdeaEditor(Utils.suffixWith(searchText, "\n"));
+        myReplaceEditor = createIdeaEditor(Utils.suffixWith(replaceText, "\n"));
+        myOptionsEditor = createIdeaEditor(Utils.suffixWith(optionsText, "\n"));
 
         mySearchViewPanel.add(mySearchEditor.getComponent(), BorderLayout.CENTER);
         myReplaceViewPanel.add(myReplaceEditor.getComponent(), BorderLayout.CENTER);
         myOptionsViewPanel.add(myOptionsEditor.getComponent(), BorderLayout.CENTER);
+
+        myEditorSearchHighlightProvider = new SearchWordHighlighterProvider(mySettings);
+        mySearchHighlightProvider = new EditorLineHighlighterProvider(mySettings);
+        myReplaceHighlightProvider = new EditorLineHighlighterProvider(mySettings);
+        myOptionsHighlightProvider = new EditorLineHighlighterProvider(mySettings);
+
+        myEditorSearchHighlightProvider.initComponent();
+        mySearchHighlightProvider.initComponent();
+        myReplaceHighlightProvider.initComponent();
+        myOptionsHighlightProvider.initComponent();
+
+        LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(mySearchHighlightProvider);
+        LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(myReplaceHighlightProvider);
+        LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(myOptionsHighlightProvider);
 
         myDocumentListener = new EditorDocumentListener();
 
@@ -298,10 +356,16 @@ public class BulkReplaceForm implements Disposable {
 
         myReset.addActionListener(e -> reset());
 
+        myShowHighlights.addActionListener(e -> {
+            myHighlightAllLines = myShowHighlights.isSelected();
+            updateFoundRanges();
+        });
+        myHighlightAllLines = myShowHighlights.isSelected();
+
         mySavePreset.addActionListener(e -> {
             String presetName = (String) myPresets.getEditor().getItem();
-            BulkSearchReplace oldSettings = mySettings.getPreset(presetName);
-            saveSettings(false);
+            BatchSearchReplace oldSettings = mySettings.getPreset(presetName);
+            saveSettings();
 
             mySettings.savePreset(presetName);
             if (oldSettings == null) {
@@ -315,12 +379,12 @@ public class BulkReplaceForm implements Disposable {
         //});
 
         myPopupMenuActions = new JBPopupMenu("Actions");
-        final JBMenuItem exportXML = new JBMenuItem(Bundle.message("bulk-search.export-xml.label"));
-        final JBMenuItem importXML = new JBMenuItem(Bundle.message("bulk-search.import-xml.label"));
-        final JBMenuItem exportJSON = new JBMenuItem(Bundle.message("bulk-search.export-json.label"));
-        final JBMenuItem importJSON = new JBMenuItem(Bundle.message("bulk-search.import-json.label"));
-        final JBMenuItem deletePreset = new JBMenuItem(Bundle.message("bulk-search.delete.label"));
-        final JBMenuItem clearAllPresets = new JBMenuItem(Bundle.message("bulk-search.clear-all.label"));
+        final JBMenuItem exportXML = new JBMenuItem(Bundle.message("batch-search.export-xml.label"));
+        final JBMenuItem importXML = new JBMenuItem(Bundle.message("batch-search.import-xml.label"));
+        final JBMenuItem exportJSON = new JBMenuItem(Bundle.message("batch-search.export-json.label"));
+        final JBMenuItem importJSON = new JBMenuItem(Bundle.message("batch-search.import-json.label"));
+        final JBMenuItem deletePreset = new JBMenuItem(Bundle.message("batch-search.delete.label"));
+        final JBMenuItem clearAllPresets = new JBMenuItem(Bundle.message("batch-search.clear-all.label"));
 
         myPresets.addActionListener(e -> {
             if (!myInUpdate) {
@@ -332,7 +396,7 @@ public class BulkReplaceForm implements Disposable {
                     settingsChanged(false);
                     deletePreset.setEnabled(true);
                 } else {
-                    mySettings.setBulkPresetName(null);
+                    mySettings.setBatchPresetName(null);
                     deletePreset.setEnabled(false);
                 }
             }
@@ -350,7 +414,7 @@ public class BulkReplaceForm implements Disposable {
             myInUpdate = true;
             String searchText1 = mySearchEditor.getDocument().getText();
             String replaceText1 = myReplaceEditor.getDocument().getText();
-            ApplicationManager.getApplication().runWriteAction(() -> {
+            WriteCommandAction.runWriteCommandAction(myProject, () -> {
                 mySearchEditor.getDocument().setText(replaceText1);
                 myReplaceEditor.getDocument().setText(searchText1);
             });
@@ -368,7 +432,7 @@ public class BulkReplaceForm implements Disposable {
                     final String searchText12 = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
                     boolean savedInUpdate = myInUpdate;
                     myInUpdate = true;
-                    ApplicationManager.getApplication().runWriteAction(() -> {
+                    WriteCommandAction.runWriteCommandAction(myProject, () -> {
                         mySearchEditor.getDocument().setText(searchText12);
                         myReplaceEditor.getDocument().setText(replaceText12);
                     });
@@ -388,9 +452,9 @@ public class BulkReplaceForm implements Disposable {
         deletePreset.addActionListener(e -> {
             String presetName = (String) myPresets.getSelectedItem();
             if (presetName != null) {
-                BulkSearchReplace removed = mySettings.getBulkPresets().remove(presetName);
+                BatchSearchReplace removed = mySettings.getBatchPresets().remove(presetName);
                 if (removed != null) {
-                    mySettings.setBulkPresetName(null);
+                    mySettings.setBatchPresetName(null);
                     fillPresets();
                     myPresets.setSelectedIndex(-1);
                 }
@@ -398,17 +462,17 @@ public class BulkReplaceForm implements Disposable {
         });
 
         exportXML.addActionListener(e -> {
-            String title = Bundle.message("bulk-search.export.title");
-            String description = Bundle.message("bulk-search.export.description");
+            String title = Bundle.message("batch-search.export.title");
+            String description = Bundle.message("batch-search.export.description");
             FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "xml");
             FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
             if (myProject != null) {
-                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "bulk-search-replace.xml");
+                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "batch-search-replace.xml");
                 if (file != null) {
                     try {
                         FileUtil.createParentDirs(file.getFile());
                         FileOutputStream fileWriter = new FileOutputStream(file.getFile());
-                        BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings(mySettings);
+                        BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
                         XMLEncoder xmlEncoder = new XMLEncoder(fileWriter, "UTF-8", true, 0);
                         xmlEncoder.writeObject(externalizedSettings);
                         xmlEncoder.close();
@@ -424,12 +488,12 @@ public class BulkReplaceForm implements Disposable {
 
         importXML.addActionListener(e -> {
             FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
-            String title = Bundle.message("bulk-search.import.title");
-            String description = Bundle.message("bulk-search.import.description");
+            String title = Bundle.message("batch-search.import.title");
+            String description = Bundle.message("batch-search.import.description");
             fileChooserDescriptor.setTitle(title);
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
-            String lastImport = myProject.getBasePath() + "/" + "bulk-search-replace.xml";
+            String lastImport = myProject.getBasePath() + "/" + "batch-search-replace.xml";
             VirtualFile lastImportFile = null;
             if (!lastImport.isEmpty()) {
                 File file = new File(lastImport);
@@ -446,14 +510,14 @@ public class BulkReplaceForm implements Disposable {
                     }, this.getClass().getClassLoader());
 
                     Object object = decoder.readObject();
-                    BulkSearchReplaceSettings externalizedSettings = (BulkSearchReplaceSettings) object;
+                    BatchSearchReplaceSettings externalizedSettings = (BatchSearchReplaceSettings) object;
                     decoder.close();
                     inputStream.close();
                     if (externalizedSettings != null) {
                         mySettings.copyFrom(externalizedSettings);
                         settingsChanged(true);
                     } else {
-                        Messages.showErrorDialog("File does not contain exported Bulk Search/Replace settings.", "Import Failure");
+                        Messages.showErrorDialog("File does not contain exported Batch Search/Replace settings.", "Import Failure");
                     }
                 } catch (Exception e1) {
                     Messages.showErrorDialog(e1.getMessage(), "Import Failure");
@@ -462,18 +526,18 @@ public class BulkReplaceForm implements Disposable {
         });
 
         exportJSON.addActionListener(e -> {
-            String title = Bundle.message("bulk-search.export.title");
-            String description = Bundle.message("bulk-search.export.description");
+            String title = Bundle.message("batch-search.export.title");
+            String description = Bundle.message("batch-search.export.description");
             FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "json");
             FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
             if (myProject != null) {
-                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "bulk-search-replace.json");
+                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "batch-search-replace.json");
                 if (file != null) {
                     try {
                         FileUtil.createParentDirs(file.getFile());
                         FileWriter fileWriter = new FileWriter(file.getFile());
-                        saveSettings(false);
-                        BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings(mySettings);
+                        saveSettings();
+                        BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
                         BoxedJsObject settings = BoxedJson.of();
                         BoxedJsObject presets = BoxedJson.of();
                         settings.put("presets", presets);
@@ -493,12 +557,12 @@ public class BulkReplaceForm implements Disposable {
 
         importJSON.addActionListener(e -> {
             FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
-            String title = Bundle.message("bulk-search.import.title");
-            String description = Bundle.message("bulk-search.import.description");
+            String title = Bundle.message("batch-search.import.title");
+            String description = Bundle.message("batch-search.import.description");
             fileChooserDescriptor.setTitle(title);
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
-            String lastImport = myProject.getBasePath() + "/" + "bulk-search-replace.json";
+            String lastImport = myProject.getBasePath() + "/" + "batch-search-replace.json";
             VirtualFile lastImportFile = null;
             if (!lastImport.isEmpty()) {
                 File file = new File(lastImport);
@@ -514,13 +578,13 @@ public class BulkReplaceForm implements Disposable {
                     inputStream.close();
 
                     BoxedJsObject presets = settings.getJsObject("presets");
-                    BulkSearchReplaceSettings externalizedSettings = new BulkSearchReplaceSettings();
+                    BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings();
 
                     if (presets.isValid() && importFromJSON(externalizedSettings, presets)) {
                         mySettings.copyFrom(externalizedSettings);
                         settingsChanged(true);
                     } else {
-                        Messages.showErrorDialog("File does not contain exported Bulk Search/Replace settings.", "Import Failure");
+                        Messages.showErrorDialog("File does not contain exported Batch Search/Replace settings.", "Import Failure");
                     }
                 } catch (Exception e1) {
                     Messages.showErrorDialog(e1.getMessage(), "Import Failure");
@@ -529,9 +593,9 @@ public class BulkReplaceForm implements Disposable {
         });
 
         clearAllPresets.addActionListener(e -> {
-            mySettings.getBulkPresets().clear();
-            mySettings.setBulkPresetName("");
-            mySettings.setBulkSearchReplace(new BulkSearchReplace());
+            mySettings.getBatchPresets().clear();
+            mySettings.setBatchPresetName("");
+            mySettings.setBatchSearchReplace(new BatchSearchReplace());
             settingsChanged(true);
         });
 
@@ -551,11 +615,45 @@ public class BulkReplaceForm implements Disposable {
             myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100);
         });
 
+        myMainPanel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (myEditor != null) {
+                    String propertyName = evt.getPropertyName();
+                    if (propertyName.equals("ancestor")) {
+                        int tmp = 0;
+
+                        if (evt.getNewValue() != null) {
+                            myIsActive = true;
+                            LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
+                            updateOptions(true);
+                        } else {
+                            myIsActive = false;
+                            saveSettings();
+                            LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
+                        }
+                    } else if (propertyName.equals("Frame.active")) {
+                        if (!(boolean) evt.getNewValue()) {
+                            saveSettings();
+                        }
+                        int tmp = 0;
+                    }
+                }
+            }
+        });
+
         fillPresets();
         updateOptions(true);
+
+        myInUpdate = false;
+
+        myHighlightRunner.cancel();
+        myHighlightRunner = OneTimeRunnable.schedule(1000, new AwtRunnable(true, () -> {
+            updateFoundRanges();
+        }));
     }
 
-    private boolean importFromJSON(final BulkSearchReplaceSettings settings, final BoxedJsObject presets) {
+    private boolean importFromJSON(final BatchSearchReplaceSettings settings, final BoxedJsObject presets) {
         boolean hadPreset = false;
 
         for (String presetName : presets.keySet()) {
@@ -574,10 +672,10 @@ public class BulkReplaceForm implements Disposable {
 
                 if (hadSearch) {
                     hadPreset = true;
-                    BulkSearchReplace searchReplaceSettings = new BulkSearchReplace();
+                    BatchSearchReplace searchReplaceSettings = new BatchSearchReplace();
                     searchReplaceSettings.setSearchText(search.toString());
                     searchReplaceSettings.setReplaceText(replace.toString());
-                    settings.getBulkPresets().put(presetName, searchReplaceSettings);
+                    settings.getBatchPresets().put(presetName, searchReplaceSettings);
                 }
             }
         }
@@ -587,14 +685,14 @@ public class BulkReplaceForm implements Disposable {
 
     private void exportJSONPresets(final BoxedJsObject presets) {
         // we export presets only
-        ArrayList<String> keySet = new ArrayList<>(mySettings.getBulkPresets().keySet());
+        ArrayList<String> keySet = new ArrayList<>(mySettings.getBatchPresets().keySet());
         keySet.sort(Comparator.naturalOrder());
 
         for (String presetName : keySet) {
             BoxedJsObject preset = BoxedJson.of();
             presets.put(presetName, preset);
 
-            BulkSearchReplace replaceSettings = mySettings.getPreset(presetName);
+            BatchSearchReplace replaceSettings = mySettings.getPreset(presetName);
             String[] search = replaceSettings.getSearchText().split("\n");
             String[] replace = replaceSettings.getReplaceText().split("\n");
             String[] options = replaceSettings.getOptionsText().split("\n");
@@ -634,9 +732,9 @@ public class BulkReplaceForm implements Disposable {
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
         // update dialog
-        String searchText1 = mySettings.getBulkSearchReplace().getSearchText();
-        String replaceText1 = mySettings.getBulkSearchReplace().getReplaceText();
-        String optionsText1 = mySettings.getBulkSearchReplace().getOptionsText();
+        String searchText1 = mySettings.getBatchSearchReplace().getSearchText();
+        String replaceText1 = mySettings.getBatchSearchReplace().getReplaceText();
+        String optionsText1 = mySettings.getBatchSearchReplace().getOptionsText();
 
         WriteCommandAction.runWriteCommandAction(myProject, () -> {
             mySearchEditor.getDocument().setText(Utils.suffixWith(searchText1, "\n"));
@@ -644,9 +742,9 @@ public class BulkReplaceForm implements Disposable {
             myOptionsEditor.getDocument().setText(Utils.suffixWith(optionsText1, "\n"));
         });
 
-        boolean caseSensitive1 = mySettings.getBulkSearchReplace().isCaseSensitive();
+        boolean caseSensitive1 = mySettings.getBatchSearchReplace().isCaseSensitive();
         myCaseSensitive.setSelected(caseSensitive1);
-        myWholeWord.setSelected(mySettings.getBulkSearchReplace().isWholeWord());
+        myWholeWord.setSelected(mySettings.getBatchSearchReplace().isWholeWord());
 
         if (loadPresets) {
             fillPresets();
@@ -658,9 +756,9 @@ public class BulkReplaceForm implements Disposable {
 
     public void fillPresets() {
         myPresets.removeAllItems();
-        ArrayList<String> presetNames = new ArrayList<>(mySettings.getBulkPresets().keySet());
+        ArrayList<String> presetNames = new ArrayList<>(mySettings.getBatchPresets().keySet());
         presetNames.sort(Comparator.naturalOrder());
-        String presetName = mySettings.getBulkPresetName();
+        String presetName = mySettings.getBatchPresetName();
 
         for (String item : presetNames) {
             myPresets.addItem(item);
@@ -691,6 +789,10 @@ public class BulkReplaceForm implements Disposable {
 
     void updateOptions(final boolean searchReplaceTextChanged) {
         //noinspection VariableNotUsedInsideIf
+        if (searchReplaceTextChanged) myPendingForcedUpdate = true;
+
+        if (myInUpdate) return;
+
         mySavePreset.setEnabled(!((String) myPresets.getEditor().getItem()).isEmpty());
 
         if (myEditor == null) {
@@ -701,16 +803,10 @@ public class BulkReplaceForm implements Disposable {
             myReplaceAll.setEnabled(false);
             myExclude.setEnabled(false);
             myReset.setEnabled(false);
+            myFoundRange = null;
         } else {
             // compare line count for search/replace, ignore options, ignore trailing empty lines, EOL is ignored
-            myForwardPattern = null;
-            myReversePattern = null;
-            myForwardMatcher = null;
-            myReverseMatcher = null;
-            myFoundRange = null;
             myReset.setEnabled(myExcludedRanges != null);
-
-            if (myInUpdate) return;
 
             final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
             final Transferable[] contents = copyPasteManager.getAllContents();
@@ -724,9 +820,14 @@ public class BulkReplaceForm implements Disposable {
                 } catch (UnsupportedFlavorException | IOException e1) {
                 }
             }
+
             myGetFromClipboard.setEnabled(clipboardLoadEnabled);
 
-            if (searchReplaceTextChanged) {
+            myFoundRange = null;
+
+            if (searchReplaceTextChanged || myPendingForcedUpdate) {
+                myPendingForcedUpdate = false;
+
                 DocumentEx searchEditorDocument = mySearchEditor.getDocument();
                 CharSequence searchSequence = searchEditorDocument.getCharsSequence();
                 DocumentEx replaceEditorDocument = myReplaceEditor.getDocument();
@@ -734,40 +835,41 @@ public class BulkReplaceForm implements Disposable {
                 DocumentEx optionsEditorDocument = myOptionsEditor.getDocument();
                 CharSequence optionsSequence = optionsEditorDocument.getCharsSequence();
 
-                ArrayList<String> searchStrings = new ArrayList<>();
-                ArrayList<String> replaceStrings = new ArrayList<>();
-                ArrayList<String> optionsStrings = new ArrayList<>();
-                ArrayList<Integer> indices = new ArrayList<>();
-                ArrayList<TextRange> searchRanges = new ArrayList<>();
-                ArrayList<TextRange> replaceRanges = new ArrayList<>();
-                ArrayList<TextRange> optionsRanges = new ArrayList<>();
+                myIndexedWordCounts = null;
+
+                myEditorSearchHighlightProvider.enterUpdateRegion();
+                mySearchHighlightProvider.enterUpdateRegion();
+                myReplaceHighlightProvider.enterUpdateRegion();
+                myOptionsHighlightProvider.enterUpdateRegion();
+
+                myEditorSearchHighlightProvider.clearHighlights();
+                mySearchHighlightProvider.clearHighlights();
+                myReplaceHighlightProvider.clearHighlights();
+                myOptionsHighlightProvider.clearHighlights();
+
+                myWordIndexToLineMap = new HashMap<>();
+                myLineSearchData = new HashMap<>();
 
                 int searchLines = searchEditorDocument.getLineCount();
                 int replaceLines = replaceEditorDocument.getLineCount();
                 int optionsLines = optionsEditorDocument.getLineCount();
                 int iMax = Math.max(searchLines, Math.max(replaceLines, optionsLines));
-                boolean hadErrors = false;
+                ArrayList<SearchData> lineSearchData = new ArrayList<>();
+
                 for (int i = 0; i < iMax; i++) {
                     String searchText = null;
                     String replaceText = null;
                     String optionsText = "";
                     if (i < searchLines) {
                         searchText = searchSequence.subSequence(searchEditorDocument.getLineStartOffset(i), searchEditorDocument.getLineEndOffset(i)).toString();
-                        searchRanges.add(TextRange.create(searchEditorDocument.getLineStartOffset(i), searchEditorDocument.getLineEndOffset(i)));
                     }
 
                     if (i < replaceLines) {
                         replaceText = replaceSequence.subSequence(replaceEditorDocument.getLineStartOffset(i), replaceEditorDocument.getLineEndOffset(i)).toString();
-                        replaceRanges.add(TextRange.create(replaceEditorDocument.getLineStartOffset(i), replaceEditorDocument.getLineEndOffset(i)));
-                    } else {
-                        replaceRanges.add(null);
                     }
 
                     if (i < optionsLines) {
                         optionsText = optionsSequence.subSequence(optionsEditorDocument.getLineStartOffset(i), optionsEditorDocument.getLineEndOffset(i)).toString();
-                        optionsRanges.add(TextRange.create(optionsEditorDocument.getLineStartOffset(i), optionsEditorDocument.getLineEndOffset(i)));
-                    } else {
-                        optionsRanges.add(null);
                     }
 
                     if (searchText != null && !searchText.isEmpty()) {
@@ -776,92 +878,121 @@ public class BulkReplaceForm implements Disposable {
                             replaceText = "";
                         }
 
-                        searchStrings.add(searchText);
-                        replaceStrings.add(replaceText);
-                        optionsStrings.add(optionsText);
-                        indices.add(indices.size());
-                    } else {
-                        if (replaceText != null && !replaceText.isEmpty()) {
-                            // TODO: highlight as ignored
-                            hadErrors = true;
+                        boolean isCaseSensitive = myCaseSensitive.isSelected();
+                        boolean isBeginWord = myWholeWord.isSelected();
+                        boolean isEndWord = myWholeWord.isSelected();
+
+                        if (optionsText.indexOf('c') != -1) {
+                            isCaseSensitive = true;
+                        } else if (optionsText.indexOf('i') != -1) {
+                            isCaseSensitive = false;
                         }
+
+                        if (optionsText.indexOf('w') != -1) {
+                            isBeginWord = true;
+                            isEndWord = true;
+                        }
+
+                        if (optionsText.indexOf('b') != -1) {
+                            isBeginWord = true;
+                        }
+
+                        if (optionsText.indexOf('e') != -1) {
+                            isEndWord = true;
+                        }
+
+                        SearchData searchData = new SearchData(searchText, replaceText, i, myEditorSearchHighlightProvider.encodeFlags(isBeginWord, isEndWord, isCaseSensitive));
+
+                        int lMax = lineSearchData.size();
+                        for (int l = lMax; l-- > 0; ) {
+                            SearchData data = lineSearchData.get(l);
+                            if ((data.flags & CASE_INSENSITIVE) == 0 && (searchData.flags & CASE_INSENSITIVE) == 0) {
+                                // case sensitive, we need to remove all that match
+                                if (data.word.equals(searchData.word)) {
+                                    // we need to delete this one
+                                    lineSearchData.remove(l);
+                                }
+                            } else {
+                                // case sensitive, we need to remove all that match
+                                if (data.word.equalsIgnoreCase(searchData.word)) {
+                                    // we need to delete this one
+                                    lineSearchData.remove(l);
+                                }
+                            }
+                        }
+
+                        lineSearchData.add(searchData);
                     }
                 }
 
-                // sort search string in reverse length order
-                indices.sort(new Comparator<Integer>() {
-                    @Override
-                    public int compare(final Integer o1, final Integer o2) {
-                        return searchStrings.get(o2).length() - searchStrings.get(o1).length();
-                    }
-                });
-
-                // now create the pattern and replacement
-                StringBuilder sb = new StringBuilder();
-                myReplacementStrings = new ArrayList<>();
-                mySearchRanges = new ArrayList<>();
-                myReplaceRanges = new ArrayList<>();
-                myOptionsRanges = new ArrayList<>();
-                iMax = searchStrings.size();
+                iMax = lineSearchData.size();
                 for (int i = 0; i < iMax; i++) {
-                    if (i > 0) sb.append("|");
-                    Integer index = indices.get(i);
-
-                    boolean isCaseSensitive = myCaseSensitive.isSelected();
-                    boolean isBeginWord = myWholeWord.isSelected();
-                    boolean isEndWord = myWholeWord.isSelected();
-                    String options = optionsStrings.get(index);
-
-                    if (options.indexOf('c') != -1) {
-                        isCaseSensitive = true;
-                    }
-
-                    if (options.indexOf('w') != -1) {
-                        isBeginWord = true;
-                        isEndWord = true;
-                    }
-
-                    if (options.indexOf('b') != -1) {
-                        isBeginWord = true;
-                    }
-
-                    if (options.indexOf('e') != -1) {
-                        isEndWord = true;
-                    }
-
-                    sb.append("(").append(isCaseSensitive ? "(?-i)" : "(?i)");
-                    if (isBeginWord) sb.append("\\b");
-                    sb.append("\\Q").append(searchStrings.get(index)).append("\\E");
-                    if (isEndWord) sb.append("\\b");
-                    sb.append(")");
-                    myReplacementStrings.add(replaceStrings.get(index));
-                    mySearchRanges.add(searchRanges.get(index));
-                    myReplaceRanges.add(replaceRanges.get(index));
-                    myOptionsRanges.add(optionsRanges.get(index));
+                    SearchData searchData = lineSearchData.get(i);
+                    searchData.wordIndex = i;
+                    myEditorSearchHighlightProvider.addHighlightWord(searchData.word, searchData.flags);
+                    mySearchHighlightProvider.addHighlightLine(searchData.lineNumber);
+                    myReplaceHighlightProvider.addHighlightLine(searchData.lineNumber);
+                    myOptionsHighlightProvider.addHighlightLine(searchData.lineNumber);
+                    myWordIndexToLineMap.put(i, searchData.lineNumber);
+                    myLineSearchData.put(searchData.lineNumber, searchData);
                 }
 
-                myPatternText = sb.toString();
-                boolean enabled = !myPatternText.isEmpty();
+                boolean enabled = myEditorSearchHighlightProvider.getHighlightPattern() != null && !myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty();
 
                 myFindNext.setEnabled(enabled);
                 myFindPrevious.setEnabled(enabled);
                 myReplaceAll.setEnabled(enabled);
 
                 myFoundRange = null;
-                updateRangeButtons(false);
+
+                myEditorSearchHighlightProvider.leaveUpdateRegion();
+                mySearchHighlightProvider.leaveUpdateRegion();
+                myReplaceHighlightProvider.leaveUpdateRegion();
+                myOptionsHighlightProvider.leaveUpdateRegion();
+
+                LineSelectionManager.getInstance(myEditor).updateHighlights();
+            } else {
+                WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+
+                if (highlighter != null) {
+                    int offset = myEditor.getCaretModel().getOffset();
+                    RangeHighlighter rangeHighlighter = highlighter.getRangeHighlighter(offset);
+                    myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
+                    myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+                }
             }
+        }
+
+        if (!myInUpdate && myEditor != null) {
+            updateRangeButtons();
+            updateFoundRanges();
         }
     }
 
-    void updateRangeButtons(final boolean searchChanged) {
-        myReplace.setEnabled(myFoundRange != null && myFoundIndex != -1);
-        myExclude.setEnabled(myFoundRange != null && myFoundIndex != -1);
-        if (myExclude.isEnabled() && searchChanged) {
+    private static class SearchData {
+        final String word;
+        final String replace;
+        final int lineNumber;
+        final int flags;
+        int wordIndex;
+
+        public SearchData(final String word, final String replace, final int lineNumber, final int flags) {
+            this.word = word;
+            this.replace = replace;
+            this.lineNumber = lineNumber;
+            this.flags = flags;
+        }
+    }
+
+    void updateRangeButtons() {
+        myReplace.setEnabled(myFoundRange != null);
+        myExclude.setEnabled(myFoundRange != null);
+        if (myExclude.isEnabled()) {
             String message;
             if (!isExcludedRange()) {
-                message = Bundle.message("bulk-search.exclude.label");
+                message = Bundle.message("batch-search.exclude.label");
             } else {
-                message = Bundle.message("bulk-search.include.label");
+                message = Bundle.message("batch-search.include.label");
             }
 
             String replace = message.replace("\u001B", "");
@@ -874,110 +1005,68 @@ public class BulkReplaceForm implements Disposable {
                 myExclude.setText(replace);
             }
         }
+
+        WordHighlighter highlighter = myEditor == null ? null : (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        if (highlighter != null) {
+            if (myFoundRange != null) {
+                myFindNext.setEnabled(highlighter.getNextRangeHighlighter(myFoundRange.getEndOffset()) != null);
+                myFindPrevious.setEnabled(highlighter.getPreviousRangeHighlighter(myFoundRange.getStartOffset()) != null);
+            } else {
+                int offset = myEditor.getCaretModel().getOffset();
+                myFindNext.setEnabled(highlighter.getNextRangeHighlighter(offset) != null);
+                myFindPrevious.setEnabled(highlighter.getPreviousRangeHighlighter(offset) != null);
+            }
+        }
+
+        myReplaceAll.setEnabled(myFindNext.isEnabled() || myFindPrevious.isEnabled() || myReplace.isEnabled());
     }
 
     void findNext() {
         if (myEditor == null) return;
+        WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        myFoundBackwards = false;
 
-        if (myForwardMatcher == null) {
-            if (myForwardPattern == null) {
-                myForwardPattern = ForwardPattern.compile(myPatternText);
-            }
-            myForwardMatcher = myForwardPattern.matcher(myEditor.getDocument().getCharsSequence());
+        if (highlighter != null) {
+            int offset = myFoundRange != null ? myFoundRange.getEndOffset() : myEditor.getCaretModel().getOffset();
+            RangeHighlighter rangeHighlighter = highlighter.getNextRangeHighlighter(offset);
+            myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
+            myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
         }
 
-        if (myEditor.getCaretModel().getPrimaryCaret().hasSelection()) {
-            myForwardMatcher.region(myEditor.getCaretModel().getPrimaryCaret().getSelectionEnd(), myEditor.getDocument().getTextLength());
-        } else {
-            myForwardMatcher.region(myEditor.getCaretModel().getPrimaryCaret().getOffset(), myEditor.getDocument().getTextLength());
+        if (myFoundRange != null && myEditor != null) {
+            boolean savedInUpdate = myInUpdate;
+            myInUpdate = true;
+            myEditor.getCaretModel().getPrimaryCaret().moveToOffset(myFoundBackwards ? myFoundRange.getStartOffset() : myFoundRange.getEndOffset());
+            EditHelpers.scrollToSelection(myEditor);
+            myInUpdate = savedInUpdate;
         }
 
-        boolean searchChanged = false;
-        if (myForwardMatcher.find()) {
-            int iMax = myForwardMatcher.groupCount();
-            myFoundIndex = -1;
-            myFoundRange = null;
-            for (int i = 1; i <= iMax; i++) {
-                if (myForwardMatcher.group(i) != null) {
-                    myFoundRange = TextRange.create(myForwardMatcher.start(i), myForwardMatcher.end(i));
-                    myFoundIndex = i - 1;
-                    myFoundBackwards = false;
-                    myEditor.getCaretModel().getPrimaryCaret().setSelection(myFoundRange.getStartOffset(), myFoundRange.getEndOffset());
-                    EditHelpers.scrollToSelection(myEditor);
-                    break;
-                }
-            }
-            myFindPrevious.setEnabled(true);
-            searchChanged = true;
-        } else {
-            if (myEditor.getCaretModel().getPrimaryCaret().hasSelection()) {
-                int offset = myEditor.getCaretModel().getPrimaryCaret().getSelectionEnd();
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-            }
-            myFindNext.setEnabled(false);
-            myFindPrevious.setEnabled(true);
-            myFoundRange = null;
-        }
         updateFoundRanges();
-        updateRangeButtons(searchChanged);
+        updateRangeButtons();
     }
 
     void findPrevious() {
         if (myEditor == null) return;
+        WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        myFoundBackwards = true;
 
-        if (myReverseMatcher == null) {
-            if (myReversePattern == null) {
-                myReversePattern = ReversePattern.compile(myPatternText);
-            }
-            myReverseMatcher = myReversePattern.matcher(myEditor.getDocument().getCharsSequence());
+        if (highlighter != null) {
+            int offset = myFoundRange != null ? myFoundRange.getStartOffset() : myEditor.getCaretModel().getOffset();
+            RangeHighlighter rangeHighlighter = highlighter.getPreviousRangeHighlighter(offset);
+            myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
+            myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
         }
 
-        if (myEditor.getCaretModel().getPrimaryCaret().hasSelection()) {
-            myReverseMatcher.region(0, myEditor.getCaretModel().getPrimaryCaret().getSelectionStart());
-        } else {
-            myReverseMatcher.region(0, Math.min(myEditor.getCaretModel().getPrimaryCaret().getOffset(), myEditor.getDocument().getTextLength() - 1));
+        if (myFoundRange != null && myEditor != null) {
+            boolean savedInUpdate = myInUpdate;
+            myInUpdate = true;
+            myEditor.getCaretModel().getPrimaryCaret().moveToOffset(myFoundBackwards ? myFoundRange.getStartOffset() : myFoundRange.getEndOffset());
+            EditHelpers.scrollToSelection(myEditor);
+            myInUpdate = savedInUpdate;
         }
 
-        boolean searchChanged = false;
-        if (myReverseMatcher.find()) {
-            myFoundRange = null;
-            int iMax = myReverseMatcher.groupCount();
-            myFoundIndex = -1;
-            for (int i = 1; i <= iMax; i++) {
-                if (myReverseMatcher.group(i) != null) {
-                    myFoundRange = TextRange.create(myReverseMatcher.start(i), myReverseMatcher.end(i));
-                    myFoundIndex = i - 1;
-                    myFoundBackwards = true;
-                    myEditor.getCaretModel().getPrimaryCaret().setSelection(myFoundRange.getStartOffset(), myFoundRange.getEndOffset());
-                    EditHelpers.scrollToSelection(myEditor);
-                    break;
-                }
-            }
-            myFindNext.setEnabled(true);
-            searchChanged = true;
-        } else {
-            if (myEditor.getCaretModel().getPrimaryCaret().hasSelection()) {
-                int offset = myEditor.getCaretModel().getPrimaryCaret().getSelectionStart();
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-            }
-            myFindPrevious.setEnabled(false);
-            myFindNext.setEnabled(true);
-            myFoundRange = null;
-        }
         updateFoundRanges();
-        updateRangeButtons(searchChanged);
-    }
-
-    private static void updateFoundRange(final TextRange range, final EditorEx editor) {
-        if (range != null) {
-            editor.getCaretModel().getPrimaryCaret().setSelection(range.getStartOffset(), range.getEndOffset());
-            editor.getCaretModel().getPrimaryCaret().moveToOffset(range.getStartOffset());
-        } else {
-            int offset = editor.getCaretModel().getOffset();
-            editor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-        }
+        updateRangeButtons();
     }
 
     void adjustExclusions(TextRange foundRange, int replacementLength) {
@@ -1005,23 +1094,17 @@ public class BulkReplaceForm implements Disposable {
 
         if (myFoundRange != null && myFoundIndex != -1) {
             WriteCommandAction.runWriteCommandAction(myProject, () -> {
-                String replacement = myReplacementStrings.get(myFoundIndex);
+                String replacement = myLineSearchData.get(myFoundIndex).replace;
                 myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
                 addExclusion(); // we are replacing it, prevent double replacement
                 adjustExclusions(myFoundRange, replacement.length());
 
-                myForwardMatcher = null;
-                myReverseMatcher = null;
-                if (myFoundBackwards) {
-                    int offset = myFoundRange.getStartOffset();
-                    myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                    myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-                    findPrevious();
-                } else {
-                    int offset = myFoundRange.getEndOffset() - (myFoundRange.getLength() - replacement.length());
-                    myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                    myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-                    findNext();
+                if (myFoundBackwards != null) {
+                    if (myFoundBackwards) {
+                        findPrevious();
+                    } else {
+                        findNext();
+                    }
                 }
             });
         }
@@ -1049,16 +1132,16 @@ public class BulkReplaceForm implements Disposable {
                 addExclusion();
             }
 
-            if (myFoundBackwards) {
-                int offset = myFoundRange.getStartOffset();
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-                findPrevious();
+            LineSelectionManager.getInstance(myEditor).updateHighlights();
+
+            if (myFoundBackwards != null) {
+                if (myFoundBackwards) {
+                    findPrevious();
+                } else {
+                    findNext();
+                }
             } else {
-                int offset = myFoundRange.getEndOffset();
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
-                findNext();
+                updateRangeButtons();
             }
         }
     }
@@ -1069,6 +1152,7 @@ public class BulkReplaceForm implements Disposable {
         if (myExcludedRanges != null) {
             myExcludedRanges = null;
             updateOptions(false);
+            LineSelectionManager.getInstance(myEditor).updateHighlights();
         }
     }
 
@@ -1091,37 +1175,30 @@ public class BulkReplaceForm implements Disposable {
     void replaceAll() {
         if (myEditor == null) return;
 
-        if (!myPatternText.isEmpty()) {
+        if (!myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty()) {
             WriteCommandAction.runWriteCommandAction(myProject, () -> {
                 int caretOffset = myEditor.getCaretModel().getPrimaryCaret().getOffset();
-                int caretOffsetStart = myEditor.getCaretModel().getPrimaryCaret().getSelectionStart();
-                int caretOffsetEnd = myEditor.getCaretModel().getPrimaryCaret().getSelectionEnd();
                 int length = myEditor.getDocument().getTextLength();
                 myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
                 myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
-                myForwardMatcher = null;
-                myReverseMatcher = null;
 
                 while (true) {
                     findPrevious();
 
                     if (myFoundRange != null && myFoundIndex != -1) {
                         if (isExcludedRange()) {
-                            myEditor.getCaretModel().getPrimaryCaret().setSelection(myFoundRange.getStartOffset(), myFoundRange.getStartOffset());
                             myEditor.getCaretModel().getPrimaryCaret().moveToOffset(myFoundRange.getStartOffset());
                             continue;
                         }
-                        String replacement = myReplacementStrings.get(myFoundIndex);
+                        String replacement = myLineSearchData.get(myFoundIndex).replace;
                         myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
                         adjustExclusions(myFoundRange, replacement.length());
-                        myEditor.getCaretModel().getPrimaryCaret().setSelection(myFoundRange.getStartOffset(), myFoundRange.getStartOffset());
-                        myEditor.getCaretModel().getPrimaryCaret().moveToOffset(myFoundRange.getStartOffset());
+                        caretOffset = myFoundRange.getStartOffset();
                     } else {
                         break;
                     }
                 }
 
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(caretOffsetStart, caretOffsetEnd);
                 myEditor.getCaretModel().getPrimaryCaret().moveToOffset(caretOffset);
             });
         }
@@ -1228,24 +1305,42 @@ public class BulkReplaceForm implements Disposable {
         return myMainPanel;
     }
 
+    private void updateFoundRange(final EditorEx editor) {
+        if (myFoundRange != null && myFoundIndex >= 0 && myFoundIndex < editor.getDocument().getLineCount()) {
+            // highlight search and replace and options strings
+            int offset = editor.getDocument().getLineEndOffset(myFoundIndex);
+            editor.getCaretModel().getPrimaryCaret().moveToOffset(offset);
+        } else {
+            int offset = editor.getCaretModel().getOffset();
+            editor.getCaretModel().getPrimaryCaret().setSelection(offset, offset);
+        }
+    }
+
     void updateFoundRanges() {
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
-        if (myFoundRange != null && myFoundIndex != -1) {
-            // highlight search and replace and options strings
-            updateFoundRange(mySearchRanges.get(myFoundIndex), mySearchEditor);
-            updateFoundRange(myReplaceRanges.get(myFoundIndex), myReplaceEditor);
-            updateFoundRange(myOptionsRanges.get(myFoundIndex), myOptionsEditor);
-        } else {
-            updateFoundRange(null, mySearchEditor);
-            updateFoundRange(null, myReplaceEditor);
-            updateFoundRange(null, myOptionsEditor);
+
+        LineSelectionManager selectionManager = LineSelectionManager.getInstance(myEditor);
+        selectionManager.updateHighlights();
+        Highlighter highlighter = selectionManager.getHighlighter();
+        if (highlighter instanceof WordHighlighter) {
+            myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
         }
+
+
+        updateFoundRange(mySearchEditor);
+        updateFoundRange(myReplaceEditor);
+        updateFoundRange(myOptionsEditor);
 
         updateLastEditorSync(null);
         EditHelpers.scrollToSelection(mySearchEditor);
         EditHelpers.scrollToSelection(myReplaceEditor);
         EditHelpers.scrollToSelection(myOptionsEditor);
+
+        LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
+        LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
+        LineSelectionManager.getInstance(myOptionsEditor).updateHighlights();
+
         myInUpdate = savedInUpdate;
     }
 
@@ -1340,5 +1435,120 @@ public class BulkReplaceForm implements Disposable {
             Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
+    }
+
+    private class SearchWordHighlighterProvider extends WordHighlightProviderImpl {
+        public SearchWordHighlighterProvider(@NotNull final ApplicationSettings settings) {
+            super(settings);
+        }
+
+        @Override
+        public WordHighlighter getHighlighter(@NotNull final Editor editor) {
+            return new SearchWordHighlighter(this, editor);
+        }
+    }
+
+    private class EditorLineHighlighterProvider extends LineHighlightProviderImpl {
+        public EditorLineHighlighterProvider(@NotNull final ApplicationSettings settings) {
+            super(settings);
+        }
+
+        @Override
+        public LineHighlighter getHighlighter(@NotNull final Editor editor) {
+            return new EditorLineHighlighter(this, editor);
+        }
+    }
+
+    private class SearchWordHighlighter extends WordHighlighter {
+        public SearchWordHighlighter(@NotNull WordHighlightProvider highlightProvider, @NotNull final Editor editor) {
+            super(highlightProvider, editor);
+        }
+
+        @Override
+        public TextAttributes getAttributes(@Nullable final TextAttributes attributes, final String word, final int startOffset, final int endOffset) {
+            if (attributes != null) {
+                if (myExcludedRanges != null) {
+                    for (TextRange range : myExcludedRanges) {
+                        if (range.containsRange(startOffset, endOffset)) {
+                            EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                            Color foreground = uiTheme.getDefaultForeground();
+                            return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), foreground, EffectType.STRIKEOUT, attributes.getFontType());
+                        }
+                    }
+                }
+                if (myFoundRange != null && myFoundRange.containsRange(startOffset, endOffset)) {
+                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                    Color foreground = uiTheme.getDefaultForeground();
+                    return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), foreground, EffectType.BOXED, attributes.getFontType());
+                }
+            }
+            return attributes;
+        }
+    }
+
+    private class EditorLineHighlighter extends LineHighlighter {
+        public EditorLineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
+            super(highlightProvider, editor);
+        }
+
+        @Override
+        public RangeHighlighter rangeHighlighterCreated(final RangeHighlighter rangeHighlighter, final int line, final int index, final int startOffset, final int endOffset) {
+            //int count = 0;
+            //SearchData searchData = myLineSearchData.get(line);
+            //if (searchData != null && myIndexedWordCounts != null && searchData.wordIndex < myIndexedWordCounts.length) {
+            //    count =  myIndexedWordCounts[searchData.wordIndex];
+            //}
+            //
+            //if (count > 0) {
+            //    rangeHighlighter.setErrorStripeTooltip("tooltip");
+            //}
+            return rangeHighlighter;
+        }
+
+        @Override
+        public TextAttributes getAttributes(@Nullable TextAttributes attributes, final int line, final int startOffset, final int endOffset) {
+            Color effectColor = null;
+            EffectType effectType = null;
+            boolean selectedLine = false;
+
+            if (myFoundIndex == line) {
+                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                effectColor = uiTheme.getDefaultForeground();
+                effectType = EffectType.BOXED;
+                selectedLine = true;
+            }
+
+            if (attributes == null) {
+                // not used, overridden
+                TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
+                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                attributes = uiTheme.getAttributes(attributesKey);
+                return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), attributes.getForegroundColor(), EffectType.WAVE_UNDERSCORE, attributes.getFontType());
+            } else {
+                int count = 0;
+                SearchData searchData = myLineSearchData.get(line);
+                if (searchData != null && myIndexedWordCounts != null && searchData.wordIndex < myIndexedWordCounts.length) {
+                    count = myIndexedWordCounts[searchData.wordIndex];
+                }
+
+                if (count == 0) {
+                    TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
+                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                    attributes = uiTheme.getAttributes(attributesKey);
+                } else if (selectedLine || myHighlightAllLines) {
+                    attributes = new TextAttributes(
+                            attributes.getForegroundColor(),
+                            attributes.getBackgroundColor(),
+                            effectColor,
+                            effectType,
+                            0
+                    );
+                } else {
+                    attributes = null;
+                }
+            }
+
+            return attributes;
+        }
     }
 }

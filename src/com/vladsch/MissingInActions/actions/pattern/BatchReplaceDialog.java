@@ -26,7 +26,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.settings.BulkSearchReplaceSettings;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,18 +36,18 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
-public class BulkReplaceDialog extends DialogWrapper {
+public class BatchReplaceDialog extends DialogWrapper {
     JPanel myMainPanel;
-    private BulkReplaceForm myBulkReplaceForm;
+    private BatchReplaceForm myBatchReplaceForm;
 
-    public BulkReplaceDialog(JComponent parent, @NotNull Project project, @NotNull BulkSearchReplaceSettings searchReplaceSettings, @NotNull EditorEx editor) {
+    public BatchReplaceDialog(JComponent parent, @NotNull Project project, @NotNull ApplicationSettings applicationSettings, @NotNull EditorEx editor) {
         super(parent, false);
 
         setTitle(Bundle.message("caret-search.options-dialog.title"));
 
-        myBulkReplaceForm = new BulkReplaceForm(project, searchReplaceSettings);
-        myMainPanel.add(myBulkReplaceForm.myMainPanel, BorderLayout.CENTER);
-        myBulkReplaceForm.setActiveEditor(editor);
+        myBatchReplaceForm = new BatchReplaceForm(project, applicationSettings);
+        myMainPanel.add(myBatchReplaceForm.myMainPanel, BorderLayout.CENTER);
+        myBatchReplaceForm.setActiveEditor(editor);
 
         init();
     }
@@ -60,7 +60,7 @@ public class BulkReplaceDialog extends DialogWrapper {
 
     protected class MyCancelAction extends DialogWrapperAction {
         MyCancelAction() {
-            super(Bundle.message("bulk-search.close-button.label"));
+            super(Bundle.message("batch-search.close-button.label"));
         }
 
         @Override
@@ -76,11 +76,11 @@ public class BulkReplaceDialog extends DialogWrapper {
         return new Action[] { /*getOKAction(),*/ new MyCancelAction() };
     }
 
-    public static boolean showDialog(JComponent parent, @NotNull Project project, @NotNull BulkSearchReplaceSettings settingsHolder, @NotNull EditorEx editor) {
-        BulkReplaceDialog dialog = new BulkReplaceDialog(parent, project, settingsHolder, editor);
+    public static boolean showDialog(JComponent parent, @NotNull Project project, @NotNull ApplicationSettings applicationSettings, @NotNull EditorEx editor) {
+        BatchReplaceDialog dialog = new BatchReplaceDialog(parent, project, applicationSettings, editor);
         boolean save = dialog.showAndGet();
-        dialog.myBulkReplaceForm.saveSettings(false);
-        dialog.myBulkReplaceForm.disposeEditors();
+        dialog.myBatchReplaceForm.saveSettings();
+        dialog.myBatchReplaceForm.disposeEditors();
         return save;
     }
 
@@ -98,12 +98,12 @@ public class BulkReplaceDialog extends DialogWrapper {
     @Nullable
     @Override
     protected String getDimensionServiceKey() {
-        return "MissingInActions.BulkReplaceDialog";
+        return "MissingInActions.BatchReplaceDialog";
     }
 
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return myBulkReplaceForm.mySearchEditor != null ? myBulkReplaceForm.mySearchEditor.getContentComponent() : myMainPanel;
+        return myBatchReplaceForm.mySearchEditor != null ? myBatchReplaceForm.mySearchEditor.getContentComponent() : myMainPanel;
     }
 }

@@ -43,7 +43,7 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
         }
 )
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettings extends BulkSearchReplaceSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
+public class ApplicationSettings extends BatchSearchReplaceSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
     // @formatter:off
     private boolean         myAddPrefixOnPaste = false;
     private boolean         myAutoIndent = false;
@@ -147,6 +147,7 @@ public class ApplicationSettings extends BulkSearchReplaceSettings implements Ap
     private @NotNull String myClosedQuoteText = "\"";
     private boolean myQuoteSplicedItems = false;
     private boolean myUserDefinedMacroSmartReplace = true;
+    private boolean myBatchHighlightAllLines = false;
 
     // customizable delete/backspace
     @NotNull String myDeleteSpacesRegEx = "(\\s+)";
@@ -174,6 +175,14 @@ public class ApplicationSettings extends BulkSearchReplaceSettings implements Ap
             "|",
             "|",
     };
+
+    public boolean isBatchHighlightAllLines() {
+        return myBatchHighlightAllLines;
+    }
+
+    public void setBatchHighlightAllLines(final boolean batchHighlightAllLines) {
+        myBatchHighlightAllLines = batchHighlightAllLines;
+    }
 
     @NotNull
     public String[] getDeleteBackspaceTestCaretMarkers() {

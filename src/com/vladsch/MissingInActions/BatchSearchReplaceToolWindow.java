@@ -30,7 +30,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import com.vladsch.MissingInActions.actions.pattern.BulkReplaceForm;
+import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import icons.PluginIcons;
 
@@ -38,25 +38,25 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class BulkSearchReplaceToolWindow {
+public class BatchSearchReplaceToolWindow {
     private ToolWindow toolWindow;
 
     private static final String TOOL_WINDOW_ID = Bundle.message("plugin.tool-window.id");
     private Project project;
-    private BulkReplaceForm myBulkSearchReplace;
+    private BatchReplaceForm myBatchSearchReplace;
 
-    public BulkSearchReplaceToolWindow(Project project) {
+    public BatchSearchReplaceToolWindow(Project project) {
         this.project = project;
         toolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.BOTTOM);
-        toolWindow.setIcon(PluginIcons.Bulk_search);
+        toolWindow.setIcon(PluginIcons.Batch_search);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
-        myBulkSearchReplace = new BulkReplaceForm(project, ApplicationSettings.getInstance());
+        myBatchSearchReplace = new BatchReplaceForm(project, ApplicationSettings.getInstance());
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        mainPanel.add(myBulkSearchReplace.getMainPanel());
-        Content content = contentFactory.createContent(mainPanel, Bundle.message("bulk-search.tool-window.title"), false);
+        mainPanel.add(myBatchSearchReplace.getMainPanel());
+        Content content = contentFactory.createContent(mainPanel, Bundle.message("batch-search.tool-window.title"), false);
         toolWindow.getContentManager().addContent(content);
     }
 
@@ -64,22 +64,18 @@ public class BulkSearchReplaceToolWindow {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 
         // we need to dispose of all the editors
-        Disposer.dispose(myBulkSearchReplace);
+        Disposer.dispose(myBatchSearchReplace);
 
         toolWindowManager.unregisterToolWindow(TOOL_WINDOW_ID);
     }
 
     public void setActiveEditor(EditorEx editor) {
-        myBulkSearchReplace.setActiveEditor(editor);
+        myBatchSearchReplace.setActiveEditor(editor);
     }
 
     public void activate() {
         if (toolWindow != null) {
-            toolWindow.show(new Runnable() {
-                public void run() {
-                    // do nothing
-                }
-            });
+            toolWindow.show(null);
         }
     }
 
