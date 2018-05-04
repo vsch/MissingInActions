@@ -669,11 +669,13 @@ public class LineSelectionManager implements
     public void updateHighlights() {
         myHighlightRunner.cancel();
 
-        removeHighlights();
-
         if (myHighlightProvider.isShowHighlights()) {
-            myHighlighter = myHighlightProvider.getHighlighter(myEditor);
+            if (myHighlighter == null) {
+                myHighlighter = myHighlightProvider.getHighlighter(myEditor);
+            }
             myHighlighter.updateHighlights();
+        } else {
+            removeHighlights();
         }
     }
 

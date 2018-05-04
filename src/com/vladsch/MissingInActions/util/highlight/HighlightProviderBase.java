@@ -176,6 +176,21 @@ public abstract class HighlightProviderBase implements HighlightProvider, Dispos
         }
     }
 
+    @Override
+    public void fireHighlightsUpdated() {
+        myHighlightRunner.cancel();
+        if (myInUpdateRegion <= 0) {
+            if (!myHighlightListeners.isEmpty()) {
+                for (HighlightListener listener : myHighlightListeners) {
+                    if (listener == null) continue;
+                    listener.highlightsUpdated();
+                }
+            }
+        } else {
+            myPendingChanged = true;
+        }
+    }
+
     public int getHighlightColorRepeatIndex() {
         return myHighlightColorRepeatIndex;
     }

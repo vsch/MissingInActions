@@ -72,7 +72,7 @@ public class WordHighlighter extends Highlighter {
                     if (attributes != null) {
                         RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(startOffset, endOffset, HighlighterLayer.SELECTION - 2, attributes, HighlighterTargetArea.EXACT_RANGE);
                         rangeHighlighter = rangeHighlighterCreated(rangeHighlighter, group, index, startOffset, endOffset);
-                        if (myHighlighters == null) {
+                        if (myHighlighters == null || myHighlighterIndexList == null) {
                             myHighlighters = new ArrayList<>();
                             myHighlighterIndexList = new ArrayList<>();
                         }
@@ -83,7 +83,7 @@ public class WordHighlighter extends Highlighter {
                     }
                 }
 
-                fireHighlightsChanged();
+                myHighlightProvider.fireHighlightsUpdated();
             }
         }
 

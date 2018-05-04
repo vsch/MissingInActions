@@ -74,14 +74,17 @@
         ]]>
     </description>
 
-    <version>1.4.10</version>
+    <version>1.4.12</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.9 - Bug Fix Release</h3>
+            <h3>1.4.12 - Bug Fix Release</h3>
             <ul>
+                <li>Add: highlights and caret change handling for batch search/replace.</li>
+                <li>Add: tool window for batch search/replace instead of modal</li>
+                <li>Add: presets and import/export to batch search/replace to allow selecting a set of presets.</li>
                 <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
                     excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
                 <li>Add: basic Batch search/replace action and dialog. Each line in search will be replaced by

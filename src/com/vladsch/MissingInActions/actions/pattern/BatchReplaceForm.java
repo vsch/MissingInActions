@@ -138,6 +138,7 @@ public class BatchReplaceForm implements Disposable {
     final CaretListener myCaretListener;
     final VisibleAreaListener myVisibleAreaListener;
     final CaretListener myEditorCaretListener;
+    final HighlightListener myHighlightListener;
     final Project myProject;
 
     int myFoundIndex = -1;
@@ -218,6 +219,7 @@ public class BatchReplaceForm implements Disposable {
             myReplaceEditor = null;
             myOptionsEditor = null;
 
+            myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
             myEditorSearchHighlightProvider.disposeComponent();
             mySearchHighlightProvider.disposeComponent();
             myReplaceHighlightProvider.disposeComponent();
@@ -283,6 +285,26 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
+    private class MainEditorHighlightListener implements HighlightListener {
+        @Override
+        public void highlightsChanged() {
+
+        }
+
+        @Override
+        public void highlightsUpdated() {
+            if (!myInUpdate && myEditor != null) {
+                Highlighter highlighter = LineSelectionManager.getInstance(myEditor).getHighlighter();
+                if (highlighter instanceof WordHighlighter) {
+                    myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
+                }
+                LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
+                LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
+                LineSelectionManager.getInstance(myOptionsEditor).updateHighlights();
+            }
+        }
+    }
+
     public BatchReplaceForm(@NotNull Project project, @NotNull ApplicationSettings applicationSettings) {
         myInUpdate = true;
         myProject = project;
@@ -322,6 +344,9 @@ public class BatchReplaceForm implements Disposable {
         LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(mySearchHighlightProvider);
         LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(myReplaceHighlightProvider);
         LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(myOptionsHighlightProvider);
+
+        myHighlightListener = new MainEditorHighlightListener();
+        myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener,this);
 
         myDocumentListener = new EditorDocumentListener();
 
@@ -646,11 +671,6 @@ public class BatchReplaceForm implements Disposable {
         updateOptions(true);
 
         myInUpdate = false;
-
-        myHighlightRunner.cancel();
-        myHighlightRunner = OneTimeRunnable.schedule(1000, new AwtRunnable(true, () -> {
-            updateFoundRanges();
-        }));
     }
 
     private boolean importFromJSON(final BatchSearchReplaceSettings settings, final BoxedJsObject presets) {
@@ -1317,6 +1337,8 @@ public class BatchReplaceForm implements Disposable {
     }
 
     void updateFoundRanges() {
+        if (myEditor == null) return;
+
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
 
@@ -1326,7 +1348,6 @@ public class BatchReplaceForm implements Disposable {
         if (highlighter instanceof WordHighlighter) {
             myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
         }
-
 
         updateFoundRange(mySearchEditor);
         updateFoundRange(myReplaceEditor);

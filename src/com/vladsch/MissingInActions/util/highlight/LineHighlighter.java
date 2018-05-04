@@ -74,7 +74,7 @@ public class LineHighlighter extends Highlighter {
                 }
             }
 
-            fireHighlightsChanged();
+            myHighlightProvider.fireHighlightsUpdated();
         } else {
             removeHighlights();
         }

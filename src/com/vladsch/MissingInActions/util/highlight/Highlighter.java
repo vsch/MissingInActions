@@ -21,17 +21,13 @@
 
 package com.vladsch.MissingInActions.util.highlight;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.util.Disposer;
-import com.vladsch.MissingInActions.util.AwtRunnable;
 import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
 
 public abstract class Highlighter {
@@ -40,42 +36,11 @@ public abstract class Highlighter {
     @Nullable protected List<RangeHighlighter> myHighlighters = null;
     @Nullable protected List<Integer> myHighlighterIndexList = null;
     private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
-    private final HashSet<HighlightListener> myHighlightListeners;
 
     public Highlighter(@NotNull final Editor editor, @NotNull final HighlightProvider highlightProvider) {
         myEditor = editor;
         myHighlightProvider = highlightProvider;
-        myHighlightListeners = new HashSet<>();
     }
-
-    public void addHighlightListener(@NotNull HighlightListener highlightListener, @NotNull Disposable parent) {
-        if (!myHighlightListeners.contains(highlightListener)) {
-            myHighlightListeners.add(highlightListener);
-            Disposer.register(parent, new Disposable() {
-                @Override
-                public void dispose() {
-                    myHighlightListeners.remove(highlightListener);
-                }
-            });
-        }
-    }
-
-    public void removeHighlightListener(@NotNull HighlightListener highlightListener) {
-        myHighlightListeners.remove(highlightListener);
-    }
-
-    public void fireHighlightsChanged() {
-        myHighlightRunner.cancel();
-        if (!myHighlightListeners.isEmpty()) {
-            myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
-                for (HighlightListener listener : myHighlightListeners) {
-                    if (listener == null) continue;
-                    listener.highlightsChanged();
-                }
-            }));
-        }
-    }
-
 
     static public void clearHighlighters(Editor editor, List<RangeHighlighter> highlighters) {
         if (highlighters != null) {
@@ -99,7 +64,7 @@ public abstract class Highlighter {
     public void removeHighlights() {
         if (myHighlighters != null && !myHighlighters.isEmpty()) {
             removeHighlightsRaw();
-            fireHighlightsChanged();
+            myHighlightProvider.fireHighlightsUpdated();
         }
     }
 

@@ -33,9 +33,6 @@ import java.awt.Color;
 
 public interface HighlightProvider {
     void settingsChanged(ApplicationSettings settings);
-    void addHighlightListener(@NotNull HighlightListener highlightListener, @NotNull Disposable parent);
-    void removeHighlightListener(HighlightListener highlightListener);
-    void fireHighlightsChanged();
     void clearHighlights();
     boolean haveHighlights();
     boolean isHighlightsMode();
@@ -46,6 +43,11 @@ public interface HighlightProvider {
     void disposeComponent();
     void enterUpdateRegion();
     void leaveUpdateRegion();
+
+    void addHighlightListener(@NotNull HighlightListener highlightListener, @NotNull Disposable parent);
+    void removeHighlightListener(HighlightListener highlightListener);
+    void fireHighlightsChanged();
+    void fireHighlightsUpdated();
 
     @Nullable
     TextAttributes getHighlightAttributes(int index, int startOffset, int endOffset, Color foregroundColor, Color effectColor, EffectType effectType, int fontType);

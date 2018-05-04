@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.10 - Bug Fix Release](#1410---bug-fix-release)
+- [1.4.12 - Bug Fix Release](#1412---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -54,7 +54,7 @@
 
 &nbsp;</details>
 
-### 1.4.10 - Bug Fix Release
+### 1.4.12 - Bug Fix Release
 
 * Add: highlights and caret change handling for batch search/replace.
 * Add: tool window for batch search/replace instead of modal
