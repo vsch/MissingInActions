@@ -25,12 +25,22 @@ import com.intellij.openapi.editor.Editor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.BitSet;
 
-public interface LineHighlightProvider extends HighlightProvider {
+public interface LineRangeHighlightProvider extends LineHighlightProvider {
     boolean isLineHighlighted(int line);
-    int getHighlightLineIndex(int line);
-    void addHighlightLine(int line);
-    void removeHighlightLine(int line);
-    LineHighlighter getHighlighter(@NotNull Editor editor);
+    @Nullable
+    BitSet getHighlightLines();
+    @Nullable
+    BitSet addHighlightLines(int startLine, int endLine);
+    @Nullable
+    BitSet addHighlightLines(@Nullable BitSet bitSet);
+    @Nullable
+    BitSet removeHighlightLines(@Nullable BitSet bitSet);
+    @Nullable
+    BitSet removeHighlightLines(int startLine, int endLine);
+    boolean isInvertedHighlights();
+    void setInvertedHighlights(boolean invertedHighlights);
+    LineRangeHighlighter getHighlighter(@NotNull Editor editor);
+    void setHighlightLines(BitSet bitSet, Boolean highlightMode);
 }

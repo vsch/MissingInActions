@@ -56,7 +56,6 @@ public class LineHighlightProviderImpl extends HighlightProviderBase implements 
         return myHighlightLines != null && myHighlightLines.containsKey(line);
     }
 
-    @Override
     @Nullable
     public Map<Integer, Integer> getHighlightLines() {
         return myHighlightLines;
@@ -84,7 +83,7 @@ public class LineHighlightProviderImpl extends HighlightProviderBase implements 
      */
     @Override
     @Nullable
-    public TextAttributes getHighlightAttributes(final int index, final int startOffset, final int endOffset, final Color foregroundColor, final Color effectColor, final EffectType effectType, final int fontType) {
+    public TextAttributes getHighlightAttributes(final int index, final int startOffset, final int endOffset, final @Nullable Color foregroundColor, final @Nullable Color effectColor, final @Nullable EffectType effectType, final int fontType) {
         if (myHighlightLines != null && myHighlightColors != null) {
             if (index >= 0) {
                 int colorRepeatIndex = myHighlightColorRepeatIndex;

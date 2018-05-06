@@ -24,7 +24,6 @@ package com.vladsch.MissingInActions.util.highlight;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,9 +34,8 @@ public abstract class Highlighter {
     @NotNull protected final HighlightProvider myHighlightProvider;
     @Nullable protected List<RangeHighlighter> myHighlighters = null;
     @Nullable protected List<Integer> myHighlighterIndexList = null;
-    private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
 
-    public Highlighter(@NotNull final Editor editor, @NotNull final HighlightProvider highlightProvider) {
+    public Highlighter(@NotNull final HighlightProvider highlightProvider, @NotNull final Editor editor) {
         myEditor = editor;
         myHighlightProvider = highlightProvider;
     }

@@ -35,7 +35,7 @@ public class WordHighlighter extends Highlighter {
     private int[] myIndexedWordCount = null;
 
     public WordHighlighter(@NotNull WordHighlightProvider highlightProvider, @NotNull final Editor editor) {
-        super(editor, highlightProvider);
+        super(highlightProvider, editor);
     }
 
     // Override to customize

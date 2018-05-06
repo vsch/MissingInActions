@@ -384,7 +384,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
     private void updateGradient() {
         HtmlBuilder html = new HtmlBuilder();
-        html.tag("html").style("margin:2px;vertical-align:middle;").attr(mySampleText.getFont()).tag("body");
+        html.tag("html").style("margin:2px;vertical-align:middle;").attr(mySampleText.getFont()).tag("body").tag("code");
 
         ColorIterable.ColorIterator iterator = new ColorIterable(
                 (int) myGradientHueMin.getValue(),
@@ -410,10 +410,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             }
 
             com.vladsch.MissingInActions.util.ui.BackgroundColor color = com.vladsch.MissingInActions.util.ui.BackgroundColor.of(hsbColor);
-            html.attr(color).span(String.format("%03d ", iterator.getIndex() + 1));
+            html.attr(color).span().append(String.format("&nbsp;%03d&nbsp;", iterator.getIndex() + 1)).closeSpan();
         }
 
-        html.closeTag("body");
+        html.closeTag("code").closeTag("body");
         html.closeTag("html");
         //myHighlightGradientPane.setVisible(true);
         myHighlightGradientPane.setText(html.toFinalizedString());

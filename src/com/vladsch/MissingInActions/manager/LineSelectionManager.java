@@ -27,9 +27,11 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretState;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
@@ -40,9 +42,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.MissingInActions.util.*;
-import com.vladsch.MissingInActions.util.highlight.HighlightListener;
-import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.Highlighter;
+import com.vladsch.MissingInActions.util.highlight.*;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,6 @@ import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
@@ -97,8 +96,8 @@ public class LineSelectionManager implements
     @Nullable private Set<CaretEx> myStartMatchedCarets;
     @Nullable private Set<CaretEx> myFoundCarets;
     @Nullable private List<CaretState> myStartCaretStates;
-    @Nullable private List<RangeHighlighter> myIsolationHighlighters;
-    @Nullable private List<RangeMarker> myIsolationMarkers;
+    final @NotNull LineRangeHighlightProvider myIsolationHighlightProvider;
+    @Nullable LineRangeHighlighter myIsolationHighlighter;
     @NotNull HighlightProvider myHighlightProvider = Plugin.getInstance();
     OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
     private HashMap<String, String> myOnPasteReplacementMap = null;
@@ -107,6 +106,7 @@ public class LineSelectionManager implements
     private Pattern myOnPasteSearchPattern = null;
     private final HighlightListener myHighlightListener;
     @Nullable protected Highlighter myHighlighter = null;
+    final @NotNull HighlightListener myIsolatedLinesListener;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -115,7 +115,10 @@ public class LineSelectionManager implements
     @Override
     public void dispose() {
         //println("LineSelectionAdjuster disposed");
-        clearIsolationMarkers();
+        clearIsolatedLines();
+
+        myIsolationHighlightProvider.removeHighlightListener(myIsolatedLinesListener);
+        myIsolationHighlightProvider.disposeComponent();
 
         myDelayedRunner.runAll();
         myActionSelectionAdjuster.dispose();
@@ -212,6 +215,21 @@ public class LineSelectionManager implements
         myFoundCarets = null;
         myStartCaretStates = null;
 
+        myIsolationHighlightProvider = new LineRangeHighlightProviderImpl(mySettings);
+        myIsolatedLinesListener = new HighlightListener() {
+            @Override
+            public void highlightsChanged() {
+                if (myIsolationHighlightProvider.isShowHighlights()) {
+                    if (myIsolationHighlighter == null) myIsolationHighlighter = myIsolationHighlightProvider.getHighlighter(myEditor);
+                    myIsolationHighlighter.updateHighlights();
+                } else {
+                    if (myIsolationHighlighter != null) myIsolationHighlighter.removeHighlights();
+                    myIsolationHighlighter = null;
+                }
+            }
+        };
+        myIsolationHighlightProvider.addHighlightListener(myIsolatedLinesListener, this);
+
         DocumentListener documentListener = new DocumentListener() {
             @Override
             public void beforeDocumentChange(final com.intellij.openapi.editor.event.DocumentEvent event) {
@@ -225,6 +243,10 @@ public class LineSelectionManager implements
                     myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
                         updateHighlights();
                     }));
+                }
+
+                if (myIsolationHighlighter != null) {
+                    myIsolationHighlighter.updateHighlights();
                 }
             }
         };
@@ -517,142 +539,37 @@ public class LineSelectionManager implements
 
     @Nullable
     public BitSet getIsolatedLines() {
-        BitSet bitSet = null;
-        if (myIsolationMarkers != null) {
-            Document document = myEditor.getDocument();
-            bitSet = new BitSet(document.getLineCount());
-            bitSet.set(0, document.getLineCount());
-            for (RangeMarker marker : myIsolationMarkers) {
-                if (marker.isValid()) {
-                    int startLine = document.getLineNumber(marker.getStartOffset());
-                    int endLine = document.getLineNumber(marker.getEndOffset());
-                    bitSet.clear(startLine, endLine);
-                }
-            }
-        }
-        return bitSet;
+        return myIsolationHighlightProvider.getHighlightLines();
     }
 
     @Nullable
     public BitSet addIsolatedLines(@NotNull BitSet bitSet) {
-        BitSet existingLines = getIsolatedLines();
-        if (existingLines != null) {
-            existingLines.or(bitSet);
-            return existingLines;
-        } else {
-            return null;
-        }
+        return myIsolationHighlightProvider.addHighlightLines(bitSet);
     }
 
     @Nullable
     public BitSet removeIsolatedLines(@NotNull BitSet bitSet) {
-        BitSet existingLines = getIsolatedLines();
-        if (existingLines != null) {
-            existingLines.andNot(bitSet);
-            return existingLines;
-        } else {
-            return null;
-        }
-    }
-
-    private void updateRangeMarkers(@NotNull BitSet bitSet, boolean updateHighlighters) {
-        MarkupModel markupModel = myEditor.getMarkupModel();
-        Document document = myEditor.getDocument();
-
-        ApplicationSettings settings = ApplicationSettings.getInstance();
-        Color foreground = settings.isIsolatedForegroundColorEnabled() ? settings.isolatedForegroundColorRGB() : null;
-        Color background = settings.isIsolatedBackgroundColorEnabled() ? settings.isolatedBackgroundColorRGB() : null;
-
-        int startLine = 0;
-        int startOffset = 0;
-        int endOffset = document.getTextLength();
-        int endLine = document.getLineCount();
-
-        myIsolationMarkers = null;
-        myIsolationHighlighters = null;
-
-        if (bitSet.cardinality() > 0) {
-            while (startOffset < endOffset && startLine < endLine) {
-                int nextLine = bitSet.nextSetBit(startLine);
-                int firstOffset = nextLine == -1 ? endOffset : document.getLineStartOffset(nextLine);
-
-                if (startOffset < firstOffset) {
-                    // create a new low light marker
-                    if (myIsolationMarkers == null) {
-                        myIsolationMarkers = new ArrayList<>();
-                        if (updateHighlighters && (background != null || foreground != null)) {
-                            myIsolationHighlighters = new ArrayList<>();
-                        }
-                    }
-
-                    RangeMarker marker = document.createRangeMarker(startOffset, firstOffset);
-                    myIsolationMarkers.add(marker);
-
-                    if (updateHighlighters && (background != null || foreground != null)) {
-                        RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(startOffset, firstOffset > 0 ? firstOffset - 1 : 0, HighlighterLayer.SELECTION - 1, new TextAttributes(foreground, background, null, EffectType.BOLD_DOTTED_LINE, 0), HighlighterTargetArea.LINES_IN_RANGE);
-                        myIsolationHighlighters.add(rangeHighlighter);
-                    }
-                }
-
-                if (nextLine == -1) break;
-
-                int lastLine = bitSet.nextClearBit(nextLine);
-                if (lastLine == -1 || lastLine >= endLine) break;
-
-                int lastOffset = document.getLineStartOffset(lastLine);
-
-                startLine = lastLine;
-                startOffset = lastOffset;
-            }
-        }
+        return myIsolationHighlightProvider.removeHighlightLines(bitSet);
     }
 
     public boolean isIsolatedMode() {
-        return myIsolationHighlighters != null;
+        return myIsolationHighlightProvider.isHighlightsMode();
     }
 
     public boolean haveIsolatedLines() {
-        return myIsolationMarkers != null;
+        return myIsolationHighlightProvider.haveHighlights();
     }
 
     public void setIsolatedMode(boolean isolatedMode) {
-        if (isolatedMode) {
-            if (!isIsolatedMode() && haveIsolatedLines() && (mySettings.isIsolatedForegroundColorEnabled() || mySettings.isIsolatedBackgroundColorEnabled())) {
-                BitSet bitSet = getIsolatedLines();
-                if (bitSet != null) {
-                    updateRangeMarkers(bitSet, true);
-                }
-            }
-        } else {
-            clearIsolationHighlighters();
-        }
+        myIsolationHighlightProvider.setHighlightsMode(isolatedMode);
     }
 
-    public void clearIsolationMarkers() {
-        if (myIsolationMarkers != null) {
-            for (RangeMarker marker : myIsolationMarkers) {
-                if (marker.isValid()) {
-                    marker.dispose();
-                }
-            }
-            myIsolationMarkers = null;
-            clearIsolationHighlighters();
-        }
-    }
-
-    private void clearIsolationHighlighters() {
-        Highlighter.clearHighlighters(myEditor, myIsolationHighlighters);
-        myIsolationHighlighters = null;
+    public void clearIsolatedLines() {
+        myIsolationHighlightProvider.clearHighlights();
     }
 
     public void setIsolatedLines(@Nullable BitSet bitSet, @Nullable Boolean isolatedMode) {
-        if (bitSet == null) {
-            clearIsolationMarkers();
-        } else {
-            boolean updateHighlighters = isolatedMode != null ? isolatedMode : isIsolatedMode();
-            clearIsolationMarkers();
-            updateRangeMarkers(bitSet, updateHighlighters);
-        }
+        myIsolationHighlightProvider.setHighlightLines(bitSet, isolatedMode);
     }
 
     public void removeHighlights() {
@@ -791,10 +708,6 @@ public class LineSelectionManager implements
         // unhook all the stuff for settings registration
         mySettings = settings;
 
-        BitSet bitSet = getIsolatedLines();
-        boolean isIsolatedMode = isIsolatedMode();
-        clearIsolationMarkers();
-
         boolean startExtended = settings.isSelectionStartExtended();
         boolean endExtended = settings.isSelectionEndExtended();
 
@@ -844,10 +757,6 @@ public class LineSelectionManager implements
                         .normalizeCaretPosition()
                         .commit();
             }
-        }
-
-        if (bitSet != null) {
-            updateRangeMarkers(bitSet, isIsolatedMode);
         }
     }
 

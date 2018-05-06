@@ -34,7 +34,6 @@ import com.vladsch.MissingInActions.util.ColorIterable;
 import com.vladsch.MissingInActions.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -51,7 +50,7 @@ public abstract class HighlightProviderBase implements HighlightProvider, Dispos
     protected @NotNull ApplicationSettings mySettings;
 
     private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
-    private final HashSet<HighlightListener> myHighlightListeners;
+    final HashSet<HighlightListener> myHighlightListeners;
 
     public HighlightProviderBase(@NotNull ApplicationSettings settings) {
         mySettings = settings;
@@ -151,7 +150,6 @@ public abstract class HighlightProviderBase implements HighlightProvider, Dispos
             if (myInUpdateRegion < 0) {
                 throw new IllegalStateException("InUpdateRegion < 0, " + myInUpdateRegion);
             }
-            myInUpdateRegion = 0;
             if (myPendingChanged) {
                 myPendingChanged = false;
                 fireHighlightsChanged();

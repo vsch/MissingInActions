@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 public class LineHighlighter extends Highlighter {
     public LineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
-        super(editor, highlightProvider);
+        super(highlightProvider, editor);
     }
 
     // Override to customize

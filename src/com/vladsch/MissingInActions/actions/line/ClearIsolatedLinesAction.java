@@ -57,7 +57,7 @@ public class ClearIsolatedLinesAction extends EditorAction {
         @Override
         protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            manager.clearIsolationMarkers();
+            manager.clearIsolatedLines();
         }
     }
 }

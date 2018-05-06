@@ -1558,7 +1558,7 @@ public class BatchReplaceForm implements Disposable {
                 return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), attributes.getForegroundColor(), EffectType.WAVE_UNDERSCORE, attributes.getFontType());
             } else {
                 int count = 0;
-                SearchData searchData = myLineSearchData.get(line);
+                SearchData searchData = myLineSearchData == null ? null : myLineSearchData.get(line);
                 if (searchData != null && myIndexedWordCounts != null && searchData.wordIndex < myIndexedWordCounts.length) {
                     count = myIndexedWordCounts[searchData.wordIndex];
                 }

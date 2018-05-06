@@ -50,6 +50,6 @@ public interface HighlightProvider {
     void fireHighlightsUpdated();
 
     @Nullable
-    TextAttributes getHighlightAttributes(int index, int startOffset, int endOffset, Color foregroundColor, Color effectColor, EffectType effectType, int fontType);
+    TextAttributes getHighlightAttributes(int index, int startOffset, int endOffset, @Nullable Color foregroundColor, @Nullable Color effectColor, @Nullable EffectType effectType, int fontType);
     Highlighter getHighlighter(@NotNull Editor editor);
 }

@@ -56,6 +56,9 @@
 
 ### 1.4.13 - Bug Fix Release
 
+* Fix: refactor highlight and isolation line code into re-usable classes.
+* Fix: check box with color button rendering, add margin, border to color button and
+  anti-aliased drawing of border.
 * Fix: file editor to editor conversion to work properly, FileEditor -> TextEditor -> .getEditor().
 * Add: highlights and caret change handling for batch search/replace.
 * Add: tool window for batch search/replace instead of modal

@@ -40,7 +40,7 @@ public class ToggleIsolationModeAction extends ToggleAction implements DumbAware
 
         if (editor != null) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            selected = manager.isIsolatedMode();
+            selected = manager.isIsolatedMode() && manager.haveIsolatedLines();
             enabled = selected || manager.haveIsolatedLines();
         }
         e.getPresentation().setEnabled(enabled);

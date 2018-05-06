@@ -139,7 +139,7 @@ public class WordHighlightProviderImpl extends HighlightProviderBase implements 
      */
     @Override
     @Nullable
-    public TextAttributes getHighlightAttributes(final int index, final int startOffset, final int endOffset, final Color foregroundColor, final Color effectColor, final EffectType effectType, final int fontType) {
+    public TextAttributes getHighlightAttributes(final int index, final int startOffset, final int endOffset, final @Nullable Color foregroundColor, final @Nullable Color effectColor, final @Nullable EffectType effectType, final int fontType) {
         if (index >= 0 && myHighlightColors != null) {
             int colorRepeatIndex = myHighlightColorRepeatIndex;
             int colorRepeatSteps = myHighlightColors.length - colorRepeatIndex;
