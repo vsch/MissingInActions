@@ -392,6 +392,7 @@ public class BatchReplaceForm implements Disposable {
             saveSettings();
 
             mySettings.savePreset(presetName);
+            mySettings.setBatchPresetName(presetName);
             if (oldSettings == null) {
                 // reload
                 fillPresets();
@@ -478,9 +479,14 @@ public class BatchReplaceForm implements Disposable {
             if (presetName != null) {
                 BatchSearchReplace removed = mySettings.getBatchPresets().remove(presetName);
                 if (removed != null) {
+                    myInUpdate = true;
                     mySettings.setBatchPresetName(null);
+                    BatchSearchReplace batchSearchReplace = new BatchSearchReplace(mySettings.getBatchSearchReplace());
                     fillPresets();
-                    myPresets.setSelectedIndex(-1);
+                    //myPresets.setSelectedIndex(-1);
+                    mySettings.setBatchSearchReplace(batchSearchReplace);
+                    myInUpdate = false;
+                    updateOptions(true);
                 }
             }
         });
@@ -774,10 +780,12 @@ public class BatchReplaceForm implements Disposable {
     }
 
     public void fillPresets() {
+        //boolean savedInUpdate = myInUpdate;
+        //myInUpdate = true;
+        String presetName = mySettings.getBatchPresetName();
         myPresets.removeAllItems();
         ArrayList<String> presetNames = new ArrayList<>(mySettings.getBatchPresets().keySet());
         presetNames.sort(Comparator.naturalOrder());
-        String presetName = mySettings.getBatchPresetName();
 
         for (String item : presetNames) {
             myPresets.addItem(item);
@@ -788,6 +796,7 @@ public class BatchReplaceForm implements Disposable {
         } else {
             myPresets.setSelectedIndex(-1);
         }
+        //myInUpdate = savedInUpdate;
     }
 
     //private void createUIComponents() {

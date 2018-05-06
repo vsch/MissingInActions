@@ -36,7 +36,7 @@ public class BatchSearchReplace implements Serializable {
 
     }
 
-    BatchSearchReplace(final boolean caseSensitive, final boolean wholeWord, @NotNull final String searchText, @NotNull final String replaceText, @NotNull final String optionsText) {
+    public BatchSearchReplace(final boolean caseSensitive, final boolean wholeWord, @NotNull final String searchText, @NotNull final String replaceText, @NotNull final String optionsText) {
         myCaseSensitive = caseSensitive;
         myWholeWord = wholeWord;
         mySearchText = searchText;
@@ -44,7 +44,7 @@ public class BatchSearchReplace implements Serializable {
         myOptionsText = optionsText;
     }
 
-    BatchSearchReplace(final BatchSearchReplace other) {
+    public BatchSearchReplace(final BatchSearchReplace other) {
         myCaseSensitive = other.myCaseSensitive;
         myWholeWord = other.myWholeWord;
         mySearchText = other.mySearchText;

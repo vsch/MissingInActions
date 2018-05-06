@@ -88,7 +88,7 @@ public class BatchSearchReplaceSettings implements Serializable {
     }
 
     public BatchSearchReplace savePreset(@NotNull final String presetName) {
-        return batchPresets.put(presetName, batchSearchReplace);
+        return batchPresets.put(presetName, new BatchSearchReplace(batchSearchReplace));
     }
 
     public BatchSearchReplace loadPreset(@NotNull final String presetName) {
