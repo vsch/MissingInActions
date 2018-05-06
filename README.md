@@ -9,8 +9,8 @@
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.4.14 - Bug Fix Release](#version-1414---bug-fix-release)
-    - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
+- [Version 1.4.14 - Bug Fix & Enhancement Release](#version-1414---bug-fix--enhancement-release)
+- [Version 1.4.8 - Bug Fix Release](#version-148---bug-fix-release)
 - [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
 - [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
 - [Version 1.4.0 - Bug Fix Release](#version-140---bug-fix-release)
@@ -84,23 +84,25 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.4.14 - Bug Fix Release
+## Version 1.4.14 - Bug Fix & Enhancement Release
 
 [Version Notes][] [Download Latest 1.4.14 from this repo][]
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-* Add: Batch search/replace action and tool window. Each line in search will be replaced by
-  corresponding line in replace. Third pane is options, each is a character: `c` - case
-  sensitive, `i` - case insensitive, `w` - word (same as `be`), `e` - end word boundary, `b` -
-  begin word boundary.
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
 * Fix: plugin description forgot to update in plugin.xml for 1.4.8
 * Change: change caret search regex for multi-caret search on non-identifier character c to c
   instead of exact c count, and caret spawning regex to match the exact char count with
   preceding and following character not being c to prevent finding stretches with greater count.
+* Add: Batch search/replace action and tool window. Each line in search will be replaced by
+  corresponding line in replace. Third pane is options, each is a character: `c` - case
+  sensitive, `i` - case insensitive, `w` - word (same as `be`), `e` - end word boundary, `b` -
+  begin word boundary.
 
-### 1.4.8 - Bug Fix Release
+  ![Batch_Replace.png](assets/images/Batch_Replace.png)
+
+## Version 1.4.8 - Bug Fix Release
 
 * Fix: on paste add prefixes would only be honored if remove prefixes was enabled
 * Fix: camel case preserve paste, adding a non-letter/digit prefix to not uppercase first letter
@@ -130,7 +132,6 @@ Adds missing editor actions for end of word navigation but that is just the begi
   possibly shorter sub-strings.
 * Fix: @NotNull argument must not be null exception.
 
-
 ## Version 1.4.6 - Bug Fix Release
 
 * Fix: change "Recall Selection from List" to "Recall Selection" to shorten toolbar real-estate
@@ -141,9 +142,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Add: replacement of content strings on paste:
 
-  * Replace arbitrary string to another string on paste. Useful for quick pasting of
-    template code with changes without needing to edit after paste (treat this as a user
-    provided macro variable).
+  * Replace arbitrary string to another string on paste. Useful for quick pasting of template
+    code with changes without needing to edit after paste (treat this as a user provided macro
+    variable).
 
     Can add RegEx search or plain string. Plain string search is case sensitive.
 
