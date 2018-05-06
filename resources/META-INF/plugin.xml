@@ -74,14 +74,17 @@
         ]]>
     </description>
 
-    <version>1.4.13</version>
+    <version>1.4.14</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.13 - Bug Fix Release</h3>
+            <h3>1.4.14 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: refactor highlight and isolation line code into re-usable classes.</li>
+                <li>Fix: check box with color button rendering, add margin, border to color button and
+                    anti-aliased drawing of border.</li>
                 <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt; .getEditor().</li>
                 <li>Add: highlights and caret change handling for batch search/replace.</li>
                 <li>Add: tool window for batch search/replace instead of modal</li>

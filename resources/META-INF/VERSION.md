@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.13 - Bug Fix Release](#1413---bug-fix-release)
+- [1.4.14 - Bug Fix Release](#1414---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -54,7 +54,7 @@
 
 &nbsp;</details>
 
-### 1.4.13 - Bug Fix Release
+### 1.4.14 - Bug Fix Release
 
 * Fix: refactor highlight and isolation line code into re-usable classes.
 * Fix: check box with color button rendering, add margin, border to color button and
