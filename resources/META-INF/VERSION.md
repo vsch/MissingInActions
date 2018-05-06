@@ -65,9 +65,10 @@
 * Add: presets and import/export to batch search/replace to allow selecting a set of presets.
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-* Add: basic Batch search/replace action and dialog. Each line in search will be replaced by
+* Add: Batch search/replace action and dialog. Each line in search will be replaced by
   corresponding line in replace. Third pane is options, each is a character: `c` - case
-  sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
+  sensitive, `i` - case insensitive, `w` - word (same as `be`), `e` - end word boundary, `b` -
+  begin word boundary.
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
 * Fix: plugin description forgot to update in plugin.xml for 1.4.8
 * Change: change caret search regex for multi-caret search on non-identifier character c to c

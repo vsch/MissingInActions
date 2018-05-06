@@ -2,14 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.4.9 from this repo]
+[Download Latest 1.4.14 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.4.9 - Bug Fix Release](#version-149---bug-fix-release)
+- [Version 1.4.14 - Bug Fix Release](#version-1414---bug-fix-release)
     - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
 - [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
@@ -84,15 +84,16 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.4.9 - Bug Fix Release
+## Version 1.4.14 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.4.9 from this repo][]
+[Version Notes][] [Download Latest 1.4.14 from this repo][]
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-* Add: basic Batch search/replace action and dialog. Each line in search will be replaced by
+* Add: Batch search/replace action and tool window. Each line in search will be replaced by
   corresponding line in replace. Third pane is options, each is a character: `c` - case
-  sensitive, `w` - word (same as `be`), `e` - end word boundary, `b` - begin word boundary.
+  sensitive, `i` - case insensitive, `w` - word (same as `be`), `e` - end word boundary, `b` -
+  begin word boundary.
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
 * Fix: plugin description forgot to update in plugin.xml for 1.4.8
 * Change: change caret search regex for multi-caret search on non-identifier character c to c
@@ -573,7 +574,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.4.9 from this repo]: ../../raw/master/dist/MissingInActions.1.4.9.zip
+[Download Latest 1.4.14 from this repo]: ../../raw/master/dist/MissingInActions.1.4.14.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
