@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.16 - Bug Fix Release](#1416---bug-fix-release)
+- [1.4.18 - Bug Fix Release](#1418---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -54,8 +54,9 @@
 
 &nbsp;</details>
 
-### 1.4.16 - Bug Fix Release
+### 1.4.18 - Bug Fix Release
 
+* Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.
 * Fix: saving a new preset would reset the preset name and load the search/replace options for
   the first preset in the preset list.
 * Fix: refactor highlight and isolation line code into re-usable classes.

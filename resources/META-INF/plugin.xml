@@ -29,9 +29,11 @@
             <p>Adds missing editor actions for end of word navigation but that is just the beginning:</p>
             <ul>
                 <li>Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
-                    previous selection from a list.</li>
+                    previous selection from a list.
+                </li>
                 <li>Enable Auto Indent Lines after move line/selection up or down actions to have lines indented
-                    automatically.</li>
+                    automatically.
+                </li>
                 <li>Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
                     match case and style of identifier at destination when you paste. Undo to get results before
                     MIA adjusted them.
@@ -46,24 +48,29 @@
                 <li>Enable Auto Line Selections and select full lines without loosing time or column position by
                     moving the caret to the start of line when selecting or pasting. <strong>Choose</strong> whether you want
                     to <strong>paste full line</strong> selections: <strong>above</strong> or <strong>below</strong> the current line regardless of the
-                    caret&rsquo;s column.</li>
+                    caret&rsquo;s column.
+                </li>
                 <li>Toggle between selection and multiple carets on selected lines to save time re-selecting the
-                    same text again.</li>
+                    same text again.
+                </li>
                 <li>Filter multiple carets saves you time when creating multiple carets by removing carets on
-                    blank or comment lines so you can edit only code lines.</li>
+                    blank or comment lines so you can edit only code lines.
+                </li>
                 <li>Enhanced Paste from History dialog:
                     <ul>
                         <li><strong>combine</strong>, <strong>arrange</strong> and <strong>reverse</strong> the order of content entries</li>
                         <li><strong>combine multiple</strong> clipboard contents <strong>with caret information intact</strong></li>
                         <li><strong>paste and re-create multiple carets</strong> from information already stored on the clipboard</li>
                         <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the
-                            first line</strong> of the block, ready for multi-caret select and paste</li>
+                            first line</strong> of the block, ready for multi-caret select and paste
+                        </li>
                         <li><strong>splice</strong> individual entries into delimited list, optionally quoting each entry</li>
                         <li>see caret information stored on the clipboard for each content entry</li>
                     </ul>
                 </li>
                 <li>Many more options and adjustments to make multiple caret text editing fast, efficient and
-                    easy.</li>
+                    easy.
+                </li>
             </ul>
             <p><strong>Plugin website:
                 <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
@@ -74,63 +81,80 @@
         ]]>
     </description>
 
-    <version>1.4.16</version>
+    <version>1.4.18</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.16 - Bug Fix Release</h3>
+            <h3>1.4.18 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets,
+                    spawn.</li>
                 <li>Fix: saving a new preset would reset the preset name and load the search/replace options for
-                    the first preset in the preset list.</li>
+                    the first preset in the preset list.
+                </li>
                 <li>Fix: refactor highlight and isolation line code into re-usable classes.</li>
                 <li>Fix: check box with color button rendering, add margin, border to color button and
-                    anti-aliased drawing of border.</li>
+                    anti-aliased drawing of border.
+                </li>
                 <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt; .getEditor().</li>
                 <li>Add: highlights and caret change handling for batch search/replace.</li>
                 <li>Add: tool window for batch search/replace instead of modal</li>
                 <li>Add: presets and import/export to batch search/replace to allow selecting a set of presets.</li>
                 <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
-                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
+                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
+                </li>
                 <li>Add: Batch search/replace action and dialog. Each line in search will be replaced by
                     corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
                     sensitive, <code>i</code> - case insensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> -
-                    begin word boundary.</li>
+                    begin word boundary.
+                </li>
                 <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
                 <li>Fix: plugin description forgot to update in plugin.xml for 1.4.8</li>
                 <li>Change: change caret search regex for multi-caret search on non-identifier character c to c
                     instead of exact c count, and caret spawning regex to match the exact char count with
-                    preceding and following character not being c to prevent finding stretches with greater count.</li>
+                    preceding and following character not being c to prevent finding stretches with greater count.
+                </li>
             </ul>
             <h3>1.4.8 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: on paste add prefixes would only be honored if remove prefixes was enabled</li>
                 <li>Fix: camel case preserve paste, adding a non-letter/digit prefix to not uppercase first letter
                     of pasted content. To fix auto prefixing of <code>$</code> for php when pasting non-variable name over
-                    variable.</li>
+                    variable.
+                </li>
                 <li>Add: Single line caret spawning search now enabled with carets on multiple lines if at least
                     one line has more than one caret. This allows the spawning carets to spawn on multiple lines,
-                    extending usefulness of this beyond single line search spawn.</li>
+                    extending usefulness of this beyond single line search spawn.
+                </li>
                 <li>Add: Single line caret spawning search now limits the spawned carets to the existing selection
-                    of the caret, if there is one. This allows spawning carets in a limited text range.</li>
+                    of the caret, if there is one. This allows spawning carets in a limited text range.
+                </li>
                 <li>Add: Smart Keep/Remove carets add remove non-selection carets if both selection and
-                    non-selection carets exist.</li>
+                    non-selection carets exist.
+                </li>
                 <li>Add: paste selection dialog options to join lines/multiple caret content and optionally quote
-                    individual items with open quote, close quote and delimiter text customizable.</li>
+                    individual items with open quote, close quote and delimiter text customizable.
+                </li>
                 <li>Add: multi-caret actions: keep-carets with selection and keep carets without selection.</li>
                 <li>Add: clear isolated lines action to clear isolation. Select All, add to isolated is
-                    un-intuitive.</li>
+                    un-intuitive.
+                </li>
                 <li>Fix: numbering without selections for carets would mess up selections.</li>
                 <li>Fix: exception when inserting number sequence with last caret being on the last line of the
-                    document without an EOL.</li>
+                    document without an EOL.
+                </li>
                 <li>Change: search spawning caret action when non-identifier or space now will search for a span
                     of matching characters. For example caret on <code>&amp;&amp;</code> will spawn a caret on every occurrence of
-                    <code>&amp;&amp;</code> instead of just <code>&amp;</code> as before which produced a useless result 99% of the time.</li>
+                    <code>&amp;&amp;</code> instead of just <code>&amp;</code> as before which produced a useless result 99% of the time.
+                </li>
                 <li>Fix: caret spawning search forward/backward regex when word starts or ends on <code>$</code> which regex
-                    does not consider an identifier character so <code>\b</code> does not handle the word break properly.</li>
+                    does not consider an identifier character so <code>\b</code> does not handle the word break properly.
+                </li>
                 <li>Fix: Highlights sorted in reverse length order to allow longer matches to succeed before
-                    possibly shorter sub-strings.</li>
+                    possibly shorter sub-strings.
+                </li>
                 <li>Fix: @NotNull argument must not be null exception.</li>
             </ul>
         </div>
@@ -536,9 +560,9 @@
 
             <action class="com.vladsch.MissingInActions.actions.pattern.CancelSearchCaretsAction"
                     id="MissingInActions.CancelFoundCarets"
-                    text="Cancel Found Search Carets"
+                    text="Cancel Caret Search"
                     icon="PluginIcons.Cancel_search"
-                    description="Cancel Found Search Carets">
+                    description="Cancel Caret Search">
                 <keyboard-shortcut first-keystroke="ESCAPE" keymap="$default"/>
             </action>
 
@@ -559,16 +583,16 @@
 
         <action class="com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction"
                 id="MissingInActions.DuplicateForMultipleClipboardCarets"
-                text="Duplicate Line or Selection for Carets from Clipboard History"
+                text="Duplicate for Clipboard Carets"
                 icon="PluginIcons.Duplicate_multiple_carets"
-                description="Duplicate Line or Selection for Carets from Clipboard History">
+                description="Duplicate for Clipboard Carets">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.line.NumberAction"
                 id="MissingInActions.Number"
-                text="Generate Number Sequence for Carets"
+                text="Generate Sequence for Carets"
                 icon="PluginIcons.Number_carets"
-                description="Generate Number Sequence for Carets">
+                description="Generate Sequence for Carets">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.carets.TabAlignCaretTextAction"
@@ -712,47 +736,75 @@
         </action>
 
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
-            <separator/>
-            <reference id="MissingInActions.BatchSearchReplace"/>
-            <separator/>
-            <reference id="MissingInActions.ToggleIsolationMode"/>
-            <reference id="MissingInActions.AddIsolationLines"/>
-            <reference id="MissingInActions.RemoveIsolationLines"/>
-            <reference id="MissingInActions.ClearIsolatedLines"/>
-            <separator/>
-            <reference id="MissingInActions.ToggleWordHighlightsMode"/>
-            <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
-            <reference id="MissingInActions.ClearWordHighlights"/>
-            <reference id="MissingInActions.AddWordHighlight"/>
-            <reference id="MissingInActions.RemoveWordHighlight"/>
-            <separator/>
-            <reference id="MissingInActions.KeepWordHighlightedCaret"/>
-            <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
-            <reference id="MissingInActions.SmartKeepLineCarets"/>
-            <reference id="MissingInActions.KeepBlankLineCarets"/>
-            <reference id="MissingInActions.StraightenCarets"/>
-            <reference id="MissingInActions.KeepSelectionCarets"/>
-            <reference id="MissingInActions.RemoveSelectionCarets"/>
-            <separator/>
-            <reference id="MissingInActions.Number"/>
-            <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>
-            <reference id="MissingInActions.TabAlignCaretText"/>
+            <!--<separator/>-->
+            <!--<reference id="MissingInActions.BatchSearchReplace"/>-->
+            <!--<separator/>-->
+            <group id="MissingInActions.IsolationModeMenu"
+                   class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"
+                   text="Isolation Mode Actions"
+                   popup="true"
+                   icon="PluginIcons.Menu_isolation"
+            >
+                <reference id="MissingInActions.ToggleIsolationMode"/>
+                <reference id="MissingInActions.AddIsolationLines"/>
+                <reference id="MissingInActions.RemoveIsolationLines"/>
+                <reference id="MissingInActions.ClearIsolatedLines"/>
+            </group>
+            <group id="MissingInActions.HighlightModeMenu"
+                   class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"
+                   text="Highlight Mode Actions"
+                   popup="true"
+                   icon="PluginIcons.Menu_highlights"
+            >
+                <reference id="MissingInActions.ToggleWordHighlightsMode"/>
+                <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
+                <reference id="MissingInActions.ClearWordHighlights"/>
+                <reference id="MissingInActions.AddWordHighlight"/>
+                <reference id="MissingInActions.RemoveWordHighlight"/>
+                <separator/>
+                <reference id="MissingInActions.KeepWordHighlightedCaret"/>
+                <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
+            </group>
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
+            <group id="MissingInActions.MultiCaretMenu"
+                   class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"
+                   text="Multi-Caret Actions"
+                   popup="true"
+                   icon="PluginIcons.Menu_carets"
+            >
+                <reference id="MissingInActions.SmartKeepLineCarets"/>
+                <reference id="MissingInActions.KeepBlankLineCarets"/>
+                <reference id="MissingInActions.StraightenCarets"/>
+                <reference id="MissingInActions.KeepSelectionCarets"/>
+                <reference id="MissingInActions.RemoveSelectionCarets"/>
+                <separator/>
+                <reference id="MissingInActions.Number"/>
+                <reference id="MissingInActions.DuplicateForMultipleClipboardCarets"/>
+                <reference id="MissingInActions.TabAlignCaretText"/>
+                <separator/>
+                <reference id="MissingInActions.PrimaryCaretToNext"/>
+                <reference id="MissingInActions.PrimaryCaretToPrev"/>
+                >
+            </group>
             <separator/>
-            <reference id="MissingInActions.PrimaryCaretToNext"/>
-            <reference id="MissingInActions.PrimaryCaretToPrev"/>
-            <separator/>
+            <!--<group id="MissingInActions.CaretSearchMenu"-->
+                   <!--class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"-->
+                   <!--text="Multi-Caret Search/Spawn Actions"-->
+                   <!--popup="true"-->
+                   <!--icon="PluginIcons.Menu_spawn"-->
+            <!--&gt;-->
+            <!--</group>-->
             <reference id="MissingInActions.ForwardSearchCaretSpawning"/>
             <reference id="MissingInActions.BackwardSearchCaretSpawning"/>
             <reference id="MissingInActions.SearchCaretsOptions"/>
+            <separator/>
             <!--<action id="MissingInActions.Pattern" class="com.vladsch.MissingInActions.actions.pattern.PatternAction" text="Caret Search Pattern">-->
             <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
             <!--</action>-->
             <reference id="MissingInActions.AcceptFoundCarets"/>
             <reference id="MissingInActions.AcceptNotFoundCarets"/>
             <reference id="MissingInActions.CancelFoundCarets"/>
-
             <separator/>
             <reference id="MissingInActions.RecallSelectionListButton"/>
             <reference id="MissingInActions.RecallLastSelection"/>

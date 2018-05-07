@@ -30,10 +30,23 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import org.jetbrains.annotations.NotNull;
 
 public class ToggleIsolationModeAction extends ToggleAction implements DumbAware {
     @Override
     public boolean isSelected(final AnActionEvent e) {
+        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        boolean selected = false;
+
+        if (editor != null) {
+            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            selected = manager.isIsolatedMode() && manager.haveIsolatedLines();
+        }
+        return selected;
+    }
+
+    @Override
+    public void update(@NotNull final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         boolean enabled = false;
         boolean selected = false;
@@ -45,7 +58,6 @@ public class ToggleIsolationModeAction extends ToggleAction implements DumbAware
         }
         e.getPresentation().setEnabled(enabled);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
-        return selected;
     }
 
     @Override

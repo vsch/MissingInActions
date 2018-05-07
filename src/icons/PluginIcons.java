@@ -70,4 +70,8 @@ public class PluginIcons {
     public static final Icon Keep_carets_with_selection = load("/icons/Keep_carets_with_selection.png");
     public static final Icon Remove_carets_with_selection = load("/icons/Remove_carets_with_selection.png");
     public static final Icon Batch_search = load("/icons/Batch_search.png");
+    public static final Icon Menu_isolation = load("/icons/Menu_isolation.png");
+    public static final Icon Menu_highlights = load("/icons/Menu_highlights.png");
+    public static final Icon Menu_carets = load("/icons/Menu_carets.png");
+    public static final Icon Menu_spawn = load("/icons/Menu_spawn.png");
 }

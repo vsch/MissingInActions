@@ -2,14 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.4.16 from this repo]
+[Download Latest 1.4.18 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.4.16 - Bug Fix & Enhancement Release](#version-1416---bug-fix--enhancement-release)
+- [Version 1.4.18 - Bug Fix & Enhancement Release](#version-1418---bug-fix--enhancement-release)
 - [Version 1.4.8 - Bug Fix Release](#version-148---bug-fix-release)
 - [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
 - [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
@@ -84,17 +84,31 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.4.16 - Bug Fix & Enhancement Release
+## Version 1.4.18 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.4.16 from this repo][]
+[Version Notes][] [Download Latest 1.4.18 from this repo][]
+
+* Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.
+
+  ![Toolbar.png](assets/images/Toolbar.png)
+
+  ![Toolbar_Isolation.png](assets/images/Toolbar_Isolation.png)
+
+  ![Toolbar_Highlights.png](assets/images/Toolbar_Highlights.png)
+
+  ![Toolbar_MultiCaret.png](assets/images/Toolbar_MultiCaret.png)
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
   excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
+
 * Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch
+
 * Fix: plugin description forgot to update in plugin.xml for 1.4.8
+
 * Change: change caret search regex for multi-caret search on non-identifier character c to c
   instead of exact c count, and caret spawning regex to match the exact char count with
   preceding and following character not being c to prevent finding stretches with greater count.
+
 * Add: Batch search/replace action and tool window. Each line in search will be replaced by
   corresponding line in replace. Third pane is options, each is a character: `c` - case
   sensitive, `i` - case insensitive, `w` - word (same as `be`), `e` - end word boundary, `b` -
@@ -575,7 +589,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.4.16 from this repo]: ../../raw/master/dist/MissingInActions.1.4.16.zip
+[Download Latest 1.4.18 from this repo]: ../../raw/master/dist/MissingInActions.1.4.18.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
