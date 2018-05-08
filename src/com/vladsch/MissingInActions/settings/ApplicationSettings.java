@@ -156,8 +156,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
     @NotNull String myBackspaceAlternatingRegEx = "(\\s+|[\\w]+|[^\\w\\s]+)";
     @NotNull String myDeleteWordExcludingSpaceRegEx = "(\\s[^\\s]+|\\s{2,}|[^\\s]+)";
     @NotNull String myBackspaceWordExcludingSpaceRegEx = "([^\\s]+\\s|\\s{2,}|[^\\s]+)";
-    @NotNull String myDeleteWordRegEx = "((?<=\\s|^)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)(?:\\s+(?=\\s|$)|))";
-    @NotNull String myBackspaceWordRegEx = "((?:[\\w]+|[^\\w]+)\\s*|(?<=\\s|^)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)\\s*(?=\\s|$))";
+    @NotNull String myDeleteWordRegEx = "((?<=\\s|^|\\W)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)(?:\\s+(?=\\s|$|\\W)|))";
+    @NotNull String myBackspaceWordRegEx = "((?:[\\w]+|[^\\w]+)\\s*|(?<=\\s|^|\\W)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)\\s*(?=\\s|$|\\W))";
     boolean myDeleteLineBound = false;
     boolean myDeleteMultiCaretLineBound = true;
     boolean myBackspaceLineBound = false;
