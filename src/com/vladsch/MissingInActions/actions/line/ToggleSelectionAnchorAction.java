@@ -41,7 +41,7 @@ public class ToggleSelectionAnchorAction extends DumbAwareEditorAction implement
 
     @Override
     public void update(final AnActionEvent e) {
-        super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
+        super.update(e);
     }
 }

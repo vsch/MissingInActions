@@ -81,41 +81,39 @@
         ]]>
     </description>
 
-    <version>1.4.18</version>
+    <version>1.4.19</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.18 - Bug Fix Release</h3>
+            <h3>1.4.19 - Bug Fix Release</h3>
             <ul>
-                <li>Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets,
-                    spawn.</li>
+                <li>Add: Toggle on paste preserve action and setting to disable on paste preserve case
+                    functionality without having to change the options when it gets in the way.</li>
+                <li>Fix: NPE when caret spawning/searching from active caret search</li>
+                <li>Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.</li>
                 <li>Fix: saving a new preset would reset the preset name and load the search/replace options for
-                    the first preset in the preset list.
-                </li>
+                    the first preset in the preset list.</li>
                 <li>Fix: refactor highlight and isolation line code into re-usable classes.</li>
                 <li>Fix: check box with color button rendering, add margin, border to color button and
-                    anti-aliased drawing of border.
-                </li>
-                <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt; .getEditor().</li>
+                    anti-aliased drawing of border.</li>
+                <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt;
+                    .getEditor().</li>
                 <li>Add: highlights and caret change handling for batch search/replace.</li>
                 <li>Add: tool window for batch search/replace instead of modal</li>
                 <li>Add: presets and import/export to batch search/replace to allow selecting a set of presets.</li>
                 <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
-                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-                </li>
+                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
                 <li>Add: Batch search/replace action and dialog. Each line in search will be replaced by
                     corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
                     sensitive, <code>i</code> - case insensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> -
-                    begin word boundary.
-                </li>
+                    begin word boundary.</li>
                 <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
                 <li>Fix: plugin description forgot to update in plugin.xml for 1.4.8</li>
                 <li>Change: change caret search regex for multi-caret search on non-identifier character c to c
                     instead of exact c count, and caret spawning regex to match the exact char count with
-                    preceding and following character not being c to prevent finding stretches with greater count.
-                </li>
+                    preceding and following character not being c to prevent finding stretches with greater count.</li>
             </ul>
             <h3>1.4.8 - Bug Fix Release</h3>
             <ul>
@@ -693,6 +691,13 @@
                 description="Toggle Case Sensitive Word Highlights">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.ToggleOnPastePreserveAction"
+                id="MissingInActions.ToggleOnPastePreserve"
+                text="Toggle on Paste Preserve Case Style"
+                icon="PluginIcons.Toggle_onPastePreserve"
+                description="Toggle on Paste Preserve Case Style">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.pattern.ClearWordHighlightsAction"
                 id="MissingInActions.ClearWordHighlights"
                 text="Clear Word Highlights"
@@ -739,6 +744,7 @@
             <!--<separator/>-->
             <!--<reference id="MissingInActions.BatchSearchReplace"/>-->
             <!--<separator/>-->
+            <reference id="MissingInActions.ToggleOnPastePreserve"/>
             <group id="MissingInActions.IsolationModeMenu"
                    class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"
                    text="Isolation Mode Actions"

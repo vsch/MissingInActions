@@ -245,9 +245,9 @@ public class LineSelectionManager implements
                     }));
                 }
 
-                if (myIsolationHighlighter != null) {
-                    myIsolationHighlighter.updateHighlights();
-                }
+                //if (myIsolationHighlighter != null) {
+                //    myIsolationHighlighter.updateHighlights();
+                //}
             }
         };
 

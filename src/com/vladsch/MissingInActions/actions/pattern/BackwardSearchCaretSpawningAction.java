@@ -37,8 +37,6 @@ public class BackwardSearchCaretSpawningAction extends EditorAction implements T
 
     @Override
     public void update(final AnActionEvent e) {
-        super.update(e);
-
         Presentation presentation = e.getPresentation();
         boolean enabled = presentation.isEnabled();
         boolean selected = false;
@@ -57,5 +55,6 @@ public class BackwardSearchCaretSpawningAction extends EditorAction implements T
         presentation.putClientProperty(Toggleable.SELECTED_PROPERTY, selected);
 
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
+        super.update(e);
     }
 }

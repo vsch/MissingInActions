@@ -74,4 +74,5 @@ public class PluginIcons {
     public static final Icon Menu_highlights = load("/icons/Menu_highlights.png");
     public static final Icon Menu_carets = load("/icons/Menu_carets.png");
     public static final Icon Menu_spawn = load("/icons/Menu_spawn.png");
+    public static final Icon Toggle_onPastePreserve = load("/icons/Toggle_onPastePreserve.png");
 }

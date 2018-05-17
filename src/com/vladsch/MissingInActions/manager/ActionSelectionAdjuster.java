@@ -930,10 +930,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     private void adjustPasteAction(ApplicationSettings settings, AnAction action, AnActionEvent event) {
         // these can replace selections, need to move to start, after if pasted was lines, then we should restore caret pos
         class Params extends CaretSnapshot.Params<Params> {
-            private long timestamp;
-            private CaseFormatPreserver preserver = new CaseFormatPreserver();
+            long timestamp;
+            CaseFormatPreserver preserver = new CaseFormatPreserver();
 
-            private Params(CaretSnapshot snapshot) {
+            Params(CaretSnapshot snapshot) {
                 super(snapshot);
             }
         }
@@ -966,7 +966,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             myEditor.putUserData(EditorEx.LAST_PASTED_REGION, null);
         });
 
-        final boolean inWriteAction = (settings.isPreserveCamelCaseOnPaste()
+        final boolean inWriteAction = settings.isOnPastePreserve() && (settings.isPreserveCamelCaseOnPaste()
                 || settings.isPreserveSnakeCaseOnPaste()
                 || settings.isPreserveScreamingSnakeCaseOnPaste()
                 || (settings.isRemovePrefixOnPaste() || settings.isAddPrefixOnPaste()) && !(settings.getPrefixesOnPasteText().isEmpty()))
@@ -1016,22 +1016,24 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                 editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
                                 if (!editorCaret.hasLines()) {
-                                    cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                            , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
-                                                    || (myEditor.getCaretModel().getCaretCount() > 1
-                                                    && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
-                                            )
-                                            , settings.isPreserveCamelCaseOnPaste()
-                                            , settings.isPreserveSnakeCaseOnPaste()
-                                            , settings.isPreserveScreamingSnakeCaseOnPaste()
-                                            , settings.isPreserveDashCaseOnPaste()
-                                            , settings.isPreserveDotCaseOnPaste()
-                                            , settings.isPreserveSlashCaseOnPaste()
-                                            , settings.isRemovePrefixOnPaste()
-                                            , settings.isAddPrefixOnPaste()
-                                            , settings.getPrefixesOnPasteList()
-                                            , settings.getRemovePrefixOnPastePatternType()
-                                    );
+                                    if (settings.isOnPastePreserve()) {
+                                        cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
+                                                , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
+                                                        || (myEditor.getCaretModel().getCaretCount() > 1
+                                                        && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
+                                                )
+                                                , settings.isPreserveCamelCaseOnPaste()
+                                                , settings.isPreserveSnakeCaseOnPaste()
+                                                , settings.isPreserveScreamingSnakeCaseOnPaste()
+                                                , settings.isPreserveDashCaseOnPaste()
+                                                , settings.isPreserveDotCaseOnPaste()
+                                                , settings.isPreserveSlashCaseOnPaste()
+                                                , settings.isRemovePrefixOnPaste()
+                                                , settings.isAddPrefixOnPaste()
+                                                , settings.getPrefixesOnPasteList()
+                                                , settings.getRemovePrefixOnPastePatternType()
+                                        );
+                                    }
                                 } else {
                                     if (caretContent.isFullLine(snapshot.getIndex())) {
                                         if (editorCaret.hasLines()) {

@@ -88,8 +88,8 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
         });
     }
 
-    public void doAction(final LineSelectionManager manager, final Editor editor, final @Nullable Caret caret, @Nullable final Caret patternCaret) {
-        Caret useCaret = caret;
+    public void doAction(final LineSelectionManager manager, final Editor editor, final @Nullable Caret editCaret, @Nullable final Caret patternCaret) {
+        Caret useCaret = editCaret;
         ArrayList<CaretState> createList = new ArrayList<>();
         Map<Long, Caret> keptCarets = new LinkedHashMap<>();
         CaretModel caretModel = editor.getCaretModel();
@@ -107,26 +107,29 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
             primaryCaret = caretModel.getPrimaryCaret();
             Map<Caret, Range> caretRanges = new HashMap<>();
 
-            for (Caret caret1 : caretList) {
-                Range range = EditHelpers.getCaretRange(caret1, myBackwards, isLineMode(), isSingleLine());
-                caretRanges.put(caret1, range);
+            for (Caret caret : caretList) {
+                Range range = EditHelpers.getCaretRange(caret, myBackwards, isLineMode(), isSingleLine());
+                caretRanges.put(caret, range);
             }
 
             caretRanges = EditHelpers.limitCaretRange(myBackwards, caretRanges, wantEmptyRanges());
 
             if (useCaret == null) {
                 if (patternCaret != null) {
-                    final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
-                    preparePattern(manager, patternCaret, caretRanges.get(patternCaret), chars);
+                    Range caretRange = caretRanges.get(patternCaret);
+                    if (caretRange != null) {
+                        final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+                        preparePattern(manager, patternCaret, caretRange, chars);
+                    }
                 }
 
                 // here we adjust
-                for (Caret caret1 : caretList) {
-                    Range range = caretRanges.get(caret1);
+                for (Caret caret : caretList) {
+                    Range range = caretRanges.get(caret);
                     if (range == null) continue;
 
-                    if (perform(manager, caret1, range, createList)) {
-                        keptCarets.put(getCoordinates(caret1), caret1);
+                    if (perform(manager, caret, range, createList)) {
+                        keptCarets.put(getCoordinates(caret), caret);
                     }
                 }
             } else {

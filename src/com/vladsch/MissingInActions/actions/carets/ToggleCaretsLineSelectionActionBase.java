@@ -62,8 +62,8 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
         } else {
             e.getPresentation().setEnabled(editor.getCaretModel().supportsMultipleCarets() && editor.getSelectionModel().hasSelection() || editor.getCaretModel().getCaretCount() > 1);
             e.getPresentation().setVisible(true);
-            super.update(e);
         }
+        super.update(e);
     }
 
     @Override

@@ -19,29 +19,28 @@
  * under the License.
  */
 
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 14, 2002
- * Time: 7:40:40 PM
- * To change template for new class use
- * Code Style | Class Templates options (Tools | IDE Options).
- */
-package com.vladsch.MissingInActions.actions.line;
+package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.vladsch.MissingInActions.actions.DumbAwareEditorAction;
-import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import org.jetbrains.annotations.NotNull;
 
-public class ToggleLineCharacterSelectionAction extends DumbAwareEditorAction implements LineSelectionAware {
-    public ToggleLineCharacterSelectionAction() {
-        super(new ToLineOrCharacterSelectionTypeActionHandler(null, false));
+public class ToggleOnPastePreserveAction extends ToggleAction implements DumbAware {
+    @Override
+    public boolean isSelected(final AnActionEvent e) {
+        return ApplicationSettings.getInstance().isOnPastePreserve();
     }
 
     @Override
-    public void update(final AnActionEvent e) {
-        e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
+    public void setSelected(final AnActionEvent e, final boolean state) {
+        ApplicationSettings.getInstance().setOnPastePreserve(state);
+    }
+
+    @Override
+    public void update(@NotNull final AnActionEvent e) {
+        e.getPresentation().setEnabled(true);
         super.update(e);
     }
 }

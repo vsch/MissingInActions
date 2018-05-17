@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.18 - Bug Fix Release](#1418---bug-fix-release)
+- [1.4.19 - Bug Fix Release](#1419---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -54,15 +54,19 @@
 
 &nbsp;</details>
 
-### 1.4.18 - Bug Fix Release
+### 1.4.19 - Bug Fix Release
 
+* Add: Toggle on paste preserve action and setting to disable on paste preserve case
+  functionality without having to change the options when it gets in the way.
+* Fix: NPE when caret spawning/searching from active caret search
 * Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.
 * Fix: saving a new preset would reset the preset name and load the search/replace options for
   the first preset in the preset list.
 * Fix: refactor highlight and isolation line code into re-usable classes.
 * Fix: check box with color button rendering, add margin, border to color button and
   anti-aliased drawing of border.
-* Fix: file editor to editor conversion to work properly, FileEditor -> TextEditor -> .getEditor().
+* Fix: file editor to editor conversion to work properly, FileEditor -> TextEditor ->
+  .getEditor().
 * Add: highlights and caret change handling for batch search/replace.
 * Add: tool window for batch search/replace instead of modal
 * Add: presets and import/export to batch search/replace to allow selecting a set of presets.
@@ -130,9 +134,9 @@
 
 ### 1.4.2 - Enhancement Release
 
-* Add: replace arbitrary string to another string on paste. Useful for quick pasting of
-      template code with changes without needing to edit after paste (treat this as a user
-      provided macro variable).
+* Add: replace arbitrary string to another string on paste. Useful for quick pasting of template
+  code with changes without needing to edit after paste (treat this as a user provided macro
+  variable).
 
   Can add RegEx search or plain string. Plain string search is case sensitive.
 

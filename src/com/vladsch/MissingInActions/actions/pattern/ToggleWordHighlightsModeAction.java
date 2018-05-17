@@ -41,5 +41,6 @@ public class ToggleWordHighlightsModeAction extends ToggleAction implements Dumb
     @Override
     public void update(@NotNull final AnActionEvent e) {
         e.getPresentation().setEnabled(true);
+        super.update(e);
     }
 }

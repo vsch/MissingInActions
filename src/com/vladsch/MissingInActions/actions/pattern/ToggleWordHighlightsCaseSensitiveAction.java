@@ -41,5 +41,6 @@ public class ToggleWordHighlightsCaseSensitiveAction extends ToggleAction implem
     @Override
     public void update(@NotNull final AnActionEvent e) {
         e.getPresentation().setEnabled(true);
+        super.update(e);
     }
 }

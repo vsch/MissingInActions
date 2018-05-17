@@ -137,6 +137,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
     private int             myDarkGradientBrightnessMax = 30;
     private int             myDarkGradientBrightnessSteps = 2;
     private boolean         myHideDisabledButtons = false;
+    private boolean myOnPastePreserve = true;
     private boolean         myIncludeUserDefinedMacro = false;
     private boolean         myRegexUserDefinedMacro = false;
     private boolean         myUserDefinedMacroClipContent = false;
@@ -168,13 +169,25 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
             "Sample Text with     =    random([]).test ;     ",
             "Sam|ple Text with     =    random([]).test ;     ",
             "Sample Text with     =    random([]).te|st ;     ",
+            "(|Sample Text with     =    random([]).te|st ;     ",
+            "Sample Text with     =    random([]).te|st|;",
     };
     @NotNull String[] myDeleteBackspaceTestCaretMarkers = new String[]{
             "|",
             "|",
             "|",
             "|",
+            "|",
+            "|",
     };
+
+    public boolean isOnPastePreserve() {
+        return myOnPastePreserve;
+    }
+
+    public void setOnPastePreserve(final boolean onPastePreserve) {
+        myOnPastePreserve = onPastePreserve;
+    }
 
     public boolean isBatchHighlightAllLines() {
         return myBatchHighlightAllLines;

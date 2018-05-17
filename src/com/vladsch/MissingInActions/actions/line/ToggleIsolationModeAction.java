@@ -58,6 +58,7 @@ public class ToggleIsolationModeAction extends ToggleAction implements DumbAware
         }
         e.getPresentation().setEnabled(enabled);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
+        super.update(e);
     }
 
     @Override
