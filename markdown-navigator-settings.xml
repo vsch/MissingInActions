@@ -1,0 +1,207 @@
+<MarkdownNavigator.ExportedProjectSettings>
+  <option name="myName" value="" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true" profileName="">
+    <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="true" showSelectionInPreview="true" openRemoteLinks="true" replaceUnicodeEmoji="false" lastLayoutSetsDefault="false">
+      <PanelProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
+      </PanelProvider>
+    </PreviewSettings>
+    <ParserSettings gitHubSyntaxChange="false" emojiShortcuts="0" emojiImages="0">
+      <PegdownExtensions>
+        <option name="ABBREVIATIONS" value="false" />
+        <option name="ANCHORLINKS" value="false" />
+        <option name="ASIDE" value="true" />
+        <option name="ATXHEADERSPACE" value="true" />
+        <option name="AUTOLINKS" value="true" />
+        <option name="DEFINITIONS" value="true" />
+        <option name="DEFINITION_BREAK_DOUBLE_BLANK_LINE" value="false" />
+        <option name="FENCED_CODE_BLOCKS" value="true" />
+        <option name="FOOTNOTES" value="true" />
+        <option name="HARDWRAPS" value="false" />
+        <option name="HTML_DEEP_PARSER" value="false" />
+        <option name="INSERTED" value="true" />
+        <option name="QUOTES" value="true" />
+        <option name="RELAXEDHRULES" value="true" />
+        <option name="SMARTS" value="true" />
+        <option name="STRIKETHROUGH" value="true" />
+        <option name="SUBSCRIPT" value="true" />
+        <option name="SUPERSCRIPT" value="true" />
+        <option name="SUPPRESS_HTML_BLOCKS" value="false" />
+        <option name="SUPPRESS_INLINE_HTML" value="false" />
+        <option name="TABLES" value="true" />
+        <option name="TASKLISTITEMS" value="true" />
+        <option name="TOC" value="true" />
+        <option name="WIKILINKS" value="true" />
+      </PegdownExtensions>
+      <ParserOptions>
+        <option name="ADMONITION_EXT" value="false" />
+        <option name="ATTRIBUTES_EXT" value="false" />
+        <option name="COMMONMARK_LISTS" value="true" />
+        <option name="DUMMY" value="false" />
+        <option name="EMOJI_SHORTCUTS" value="true" />
+        <option name="ENUMERATED_REFERENCES_EXT" value="false" />
+        <option name="FLEXMARK_FRONT_MATTER" value="true" />
+        <option name="GFM_LOOSE_BLANK_LINE_AFTER_ITEM_PARA" value="false" />
+        <option name="GFM_TABLE_RENDERING" value="true" />
+        <option name="GITBOOK_URL_ENCODING" value="true" />
+        <option name="GITHUB_LISTS" value="false" />
+        <option name="GITHUB_WIKI_LINKS" value="true" />
+        <option name="HEADER_ID_NO_DUPED_DASHES" value="false" />
+        <option name="JEKYLL_FRONT_MATTER" value="false" />
+        <option name="NO_TEXT_ATTRIBUTES" value="false" />
+        <option name="PARSE_HTML_ANCHOR_ID" value="false" />
+        <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
+      </ParserOptions>
+    </ParserSettings>
+    <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" embedUrlContent="false" addPageHeader="true" embedImages="false" embedHttpImages="false" imageUriSerials="true">
+      <GeneratorProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.generator" providerName="JavaFx HTML Generator" />
+      </GeneratorProvider>
+      <headerTop />
+      <headerBottom />
+      <bodyTop />
+      <bodyBottom />
+    </HtmlSettings>
+    <CssSettings previewScheme="UI_SCHEME" cssUri="" isCssUriEnabled="false" isCssUriSerial="true" isCssTextEnabled="true" isDynamicPageWidth="true">
+      <StylesheetProvider>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.css" providerName="Default JavaFx Stylesheet" />
+      </StylesheetProvider>
+      <ScriptProviders>
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.github-collapse-in-comment.html.script" providerName="Details tag opener" />
+        <provider providerId="com.vladsch.idea.multimarkdown.editor.hljs.html.script" providerName="HighlightJS Script" />
+      </ScriptProviders>
+      <cssText>code {
+    background-color: rgba(255, 0, 102, 0.06);
+    color: #b00042;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.search-highlight {
+    border: solid 1px #000;
+    padding: 1px;
+    background-color: #ffff00;
+    color: #000;
+}
+
+.selection-highlight {
+    color:#000;
+    padding:1px 0 1px 0;
+    border: solid 1px #52CC7A;
+    background-color: #B5FFCE;
+}</cssText>
+      <cssUriHistory />
+    </CssSettings>
+    <HtmlExportSettings updateOnSave="false" parentDir="$ProjectFileDir$" targetDir="$OutputPath$" cssDir="" scriptDir="" plainHtml="false" imageDir="$OutputPath$/img" copyLinkedImages="false" imageUniquifyType="0" targetExt="" useTargetExt="false" noCssNoScripts="false" linkToExportedHtml="true" exportOnSettingsChange="true" regenerateOnProjectOpen="false" linkFormatType="HTTP_ABSOLUTE" />
+    <LinkMapSettings>
+      <textMaps />
+    </LinkMapSettings>
+  </option>
+  <settings default="" pdf-export="">
+    <profile>
+      <option name="myName" value="Plugin Description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true" profileName="Plugin Description">
+        <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="true" showSelectionInPreview="true" openRemoteLinks="true" replaceUnicodeEmoji="false" lastLayoutSetsDefault="false">
+          <PanelProvider>
+            <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.panel" providerName="Default - Swing" />
+          </PanelProvider>
+        </PreviewSettings>
+        <ParserSettings gitHubSyntaxChange="false" emojiShortcuts="0" emojiImages="0">
+          <PegdownExtensions>
+            <option name="ABBREVIATIONS" value="true" />
+            <option name="ANCHORLINKS" value="false" />
+            <option name="ASIDE" value="false" />
+            <option name="ATXHEADERSPACE" value="true" />
+            <option name="AUTOLINKS" value="true" />
+            <option name="DEFINITIONS" value="true" />
+            <option name="DEFINITION_BREAK_DOUBLE_BLANK_LINE" value="false" />
+            <option name="FENCED_CODE_BLOCKS" value="true" />
+            <option name="FOOTNOTES" value="true" />
+            <option name="HARDWRAPS" value="false" />
+            <option name="HTML_DEEP_PARSER" value="false" />
+            <option name="INSERTED" value="true" />
+            <option name="QUOTES" value="true" />
+            <option name="RELAXEDHRULES" value="true" />
+            <option name="SMARTS" value="true" />
+            <option name="STRIKETHROUGH" value="true" />
+            <option name="SUBSCRIPT" value="true" />
+            <option name="SUPERSCRIPT" value="true" />
+            <option name="SUPPRESS_HTML_BLOCKS" value="false" />
+            <option name="SUPPRESS_INLINE_HTML" value="false" />
+            <option name="TABLES" value="true" />
+            <option name="TASKLISTITEMS" value="true" />
+            <option name="TOC" value="true" />
+            <option name="WIKILINKS" value="true" />
+          </PegdownExtensions>
+          <ParserOptions>
+            <option name="ADMONITION_EXT" value="false" />
+            <option name="ATTRIBUTES_EXT" value="false" />
+            <option name="COMMONMARK_LISTS" value="false" />
+            <option name="DUMMY" value="false" />
+            <option name="EMOJI_SHORTCUTS" value="true" />
+            <option name="ENUMERATED_REFERENCES_EXT" value="false" />
+            <option name="FLEXMARK_FRONT_MATTER" value="true" />
+            <option name="GFM_LOOSE_BLANK_LINE_AFTER_ITEM_PARA" value="false" />
+            <option name="GFM_TABLE_RENDERING" value="false" />
+            <option name="GITBOOK_URL_ENCODING" value="true" />
+            <option name="GITHUB_LISTS" value="true" />
+            <option name="GITHUB_WIKI_LINKS" value="false" />
+            <option name="HEADER_ID_NO_DUPED_DASHES" value="false" />
+            <option name="JEKYLL_FRONT_MATTER" value="false" />
+            <option name="NO_TEXT_ATTRIBUTES" value="false" />
+            <option name="PARSE_HTML_ANCHOR_ID" value="false" />
+            <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
+          </ParserOptions>
+        </ParserSettings>
+        <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" embedUrlContent="false" addPageHeader="false" embedImages="false" embedHttpImages="false" imageUriSerials="false">
+          <GeneratorProvider>
+            <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.generator" providerName="Default Swing HTML Generator" />
+          </GeneratorProvider>
+          <headerTop />
+          <headerBottom />
+          <bodyTop />
+          <bodyBottom />
+        </HtmlSettings>
+        <CssSettings previewScheme="UI_SCHEME" cssUri="" isCssUriEnabled="false" isCssUriSerial="true" isCssTextEnabled="false" isDynamicPageWidth="true">
+          <StylesheetProvider>
+            <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.css" providerName="Default Swing Stylesheet" />
+          </StylesheetProvider>
+          <ScriptProviders />
+          <cssText />
+          <cssUriHistory />
+        </CssSettings>
+        <HtmlExportSettings updateOnSave="true" parentDir="$ProjectFileDir$/MissingInActionsAssets/markdown" targetDir="$ProjectFileDir$/MissingInActionsAssets/markdown" cssDir="$ProjectFileDir$/MissingInActionsAssets/markdown/css" scriptDir="$ProjectFileDir$/MissingInActionsAssets/markdown/js" plainHtml="true" imageDir="$ProjectFileDir$/MissingInActionsAssets/markdown/img" copyLinkedImages="false" imageUniquifyType="0" targetExt="" useTargetExt="false" noCssNoScripts="true" linkToExportedHtml="false" exportOnSettingsChange="true" regenerateOnProjectOpen="false" linkFormatType="HTTP_ABSOLUTE" />
+        <LinkMapSettings>
+          <textMaps />
+        </LinkMapSettings>
+      </option>
+    </profile>
+    <scope-profiles>
+      <element scope="Plugin Description" profile="Plugin Description" />
+    </scope-profiles>
+  </settings>
+  <MarkdownNavigatorHistory>
+    <component>
+      <PasteImageHistory filename="Highlight_word_6" directory="/Users/vlad/src/MissingInActions/MissingInActions.wiki/img" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="2" onPasteReferenceElement="2" cornerRadius="20" borderColor="-1966010" transparentColor="-1" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="0" trimRight="0" transparent="false" roundCorners="false" showPreview="true" bordered="false" scaled="true" cropped="false" hideInapplicableOperations="false" scale="50" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0">
+        <directories>
+          <option name="/Users/vlad/src/MissingInActions/assets/images" />
+          <option name="/Users/vlad/src/MissingInActions/MissingInActionsAssets/doc/YouTrack/copy-paste" />
+          <option name="/Users/vlad/src/MissingInActions/resources/icons" />
+          <option name="/Users/vlad/src/MissingInActions/assets/images/noload" />
+          <option name="/Users/vlad/src/MissingInActions/MissingInActions.wiki/img" />
+        </directories>
+        <filenames />
+      </PasteImageHistory>
+      <CopyImageHistory filename="Batch_Replace" directory="/Users/vlad/src/MissingInActions/assets/images" onPasteImageTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteReferenceElement="2" cornerRadius="20" borderColor="-16777216" transparentColor="-1" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="0" trimRight="0" transparent="false" roundCorners="false" showPreview="true" bordered="false" scaled="false" cropped="false" hideInapplicableOperations="true" scale="50" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0">
+        <directories>
+          <option name="/Users/vlad/src/MissingInActions/assets/images" />
+          <option name="/Users/vlad/src/MissingInActions/MissingInActionsAssets/doc/YouTrack/copy-paste" />
+          <option name="/Users/vlad/src/MissingInActions/resources/icons" />
+          <option name="/Users/vlad/src/MissingInActions/assets/images/noload" />
+          <option name="/Users/vlad/src/MissingInActions/MissingInActions.wiki/img" />
+        </directories>
+        <filenames />
+      </CopyImageHistory>
+      <PasteLinkHistory onPasteImageTargetRef="3" onPasteTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteWikiElement="2" onPasteReferenceElement="2" hideInapplicableOperations="false" saveAsDefaultOnOK="false" linkFormat="0" />
+    </component>
+  </MarkdownNavigatorHistory>
+  <DocumentSettings showHtmlPreview="true" verbatimLangInjections="true" htmlLangInjections="true" softWraps="1" iconGutters="true" softWrapAtMargin="true" showEmojiInGutter="false" showBreadcrumbText="true" maxBreadcrumbText="30" previewScrollDelay="1000" typingUpdateDelay="1000" enableAnnotator="true" hideDisabledButtons="true" hideToolbar="false" disableGifImages="true" codeLikeStyleToggle="true" overrideEditorDragDropHandler="false" toggleStylePunctuations=".,:;!?" htmlMimeMaxImageWidth="100%" htmlMimeFontFamily="" pdfMaxImageWidth="504pt" pdfFontFamily="" detectHtmlOnPaste="false" textSplitLayoutToggle="true" asteriskItalics="true" verticalSplitPreview="false" convertHtmlOnPaste="true" showHeadingID="false" useRenameSpellingFix="true" usePasteHandler="true" includeDirsInCompletion="true" enableLineMarkers="false" showApplyAllIntentionsEverywhere="true" zoomFactor="0.85" syntaxHighlighting="1" />
+</MarkdownNavigator.ExportedProjectSettings>
