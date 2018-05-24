@@ -56,6 +56,10 @@
 
 ### 1.4.19 - Bug Fix Release
 
+* [ ] Add: option and functionality to change duplicate lines action to only operate on a line
+  once even if there are many carets present on that line.
+* Fix: batch replace all was too slow trying to use `findPrev()`. Now does does not update
+  highlights or caret. Just modifies document.
 * Add: Toggle on paste preserve action and setting to disable on paste preserve case
   functionality without having to change the options when it gets in the way.
 * Fix: NPE when caret spawning/searching from active caret search

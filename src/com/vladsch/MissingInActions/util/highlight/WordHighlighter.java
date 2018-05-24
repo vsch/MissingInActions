@@ -59,7 +59,7 @@ public class WordHighlighter extends Highlighter {
                 Document document = myEditor.getDocument();
                 MarkupModel markupModel = myEditor.getMarkupModel();
                 Matcher matcher = pattern.matcher(document.getCharsSequence());
-                myIndexedWordCount = new int[highlightProvider.getHighlightWords().size()];
+                myIndexedWordCount = new int[highlightProvider.getMaxHighlightWordIndex()];
 
                 while (matcher.find()) {
                     // create a highlighter

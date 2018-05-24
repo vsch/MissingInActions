@@ -46,6 +46,7 @@ public interface WordHighlightProvider extends HighlightProvider {
     @Nullable Map<String, Integer> getHighlightWordIndices();
     @Nullable Map<String, Integer> getHighlightCaseInsensitiveWordIndices();
     Pattern getHighlightPattern();
+    int getMaxHighlightWordIndex();
     int getHighlightWordIndex(final String word);
     boolean isHighlightWordsCaseSensitive();
     void setHighlightWordsCaseSensitive(boolean highlightWordsCaseSensitive);

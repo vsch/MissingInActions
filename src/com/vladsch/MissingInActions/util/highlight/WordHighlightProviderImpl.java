@@ -177,6 +177,11 @@ public class WordHighlightProviderImpl extends HighlightProviderBase implements 
     }
 
     @Override
+    public int getMaxHighlightWordIndex() {
+        return myOriginalOrderIndex;
+    }
+
+    @Override
     public boolean haveHighlights() {
         return myHighlightWords != null && !myHighlightWords.isEmpty();
     }

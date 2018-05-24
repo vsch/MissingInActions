@@ -1207,29 +1207,40 @@ public class BatchReplaceForm implements Disposable {
 
         if (!myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty()) {
             WriteCommandAction.runWriteCommandAction(myProject, () -> {
-                int caretOffset = myEditor.getCaretModel().getPrimaryCaret().getOffset();
                 int length = myEditor.getDocument().getTextLength();
-                myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
+                int caretOffset = length;
+                //myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
+                //myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
 
-                while (true) {
-                    findPrevious();
+                WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+                myFoundBackwards = true;
 
-                    if (myFoundRange != null && myFoundIndex != -1) {
-                        if (isExcludedRange()) {
-                            myEditor.getCaretModel().getPrimaryCaret().moveToOffset(myFoundRange.getStartOffset());
-                            continue;
+                if (highlighter != null) {
+                    // rolled in find prev code to speed things up since we do not need highlight updates in the loop
+                    while (true) {
+                        RangeHighlighter rangeHighlighter = highlighter.getPreviousRangeHighlighter(caretOffset);
+                        myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
+                        myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+
+                        if (myFoundRange != null && myFoundIndex != -1) {
+                            if (isExcludedRange()) {
+                                caretOffset = myFoundRange.getStartOffset();
+                                continue;
+                            }
+                            String replacement = myLineSearchData.get(myFoundIndex).replace;
+                            myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
+                            adjustExclusions(myFoundRange, replacement.length());
+                            caretOffset = myFoundRange.getStartOffset();
+                        } else {
+                            break;
                         }
-                        String replacement = myLineSearchData.get(myFoundIndex).replace;
-                        myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
-                        adjustExclusions(myFoundRange, replacement.length());
-                        caretOffset = myFoundRange.getStartOffset();
-                    } else {
-                        break;
                     }
                 }
 
-                myEditor.getCaretModel().getPrimaryCaret().moveToOffset(caretOffset);
+                //myEditor.getCaretModel().getPrimaryCaret().moveToOffset(caretOffset);
+
+                updateFoundRanges();
+                updateRangeButtons();
             });
         }
     }
