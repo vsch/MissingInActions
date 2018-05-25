@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.concurrency.JobScheduler;
 import com.intellij.openapi.components.ServiceManager;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +39,7 @@ public class CancelableJobScheduler {
         return ServiceManager.getService(CancelableJobScheduler.class);
     }
 
-    final private SortedArrayList<MyRunnable> myRunnables = new SortedArrayList<>(Comparator.comparingLong(o -> o.myScheduledTickTime));
+    final private SortedArrayList<CancellableJob> myRunnables = new SortedArrayList<>(Comparator.comparingLong(o -> o.myScheduledTickTime));
     private AtomicLong myTickTime;
     final private int myResolution = 25;
     final private TimeUnit myTimeUnit = TimeUnit.MILLISECONDS;
@@ -60,22 +61,40 @@ public class CancelableJobScheduler {
         long tickTime = myTickTime.addAndGet(myResolution);
 
         // run all tasks whose tickTime is <= tickTime
-        MyRunnable dummy = new MyRunnable(tickTime, this::onTimerTick);
-        myRunnables.removeIfBefore(dummy, MyRunnable::run);
+        CancellableJob dummy = new CancellableJob(tickTime, this::onTimerTick);
+        final ArrayList<CancellableJob> toRun = new ArrayList<>();
+        synchronized (myRunnables) {
+            myRunnables.removeIfBefore(dummy, toRun::add);
+        }
+
+        while (!toRun.isEmpty()) {
+            CancellableJob runnable = toRun.remove(0);
+
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public CancellableRunnable schedule(Runnable command, int delay) {
-        MyRunnable runnable = new MyRunnable(myTickTime.get() + delay, command);
-        myRunnables.add(runnable);
+        CancellableJob runnable;
+        delay = Math.max(delay, myResolution);
+
+        synchronized (myRunnables) {
+            runnable = new CancellableJob(myTickTime.get() + delay, command);
+            myRunnables.add(runnable);
+        }
         return runnable;
     }
 
-    private static class MyRunnable implements CancellableRunnable {
+    private static class CancellableJob implements CancellableRunnable {
         private final Runnable myRunnable;
         private final long myScheduledTickTime;
         private final AtomicBoolean myHasRun = new AtomicBoolean(false);
 
-        MyRunnable(long scheduledTickTime, Runnable runnable) {
+        CancellableJob(long scheduledTickTime, Runnable runnable) {
             myRunnable = runnable;
             myScheduledTickTime = scheduledTickTime;
         }

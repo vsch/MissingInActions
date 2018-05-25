@@ -51,13 +51,14 @@
 * [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
       indent.
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
+* [ ] Add: option and functionality to change duplicate lines action to only operate on a line
+  once even if there are many carets present on that line.
 
 &nbsp;</details>
 
 ### 1.4.19 - Bug Fix Release
 
-* [ ] Add: option and functionality to change duplicate lines action to only operate on a line
-  once even if there are many carets present on that line.
+* Add: Next/Previous highlighted word action to move caret to next/previous highlighted word
 * Fix: batch replace all was too slow trying to use `findPrev()`. Now does does not update
   highlights or caret. Just modifies document.
 * Add: Toggle on paste preserve action and setting to disable on paste preserve case

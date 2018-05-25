@@ -684,6 +684,20 @@
                 description="Toggle Word Highlights Mode">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.NextHighlightWordAction"
+                id="MissingInActions.NextHighlightWord"
+                text="Next Highlighted Word"
+                icon="PluginIcons.Next_highlighted_word"
+                description="Next Highlighted Word">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.PreviousHighlightWordAction"
+                id="MissingInActions.PreviousHighlightWord"
+                text="Previous Highlighted Word"
+                icon="PluginIcons.Previous_highlighted_word"
+                description="Previous Highlighted Word">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsCaseSensitiveAction"
                 id="MissingInActions.ToggleWordHighlightsCaseSensitive"
                 text="Toggle Case Sensitive Word Highlights"
@@ -770,6 +784,9 @@
                 <separator/>
                 <reference id="MissingInActions.KeepWordHighlightedCaret"/>
                 <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
+                <separator/>
+                <reference id="MissingInActions.PreviousHighlightWord"/>
+                <reference id="MissingInActions.NextHighlightWord"/>
             </group>
             <separator/>
             <reference id="MissingInActions.ToggleCaretsLineSelection"/>
