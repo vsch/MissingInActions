@@ -25,9 +25,9 @@ import com.vladsch.MissingInActions.actions.DumbAwareTextComponentEditorAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.RegExDeleteProvider;
 
-public class CustomBackspaceAlternatingAction extends DumbAwareTextComponentEditorAction {
-    public CustomBackspaceAlternatingAction() {
-        super(new DeleteRegExActionHandler(new RegExProvider(), true, DeleteRegExActionHandler.HumpsMode.NONE));
+public class CustomBackspaceAlternatingInDifferentHumpsModeAction extends DumbAwareTextComponentEditorAction {
+    public CustomBackspaceAlternatingInDifferentHumpsModeAction() {
+        super(new DeleteRegExActionHandler(new RegExProvider(), true, DeleteRegExActionHandler.HumpsMode.INVERT));
     }
 
     static class RegExProvider implements RegExDeleteProvider {

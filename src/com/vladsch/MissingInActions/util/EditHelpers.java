@@ -523,6 +523,19 @@ public class EditHelpers {
                 isUpperCase(prevChar) && isUpperCase(curChar) && Character.isLowerCase(nextChar);
     }
 
+    /*
+    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
+        if (offset <= 0 || offset >= editorText.length()) return false;
+        final char prevChar = editorText.charAt(offset - 1);
+        final char curChar = editorText.charAt(offset);
+        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
+
+        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
+                !start && prevChar != '_' && curChar == '_' ||
+                !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
+    }
+*/
+
     public static boolean isHumpBoundIdentifier(@NotNull CharSequence editorText, int offset, boolean start) {
         if (offset <= 0) return start;
         else if (offset >= editorText.length()) return !start;
@@ -545,19 +558,6 @@ public class EditHelpers {
 
         return start ? prevChar == '_' && curChar != '_' && isLetterOrDigit(curChar) : prevChar != '_' && curChar == '_' && isLetterOrDigit(prevChar);
     }
-
-/*
-    public static boolean isHumpBoundEnd(@NotNull CharSequence editorText, int offset, boolean start) {
-        if (offset <= 0 || offset >= editorText.length()) return false;
-        final char prevChar = editorText.charAt(offset - 1);
-        final char curChar = editorText.charAt(offset);
-        final char nextChar = offset + 1 < editorText.length() ? editorText.charAt(offset + 1) : 0; // 0x00 is not lowercase.
-
-        return isLowerCaseOrDigit(prevChar) && Character.isUpperCase(curChar) ||
-                !start && prevChar != '_' && curChar == '_' ||
-                !start && Character.isLetterOrDigit(prevChar) && curChar == '$';
-    }
-*/
 
     public static boolean isLowerCaseOrDigit(char c) {
         return Character.isLowerCase(c) || Character.isDigit(c);
@@ -1681,6 +1681,11 @@ public class EditHelpers {
             });
         }
         return handled;
+    }
+
+    public static boolean isIdentifierPart(char c) {
+        // add $ since PHP and JavaScript take these as part of identifier
+        return c == '$' || isJavaIdentifierPart(c);
     }
 
     public static class ByLineType {

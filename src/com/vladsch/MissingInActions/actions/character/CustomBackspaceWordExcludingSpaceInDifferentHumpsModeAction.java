@@ -25,16 +25,16 @@ import com.vladsch.MissingInActions.actions.DumbAwareTextComponentEditorAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.RegExDeleteProvider;
 
-public class CustomBackspaceAlternatingAction extends DumbAwareTextComponentEditorAction {
-    public CustomBackspaceAlternatingAction() {
-        super(new DeleteRegExActionHandler(new RegExProvider(), true, DeleteRegExActionHandler.HumpsMode.NONE));
+public class CustomBackspaceWordExcludingSpaceInDifferentHumpsModeAction extends DumbAwareTextComponentEditorAction {
+    public CustomBackspaceWordExcludingSpaceInDifferentHumpsModeAction() {
+        super(new DeleteRegExActionHandler(new RegExProvider(), true, DeleteRegExActionHandler.HumpsMode.INVERT));
     }
 
     static class RegExProvider implements RegExDeleteProvider {
 
         @Override
         public String getRegEx() {
-            return ApplicationSettings.getInstance().getBackspaceAlternatingRegEx();
+            return ApplicationSettings.getInstance().getBackspaceWordExcludingSpaceRegEx();
         }
 
         @Override

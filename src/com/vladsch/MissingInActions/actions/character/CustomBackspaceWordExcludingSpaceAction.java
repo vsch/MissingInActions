@@ -27,7 +27,7 @@ import com.vladsch.MissingInActions.util.RegExDeleteProvider;
 
 public class CustomBackspaceWordExcludingSpaceAction extends DumbAwareTextComponentEditorAction {
     public CustomBackspaceWordExcludingSpaceAction() {
-        super(new DeleteRegExActionHandler(new RegExProvider(), true));
+        super(new DeleteRegExActionHandler(new RegExProvider(), true, DeleteRegExActionHandler.HumpsMode.NONE));
     }
 
     static class RegExProvider implements RegExDeleteProvider {

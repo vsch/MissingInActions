@@ -310,53 +310,33 @@
                     description="Backspace spaces">
             </action>
 
-            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceAlternatingAction"
-                    id="MissingInActions.CustomBackspaceAlternating"
-                    text="Custom Backspace Alternating Word"
-                    description="Custom Backspace Alternating Word">
-            </action>
-
             <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceSpacesAction"
                     id="MissingInActions.CustomBackspaceSpaces"
                     text="Custom Backspace Spaces"
                     description="Custom Backspace Spaces">
             </action>
 
-            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordAction"
-                    id="MissingInActions.CustomBackspaceWord"
-                    text="Custom Backspace Word"
-                    description="Custom Backspace Word">
-            </action>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceAlternatingAction" id="MissingInActions.CustomBackspaceAlternating" text="Custom Backspace Alternating Word" description="Custom Backspace Alternating Word"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordAction" id="MissingInActions.CustomBackspaceWord" text="Custom Backspace Word" description="Custom Backspace Word"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordExcludingSpaceAction" id="MissingInActions.CustomBackspaceWordExcludingSpace" text="Custom Backspace Word Excluding Single Space" description="Custom Backspace Word Excluding Single Space"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingAction" id="MissingInActions.CustomDeleteAlternating" text="Custom Delete Alternating Word" description="Custom Delete Alternating Word"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteSpacesAction" id="MissingInActions.CustomDeleteSpaces" text="Custom Delete Spaces" description="Custom Delete Spaces"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordAction" id="MissingInActions.CustomDeleteWord" text="Custom Delete Word" description="Custom Delete Word"/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceAction" id="MissingInActions.CustomDeleteWordExcludingSpace" text="Custom Delete Word Excluding Single Space" description="Custom Delete Word Excluding Space"/>
 
-            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordExcludingSpaceAction"
-                    id="MissingInActions.CustomBackspaceWordExcludingSpace"
-                    text="Custom Backspace Word Excluding Single Space"
-                    description="Custom Backspace Word Excluding Single Space">
-            </action>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceAlternatingInDifferentHumpsModeAction" id="MissingInActions.CustomBackspaceAlternatingInDifferentHumpsMode" text='Custom Backspace Alternating Word in Different "CamelHumps" Mode' description='Custom Backspace Alternating Word in Different "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordInDifferentHumpsModeAction" id="MissingInActions.CustomBackspaceWordInDifferentHumpsMode" text='Custom Backspace Word in Different "CamelHumps" Mode' description='Custom Backspace Word in Different "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordExcludingSpaceInDifferentHumpsModeAction" id="MissingInActions.CustomBackspaceWordExcludingSpaceInDifferentHumpsMode" text='Custom Backspace Word Excluding Single Space in Different "CamelHumps" Mode' description='Custom Backspace Word Excluding Single Space in Different "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingInDifferentHumpsModeAction" id="MissingInActions.CustomDeleteAlternatingInDifferentHumpsMode" text='Custom Delete Alternating Word in Different "CamelHumps" Mode' description='Custom Delete Alternating Word in Different "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordInDifferentHumpsModeAction" id="MissingInActions.CustomDeleteWordInDifferentHumpsMode" text='Custom Delete Word in Different "CamelHumps" Mode' description='Custom Delete Word in Different "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceInDifferentHumpsModeAction" id="MissingInActions.CustomDeleteWordExcludingSpaceInDifferentHumpsMode" text='Custom Delete Word Excluding Single Space in Different "CamelHumps" Mode' description='Custom Delete Word Excluding Single Space in Different "CamelHumps" Mode'/>
 
-            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingAction"
-                    id="MissingInActions.CustomDeleteAlternating"
-                    text="Custom Delete Alternating Word"
-                    description="Custom Delete Alternating Word">
-            </action>
-
-            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteSpacesAction"
-                    id="MissingInActions.CustomDeleteSpaces"
-                    text="Custom Delete Spaces"
-                    description="Custom Delete Spaces">
-            </action>
-
-            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordAction"
-                    id="MissingInActions.CustomDeleteWord"
-                    text="Custom Delete Word"
-                    description="Custom Delete Word">
-            </action>
-
-            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceAction"
-                    id="MissingInActions.CustomDeleteWordExcludingSpace"
-                    text="Custom Delete Word Excluding Single Space"
-                    description="Custom Delete Word Excluding Space">
-            </action>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceAlternatingInHumpsModeAction" id="MissingInActions.CustomBackspaceAlternatingInHumpsMode" text='Custom Backspace Alternating Word in "CamelHumps" Mode' description='Custom Backspace Alternating Word in "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordInHumpsModeAction" id="MissingInActions.CustomBackspaceWordInHumpsMode" text='Custom Backspace Word in "CamelHumps" Mode' description='Custom Backspace Word in "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomBackspaceWordExcludingSpaceInHumpsModeAction" id="MissingInActions.CustomBackspaceWordExcludingSpaceInHumpsMode" text='Custom Backspace Word Excluding Single Space in "CamelHumps" Mode' description='Custom Backspace Word Excluding Single Space in "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingInHumpsModeAction" id="MissingInActions.CustomDeleteAlternatingInHumpsMode" text='Custom Delete Alternating Word in "CamelHumps" Mode' description='Custom Delete Alternating Word in "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordInHumpsModeAction" id="MissingInActions.CustomDeleteWordInHumpsMode" text='Custom Delete Word in "CamelHumps" Mode' description='Custom Delete Word in "CamelHumps" Mode'/>
+            <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceInHumpsModeAction" id="MissingInActions.CustomDeleteWordExcludingSpaceInHumpsMode" text='Custom Delete Word Excluding Single Space in "CamelHumps" Mode' description='Custom Delete Word Excluding Single Space in "CamelHumps" Mode'/>
 
             <action class="com.vladsch.MissingInActions.actions.character.DeleteSpacesAction"
                     id="MissingInActions.DeleteSpaces"
@@ -686,16 +666,16 @@
 
         <action class="com.vladsch.MissingInActions.actions.pattern.NextHighlightWordAction"
                 id="MissingInActions.NextHighlightWord"
-                text="Next Highlighted Word"
+                text="Move Caret to Next Highlighted Word"
                 icon="PluginIcons.Next_highlighted_word"
-                description="Next Highlighted Word">
+                description="Move Caret to Next Highlighted Word">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.pattern.PreviousHighlightWordAction"
                 id="MissingInActions.PreviousHighlightWord"
-                text="Previous Highlighted Word"
+                text="Move Caret to Previous Highlighted Word"
                 icon="PluginIcons.Previous_highlighted_word"
-                description="Previous Highlighted Word">
+                description="Move Caret to Previous Highlighted Word">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsCaseSensitiveAction"

@@ -58,6 +58,7 @@
 
 ### 1.4.19 - Bug Fix Release
 
+* Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.
 * Add: Next/Previous highlighted word action to move caret to next/previous highlighted word
 * Fix: batch replace all was too slow trying to use `findPrev()`. Now does does not update
   highlights or caret. Just modifies document.

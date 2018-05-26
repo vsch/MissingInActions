@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.Editor;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
@@ -53,11 +54,6 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     private List<CaretState> myStartCarets;
     private Caret myPatternCaret;
     private boolean myCaretToEndGroup;
-
-    static boolean isIdentifierPart(char c) {
-        // add $ since PHP and JavaScript take these as part of identifier
-        return c == '$' || Character.isJavaIdentifierPart(c);
-    }
 
     public CaretSpawningSearchHandler(final boolean backwards) {
         super(backwards);
@@ -252,10 +248,10 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     //myPattern = ForwardPattern.compile("(\\s*)\\S+");
                     myPattern = ForwardPattern.compile("((?<=\\s)\\s*|^|(?<=\\S)\\S*\\s+)\\S+");
                     myCaretToEndGroup = true;
-                } else if (isIdentifierPart(c)) {
+                } else if (EditHelpers.isIdentifierPart(c)) {
                     // find end of identifier
                     int end = offset;
-                    while (end < range.getEnd() && isIdentifierPart(chars.charAt(end))) end++;
+                    while (end < range.getEnd() && EditHelpers.isIdentifierPart(chars.charAt(end))) end++;
                     BasedSequence text = chars.subSequence(offset, end);
                     boolean hexPrefix = text.startsWith("0x", true);
                     String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
@@ -267,7 +263,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                             || (text.indexOfAnyNot("0123456789") == -1)
                     )) {
                         // hex, octal or decimal, look for numeric sequence
-                        if (offset == 0 || !isIdentifierPart(chars.charAt(offset - 1))) {
+                        if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
                             if (hexPrefix) {
                                 myPattern = ForwardPattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
                             } else {
@@ -280,7 +276,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                                 myPattern = ForwardPattern.compile("([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
                             }
                         }
-                    } else if (offset == 0 || !isIdentifierPart(chars.charAt(offset - 1))) {
+                    } else if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
                         // we are at start of identifier even if first char is not a valid java identifier
                         // check if it is a numeric sequence base 10 or hex starting with 0x
                         myPattern = ForwardPattern.compile(startBreak + "(" + Pattern.quote(text.toString()) + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
@@ -309,10 +305,10 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     //myPattern = ReversePattern.compile("\\S+(\\s+)");
                     myPattern = ReversePattern.compile("\\S+(\\s*(?=\\s)|$|\\s+(?=\\S+))");
                     myCaretToEndGroup = true;
-                } else if (isIdentifierPart(c)) {
+                } else if (EditHelpers.isIdentifierPart(c)) {
                     // find start of identifier
                     int start = offset;
-                    while (start > range.getStart() && isIdentifierPart(chars.charAt(start - 1))) start--;
+                    while (start > range.getStart() && EditHelpers.isIdentifierPart(chars.charAt(start - 1))) start--;
 
                     BasedSequence text = chars.subSequence(start, offset);
                     boolean hexPrefix = text.startsWith("0x", true);
@@ -327,7 +323,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                             || (text.indexOfAnyNot("0123456789") == -1)
                     )) {
                         // hex, octal or decimal, look for numeric sequence
-                        if (offset >= chars.length() || !isIdentifierPart(chars.charAt(offset))) {
+                        if (offset >= chars.length() || !EditHelpers.isIdentifierPart(chars.charAt(offset))) {
                             if (hexPrefix) {
                                 myPattern = ReversePattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
                             } else {
@@ -340,7 +336,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                                 myPattern = ReversePattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)");
                             }
                         }
-                    } else if (offset >= chars.length() || !isIdentifierPart(chars.charAt(offset))) {
+                    } else if (offset >= chars.length() || !EditHelpers.isIdentifierPart(chars.charAt(offset))) {
                         // we are at start of identifier even if first char is not a valid java identifier
                         myPattern = ReversePattern.compile(startBreak + "(" + Pattern.quote(chars.subSequence(start, offset).toString()) + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                     } else {

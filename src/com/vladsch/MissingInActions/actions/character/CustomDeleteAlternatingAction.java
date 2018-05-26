@@ -27,7 +27,7 @@ import com.vladsch.MissingInActions.util.RegExDeleteProvider;
 
 public class CustomDeleteAlternatingAction extends DumbAwareTextComponentEditorAction {
     public CustomDeleteAlternatingAction() {
-        super(new DeleteRegExActionHandler(new RegExProvider(), false));
+        super(new DeleteRegExActionHandler(new RegExProvider(), false, DeleteRegExActionHandler.HumpsMode.NONE));
     }
 
     static class RegExProvider implements RegExDeleteProvider {
