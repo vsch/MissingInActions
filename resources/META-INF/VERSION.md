@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.19 - Bug Fix Release](#1419---bug-fix-release)
+- [1.4.20 - Bug Fix Release](#1420---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -56,7 +56,7 @@
 
 &nbsp;</details>
 
-### 1.4.19 - Bug Fix Release
+### 1.4.20 - Bug Fix Release
 
 * Add: Select word and move to next/previous word. If caret not on identifier then first move it
   to next/prev identifier then perform action.

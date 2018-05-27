@@ -81,14 +81,20 @@
         ]]>
     </description>
 
-    <version>1.4.19</version>
+    <version>1.4.20</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.19 - Bug Fix Release</h3>
+            <h3>1.4.20 - Bug Fix Release</h3>
             <ul>
+                <li>Add: Select word and move to next/previous word. If caret not on identifier then first move it
+                    to next/prev identifier then perform action.</li>
+                <li>Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.</li>
+                <li>Add: Next/Previous highlighted word action to move caret to next/previous highlighted word</li>
+                <li>Fix: batch replace all was too slow trying to use <code>findPrev()</code>. Now does does not update
+                    highlights or caret. Just modifies document.</li>
                 <li>Add: Toggle on paste preserve action and setting to disable on paste preserve case
                     functionality without having to change the options when it gets in the way.</li>
                 <li>Fix: NPE when caret spawning/searching from active caret search</li>
