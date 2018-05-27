@@ -421,8 +421,13 @@ public class EditHelpers {
         return (Character.isWhitespace(prev) && !Character.isWhitespace(current));
     }
 
+    public static boolean isIdentifierPart(char c) {
+        // add $ since PHP and JavaScript take these as part of identifier
+        return c == '$' || isJavaIdentifierPart(c);
+    }
+
     public static boolean isIdentifier(@NotNull CharSequence text, int offset) {
-        return offset >= 0 && offset < text.length() && Character.isJavaIdentifierPart(text.charAt(offset));
+        return offset >= 0 && offset < text.length() && isIdentifierPart(text.charAt(offset));
     }
 
     public static boolean isWordStart(@NotNull CharSequence text, int offset, boolean isCamel) {
@@ -1681,11 +1686,6 @@ public class EditHelpers {
             });
         }
         return handled;
-    }
-
-    public static boolean isIdentifierPart(char c) {
-        // add $ since PHP and JavaScript take these as part of identifier
-        return c == '$' || isJavaIdentifierPart(c);
     }
 
     public static class ByLineType {

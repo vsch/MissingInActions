@@ -338,6 +338,18 @@
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordInHumpsModeAction" id="MissingInActions.CustomDeleteWordInHumpsMode" text='Custom Delete Word in "CamelHumps" Mode' description='Custom Delete Word in "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceInHumpsModeAction" id="MissingInActions.CustomDeleteWordExcludingSpaceInHumpsMode" text='Custom Delete Word Excluding Single Space in "CamelHumps" Mode' description='Custom Delete Word Excluding Single Space in "CamelHumps" Mode'/>
 
+            <action class="com.vladsch.MissingInActions.actions.character.word.SelectWordAndMoveToNextWordAction"
+                    id="MissingInActions.SelectWordAndMoveToNextWord"
+                    text="Select Word and Move Caret to Next Word"
+                    description="Select Word and Move Caret to Next Word">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.character.word.SelectWordAndMoveToPreviousWordAction"
+                    id="MissingInActions.SelectWordAndMoveToPreviousWord"
+                    text="Select Word and Move Caret to Previous Word"
+                    description="Select Word and Move Caret to Previous Word">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.character.DeleteSpacesAction"
                     id="MissingInActions.DeleteSpaces"
                     text="Delete spaces"
