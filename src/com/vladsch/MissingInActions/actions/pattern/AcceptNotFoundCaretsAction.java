@@ -79,7 +79,9 @@ public class AcceptNotFoundCaretsAction extends EditorAction implements CaretSea
                     }
 
                     manager.clearSearchFoundCarets();
-                    editor.getCaretModel().setCaretsAndSelections(keepCarets);
+                    if (!keepCarets.isEmpty()) {
+                        editor.getCaretModel().setCaretsAndSelections(keepCarets);
+                    }
                 } else {
                     manager.clearSearchFoundCarets();
                     editor.getCaretModel().setCaretsAndSelections(caretStates);

@@ -157,7 +157,7 @@ public class EditHelpers {
 
         int maxLineNumber = stopAtLastNonBlank > 0 || lineNumber + 1 > document.getLineCount() ? lineNumber : lineNumber + 1;
         int maxOffset = stopAtLastNonBlank > 0 ? stopAtLastNonBlank :
-                (stopAtStartOfLine && lineNumber < maxLineNumber ? document.getLineStartOffset(maxLineNumber) : document.getLineEndOffset(maxLineNumber));
+                (stopAtStartOfLine && lineNumber < maxLineNumber ? document.getLineStartOffset(maxLineNumber) : stopAtEndOfLine ?  document.getLineEndOffset(maxLineNumber) : document.getTextLength());
 
         int newOffset = offset + 1;
         if (newOffset > maxOffset) return;
@@ -260,7 +260,7 @@ public class EditHelpers {
 
         int minLineNumber = lineNumber == 0 || stopAtIndent > 0 ? lineNumber : lineNumber - 1;
         int minOffset = stopAtIndent > 0 ? stopAtIndent :
-                (stopAtEndOfLine && lineNumber > minLineNumber ? document.getLineEndOffset(minLineNumber) : document.getLineStartOffset(minLineNumber));
+                (stopAtEndOfLine && lineNumber > minLineNumber ? document.getLineEndOffset(minLineNumber) : stopAtStartOfLine ? document.getLineStartOffset(minLineNumber) : 0);
 
         // if virtual spaces are enabled the caret can be after the end so we should pretend it is on the next char after the end
         int newOffset = stopAtIndent > offset - 1 ? stopAtIndent : offset - 1;

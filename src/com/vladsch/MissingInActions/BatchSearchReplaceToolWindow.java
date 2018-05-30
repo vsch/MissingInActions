@@ -37,13 +37,17 @@ import icons.PluginIcons;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.util.HashMap;
 
 public class BatchSearchReplaceToolWindow {
     private ToolWindow toolWindow;
 
     private static final String TOOL_WINDOW_ID = Bundle.message("plugin.tool-window.id");
+    private static final String BATCH_REPLACE_ID = "BATCH_REPLACE_ID";
+
     private Project project;
     private BatchReplaceForm myBatchSearchReplace;
+    private HashMap<String, Content> myToolWindowContentMap = new HashMap<>();
 
     public BatchSearchReplaceToolWindow(Project project) {
         this.project = project;
@@ -57,7 +61,9 @@ public class BatchSearchReplaceToolWindow {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         mainPanel.add(myBatchSearchReplace.getMainPanel());
         Content content = contentFactory.createContent(mainPanel, Bundle.message("batch-search.tool-window.title"), false);
+        myToolWindowContentMap.put(BATCH_REPLACE_ID, content);
         toolWindow.getContentManager().addContent(content);
+
     }
 
     public void unregisterToolWindow() {
@@ -67,6 +73,10 @@ public class BatchSearchReplaceToolWindow {
         Disposer.dispose(myBatchSearchReplace);
 
         toolWindowManager.unregisterToolWindow(TOOL_WINDOW_ID);
+    }
+
+    public BatchReplaceForm getBatchSearchReplace() {
+        return myBatchSearchReplace;
     }
 
     public void setActiveEditor(EditorEx editor) {

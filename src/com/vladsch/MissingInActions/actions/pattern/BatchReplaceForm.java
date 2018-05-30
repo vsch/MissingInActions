@@ -127,6 +127,7 @@ public class BatchReplaceForm implements Disposable {
     int[] myIndexedWordCounts = null;
     TextRange myFoundRange = null;
     boolean myHighlightAllLines = false;
+    private boolean myIsIncludeMode = false;
 
     ArrayList<TextRange> myExcludedRanges = null;
     WordHighlightProvider myEditorSearchHighlightProvider;
@@ -234,6 +235,10 @@ public class BatchReplaceForm implements Disposable {
 
     @SuppressWarnings("VariableNotUsedInsideIf")
     public void setActiveEditor(@Nullable EditorEx editor) {
+        if (editor != null && editor.isDisposed()) {
+            editor = null;
+        }
+
         if (myEditor != editor) {
             myExcludedRanges = null;
 
@@ -469,8 +474,8 @@ public class BatchReplaceForm implements Disposable {
             }
         });
 
-        myCaseSensitive.addActionListener(actionListener);
-        myWholeWord.addActionListener(actionListener);
+        myCaseSensitive.addActionListener(textChangedActionListener);
+        myWholeWord.addActionListener(textChangedActionListener);
 
         myPresets.setEditable(true);
 
@@ -817,6 +822,8 @@ public class BatchReplaceForm implements Disposable {
 
     void updateOptions(final boolean searchReplaceTextChanged) {
         //noinspection VariableNotUsedInsideIf
+        if (myEditor == null || myEditor.isDisposed()) return;
+
         if (searchReplaceTextChanged) myPendingForcedUpdate = true;
 
         if (myInUpdate) return;
@@ -910,22 +917,34 @@ public class BatchReplaceForm implements Disposable {
                         boolean isBeginWord = myWholeWord.isSelected();
                         boolean isEndWord = myWholeWord.isSelected();
 
-                        if (optionsText.indexOf('c') != -1) {
+                        // implement # marking start of comment
+                        int iComment = optionsText.indexOf('#');
+                        if (iComment == -1) iComment = optionsText.length();
+
+                        int iC = optionsText.indexOf('c');
+                        int iI = optionsText.indexOf('i');
+                        int iW = optionsText.indexOf('w');
+                        int iB = optionsText.indexOf('b');
+                        int iE = optionsText.indexOf('e');
+
+                        if (iC >= 0 && iC < iComment) {
                             isCaseSensitive = true;
-                        } else if (optionsText.indexOf('i') != -1) {
-                            isCaseSensitive = false;
+                        } else {
+                            if (iI >= 0 && iI < iComment) {
+                                isCaseSensitive = false;
+                            }
                         }
 
-                        if (optionsText.indexOf('w') != -1) {
+                        if (iW >= 0 && iW < iComment) {
                             isBeginWord = true;
                             isEndWord = true;
                         }
 
-                        if (optionsText.indexOf('b') != -1) {
+                        if (iB >= 0 && iB < iComment) {
                             isBeginWord = true;
                         }
 
-                        if (optionsText.indexOf('e') != -1) {
+                        if (iE >= 0 && iE < iComment) {
                             isEndWord = true;
                         }
 
@@ -1019,8 +1038,10 @@ public class BatchReplaceForm implements Disposable {
             String message;
             if (!isExcludedRange()) {
                 message = Bundle.message("batch-search.exclude.label");
+                myIsIncludeMode = false;
             } else {
                 message = Bundle.message("batch-search.include.label");
+                myIsIncludeMode = true;
             }
 
             String replace = message.replace("\u001B", "");
@@ -1049,6 +1070,80 @@ public class BatchReplaceForm implements Disposable {
         myReplaceAll.setEnabled(myFindNext.isEnabled() || myFindPrevious.isEnabled() || myReplace.isEnabled());
     }
 
+    public static final String FIND_NEXT = "FIND_NEXT";
+    public static final String FIND_PREV = "FIND_PREV";
+    public static final String REPLACE = "REPLACE";
+    public static final String REPLACE_ALL = "REPLACE_ALL";
+    public static final String EXCLUDE = "EXCLUDE";
+    public static final String INCLUDE = "INCLUDE";
+    public static final String RESET = "RESET";
+    public static final String TOGGLE_EXCLUDE_INCLUDE = "TOGGLE_EXCLUDE_INCLUDE";
+    public static final String TOGGLE_HIGHLIGHT = "TOGGLE_HIGHLIGHT";
+
+    public boolean isActionEnabled(String action) {
+        switch (action) {
+            case FIND_NEXT:
+                return myFindNext.isEnabled();
+            case FIND_PREV:
+                return myFindPrevious.isEnabled();
+            case REPLACE:
+                return myReplace.isEnabled();
+            case REPLACE_ALL:
+                return myReplaceAll.isEnabled();
+            case EXCLUDE:
+                return myExclude.isEnabled() && !myIsIncludeMode;
+            case INCLUDE:
+                return myExclude.isEnabled() && myIsIncludeMode;
+            case RESET:
+                return myReset.isEnabled();
+            case TOGGLE_EXCLUDE_INCLUDE:
+                return myExclude.isEnabled();
+            case TOGGLE_HIGHLIGHT:
+                return myShowHighlights.isEnabled();
+            default:
+                return false;
+        }
+    }
+
+    public void doAction(String action) {
+        switch (action) {
+            case FIND_NEXT:
+                if (myFindNext.isEnabled()) findNext();
+                break;
+            case FIND_PREV:
+                if (myFindPrevious.isEnabled()) findPrevious();
+                break;
+            case REPLACE:
+                if (myReplace.isEnabled()) replace();
+                break;
+            case REPLACE_ALL:
+                if (myReplaceAll.isEnabled()) replaceAll();
+                break;
+            case EXCLUDE:
+                if (myExclude.isEnabled() && !myIsIncludeMode) exclude();
+                break;
+            case INCLUDE:
+                if (myExclude.isEnabled() && myIsIncludeMode) exclude();
+                break;
+            case RESET:
+                if (myReset.isEnabled()) reset();
+                break;
+            case TOGGLE_EXCLUDE_INCLUDE:
+                if (myExclude.isEnabled()) exclude();
+                break;
+            case TOGGLE_HIGHLIGHT:
+                if (myShowHighlights.isEnabled()) myShowHighlights.setSelected(!myShowHighlights.isSelected());
+                break;
+            default:
+        }
+    }
+
+    void focusEditor() {
+        if (myEditor != null && !myEditor.isDisposed()) {
+            myEditor.getContentComponent().requestFocus();
+        }
+    }
+
     void findNext() {
         if (myEditor == null) return;
 
@@ -1072,6 +1167,7 @@ public class BatchReplaceForm implements Disposable {
 
         updateFoundRanges();
         updateRangeButtons();
+        focusEditor();
     }
 
     void findPrevious() {
@@ -1097,6 +1193,7 @@ public class BatchReplaceForm implements Disposable {
 
         updateFoundRanges();
         updateRangeButtons();
+        focusEditor();
     }
 
     void adjustExclusions(TextRange foundRange, int replacementLength) {
@@ -1138,6 +1235,7 @@ public class BatchReplaceForm implements Disposable {
                 }
             });
         }
+        focusEditor();
     }
 
     void addExclusion() {
@@ -1174,6 +1272,7 @@ public class BatchReplaceForm implements Disposable {
                 updateRangeButtons();
             }
         }
+        focusEditor();
     }
 
     void reset() {
@@ -1184,6 +1283,7 @@ public class BatchReplaceForm implements Disposable {
             updateOptions(false);
             LineSelectionManager.getInstance(myEditor).updateHighlights();
         }
+        focusEditor();
     }
 
     boolean isExcludedRange() {
@@ -1243,6 +1343,7 @@ public class BatchReplaceForm implements Disposable {
                 updateRangeButtons();
             });
         }
+        focusEditor();
     }
 
     private static void ignoreErrors(Runnable runnable) {

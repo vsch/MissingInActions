@@ -135,7 +135,7 @@ public class DeleteRegExActionHandler extends EditorWriteActionHandler {
                             // find start
                             int humpEnd = startOffset + 1;
                             while (++humpEnd < endOffset) {
-                                if (isHumpBoundWord(text, humpEnd, true)) {
+                                if (isHumpBoundWord(text, humpEnd, false)) {
                                     endOffset = humpEnd;
                                     break;
                                 }

@@ -81,13 +81,13 @@
         ]]>
     </description>
 
-    <version>1.4.20</version>
+    <version>1.4.21</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.20 - Bug Fix Release</h3>
+            <h3>1.4.21 - Bug Fix Release</h3>
             <ul>
                 <li>Add: Select word and move to next/previous word. If caret not on identifier then first move it
                     to next/prev identifier then perform action.</li>
@@ -343,6 +343,15 @@
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteAlternatingInHumpsModeAction" id="MissingInActions.CustomDeleteAlternatingInHumpsMode" text='Custom Delete Alternating Word in "CamelHumps" Mode' description='Custom Delete Alternating Word in "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordInHumpsModeAction" id="MissingInActions.CustomDeleteWordInHumpsMode" text='Custom Delete Word in "CamelHumps" Mode' description='Custom Delete Word in "CamelHumps" Mode'/>
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceInHumpsModeAction" id="MissingInActions.CustomDeleteWordExcludingSpaceInHumpsMode" text='Custom Delete Word Excluding Single Space in "CamelHumps" Mode' description='Custom Delete Word Excluding Single Space in "CamelHumps" Mode'/>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchExcludeAction" id="MissingInActions.BatchExclude" text='Batch Exclude' description='Batch Exclude'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchFindNextAction" id="MissingInActions.BatchFindNext" text='Batch Find NextAction' description='BatchFindNextAction'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchFindPreviousAction" id="MissingInActions.BatchFindPrevious" text='Batch Find Previous' description='Batch Find Previous'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchIncludeAction" id="MissingInActions.BatchInclude" text='Batch Include' description='Batch Include'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchReplaceAction" id="MissingInActions.BatchReplace" text='Batch Replace' description='Batch Replace'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchReplaceAllAction" id="MissingInActions.BatchReplaceAll" text='Batch Replace All' description='Batch Replace All'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchResetAction" id="MissingInActions.BatchReset" text='Batch Reset' description='Batch Reset'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchToggleExcludeIncludeAction" id="MissingInActions.BatchToggleExcludeInclude" text='Batch Toggle Exclude/Include' description='Batch Toggle Exclude/Include'/>
 
             <action class="com.vladsch.MissingInActions.actions.character.word.SelectWordAndMoveToNextWordAction"
                     id="MissingInActions.SelectWordAndMoveToNextWord"

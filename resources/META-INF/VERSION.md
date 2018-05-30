@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.20 - Bug Fix Release](#1420---bug-fix-release)
+- [1.4.21 - Bug Fix Release](#1421---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -56,8 +56,18 @@
 
 &nbsp;</details>
 
-### 1.4.20 - Bug Fix Release
+### 1.4.21 - Bug Fix Release
 
+* Add: after batch replace Next, Prev, Replace, Replace All, Exclude/Include and Reset, give
+  focus back to the editor.
+* Fix: batch replace Case and Word checkboxes did not update highlights when their value
+  changed.
+* Change: select word and move to next will select this word or if not identifier, the previous
+  word. Reverse for select prev word: select this word if not identifier then select next word
+  and move to previous word.
+* Fix: different camel humps mode delete would consider trailing underscores as part of the last
+  word part. Now stops at underscores.
+* Fix: disposed editor being passed through to active editor for batch replace tool window
 * Add: Select word and move to next/previous word. If caret not on identifier then first move it
   to next/prev identifier then perform action.
 * Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.

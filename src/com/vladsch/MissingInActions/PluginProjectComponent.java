@@ -207,6 +207,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         mySearchReplaceToolWindow.activate();
     }
 
+    public BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
+        return mySearchReplaceToolWindow;
+    }
+
     @Override
     public void projectClosed() {
         myDelayedRunner.runAllFor(myProject);
@@ -238,6 +242,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         return this.getClass().getName();
     }
 
+    @NotNull
     public static PluginProjectComponent getInstance(@NotNull Project project) {
         return project.getComponent(PluginProjectComponent.class);
     }
