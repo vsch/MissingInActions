@@ -345,7 +345,7 @@
             <action class="com.vladsch.MissingInActions.actions.character.CustomDeleteWordExcludingSpaceInHumpsModeAction" id="MissingInActions.CustomDeleteWordExcludingSpaceInHumpsMode" text='Custom Delete Word Excluding Single Space in "CamelHumps" Mode' description='Custom Delete Word Excluding Single Space in "CamelHumps" Mode'/>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchExcludeAction" id="MissingInActions.BatchExclude" text='Batch Exclude' description='Batch Exclude'/>
-            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchFindNextAction" id="MissingInActions.BatchFindNext" text='Batch Find NextAction' description='BatchFindNextAction'/>
+            <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchFindNextAction" id="MissingInActions.BatchFindNext" text='Batch Find Next' description='BatchFindNextAction'/>
             <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchFindPreviousAction" id="MissingInActions.BatchFindPrevious" text='Batch Find Previous' description='Batch Find Previous'/>
             <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchIncludeAction" id="MissingInActions.BatchInclude" text='Batch Include' description='Batch Include'/>
             <action class="com.vladsch.MissingInActions.actions.pattern.batch.BatchReplaceAction" id="MissingInActions.BatchReplace" text='Batch Replace' description='Batch Replace'/>

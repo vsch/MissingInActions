@@ -57,10 +57,7 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.BatchSearchReplace;
 import com.vladsch.MissingInActions.settings.BatchSearchReplaceSettings;
-import com.vladsch.MissingInActions.util.AwtRunnable;
-import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.OneTimeRunnable;
-import com.vladsch.MissingInActions.util.Utils;
+import com.vladsch.MissingInActions.util.*;
 import com.vladsch.MissingInActions.util.highlight.*;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.boxed.json.BoxedJsObject;
@@ -90,6 +87,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_INSENSITIVE;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_SENSITIVE;
 
 public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
@@ -150,6 +148,7 @@ public class BatchReplaceForm implements Disposable {
     boolean myIsActive = false;
     OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
     boolean myPendingForcedUpdate = false;
+    boolean myPendingReplace = false;
 
     void updateLastEditorSync(Editor editor) {
         myLastEditorSync = System.currentTimeMillis();
@@ -1032,8 +1031,16 @@ public class BatchReplaceForm implements Disposable {
     }
 
     void updateRangeButtons() {
-        myReplace.setEnabled(myFoundRange != null);
-        myExclude.setEnabled(myFoundRange != null);
+        boolean isWritable = myEditor.getDocument().isWritable();
+        myReplace.setEnabled(myFoundRange != null && isWritable);
+        myExclude.setEnabled(myFoundRange != null && isWritable);
+
+        if (myReplace.isEnabled() && myPendingReplace) {
+            myPendingReplace = false;
+            replace();
+            return;
+        }
+
         if (myExclude.isEnabled()) {
             String message;
             if (!isExcludedRange()) {
@@ -1067,7 +1074,7 @@ public class BatchReplaceForm implements Disposable {
             }
         }
 
-        myReplaceAll.setEnabled(myFindNext.isEnabled() || myFindPrevious.isEnabled() || myReplace.isEnabled());
+        myReplaceAll.setEnabled(isWritable && (myFindNext.isEnabled() || myFindPrevious.isEnabled() || myReplace.isEnabled()));
     }
 
     public static final String FIND_NEXT = "FIND_NEXT";
@@ -1217,23 +1224,36 @@ public class BatchReplaceForm implements Disposable {
     }
 
     void replace() {
-        if (myEditor == null) return;
+        if (myEditor == null || !myEditor.getDocument().isWritable()) return;
 
-        if (myFoundRange != null && myFoundIndex != -1) {
-            WriteCommandAction.runWriteCommandAction(myProject, () -> {
-                String replacement = myLineSearchData.get(myFoundIndex).replace;
-                myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
-                addExclusion(); // we are replacing it, prevent double replacement
-                adjustExclusions(myFoundRange, replacement.length());
+        if (myFoundRange != null && myFoundIndex != -1 && !isExcludedRange()) {
+            // Need to double check that the range matches what was found, sometimes the update takes longer and the wrong text can be replaced
+            String text = myFoundRange.subSequence(myEditor.getDocument().getCharsSequence()).toString();
+            final SearchData searchData = myLineSearchData.get(myFoundIndex);
+            String found = searchData.word;
+            if ((searchData.flags & CASE_SENSITIVE) != 0 && text.equals(found) || (searchData.flags & CASE_INSENSITIVE) != 0 && text.equalsIgnoreCase(found)) {
 
-                if (myFoundBackwards != null) {
-                    if (myFoundBackwards) {
-                        findPrevious();
-                    } else {
-                        findNext();
+                WriteCommandAction.runWriteCommandAction(myProject, () -> {
+                    String replacement = searchData.replace;
+                    myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
+                    addExclusion(); // we are replacing it, prevent double replacement
+                    adjustExclusions(myFoundRange, replacement.length());
+
+                    if (myFoundBackwards != null) {
+                        if (myFoundBackwards) {
+                            findPrevious();
+                        } else {
+                            findNext();
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            // must be a click, we will set a pending replace and let it try again
+            myPendingReplace = true;
+            CancelableJobScheduler.getInstance().schedule(()->{
+                myPendingReplace = false;
+            }, 250);
         }
         focusEditor();
     }

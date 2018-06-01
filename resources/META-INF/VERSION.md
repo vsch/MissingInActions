@@ -58,6 +58,9 @@
 
 ### 1.4.21 - Bug Fix Release
 
+* Fix: batch replace to set pending if replace invoked but not enabled, to allow mouse click for
+  replace. If word is found then will replace. Resets pending in 250 ms.
+* Fix: batch replace to disable replace/replace all/exclude if document is not writable.
 * Add: after batch replace Next, Prev, Replace, Replace All, Exclude/Include and Reset, give
   focus back to the editor.
 * Fix: batch replace Case and Word checkboxes did not update highlights when their value
