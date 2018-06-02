@@ -4,27 +4,34 @@
     <session id="1724640956">
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="8" />
+          <entry key="class" value="3" />
+          <entry key="form" value="10" />
+          <entry key="java" value="25" />
           <entry key="md" value="4" />
-          <entry key="sh" value="1" />
+          <entry key="sh" value="2" />
           <entry key="xml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="568" />
-          <entry key="md" value="278" />
+          <entry key="java" value="3650" />
+          <entry key="md" value="766" />
+          <entry key="txt" value="38" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="568" />
-          <entry key="Markdown" value="278" />
+          <entry key="JAVA" value="3650" />
+          <entry key="Markdown" value="766" />
+          <entry key="PLAIN_TEXT" value="38" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="4" />
+          <entry key="Bash" value="1" />
+          <entry key="CLASS" value="3" />
+          <entry key="GUI_DESIGNER_FORM" value="10" />
+          <entry key="JAVA" value="21" />
         </counts>
       </usages-collector>
     </session>

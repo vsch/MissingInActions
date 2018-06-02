@@ -77,4 +77,9 @@ public class PluginIcons {
     public static final Icon Toggle_onPastePreserve = load("/icons/Toggle_onPastePreserve.png");
     public static final Icon Next_highlighted_word = load("/icons/Next_highlighted_word.png");
     public static final Icon Previous_highlighted_word = load("/icons/Previous_highlighted_word.png");
+    public static final Icon Sort_up = load("/icons/Sort_up.png");
+    public static final Icon Sort_down = load("/icons/Sort_down.png");
+    public static final Icon Tandem_locked = load("/icons/Tandem_locked.png");
+    public static final Icon Tandem_unlocked = load("/icons/Tandem_unlocked.png");
+    public static final Icon No_word_highlights = load("/icons/No_word_highlights.png");
 }

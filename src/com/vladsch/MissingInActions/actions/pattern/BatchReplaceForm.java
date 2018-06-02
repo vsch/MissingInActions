@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions.actions.pattern;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
@@ -62,10 +63,13 @@ import com.vladsch.MissingInActions.util.highlight.*;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
+import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -81,6 +85,7 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -111,6 +116,13 @@ public class BatchReplaceForm implements Disposable {
     private JButton myManageActions;
     private JButton myReset;
     private JBCheckBox myShowHighlights;
+    JBCheckBox myBatchTandemEdit;
+    private JButton myReplaceSortUp;
+    private JButton myReplaceSortDown;
+    private JButton mySearchSortUp;
+    private JButton mySearchSortDown;
+    private JButton myToggleTandemEdit;
+    private JButton myToggleHighlights;
     private final JBPopupMenu myPopupMenuActions;
 
     EditorEx myEditor;
@@ -149,6 +161,11 @@ public class BatchReplaceForm implements Disposable {
     OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
     boolean myPendingForcedUpdate = false;
     boolean myPendingReplace = false;
+    boolean myInTandemEdit = false;
+
+    final Border myDefaultBorder;
+    final Border myDarculaBorder;
+    final Border myNoBorder;
 
     void updateLastEditorSync(Editor editor) {
         myLastEditorSync = System.currentTimeMillis();
@@ -187,6 +204,7 @@ public class BatchReplaceForm implements Disposable {
         mySettings.getBatchSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText().trim());
         mySettings.getBatchSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText().trim());
         mySettings.setBatchHighlightAllLines(myShowHighlights.isSelected());
+        mySettings.setBatchTandemEdit(myBatchTandemEdit.isSelected());
     }
 
     public void disposeEditors() {
@@ -321,6 +339,7 @@ public class BatchReplaceForm implements Disposable {
         myCaseSensitive.setSelected(caseSensitive);
         myWholeWord.setSelected(mySettings.getBatchSearchReplace().isWholeWord());
         myShowHighlights.setSelected(mySettings.isBatchHighlightAllLines());
+        myBatchTandemEdit.setSelected(mySettings.isBatchTandemEdit());
 
         mySampleText.setVisible(false);
 
@@ -350,6 +369,52 @@ public class BatchReplaceForm implements Disposable {
 
         myHighlightListener = new MainEditorHighlightListener();
         myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener, this);
+
+        mySearchSortUp.setIcon(PluginIcons.Sort_up);
+        mySearchSortDown.setIcon(PluginIcons.Sort_down);
+        myReplaceSortUp.setIcon(PluginIcons.Sort_up);
+        myReplaceSortDown.setIcon(PluginIcons.Sort_down);
+
+        myDefaultBorder = mySearchViewPanel.getBorder();
+        myDarculaBorder = myReplaceViewPanel.getBorder();
+        myNoBorder = myOptionsViewPanel.getBorder();
+        updateIconButtons();
+
+        mySearchSortUp.addActionListener(e -> {
+            sortDocument(false, false);
+        });
+        mySearchSortDown.addActionListener(e -> {
+            sortDocument(false, true);
+        });
+        myReplaceSortUp.addActionListener(e -> {
+            sortDocument(true, false);
+        });
+        myReplaceSortDown.addActionListener(e -> {
+            sortDocument(true, true);
+        });
+        myToggleTandemEdit.addActionListener(e -> {
+            myBatchTandemEdit.setSelected(!myBatchTandemEdit.isSelected());
+            updateIconButtons();
+        });
+        myToggleHighlights.addActionListener(e -> {
+            myShowHighlights.setSelected(!myShowHighlights.isSelected());
+            updateIconButtons();
+
+            myHighlightAllLines = myShowHighlights.isSelected();
+            updateFoundRanges();
+        });
+
+        myBatchTandemEdit.addActionListener(e -> {
+            updateIconButtons();
+        });
+
+        myShowHighlights.addActionListener(e -> {
+            updateIconButtons();
+
+            myHighlightAllLines = myShowHighlights.isSelected();
+            updateFoundRanges();
+        });
+        myHighlightAllLines = myShowHighlights.isSelected();
 
         myDocumentListener = new EditorDocumentListener();
 
@@ -383,12 +448,6 @@ public class BatchReplaceForm implements Disposable {
         myExclude.addActionListener(e -> exclude());
 
         myReset.addActionListener(e -> reset());
-
-        myShowHighlights.addActionListener(e -> {
-            myHighlightAllLines = myShowHighlights.isSelected();
-            updateFoundRanges();
-        });
-        myHighlightAllLines = myShowHighlights.isSelected();
 
         mySavePreset.addActionListener(e -> {
             String presetName = (String) myPresets.getEditor().getItem();
@@ -682,6 +741,23 @@ public class BatchReplaceForm implements Disposable {
         myInUpdate = false;
     }
 
+    public void updateIconButtons() {
+        myToggleTandemEdit.setIcon(myBatchTandemEdit.isSelected() ? PluginIcons.Tandem_locked : PluginIcons.Tandem_unlocked);
+        myToggleTandemEdit.setSelected(myBatchTandemEdit.isSelected());
+        myToggleHighlights.setIcon(myShowHighlights.isSelected() ? PluginIcons.Toggle_word_highlights : PluginIcons.No_word_highlights);
+        myToggleHighlights.setSelected(myShowHighlights.isSelected());
+
+        if (myBatchTandemEdit.isSelected()) {
+            mySearchViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
+            myReplaceViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
+            myOptionsViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
+        } else {
+            mySearchViewPanel.setBorder(myNoBorder);
+            myReplaceViewPanel.setBorder(myNoBorder);
+            myOptionsViewPanel.setBorder(myNoBorder);
+        }
+    }
+
     private boolean importFromJSON(final BatchSearchReplaceSettings settings, final BoxedJsObject presets) {
         boolean hadPreset = false;
 
@@ -780,6 +856,104 @@ public class BatchReplaceForm implements Disposable {
         }
 
         myInUpdate = savedInUpdate;
+        updateOptions(true);
+    }
+
+    void sortDocument(boolean sortReplace, boolean sortDown) {
+        if (myInUpdate) return;
+        myInUpdate = true;
+
+        DocumentEx searchEditorDocument = mySearchEditor.getDocument();
+        CharSequence searchSequence = searchEditorDocument.getCharsSequence();
+        DocumentEx replaceEditorDocument = myReplaceEditor.getDocument();
+        CharSequence replaceSequence = replaceEditorDocument.getCharsSequence();
+        DocumentEx optionEditorDocument = myOptionsEditor.getDocument();
+        CharSequence optionSequence = optionEditorDocument.getCharsSequence();
+
+        int searchLineCount = searchEditorDocument.getLineCount();
+        int replaceLineCount = replaceEditorDocument.getLineCount();
+        int optionsLineCount = optionEditorDocument.getLineCount();
+        int iMax = Math.max(searchLineCount, Math.max(replaceLineCount, optionsLineCount));
+
+        String[] searchLines = new String[iMax];
+        String[] replaceLines = new String[iMax];
+        String[] optionLines = new String[iMax];
+        Integer[] orderLines = new Integer[iMax];
+
+        for (int i = 0; i < iMax; i++) {
+            String searchText = "";
+            String replaceText = "";
+            String optionsText = "";
+            if (i < searchLineCount) {
+                searchText = searchSequence.subSequence(searchEditorDocument.getLineStartOffset(i), searchEditorDocument.getLineEndOffset(i)).toString();
+            }
+
+            if (i < replaceLineCount) {
+                replaceText = replaceSequence.subSequence(replaceEditorDocument.getLineStartOffset(i), replaceEditorDocument.getLineEndOffset(i)).toString();
+            }
+
+            if (i < optionsLineCount) {
+                optionsText = optionSequence.subSequence(optionEditorDocument.getLineStartOffset(i), optionEditorDocument.getLineEndOffset(i)).toString();
+            }
+
+            searchLines[i] = searchText;
+            replaceLines[i] = replaceText;
+            optionLines[i] = optionsText;
+            orderLines[i] = i;
+        }
+
+        boolean caseSensitive = myCaseSensitive.isSelected();
+
+        Arrays.sort(orderLines, new Comparator<Integer>() {
+            @Override
+            public int compare(final Integer o1, final Integer o2) {
+                int result;
+                if (sortReplace) {
+                    if (caseSensitive) {
+                        result = replaceLines[o1].compareTo(replaceLines[o2]);
+                    } else {
+                        result = replaceLines[o1].compareToIgnoreCase(replaceLines[o2]);
+                        if (result == 0) {
+                            result = replaceLines[o1].compareTo(replaceLines[o2]);
+                        }
+                    }
+                } else {
+                    if (caseSensitive) {
+                        result = searchLines[o1].compareTo(searchLines[o2]);
+                    } else {
+                        result = searchLines[o1].compareToIgnoreCase(searchLines[o2]);
+                        if (result == 0) {
+                            result = searchLines[o1].compareTo(searchLines[o2]);
+                        }
+                    }
+                }
+                return sortDown ? -result : result;
+            }
+        });
+
+        // now we rebuild the editor text
+        StringBuilder search = new StringBuilder(Math.max(searchSequence.length() + 1, iMax));
+        StringBuilder replace = new StringBuilder(Math.max(replaceSequence.length() + 1, iMax));
+        StringBuilder option = new StringBuilder(Math.max(optionSequence.length() + 1, iMax));
+
+        for (int i = 0; i < iMax; i++) {
+            String searchLine = searchLines[orderLines[i]];
+            String replaceLine = replaceLines[orderLines[i]];
+            String optionLine = optionLines[orderLines[i]];
+            if (!(searchLine.isEmpty() && replaceLine.isEmpty())) {
+                search.append(searchLine).append('\n');
+                replace.append(replaceLine).append('\n');
+                option.append(optionLine).append('\n');
+            }
+        }
+
+        WriteCommandAction.runWriteCommandAction(myProject, () -> {
+            searchEditorDocument.replaceString(0, searchSequence.length(), search);
+            replaceEditorDocument.replaceString(0, replaceSequence.length(), replace);
+            optionEditorDocument.replaceString(0, optionSequence.length(), option);
+        });
+
+        myInUpdate = false;
         updateOptions(true);
     }
 
@@ -1251,7 +1425,7 @@ public class BatchReplaceForm implements Disposable {
         } else {
             // must be a click, we will set a pending replace and let it try again
             myPendingReplace = true;
-            CancelableJobScheduler.getInstance().schedule(()->{
+            CancelableJobScheduler.getInstance().schedule(() -> {
                 myPendingReplace = false;
             }, 250);
         }
@@ -1564,10 +1738,108 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
+    static void replicateLineChange(final Document document, int lineNumber, int lineDelta, boolean startOfLine) {
+        int lineCount = document.getLineCount();
+        if (lineDelta > 0) {
+            // inserted
+            if (lineNumber >= lineCount) {
+                // insert extra lines to make up
+                lineDelta += lineNumber - lineCount;
+                lineNumber = lineCount - 1;
+                if (lineNumber < 0) {
+                    //lineDelta += lineNumber;
+                    lineNumber = 0;
+                }
+            }
+
+            int offset = startOfLine ? document.getLineStartOffset(lineNumber) : document.getLineEndOffset(lineNumber);
+            document.insertString(offset, RepeatedCharSequence.of('\n', lineDelta));
+        } else {
+            if (lineNumber <= lineCount) {
+                // have something to delete
+                if (lineNumber - lineDelta >= lineCount) {
+                    lineDelta = lineNumber - lineCount;
+                    if (lineNumber > 0) {
+                        int offset = document.getLineEndOffset(lineNumber - 1);
+                        int endOffset = document.getLineEndOffset(lineNumber - lineDelta - 1) + 1;
+                        if (endOffset > document.getTextLength()) endOffset = document.getTextLength();
+
+                        document.deleteString(offset, endOffset);
+                    }
+                } else {
+                    int offset = document.getLineStartOffset(lineNumber);
+                    int endOffset = document.getLineEndOffset(lineNumber - lineDelta - 1) + 1;
+                    if (endOffset > document.getTextLength()) endOffset = document.getTextLength();
+
+                    document.deleteString(offset, endOffset);
+                }
+            }
+        }
+    }
+
+    static int countOccurrences(CharSequence charSequence, char c) {
+        int iMax = charSequence.length();
+        int occurrences = 0;
+        for (int i = 0; i < iMax; i++) {
+            if (charSequence.charAt(i) == c) {
+                occurrences++;
+            }
+        }
+        return occurrences;
+    }
+
+    void replicateEdit(final DocumentEvent event) {
+        // figure out if lines were added/removed and replicate to other editors
+        if (event.isWholeTextReplaced()) {
+            // here we turn off tandem edit mode
+            myBatchTandemEdit.setSelected(false);
+        } else {
+            CharSequence beforeSeq = event.getOldFragment();
+            CharSequence afterSeq = event.getNewFragment();
+            int beforeLines = countOccurrences(beforeSeq, '\n');
+            int afterLines = countOccurrences(afterSeq, '\n');
+            Document editedDocument = event.getDocument();
+
+            if (beforeLines != afterLines || editedDocument.getTextLength() == 0) {
+                // need to adjust
+                WriteCommandAction.runWriteCommandAction(myProject, () -> {
+                    int line = editedDocument.getLineNumber(event.getOffset());
+                    int lineDelta = afterLines - beforeLines;
+                    boolean startOfLine = event.getOffset() == editedDocument.getLineStartOffset(line);
+                    if (editedDocument.getTextLength() > 0 && lineDelta < 0 && beforeSeq.length() == 1 && event.getOffset() == editedDocument.getTextLength()) line++;
+                    if (editedDocument != mySearchEditor.getDocument()) replicateLineChange(mySearchEditor.getDocument(), line, lineDelta, startOfLine);
+                    if (editedDocument != myReplaceEditor.getDocument()) replicateLineChange(myReplaceEditor.getDocument(), line, lineDelta, startOfLine);
+                    if (editedDocument != myOptionsEditor.getDocument()) replicateLineChange(myOptionsEditor.getDocument(), line, lineDelta, startOfLine);
+                });
+            }
+        }
+    }
+
     private class EditorDocumentListener implements DocumentListener {
         @Override
         public void documentChanged(final DocumentEvent event) {
-            updateOptions(true);
+            if (myBatchTandemEdit.isSelected()) {
+                if (!myInTandemEdit && !myInUpdate) {
+                    // see if undo in progress
+                    UndoManager undoManager = UndoManager.getInstance(myProject);
+                    if (!undoManager.isUndoInProgress() && !undoManager.isRedoInProgress()) {
+                        try {
+                            myInTandemEdit = true;
+                            myInUpdate = true;
+                            // need to replicate line inserts/deletes to other editors
+                            replicateEdit(event);
+                        } finally {
+                            myInTandemEdit = false;
+                            myInUpdate = false;
+                        }
+                        updateOptions(true);
+                    } else {
+                        updateOptions(true);
+                    }
+                }
+            } else {
+                updateOptions(true);
+            }
         }
     }
 

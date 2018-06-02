@@ -137,7 +137,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
     private int             myDarkGradientBrightnessMax = 30;
     private int             myDarkGradientBrightnessSteps = 2;
     private boolean         myHideDisabledButtons = false;
-    private boolean myOnPastePreserve = true;
+    private boolean         myOnPastePreserve = true;
     private boolean         myIncludeUserDefinedMacro = false;
     private boolean         myRegexUserDefinedMacro = false;
     private boolean         myUserDefinedMacroClipContent = false;
@@ -149,6 +149,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
     private boolean myQuoteSplicedItems = false;
     private boolean myUserDefinedMacroSmartReplace = true;
     private boolean myBatchHighlightAllLines = false;
+    private boolean myBatchTandemEdit = false;
 
     // customizable delete/backspace
     @NotNull String myDeleteSpacesRegEx = "(\\s+)";
@@ -180,6 +181,14 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements A
             "|",
             "|",
     };
+
+    public boolean isBatchTandemEdit() {
+        return myBatchTandemEdit;
+    }
+
+    public void setBatchTandemEdit(final boolean batchTandemEdit) {
+        myBatchTandemEdit = batchTandemEdit;
+    }
 
     public boolean isOnPastePreserve() {
         return myOnPastePreserve;

@@ -58,6 +58,13 @@
 
 ### 1.4.21 - Bug Fix Release
 
+* Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons
+  to save space.
+* Add: batch replace sort up/down for search and replace editors. Case sensitivity for the sort
+  controlled by the `Case` checkbox.
+* Add: batch replace `Tandem Edit` mode, deleting or inserting lines in one editor panel
+  replicates the action to the other two. Allows to keep the search/replace/option lines aligned
+  when adding/removing lines.
 * Fix: batch replace to set pending if replace invoked but not enabled, to allow mouse click for
   replace. If word is found then will replace. Resets pending in 250 ms.
 * Fix: batch replace to disable replace/replace all/exclude if document is not writable.
