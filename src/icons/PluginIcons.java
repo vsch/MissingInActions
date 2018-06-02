@@ -82,4 +82,6 @@ public class PluginIcons {
     public static final Icon Tandem_locked = load("/icons/Tandem_locked.png");
     public static final Icon Tandem_unlocked = load("/icons/Tandem_unlocked.png");
     public static final Icon No_word_highlights = load("/icons/No_word_highlights.png");
+    public static final Icon Replace_selection_list_text = load("/icons/Replace_selection_list_text.png");
+    public static final Icon Replace_selection_text = load("/icons/Replace_selection_text.png");
 }

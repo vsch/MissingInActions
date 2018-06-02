@@ -21,7 +21,6 @@
 package com.vladsch.MissingInActions.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
@@ -30,8 +29,8 @@ import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.Nullable;
 
-public class SwapSelectionTextListActionMia extends SelectionListActionBaseMia {
-    protected SwapSelectionTextListActionMia() {
+public class SwapSelectionTextListAction extends SelectionListActionBase {
+    protected SwapSelectionTextListAction() {
 
     }
 
@@ -49,7 +48,7 @@ public class SwapSelectionTextListActionMia extends SelectionListActionBaseMia {
     @Override
     protected void actionPerformed(final AnActionEvent e, Editor editor, @Nullable final RangeMarker previousSelection) {
         LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-        RangeMarker rangeMarker = manager.getDummyRangeMarker();
+        RangeMarker rangeMarker = manager.getEditorSelectionRangeMarker();
         boolean handled = false;
 
         if (rangeMarker != null && previousSelection != null) {
@@ -69,12 +68,10 @@ public class SwapSelectionTextListActionMia extends SelectionListActionBaseMia {
     @Override
     public void update(final AnActionEvent e) {
         super.update(e);
-        Editor editor = e.getData(PlatformDataKeys.EDITOR);
 
-        if (e.getPresentation().isEnabled() && (editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection())) {
-            e.getPresentation().setEnabled(isPopupShowing());
-        }
-
+        Editor editor = getEventEditor(e);
+        boolean enabled  = !(editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection());
+        e.getPresentation().setEnabled(enabled);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 }

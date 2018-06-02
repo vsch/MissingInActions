@@ -209,7 +209,7 @@ public class StashedRangeMarkers implements Disposable {
                 assert marker != null;
 
                 if (getIt) {
-                    RangeMarker dummy = new DummyMarker(marker);
+                    RangeMarker dummy = new SelectionRangeMarker(marker);
                     marker.dispose();
                     marker = dummy;
                 } else {
@@ -247,7 +247,7 @@ public class StashedRangeMarkers implements Disposable {
         RangeMarker[] markers = new RangeMarker[myMarkers.size()];
         int i = 0;
         for (RangeMarker marker : myMarkers) {
-            markers[i++] = new DummyMarker(marker);
+            markers[i++] = new SelectionRangeMarker(marker);
         }
         return markers;
     }
@@ -261,14 +261,14 @@ public class StashedRangeMarkers implements Disposable {
         }
     }
 
-    public static class DummyMarker implements RangeMarker {
+    public static class SelectionRangeMarker implements RangeMarker {
         private final int myStartOffset;
         private final int myEndOffset;
         private boolean myGreedyToLeft;
         private boolean myGreedyToRight;
         private final Document myDocument;
 
-        public DummyMarker(RangeMarker other) {
+        public SelectionRangeMarker(RangeMarker other) {
             myStartOffset = other.getStartOffset();
             myEndOffset = other.getEndOffset();
             myDocument = other.getDocument();
@@ -276,7 +276,7 @@ public class StashedRangeMarkers implements Disposable {
             myGreedyToRight = other.isGreedyToRight();
         }
 
-        public DummyMarker(Editor editor) {
+        public SelectionRangeMarker(Editor editor) {
             myStartOffset = editor.getSelectionModel().getSelectionStart();
             myEndOffset = editor.getSelectionModel().getSelectionEnd();
             myDocument = editor.getDocument();

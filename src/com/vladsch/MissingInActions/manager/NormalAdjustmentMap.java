@@ -29,12 +29,12 @@ import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
-import com.vladsch.MissingInActions.actions.PopSelectionAction;
-import com.vladsch.MissingInActions.actions.SwapSelectionAction;
+import com.vladsch.MissingInActions.actions.*;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.util.ui.MiaComboBoxAction;
 
 public class NormalAdjustmentMap extends ActionAdjustmentMap {
     public static NormalAdjustmentMap getInstance() {
@@ -253,7 +253,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , IncrementalFindAction.class
         );
 
-        // here are all caret move actions that affect the search carets
+        // these actions do not automatically store selection changes in the stash
         addActionSet(ActionSetType.SELECTION_STASH_ACTIONS
                 , PopSelectionAction.class
                 , SwapSelectionAction.class
@@ -275,6 +275,10 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , PreviousWordInDifferentHumpsModeWithSelectionAction.class
                 , TextEndWithSelectionAction.class
                 , TextStartWithSelectionAction.class
+                , ReplaceWithSelectionTextListAction.class
+                , ReplaceWithLastSelectionTextAction.class
+                , MiaComboBoxAction.class
+                , SelectionListActionBase.class
 
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndWithSelectionAction.class

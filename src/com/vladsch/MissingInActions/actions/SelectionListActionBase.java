@@ -22,7 +22,6 @@ package com.vladsch.MissingInActions.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -52,12 +51,15 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.BitSet;
 
-abstract public class SelectionListActionBaseMia extends MiaComboBoxAction implements DumbAware {
+abstract public class SelectionListActionBase extends MiaComboBoxAction implements DumbAware {
     private final static Key<RangeHighlighter> RANGE_HIGHLIGHTER = Key.create("MIA_RANGE_HIGHLIGHTER");
     private final static Key<Integer> SCROLL_OFFSET = Key.create("MIA_SCROLL_OFFSET");
 
-    protected SelectionListActionBaseMia() {
+    private @Nullable BitSet myDisabledMarkers = null;
+
+    protected SelectionListActionBase() {
         setShowNumbers(true);
     }
 
@@ -84,6 +86,11 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
         return null;
     }
 
+    @SuppressWarnings("MethodMayBeStatic")
+    protected boolean canIncludeSelectionRange(Document document, Range range, Range exclusionRange) {
+        return !(range.doesContain(exclusionRange) || exclusionRange.doesContain(range));
+    }
+
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent button, @Nullable Editor editor) {
         final DefaultActionGroup group = new DefaultActionGroup();
@@ -93,6 +100,8 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
             final RangeMarker[] markers = manager.getSavedSelections();
             BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
             final Range exclusionRange = excludeOverlap(editor);
+
+            //System.out.println("createPopAction: saved markers" + markers.length);
 
             for (int i = markers.length; i-- > 0; ) {
                 RangeMarker marker = markers[i];
@@ -113,22 +122,31 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
                 final int startColumn = marker.getStartOffset() - document.getLineStartOffset(startLine);
                 final Icon icon;
                 boolean disabled = false;
+                boolean isSameRange = false;
 
                 if (exclusionRange != null) {
                     Range range = new Range(marker.getStartOffset(), marker.getEndOffset());
-                    if (exclusionRange.doesContain(range) || range.doesContain(exclusionRange)) {
-                        disabled = true;
+                    disabled = isSameRange = exclusionRange.equals(range);
+                    if (!disabled) {
+                        disabled = !canIncludeSelectionRange(document, range, exclusionRange);
                     }
                 }
 
                 if (disabled) {
                     icon = PluginIcons.Clipboard_disabled_caret;
-                } else if (text.endsWith("\n") && startColumn == 0) {
-                    icon = PluginIcons.Clipboard_line_caret;
-                } else if (startLine != endLine) {
-                    icon = PluginIcons.Clipboard_char_lines_caret;
+                    // only the range which is fully contained and the first one (because selections are not duplicated so there can only be one extra one)
+                    if (isSameRange) {
+                        if (myDisabledMarkers == null) myDisabledMarkers = new BitSet();
+                        myDisabledMarkers.set(i);
+                    }
                 } else {
-                    icon = PluginIcons.Clipboard_char_caret;
+                    if (text.endsWith("\n") && startColumn == 0) {
+                        icon = PluginIcons.Clipboard_line_caret;
+                    } else if (startLine != endLine) {
+                        icon = PluginIcons.Clipboard_char_lines_caret;
+                    } else {
+                        icon = PluginIcons.Clipboard_char_caret;
+                    }
                 }
 
                 final String actionText = String.format("line %d \"%s\"", startLine, text);
@@ -138,38 +156,52 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
                     @Override
                     public void actionPerformed(final AnActionEvent e) {
                         if (!isDisabled) {
-                            RangeMarker rangeMarker = manager.getRangeMarker();
-                            manager.recallLastSelection(index, removeRangeMarker(e, editor, rangeMarker), false, true);
-                            SelectionListActionBaseMia.this.actionPerformed(e, editor, rangeMarker);
+                            RangeMarker selectionRangeMarker = manager.getRangeMarker();
+                            if (selectionRangeMarker != null) {
+                                manager.recallLastSelection(index, removeRangeMarker(e, editor, selectionRangeMarker), false, true);
+                                SelectionListActionBase.this.actionPerformed(e, editor, selectionRangeMarker);
+                            }
                         }
                     }
                 };
 
                 group.add(action);
             }
+        } else {
+            int tmp = 0;
         }
 
         return group;
     }
 
     @Override
-    protected void actionSelected(@NotNull final JComponent button, @Nullable final Editor editor, final ListSelectionEvent e) {
+    protected void actionSelected(@Nullable final Editor editor, final ListSelectionEvent e) {
         if (editor != null) {
             JBList listPopup = (JBList) e.getSource();
             showSelection(editor, listPopup.getSelectedIndex());
         }
     }
 
-    private void showSelection(final @Nullable Editor editor, int index) {
-        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-        RangeMarker[] markers = manager.getSavedSelections();
-        RangeMarker marker = markers[markers.length - index - 1];
+    private void showSelection(final @Nullable Editor editor, int listIndex) {
+        if (editor == null) return;
 
         MarkupModel markupModel = editor.getMarkupModel();
         RangeHighlighter oldHighlighter = editor.getUserData(RANGE_HIGHLIGHTER);
-        if (oldHighlighter != null) {
-            markupModel.removeHighlighter(oldHighlighter);
+        if (oldHighlighter != null) markupModel.removeHighlighter(oldHighlighter);
+        final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        RangeMarker[] markers = manager.getSavedSelections();
+
+        int markerIndex = markers.length - listIndex - 1;
+        if (markerIndex < 0 || markerIndex >= markers.length) {
+            //System.out.println("showSelection: saved markers" + markers.length);
+            return;
         }
+
+        if (myDisabledMarkers != null && myDisabledMarkers.get(markerIndex)) {
+            return;
+        }
+
+        RangeMarker marker = markers[markerIndex];
 
         ApplicationSettings settings = ApplicationSettings.getInstance();
         Color color = settings.isRecalledSelectionColorEnabled() ? settings.recalledSelectionColorRGB() : DefaultColorSchemesManager.getInstance().getFirstScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
@@ -183,8 +215,8 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
     }
 
     @Override
-    protected void popupStart(@NotNull final JComponent button, @Nullable final Editor editor) {
-        super.popupStart(button, editor);
+    protected void popupStart(@Nullable final Editor editor) {
+        super.popupStart(editor);
 
         if (editor != null) {
             editor.putUserData(SCROLL_OFFSET, editor.getScrollingModel().getVerticalScrollOffset());
@@ -193,8 +225,8 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
     }
 
     @Override
-    protected void popupDone(@NotNull final JComponent button, @Nullable final Editor editor) {
-        super.popupDone(button, editor);
+    protected void popupDone(@Nullable final Editor editor) {
+        super.popupDone(editor);
 
         if (editor != null) {
             MarkupModel markupModel = editor.getMarkupModel();
@@ -210,21 +242,22 @@ abstract public class SelectionListActionBaseMia extends MiaComboBoxAction imple
             }
             editor.putUserData(SCROLL_OFFSET, null);
         }
+
+        myDisabledMarkers = null;
     }
 
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
 
-        final Editor editor = e.getData(PlatformDataKeys.EDITOR);
-        boolean enabled = false;
-
+        Editor editor = getEventEditor(e);
         if (editor != null) {
             final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            enabled = manager.canRecallSelection();
+            e.getPresentation().setEnabled(manager.canRecallSelection());
+        } else {
+            e.getPresentation().setEnabled(false);
         }
 
-        e.getPresentation().setEnabled(enabled || isPopupShowing());
         e.getPresentation().setVisible(true);
     }
 }

@@ -614,16 +614,16 @@
                 description="Recall Last Selection">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListActionMia"
+        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
                 id="MissingInActions.RecallSelectionList"
-                text=""
+                text="Recall Selection from List"
                 icon="PluginIcons.Recall_selection_list"
-                description="Recall Selection List">
+                description="Recall Selection from List">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListActionMia"
+        <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
                 id="MissingInActions.RecallSelectionListButton"
-                text="Recall Selection"
+                text=""
                 icon="PluginIcons.Recall_selection_list"
                 description="Recall Selection from List">
         </action>
@@ -635,16 +635,16 @@
                 description="Swap Selection">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListActionMia"
+        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
                 id="MissingInActions.SwapSelectionTextList"
-                text=""
+                text="Swap Selection Text from List"
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>
 
-        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListActionMia"
+        <action class="com.vladsch.MissingInActions.actions.SwapSelectionTextListAction"
                 id="MissingInActions.SwapSelectionTextListButton"
-                text="Swap Text"
+                text=""
                 icon="PluginIcons.Swap_selection_list_text"
                 description="Swap Selection Text from List">
         </action>
@@ -652,8 +652,29 @@
         <action class="com.vladsch.MissingInActions.actions.SwapLastSelectionTextAction"
                 id="MissingInActions.SwapLastSelectionText"
                 text="Swap Last Selection Text"
-                icon="PluginIcons.Swap_selection_list_text"
+                icon="PluginIcons.Swap_selection_text"
                 description="Swap Last Selection Text">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.ReplaceWithSelectionTextListAction"
+                id="MissingInActions.ReplaceWithSelectionTextList"
+                text="Replace with Selection Text from List"
+                icon="PluginIcons.Replace_selection_list_text"
+                description="Replace with Selection Text from List">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.ReplaceWithSelectionTextListAction"
+                id="MissingInActions.ReplaceWithSelectionTextListButton"
+                text=""
+                icon="PluginIcons.Replace_selection_list_text"
+                description="Replace with Selection Text from List">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.ReplaceWithLastSelectionTextAction"
+                id="MissingInActions.ReplaceWithLastSelectionText"
+                text="Replace with Last Selection Text"
+                icon="PluginIcons.Replace_selection_text"
+                description="Replace with Last Selection Text">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.line.ToggleIsolationModeAction"
@@ -839,6 +860,9 @@
             <reference id="MissingInActions.RecallSelectionListButton"/>
             <reference id="MissingInActions.RecallLastSelection"/>
             <reference id="MissingInActions.SwapLastSelection"/>
+            <separator/>
+            <reference id="MissingInActions.ReplaceWithSelectionTextListButton"/>
+            <reference id="MissingInActions.ReplaceWithLastSelectionText"/>
             <separator/>
             <reference id="MissingInActions.SwapSelectionTextListButton"/>
             <reference id="MissingInActions.SwapLastSelectionText"/>

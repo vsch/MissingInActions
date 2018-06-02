@@ -58,6 +58,8 @@
 
 ### 1.4.21 - Bug Fix Release
 
+* Add: `Replace with Selection Text` and `Replace with Selection Text from List` actions to
+  replace currently selected text with text from recalled selection.
 * Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons
   to save space.
 * Add: batch replace sort up/down for search and replace editors. Case sensitivity for the sort

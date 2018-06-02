@@ -26,8 +26,8 @@ import com.intellij.openapi.editor.RangeMarker;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.Nullable;
 
-public class RecallSelectionListActionMia extends SelectionListActionBaseMia {
-    protected RecallSelectionListActionMia() {
+public class RecallSelectionListAction extends SelectionListActionBase {
+    protected RecallSelectionListAction() {
 
     }
 

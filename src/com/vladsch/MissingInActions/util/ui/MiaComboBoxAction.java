@@ -43,6 +43,9 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.*;
@@ -52,12 +55,19 @@ import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.MissingResourceException;
@@ -95,75 +105,45 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        JComponent button = (JComponent) e.getPresentation().getClientProperty(CUSTOM_COMPONENT_PROPERTY);
-        if (button == null) {
-            Component contextComponent = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
-            JRootPane rootPane = UIUtil.getParentOfType(JRootPane.class, contextComponent);
-            if (rootPane != null) {
-                button = (MiaComboBoxButton)
-                        UIUtil.uiTraverser(rootPane).bfsTraversal().filter(
-                                component -> component instanceof MiaComboBoxButton && ((MiaComboBoxButton) component).getMyAction() == this).first();
+        final Editor editor = getEventEditor(e);
+
+        Project project = e.getProject();
+        if (editor == null  || project == null) return;
+
+        final JComponent button = (JComponent) e.getPresentation().getClientProperty(CUSTOM_COMPONENT_PROPERTY);
+        final DataContext context = e.getDataContext();
+        final DefaultActionGroup group = createPopupActionGroup(button, editor);
+        final ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
+                myPopupTitle, group, context, myShowNumbers, shouldShowDisabledActions(), false, null, getMaxRows(), getPreselectCondition());
+
+        popup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
+
+        popup.addListSelectionListener(ev -> {
+            actionSelected(editor, ev);
+        });
+
+        popup.addListener(new JBPopupListener() {
+            @Override
+            public void beforeShown(final LightweightWindowEvent event) {
+                LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+                manager.setInSelectionStackPopup(true);
+                popupStart(editor);
             }
-            if (button == null) return;
-        }
-        //if (!button.isShowing()) return;
+
+            @Override
+            public void onClosed(final LightweightWindowEvent event) {
+                popupDone(editor);
+                LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+                manager.setInSelectionStackPopup(false);
+                e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, null);
+            }
+        });
+
         if (button instanceof MiaComboBoxButton && button.isShowing()) {
-            DataContext context = e.getDataContext();
-            Project project = e.getProject();
-            if (project == null) return;
-            final Editor editor = e.getData(PlatformDataKeys.EDITOR);
-            DefaultActionGroup group = createPopupActionGroup(button, editor);
-            ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    myPopupTitle, group, context, myShowNumbers, shouldShowDisabledActions(), false, null, getMaxRows(), getPreselectCondition());
-            popup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
-
-            JComponent finalButton = button;
-
-            popup.addListSelectionListener(ev -> {
-                actionSelected(finalButton, editor, ev);
-            });
-
-            popup.addListener(new JBPopupListener() {
-                @Override
-                public void beforeShown(final LightweightWindowEvent event) {
-                    popupStart(finalButton, editor);
-                }
-
-                @Override
-                public void onClosed(final LightweightWindowEvent event) {
-                    popupDone(finalButton, editor);
-                }
-            });
             popup.showUnderneathOf(button);
         } else {
-            DataContext context = e.getDataContext();
-            Project project = e.getProject();
-            if (project == null) return;
-            final Editor editor = e.getData(PlatformDataKeys.EDITOR);
-            DefaultActionGroup group = createPopupActionGroup(button, editor);
-            ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    myPopupTitle, group, context, myShowNumbers, shouldShowDisabledActions(), false, null, getMaxRows(), getPreselectCondition());
-            popup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
-
-            JComponent finalButton = button;
-
-            popup.addListSelectionListener(ev -> {
-                actionSelected(finalButton, editor, ev);
-            });
-
-            popup.addListener(new JBPopupListener() {
-                @Override
-                public void beforeShown(final LightweightWindowEvent event) {
-                    popupStart(finalButton, editor);
-                }
-
-                @Override
-                public void onClosed(final LightweightWindowEvent event) {
-                    popupDone(finalButton, editor);
-                }
-            });
-
-            popup.showCenteredInCurrentWindow(project);
+            //popup.showInBestPositionFor(editor);
+            popup.showInCenterOf(editor.getContentComponent());
         }
     }
 
@@ -192,9 +172,32 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
         myPopupTitle = popupTitle;
     }
 
+    @Nullable
+    protected static Editor getEventEditor(AnActionEvent e) {
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        if (editor == null) {
+            Object clientProperty = e.getPresentation().getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
+            if (clientProperty instanceof Editor) {
+                editor = (Editor) clientProperty;
+            } else {
+                Project project = e.getProject();
+                if (project != null) {
+                    FileEditorManager editorManager = FileEditorManager.getInstance(project);
+                    FileEditor fileEditor = editorManager.getSelectedEditor();
+                    if (fileEditor != null) {
+                        if (fileEditor instanceof TextEditor) {
+                            editor = ((TextEditor) fileEditor).getEditor();
+                        }
+                    }
+                }
+            }
+        }
+        return editor;
+    }
+
     @Override
     public void update(AnActionEvent e) {
-        final Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        Editor editor = getEventEditor(e);
         e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, editor);
     }
 
@@ -214,7 +217,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
     }
 
     @NotNull
-    protected abstract DefaultActionGroup createPopupActionGroup(JComponent button, @NotNull Editor editor);
+    protected abstract DefaultActionGroup createPopupActionGroup(@Nullable JComponent button, @Nullable Editor editor);
 
     protected int getMaxRows() {
         return 30;
@@ -228,20 +231,20 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
         return 1;
     }
 
-    protected void actionSelected(@NotNull JComponent button, @Nullable Editor editor, ListSelectionEvent e) {
+    protected void actionSelected(@Nullable Editor editor, ListSelectionEvent e) {
 
     }
 
-    protected void popupStart(@NotNull JComponent button, @Nullable Editor editor) {
+    protected void popupStart(@Nullable Editor editor) {
         myPopupShowing = true;
     }
 
-    protected void popupDone(@NotNull JComponent button, @Nullable Editor editor) {
+    protected void popupDone(@Nullable Editor editor) {
         myPopupShowing = false;
     }
 
     protected class MiaComboBoxButton extends ComboBoxAction.ComboBoxButton {
-        private final Presentation myPresentation;
+        final Presentation myPresentation;
         private boolean myForcePressed = false;
         private PropertyChangeListener myButtonSynchronizer;
         private boolean myMouseInside = false;
@@ -403,18 +406,18 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
             ListPopup popup = createActionPopup(getDataContext(), this, onDispose);
 
             popup.addListSelectionListener(e -> {
-                actionSelected(this, editor, e);
+                actionSelected(editor, e);
             });
 
             popup.addListener(new JBPopupListener() {
                 @Override
                 public void beforeShown(final LightweightWindowEvent event) {
-                    popupStart(MiaComboBoxButton.this, editor);
+                    popupStart(editor);
                 }
 
                 @Override
                 public void onClosed(final LightweightWindowEvent event) {
-                    popupDone(MiaComboBoxButton.this, editor);
+                    popupDone(editor);
                 }
             });
             return popup;

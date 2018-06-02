@@ -120,8 +120,8 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     }
 
     @Nullable
-    public RangeMarker getDummySelectionMarker() {
-        return canSaveSelection() ? new StashedRangeMarkers.DummyMarker(myEditor) : null;
+    public RangeMarker getEditorSelectionRangeMarker() {
+        return canSaveSelection() ? new StashedRangeMarkers.SelectionRangeMarker(myEditor) : null;
     }
 
     public boolean canRecallSelection() {
@@ -294,7 +294,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 myTentativeSelectionMarker = null;
             }
 
-            if (marker != null && !myAdjustmentsMap.isInSet(action.getClass(), SELECTION_STASH_ACTIONS)) {
+            if (marker != null && !myAdjustmentsMap.isInSet(action.getClass(), SELECTION_STASH_ACTIONS) && !myManager.isInSelectionStackPopup()) {
                 saveSelectionMarker(marker, !myAdjustmentsMap.isInSet(action.getClass(), SELECTION_ALWAYS_STASH), true, true, true);
             } else {
                 if (marker != null) {
@@ -320,7 +320,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         boolean save = true;
 
         if (onlyIfNotSelection) {
-            RangeMarker other = getDummySelectionMarker();
+            RangeMarker other = getEditorSelectionRangeMarker();
             if (other != null && marker.getStartOffset() == other.getStartOffset() && marker.getEndOffset() == other.getEndOffset()) {
                 save = false;
             }

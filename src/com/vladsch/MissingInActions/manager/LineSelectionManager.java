@@ -107,6 +107,7 @@ public class LineSelectionManager implements
     private final HighlightListener myHighlightListener;
     @Nullable protected Highlighter myHighlighter = null;
     final @NotNull HighlightListener myIsolatedLinesListener;
+    boolean myInSelectionStackPopup = false;
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
@@ -151,6 +152,14 @@ public class LineSelectionManager implements
 
             myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, this::updateHighlights));
         }
+    }
+
+    public boolean isInSelectionStackPopup() {
+        return myInSelectionStackPopup;
+    }
+
+    public void setInSelectionStackPopup(final boolean inSelectionStackPopup) {
+        myInSelectionStackPopup = inSelectionStackPopup;
     }
 
     public HighlightProvider getHighlightProvider() {
@@ -872,9 +881,9 @@ public class LineSelectionManager implements
     }
 
     @Nullable
-    public RangeMarker getDummyRangeMarker() {
+    public RangeMarker getEditorSelectionRangeMarker() {
         if (myActionSelectionAdjuster.canSaveSelection()) {
-            return myActionSelectionAdjuster.getDummySelectionMarker();
+            return myActionSelectionAdjuster.getEditorSelectionRangeMarker();
         }
         return null;
     }

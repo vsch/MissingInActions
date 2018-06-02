@@ -26,6 +26,7 @@ import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.codeInsight.generation.CommentByBlockCommentHandler;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.Language;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.*;
@@ -157,7 +158,7 @@ public class EditHelpers {
 
         int maxLineNumber = stopAtLastNonBlank > 0 || lineNumber + 1 > document.getLineCount() ? lineNumber : lineNumber + 1;
         int maxOffset = stopAtLastNonBlank > 0 ? stopAtLastNonBlank :
-                (stopAtStartOfLine && lineNumber < maxLineNumber ? document.getLineStartOffset(maxLineNumber) : stopAtEndOfLine ?  document.getLineEndOffset(maxLineNumber) : document.getTextLength());
+                (stopAtStartOfLine && lineNumber < maxLineNumber ? document.getLineStartOffset(maxLineNumber) : stopAtEndOfLine ? document.getLineEndOffset(maxLineNumber) : document.getTextLength());
 
         int newOffset = offset + 1;
         if (newOffset > maxOffset) return;
@@ -1686,6 +1687,67 @@ public class EditHelpers {
             });
         }
         return handled;
+    }
+
+    /**
+     * Replace the text of range1 (non-overlapping part with range 2) with text from range2 (non-overlapping part of range 2)
+     *
+     * @param editor
+     * @param range1
+     * @param range2
+     * @return true if neither range is fully contained in the other and changes were made
+     */
+    public static boolean replaceRangeText(final Editor editor, final Range range1, final Range range2) {
+        boolean handled = false;
+        if (!range1.doesContain(range2) && !range2.doesContain(range1)) {
+            // can replace text
+            handled = true;
+
+            WriteCommandAction.runWriteCommandAction(editor.getProject(), () -> {
+                Range effectiveRange1 = range1.exclude(range2);
+                Range effectiveRange2 = range2.exclude(range1);
+                Document document = editor.getDocument();
+                CharSequence chars = document.getCharsSequence();
+                String text2 = effectiveRange2.subSequence(chars).toString();
+                int start1 = effectiveRange1.getStart();
+
+                document.replaceString(effectiveRange1.getStart(), effectiveRange1.getEnd(), text2);
+
+                final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+                editor.getSelectionModel().setSelection(start1, start1 + text2.length());
+                scrollToSelection(editor);
+            });
+        }
+        return handled;
+    }
+
+    /**
+     * Replace the text of range1 (non-overlapping part with range 2) with text from range2 (non-overlapping part of range 2)
+     *
+     * @param document
+     * @param range1
+     * @param range2
+     * @return Pair first is range1 (non-overlapping) text and second is range2 non-overlapping text
+     */
+    @Nullable
+    public static Pair<String, String> getRangeText(final Document document, final Range range1, final Range range2) {
+        if (!range1.doesContain(range2) && !range2.doesContain(range1)) {
+            // can replace text
+            Object[] pair = new Object[] { null };
+
+            ApplicationManager.getApplication().runReadAction(() -> {
+                Range effectiveRange1 = range1.exclude(range2);
+                Range effectiveRange2 = range2.exclude(range1);
+                CharSequence chars = document.getCharsSequence();
+                String text2 = effectiveRange2.subSequence(chars).toString();
+                String text1 = effectiveRange1.subSequence(chars).toString();
+                pair[0] = Pair.create(text1, text2);
+            });
+
+            //noinspection unchecked
+            return (Pair<String, String>) pair[0];
+        }
+        return null;
     }
 
     public static class ByLineType {

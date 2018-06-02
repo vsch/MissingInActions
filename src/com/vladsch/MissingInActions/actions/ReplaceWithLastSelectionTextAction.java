@@ -35,8 +35,8 @@ import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SwapLastSelectionTextAction extends EditorAction {
-    public SwapLastSelectionTextAction() {
+public class ReplaceWithLastSelectionTextAction extends EditorAction {
+    public ReplaceWithLastSelectionTextAction() {
         super(new Handler());
     }
 
@@ -59,22 +59,22 @@ public class SwapLastSelectionTextAction extends EditorAction {
         @Override
         protected void doExecute(final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            RangeMarker currentSelection = manager.getEditorSelectionRangeMarker();
+            manager.recallLastSelection(0, false, false, false);
             RangeMarker previousSelection = manager.getEditorSelectionRangeMarker();
-            manager.recallLastSelection(0, true, false, true);
-            RangeMarker rangeMarker = manager.getEditorSelectionRangeMarker();
             boolean handled = false;
 
-            if (rangeMarker != null && previousSelection != null) {
-                final Range range1 = new Range(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
+            if (previousSelection != null && currentSelection != null) {
+                final Range range1 = new Range(currentSelection.getStartOffset(), currentSelection.getEndOffset());
                 final Range range2 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
 
-                handled = EditHelpers.swapRangeText(editor, range1, range2);
+                handled = EditHelpers.replaceRangeText(editor, range1, range2);
+                // remove the selection, we don't need it
+                editor.getSelectionModel().removeSelection();
             }
 
-            if (!handled && previousSelection != null) {
-                manager.pushSelection(true, false, false);
-                editor.getSelectionModel().setSelection(previousSelection.getStartOffset(), previousSelection.getEndOffset());
-                manager.recallLastSelection(0, true, true, true);
+            if (!handled && currentSelection != null) {
+                editor.getSelectionModel().setSelection(currentSelection.getStartOffset(), currentSelection.getEndOffset());
             }
         }
     }
