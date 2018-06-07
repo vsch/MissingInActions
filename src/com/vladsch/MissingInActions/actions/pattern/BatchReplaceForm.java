@@ -42,6 +42,7 @@ import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
 import com.intellij.openapi.fileChooser.ex.FileSaverDialogImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
@@ -52,6 +53,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.util.ui.TextTransferable;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
@@ -123,6 +125,7 @@ public class BatchReplaceForm implements Disposable {
     private JButton mySearchSortDown;
     private JButton myToggleTandemEdit;
     private JButton myToggleHighlights;
+    private JButton mySearchCopyRegEx;
     private final JBPopupMenu myPopupMenuActions;
 
     EditorEx myEditor;
@@ -374,11 +377,17 @@ public class BatchReplaceForm implements Disposable {
         mySearchSortDown.setIcon(PluginIcons.Sort_down);
         myReplaceSortUp.setIcon(PluginIcons.Sort_up);
         myReplaceSortDown.setIcon(PluginIcons.Sort_down);
+        mySearchCopyRegEx.setIcon(PluginIcons.Copy_batch_replace_regex);
+        mySearchCopyRegEx.setDisabledIcon(PluginIcons.Copy_batch_replace_regex_disabled);
 
         myDefaultBorder = mySearchViewPanel.getBorder();
         myDarculaBorder = myReplaceViewPanel.getBorder();
         myNoBorder = myOptionsViewPanel.getBorder();
         updateIconButtons();
+
+        mySearchCopyRegEx.addActionListener(e -> {
+            copyRegEx(false);
+        });
 
         mySearchSortUp.addActionListener(e -> {
             sortDocument(false, false);
@@ -741,6 +750,16 @@ public class BatchReplaceForm implements Disposable {
         myInUpdate = false;
     }
 
+    private void copyRegEx(final boolean replaceText) {
+        if (myEditorSearchHighlightProvider.haveHighlights()) {
+            Pattern pattern = myEditorSearchHighlightProvider.getHighlightPattern();
+            if (pattern != null && !pattern.pattern().isEmpty()) {
+                Transferable transferable = new TextTransferable(pattern.pattern());
+                CopyPasteManager.getInstance().setContents(transferable);
+            }
+        }
+    }
+
     public void updateIconButtons() {
         myToggleTandemEdit.setIcon(myBatchTandemEdit.isSelected() ? PluginIcons.Tandem_locked : PluginIcons.Tandem_unlocked);
         myToggleTandemEdit.setSelected(myBatchTandemEdit.isSelected());
@@ -1080,7 +1099,7 @@ public class BatchReplaceForm implements Disposable {
                         optionsText = optionsSequence.subSequence(optionsEditorDocument.getLineStartOffset(i), optionsEditorDocument.getLineEndOffset(i)).toString();
                     }
 
-                    if (searchText != null && !searchText.isEmpty()) {
+                    if (searchText != null && !searchText.isEmpty() && !optionsText.startsWith("-")) {
                         if (replaceText == null) {
                             // TODO: missing, use empty and highlight
                             replaceText = "";
@@ -1159,6 +1178,7 @@ public class BatchReplaceForm implements Disposable {
 
                 boolean enabled = myEditorSearchHighlightProvider.getHighlightPattern() != null && !myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty();
 
+                mySearchCopyRegEx.setEnabled(enabled);
                 myFindNext.setEnabled(enabled);
                 myFindPrevious.setEnabled(enabled);
                 myReplaceAll.setEnabled(enabled);

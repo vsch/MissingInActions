@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.21 - Bug Fix Release](#1421---bug-fix-release)
+- [1.4.22 - Bug Fix Release](#1422---bug-fix-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -56,8 +56,14 @@
 
 &nbsp;</details>
 
-### 1.4.21 - Bug Fix Release
+### 1.4.22 - Bug Fix Release
 
+* Add: `-` to batch search options, when it is at beginning of line disables the row from search
+  replace ops. Quick way to disable some and enable others. Really need a dropdown or check box
+  to control this in the margin.
+* Add: copy batch search regex to clipboard to allow global search using IDE functionality
+* Fix: carets keep/drop not checking if a file has a `virtualFile()` before trying to get
+  `PsiFile`
 * Add: `Replace with Selection Text` and `Replace with Selection Text from List` actions to
   replace currently selected text with text from recalled selection.
 * Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons

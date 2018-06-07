@@ -128,6 +128,8 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             editorCaret.setCaretPosition(startPosition);
             int offset = startPosition.getOffset();
 
+            endPosition.ensureEOL();
+
             // do it in reverse order so as not to affect the offset
             String s = doc.getCharsSequence().subSequence(startPosition.getOffset(), endPosition.getOffset()).toString();
             int inserted = 0;

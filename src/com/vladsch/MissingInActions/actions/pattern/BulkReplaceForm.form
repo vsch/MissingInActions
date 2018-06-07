@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="21" width="774" height="246"/>
+      <xy x="20" y="21" width="786" height="246"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -138,6 +138,7 @@
                               <hideActionText value="true"/>
                               <icon value="icons/Sort_up.png"/>
                               <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-up.description"/>
                             </properties>
                           </component>
                           <component id="be185" class="javax.swing.JButton" binding="mySearchSortDown">
@@ -152,27 +153,63 @@
                               <hideActionText value="true"/>
                               <icon value="icons/Sort_down.png"/>
                               <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-down.description"/>
                             </properties>
                           </component>
                         </children>
                       </grid>
                     </children>
                   </grid>
-                  <component id="8f801" class="javax.swing.JButton" binding="myToggleTandemEdit">
+                  <grid id="7520e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                        <minimum-size width="32" height="-1"/>
-                        <preferred-size width="32" height="-1"/>
-                        <maximum-size width="32" height="-1"/>
-                      </grid>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties>
-                      <hideActionText value="true"/>
-                      <icon value="icons/Tandem_locked.png"/>
-                      <text value=""/>
-                      <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.tandem-edit.description"/>
-                    </properties>
-                  </component>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <grid id="329bc" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="2" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="8f801" class="javax.swing.JButton" binding="myToggleTandemEdit">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                                <minimum-size width="32" height="-1"/>
+                                <preferred-size width="32" height="-1"/>
+                                <maximum-size width="32" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <hideActionText value="true"/>
+                              <icon value="icons/Tandem_locked.png"/>
+                              <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.tandem-edit.description"/>
+                            </properties>
+                          </component>
+                          <component id="9e062" class="javax.swing.JButton" binding="mySearchCopyRegEx">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                                <minimum-size width="32" height="-1"/>
+                                <preferred-size width="32" height="-1"/>
+                                <maximum-size width="32" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <hideActionText value="true"/>
+                              <icon value="icons/Copy_batch_replace_regex.png"/>
+                              <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.copy-regex.description"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
                 </children>
               </grid>
               <grid id="79a53" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -219,6 +256,7 @@
                               <hideActionText value="true"/>
                               <icon value="icons/Sort_down.png"/>
                               <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-down.description"/>
                             </properties>
                           </component>
                           <component id="f7324" class="javax.swing.JButton" binding="myReplaceSortUp">
@@ -233,6 +271,7 @@
                               <hideActionText value="true"/>
                               <icon value="icons/Sort_up.png"/>
                               <text value=""/>
+                              <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-up.description"/>
                             </properties>
                           </component>
                         </children>

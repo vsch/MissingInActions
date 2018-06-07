@@ -118,7 +118,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             OpType opType = myOpType;
             OpType opType2 = null;
             final Project project = editor.getProject();
-            final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
+            final PsiFile psiFile = project == null || editor.getVirtualFile() == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
             final LineCommentProcessor lineCommentProcessor = psiFile == null ? null : new LineCommentProcessor(editor, psiFile);
 
             boolean hadCodeLine = false;

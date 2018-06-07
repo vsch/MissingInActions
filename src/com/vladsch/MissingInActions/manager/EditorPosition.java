@@ -278,4 +278,11 @@ public class EditorPosition extends LogicalPosition {
     public boolean isBlankLine() {
         return atIndentColumn().column >= atEndColumn().column;
     }
+
+    public void ensureEOL() {
+        Document document = getDocument();
+        if (line == document.getLineCount() || document.getLineEndOffset(line) == document.getTextLength()) {
+            document.insertString(document.getTextLength(), "\n");
+        }
+    }
 }

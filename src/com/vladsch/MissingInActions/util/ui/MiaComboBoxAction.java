@@ -43,9 +43,7 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.*;
@@ -108,7 +106,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
         final Editor editor = getEventEditor(e);
 
         Project project = e.getProject();
-        if (editor == null  || project == null) return;
+        if (editor == null || project == null) return;
 
         final JComponent button = (JComponent) e.getPresentation().getClientProperty(CUSTOM_COMPONENT_PROPERTY);
         final DataContext context = e.getDataContext();
@@ -179,20 +177,18 @@ public abstract class MiaComboBoxAction extends ComboBoxAction {
             Object clientProperty = e.getPresentation().getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
             if (clientProperty instanceof Editor) {
                 editor = (Editor) clientProperty;
+                if (editor.isDisposed()) {
+                    e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, null);
+                }
             } else {
                 Project project = e.getProject();
                 if (project != null) {
                     FileEditorManager editorManager = FileEditorManager.getInstance(project);
-                    FileEditor fileEditor = editorManager.getSelectedEditor();
-                    if (fileEditor != null) {
-                        if (fileEditor instanceof TextEditor) {
-                            editor = ((TextEditor) fileEditor).getEditor();
-                        }
-                    }
+                    editor = editorManager.getSelectedTextEditor();
                 }
             }
         }
-        return editor;
+        return editor == null || editor.isDisposed() ? null : editor;
     }
 
     @Override

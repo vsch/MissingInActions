@@ -84,4 +84,6 @@ public class PluginIcons {
     public static final Icon No_word_highlights = load("/icons/No_word_highlights.png");
     public static final Icon Replace_selection_list_text = load("/icons/Replace_selection_list_text.png");
     public static final Icon Replace_selection_text = load("/icons/Replace_selection_text.png");
+    public static final Icon Copy_batch_replace_regex = load("/icons/Copy_batch_replace_regex.png");
+    public static final Icon Copy_batch_replace_regex_disabled = load("/icons/Copy_batch_replace_regex_disabled.png");
 }

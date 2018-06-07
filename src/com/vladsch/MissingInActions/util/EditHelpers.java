@@ -1051,8 +1051,16 @@ public class EditHelpers {
      */
     public static int ensureRealSpaces(@NotNull EditorPosition position) {
         int offset = position.getOffset();
+        int textLength = position.getDocument().getTextLength();
+
+        if (offset == textLength) {
+            // add a new line at end of document
+            position.getDocument().insertString(textLength, "\n");
+            offset = position.getOffset();
+        }
+
         final EditorPosition atOffset = position.atOffset(offset);
-        if (atOffset.column != position.column) {
+        if (atOffset.column < position.column) {
             // virtual spaces, add real ones
             final int inserted = position.column - atOffset.column;
             position.getDocument().insertString(offset, RepeatedCharSequence.of(" ", inserted));

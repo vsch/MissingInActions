@@ -81,14 +81,36 @@
         ]]>
     </description>
 
-    <version>1.4.21</version>
+    <version>1.4.22</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.4.21 - Bug Fix Release</h3>
+            <h3>1.4.22 - Bug Fix Release</h3>
             <ul>
+                <li>Add: <code>Replace with Selection Text</code> and <code>Replace with Selection Text from List</code> actions to
+                    replace currently selected text with text from recalled selection.</li>
+                <li>Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons
+                    to save space.</li>
+                <li>Add: batch replace sort up/down for search and replace editors. Case sensitivity for the sort
+                    controlled by the <code>Case</code> checkbox.</li>
+                <li>Add: batch replace <code>Tandem Edit</code> mode, deleting or inserting lines in one editor panel
+                    replicates the action to the other two. Allows to keep the search/replace/option lines aligned
+                    when adding/removing lines.</li>
+                <li>Fix: batch replace to set pending if replace invoked but not enabled, to allow mouse click for
+                    replace. If word is found then will replace. Resets pending in 250 ms.</li>
+                <li>Fix: batch replace to disable replace/replace all/exclude if document is not writable.</li>
+                <li>Add: after batch replace Next, Prev, Replace, Replace All, Exclude/Include and Reset, give
+                    focus back to the editor.</li>
+                <li>Fix: batch replace Case and Word checkboxes did not update highlights when their value
+                    changed.</li>
+                <li>Change: select word and move to next will select this word or if not identifier, the previous
+                    word. Reverse for select prev word: select this word if not identifier then select next word
+                    and move to previous word.</li>
+                <li>Fix: different camel humps mode delete would consider trailing underscores as part of the last
+                    word part. Now stops at underscores.</li>
+                <li>Fix: disposed editor being passed through to active editor for batch replace tool window</li>
                 <li>Add: Select word and move to next/previous word. If caret not on identifier then first move it
                     to next/prev identifier then perform action.</li>
                 <li>Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.</li>

@@ -31,14 +31,13 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.TextRange;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
 
 import javax.annotation.Nullable;
-
-import static com.vladsch.MissingInActions.Plugin.getInstance;
 
 abstract public class FindHighlightWordActionBase extends AnAction implements DumbAware {
     final boolean myBackwardSearch;
@@ -69,7 +68,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
 
     TextRange findNext(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
-        if (getInstance().haveHighlights()) {
+        if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
@@ -90,7 +89,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
 
     TextRange findPrevious(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
-        if (getInstance().haveHighlights()) {
+        if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
