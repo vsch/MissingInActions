@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.4.22 - Bug Fix Release](#1422---bug-fix-release)
+- [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
 - [1.4.4 - Bug Fix Release](#144---bug-fix-release)
@@ -56,7 +56,7 @@
 
 &nbsp;</details>
 
-### 1.4.22 - Bug Fix Release
+### 1.5.0 - Bug Fix & Enhancement Release
 
 * Add: `-` to batch search options, when it is at beginning of line disables the row from search
   replace ops. Quick way to disable some and enable others. Really need a dropdown or check box
