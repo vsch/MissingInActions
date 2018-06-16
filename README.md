@@ -269,12 +269,12 @@ Adds missing editor actions for end of word navigation but that is just the begi
     ![Add Word Highlight](resources/icons/Add_word_highlight.png): adds the current carets'
     selection to list of highlighted words.
   * Remove selection from highlighted words
-    ![Remove Word Highlight](resources/icons/Remove_word_highlight.png): adds the current
-    carets' selection to list of highlighted words.
+    ![Remove Word Highlight](resources/icons/Remove_word_highlight.png): removes the current
+    carets' selection from list of highlighted words.
   * Keep carets whose selections are highlighted words
     ![Keep Word Highlighted Carets](resources/icons/Keep_word_highlighted_carets.png): removes
     all carets without selection or whose selection text is not a highlighted word.
-  * Remove selection from highlighted words.
+  * Remove highlighted words from caret selections
     ![Remove Word Highlighted Carets](resources/icons/Remove_word_highlighted_carets.png):
     removes all carets whose selection text is a highlighted word.
   * Setting allows to define the background colors to be used for highlighted words based on
