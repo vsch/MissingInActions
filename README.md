@@ -105,10 +105,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   ![Toolbar.png](assets/images/Toolbar.png)
 
+  ![Menu_isolation.png](resources/icons/Menu_isolation.png)  
   ![Toolbar_Isolation.png](assets/images/Toolbar_Isolation.png)
 
+
+  ![Menu_highlights.png](resources/icons/Menu_highlights.png)  
   ![Toolbar_Highlights.png](assets/images/Toolbar_Highlights.png)
 
+  ![Menu_carets.png](resources/icons/Menu_carets.png)  
   ![Toolbar_MultiCaret.png](assets/images/Toolbar_MultiCaret.png)
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
