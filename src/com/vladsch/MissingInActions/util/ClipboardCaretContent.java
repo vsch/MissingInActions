@@ -447,8 +447,8 @@ public class ClipboardCaretContent {
                 if (this.isFullLine(i)) {
                     if (showEOL != null) {
                         sb.append(texts[i].substring(0, texts[i].length() - 1));
+                        sb.append(showEOL);
                         if (!removeFullLineEOL || i < iMax - 1) {
-                            sb.append(showEOL);
                             sb.append('\n');
                         }
                     } else {

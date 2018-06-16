@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.5.1 - Bug Fix & Enhancement Release](#151---bug-fix--enhancement-release)
 - [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
@@ -55,6 +56,11 @@
   once even if there are many carets present on that line.
 
 &nbsp;</details>
+
+### 1.5.1 - Bug Fix & Enhancement Release
+
+* Add: convert to carets action in paste selection dialog to convert lines to multi-caret
+  selection.
 
 ### 1.5.0 - Bug Fix & Enhancement Release
 

@@ -111,6 +111,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final int[] alternateAction = new int[] { 0 };
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
         final DelayedRunner delayedRunner = new DelayedRunner();
+        final Action[] convertToCaretsAction = new Action[] { null };
 
         // Can change according to settings later
         // myEolText = "⏎";
@@ -187,6 +188,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                     // convert multi caret text to \n separated ranges
                     final String[] texts = caretContent.getTexts();
+
+                    updateConvertToCarets(texts);
+
                     //noinspection VariableNotUsedInsideIf
                     if (texts != null) {
                         updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
@@ -301,6 +305,50 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 }
             }
 
+            protected void updateConvertToCarets(String[] texts) {
+                if (convertToCaretsAction[0] != null) {
+                    boolean enabled = false;
+                    if (texts != null) {
+                        for (String text: texts) {
+                            if (text.indexOf('\n') != -1) {
+                                enabled = true;
+                                break;
+                            }
+                        }
+                    }
+                    convertToCaretsAction[0].setEnabled(enabled);
+                }
+            }
+
+            protected void convertSelectionToCarets() {
+                // split current selection to character carets
+                ContentChooser<Transferable> chooser = choosers[0];
+                final int[] selectedIndices = chooser.getSelectedIndices();
+
+                if (selectedIndices.length > 0) {
+                    Transferable content;
+                    final ClipboardCaretContent caretContent;
+
+                    if (selectedIndices.length == 1) {
+                        content = chooser.getAllContents().get(selectedIndices[0]);
+                        caretContent = getCaretContent(content);
+                    } else {
+                        content = EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true);
+                        caretContent = ClipboardCaretContent.studyTransferable(editor, content);
+                    }
+
+                    if (caretContent != null) {
+                        // convert multi caret text to \n separated ranges
+                        final String[] texts = caretContent.getTexts();
+
+                        if (texts != null) {
+                            Transferable convertedTransferable = EditHelpers.splitCaretTransferable(texts);
+                            copyPasteManager.setContents(convertedTransferable);
+                        }
+                    }
+                }
+            }
+
             @NotNull
             @Override
             protected Action[] createActions() {
@@ -353,7 +401,18 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                 final boolean showOptions = settings.isMultiPasteShowOptions();
                 showOptionsAction.putValue(Action.NAME, showOptions ? Bundle.message("content-chooser.hide-options.label") : Bundle.message("content-chooser.show-options.label"));
-                return new Action[] { showOptionsAction };
+
+                Action convertToCarets = new OkAction() {
+                    @SuppressWarnings("SerializableStoresNonSerializable")
+                    @Override
+                    protected void doAction(final ActionEvent e) {
+                        convertSelectionToCarets();
+                    }
+                };
+
+                convertToCarets.putValue(Action.NAME, Bundle.message("content-chooser.convert-to-carets.label"));
+                convertToCaretsAction[0] = convertToCarets;
+                return new Action[] { showOptionsAction, convertToCarets };
             }
 
             @Nullable
@@ -388,7 +447,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 int firstIndex = -1;
                 int lastIndex = -1;
 
-                for (int index : indices) {
+                for (int index: indices) {
                     if (firstIndex == -1) {
                         firstIndex = index;
                         lastIndex = index;
@@ -403,7 +462,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 List<Transferable> moved = new ArrayList<>();
 
                 int anchorIndex = moveUp ? firstIndex : lastIndex;
-                for (int index : indices) {
+                for (int index: indices) {
                     if (allConsecutive || index != anchorIndex) {
                         moved.add(allContents.get(index));
                     }
@@ -535,7 +594,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     if (settings.isUserDefinedMacroClipContent()) {
                         final Transferable[] allContents = copyPasteManager.getAllContents();
                         int index = 0;
-                        for (Transferable item : allContents) {
+                        for (Transferable item: allContents) {
                             final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
                             if (caretContent != null && caretContent.allChars()) {
                                 if (index == myEmptyContentDescription.getSelectedClipboardContentIndex()) {
@@ -626,7 +685,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         ArrayList<String> selections = new ArrayList<>();
         final Transferable[] allContents = copyPasteManager.getAllContents();
         int index = 0;
-        for (Transferable item : allContents) {
+        for (Transferable item: allContents) {
             final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
             if (caretContent != null && caretContent.allChars()) {
                 String displayName = String.format("%d - [%d] %s", index, caretContent.getCaretCount(), caretContent.getStringRep(30, null, false, false));
