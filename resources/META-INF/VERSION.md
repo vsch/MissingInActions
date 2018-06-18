@@ -59,6 +59,8 @@
 
 ### 1.5.1 - Bug Fix & Enhancement Release
 
+* Add: batch replace window test for caret offset being in found range before replacing. Fixes
+  issue with mouse click action assigned to
 * Add: convert to carets action in paste selection dialog to convert lines to multi-caret
   selection.
 

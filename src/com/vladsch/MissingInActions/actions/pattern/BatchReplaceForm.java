@@ -1420,29 +1420,36 @@ public class BatchReplaceForm implements Disposable {
     void replace() {
         if (myEditor == null || !myEditor.getDocument().isWritable()) return;
 
+        boolean handled = false;
+
         if (myFoundRange != null && myFoundIndex != -1 && !isExcludedRange()) {
             // Need to double check that the range matches what was found, sometimes the update takes longer and the wrong text can be replaced
-            String text = myFoundRange.subSequence(myEditor.getDocument().getCharsSequence()).toString();
-            final SearchData searchData = myLineSearchData.get(myFoundIndex);
-            String found = searchData.word;
-            if ((searchData.flags & CASE_SENSITIVE) != 0 && text.equals(found) || (searchData.flags & CASE_INSENSITIVE) != 0 && text.equalsIgnoreCase(found)) {
+            int offset = myEditor.getCaretModel().getOffset();
+            if (myFoundRange.getStartOffset() <= offset && offset <= myFoundRange.getEndOffset()) {
+                String text = myFoundRange.subSequence(myEditor.getDocument().getCharsSequence()).toString();
+                final SearchData searchData = myLineSearchData.get(myFoundIndex);
+                String found = searchData.word;
+                if ((searchData.flags & CASE_SENSITIVE) != 0 && text.equals(found) || (searchData.flags & CASE_INSENSITIVE) != 0 && text.equalsIgnoreCase(found)) {
+                    handled = true;
+                    WriteCommandAction.runWriteCommandAction(myProject, () -> {
+                        String replacement = searchData.replace;
+                        myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
+                        addExclusion(); // we are replacing it, prevent double replacement
+                        adjustExclusions(myFoundRange, replacement.length());
 
-                WriteCommandAction.runWriteCommandAction(myProject, () -> {
-                    String replacement = searchData.replace;
-                    myEditor.getDocument().replaceString(myFoundRange.getStartOffset(), myFoundRange.getEndOffset(), replacement);
-                    addExclusion(); // we are replacing it, prevent double replacement
-                    adjustExclusions(myFoundRange, replacement.length());
-
-                    if (myFoundBackwards != null) {
-                        if (myFoundBackwards) {
-                            findPrevious();
-                        } else {
-                            findNext();
+                        if (myFoundBackwards != null) {
+                            if (myFoundBackwards) {
+                                findPrevious();
+                            } else {
+                                findNext();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
-        } else {
+        }
+
+        if (!handled) {
             // must be a click, we will set a pending replace and let it try again
             myPendingReplace = true;
             CancelableJobScheduler.getInstance().schedule(() -> {
