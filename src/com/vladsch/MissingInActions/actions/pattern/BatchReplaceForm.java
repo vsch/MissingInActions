@@ -1288,7 +1288,7 @@ public class BatchReplaceForm implements Disposable {
             case FIND_PREV:
                 return myFindPrevious.isEnabled();
             case REPLACE:
-                return myReplace.isEnabled();
+                return true;
             case REPLACE_ALL:
                 return myReplaceAll.isEnabled();
             case EXCLUDE:
@@ -1315,7 +1315,7 @@ public class BatchReplaceForm implements Disposable {
                 if (myFindPrevious.isEnabled()) findPrevious();
                 break;
             case REPLACE:
-                if (myReplace.isEnabled()) replace();
+                replace();
                 break;
             case REPLACE_ALL:
                 if (myReplaceAll.isEnabled()) replaceAll();
