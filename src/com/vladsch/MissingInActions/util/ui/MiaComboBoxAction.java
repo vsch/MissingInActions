@@ -70,7 +70,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.MissingResourceException;
 
-public abstract class MiaComboBoxAction extends ComboBoxAction {
+public abstract class MiaComboBoxAction extends ComboBoxAction implements CustomComponentAction {
     //private static final Icon ARROW_ICON = UIUtil.isUnderDarcula() ? AllIcons.General.ComboArrow : AllIcons.General.ComboBoxButtonArrow;
     //private static final Icon DISABLED_ARROW_ICON = IconLoader.getDisabledIcon(ARROW_ICON);
     private static final String COMBO_BOX_EDITOR_PROPERTY = "COMBO_BOX_EDITOR_PROPERTY";

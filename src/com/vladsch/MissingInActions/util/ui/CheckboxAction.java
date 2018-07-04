@@ -37,7 +37,6 @@ package com.vladsch.MissingInActions.util.ui;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;

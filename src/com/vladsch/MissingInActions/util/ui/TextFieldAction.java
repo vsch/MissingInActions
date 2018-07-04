@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.util.ui;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.UIUtil;
