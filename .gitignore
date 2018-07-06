@@ -15,8 +15,6 @@ out/
 /MissingInActions.zip
 /lib/kotlin-runtime-sources.jar
 /.idea/workspace.xml
-/lib/kotlin-runtime.jar
-/lib/kotlin-reflect.jar
 /assets/images/*@2x.png
 /MissingInActionsAssets/
 /.idea/vcs.xml

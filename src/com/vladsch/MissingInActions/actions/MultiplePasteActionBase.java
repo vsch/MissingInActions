@@ -112,6 +112,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
         final DelayedRunner delayedRunner = new DelayedRunner();
         final Action[] convertToCaretsAction = new Action[] { null };
+        final AnAction simplePasteAction = ActionManager.getInstance().getAction("EditorPasteSimple"); //IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
+        final boolean haveSimplePasteAction = simplePasteAction != null;
+        final boolean[] convertToCaretsEnabled = new boolean[] { false };
 
         // Can change according to settings later
         // myEolText = "⏎";
@@ -306,16 +309,20 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             }
 
             protected void updateConvertToCarets(String[] texts) {
-                if (convertToCaretsAction[0] != null) {
-                    boolean enabled = false;
-                    if (texts != null) {
-                        for (String text: texts) {
-                            if (text.indexOf('\n') != -1) {
-                                enabled = true;
-                                break;
-                            }
+                // on creation this is called before the action is created, enabled state is saved so it could be used when
+                // action is created
+                boolean enabled = false;
+                if (texts != null) {
+                    for (String text : texts) {
+                        if (text.indexOf('\n') != -1) {
+                            enabled = true;
+                            break;
                         }
                     }
+                }
+
+                convertToCaretsEnabled[0] = enabled;
+                if (convertToCaretsAction[0] != null) {
                     convertToCaretsAction[0].setEnabled(enabled);
                 }
             }
@@ -354,7 +361,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             protected Action[] createActions() {
                 Action[] actions = super.createActions();
                 if (canCreateMultiCarets) {
-                    Action[] multiCaretActions = new Action[actions.length + 2];
+                    int actionOffset = haveSimplePasteAction ? 1 : 0;
+                    Action[] multiCaretActions = new Action[actions.length + 2 + actionOffset];
                     System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
                     //noinspection SerializableInnerClassWithNonSerializableOuterClass
                     Action createWithMultiCarets = new OkAction() {
@@ -366,7 +374,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     };
                     final String name = getCreateWithCaretsName(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
-                    multiCaretActions[actions.length + 1] = createWithMultiCarets;
+                    multiCaretActions[actions.length + 1 + actionOffset] = createWithMultiCarets;
 
                     // create merge comma separate
                     Action spliceCommaSeparated = new OkAction() {
@@ -378,7 +386,23 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     };
 
                     spliceCommaSeparated.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
-                    multiCaretActions[actions.length] = spliceCommaSeparated;
+                    multiCaretActions[actions.length + actionOffset] = spliceCommaSeparated;
+
+                    if (haveSimplePasteAction) {
+                        // create simple paste
+                        Action pasteSimple = new OkAction() {
+                            @Override
+                            protected void doAction(final ActionEvent e) {
+                                alternateAction[0] = 3;
+                                super.doAction(e);
+                            }
+                        };
+
+                        //String actionText = ActionsBundle.actionText(IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
+                        pasteSimple.putValue(Action.NAME, Bundle.message("content-chooser.simple-paste.label"));
+                        multiCaretActions[actions.length] = pasteSimple;
+                    }
+
                     return multiCaretActions;
                 }
                 return actions;
@@ -411,6 +435,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 };
 
                 convertToCarets.putValue(Action.NAME, Bundle.message("content-chooser.convert-to-carets.label"));
+                convertToCarets.setEnabled(convertToCaretsEnabled[0]);
                 convertToCaretsAction[0] = convertToCarets;
                 return new Action[] { showOptionsAction, convertToCarets };
             }
@@ -447,7 +472,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 int firstIndex = -1;
                 int lastIndex = -1;
 
-                for (int index: indices) {
+                for (int index : indices) {
                     if (firstIndex == -1) {
                         firstIndex = index;
                         lastIndex = index;
@@ -462,7 +487,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 List<Transferable> moved = new ArrayList<>();
 
                 int anchorIndex = moveUp ? firstIndex : lastIndex;
-                for (int index: indices) {
+                for (int index : indices) {
                     if (allConsecutive || index != anchorIndex) {
                         moved.add(allContents.get(index));
                     }
@@ -594,7 +619,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     if (settings.isUserDefinedMacroClipContent()) {
                         final Transferable[] allContents = copyPasteManager.getAllContents();
                         int index = 0;
-                        for (Transferable item: allContents) {
+                        for (Transferable item : allContents) {
                             final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
                             if (caretContent != null && caretContent.allChars()) {
                                 if (index == myEmptyContentDescription.getSelectedClipboardContentIndex()) {
@@ -650,7 +675,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     }
                 }
 
-                final AnAction pasteAction = getPasteAction(editor, recreateCarets);
+                final AnAction pasteAction = alternateAction[0] == 2 ? simplePasteAction : getPasteAction(editor, recreateCarets);
 
                 if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
                     // need to create the replaced content
@@ -685,7 +710,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         ArrayList<String> selections = new ArrayList<>();
         final Transferable[] allContents = copyPasteManager.getAllContents();
         int index = 0;
-        for (Transferable item: allContents) {
+        for (Transferable item : allContents) {
             final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
             if (caretContent != null && caretContent.allChars()) {
                 String displayName = String.format("%d - [%d] %s", index, caretContent.getCaretCount(), caretContent.getStringRep(30, null, false, false));
