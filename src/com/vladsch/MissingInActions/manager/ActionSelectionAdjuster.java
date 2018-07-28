@@ -1010,51 +1010,55 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                             TextRange rawRange = ClipboardCaretContent.getLastPastedTextRange(myEditor, snapshot.getIndex());
                             if (rawRange != null) {
                                 final BasedSequence documentChars = editorCaret.getDocumentChars();
-                                CharSequence beforeShift = rawRange.subSequence(documentChars);
-                                TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
-                                CharSequence afterShift = range.subSequence(documentChars);
-                                editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
+                                if (rawRange.getEndOffset() < documentChars.length()) {
+                                    CharSequence beforeShift = rawRange.subSequence(documentChars);
+                                    TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
+                                    CharSequence afterShift = range.subSequence(documentChars);
+                                    editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
-                                if (!editorCaret.hasLines()) {
-                                    if (settings.isOnPastePreserve()) {
-                                        cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                                , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
-                                                        || (myEditor.getCaretModel().getCaretCount() > 1
-                                                        && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
-                                                )
-                                                , settings.isPreserveCamelCaseOnPaste()
-                                                , settings.isPreserveSnakeCaseOnPaste()
-                                                , settings.isPreserveScreamingSnakeCaseOnPaste()
-                                                , settings.isPreserveDashCaseOnPaste()
-                                                , settings.isPreserveDotCaseOnPaste()
-                                                , settings.isPreserveSlashCaseOnPaste()
-                                                , settings.isRemovePrefixOnPaste()
-                                                , settings.isAddPrefixOnPaste()
-                                                , settings.getPrefixesOnPasteList()
-                                                , settings.getRemovePrefixOnPastePatternType()
-                                        );
+                                    if (!editorCaret.hasLines()) {
+                                        if (settings.isOnPastePreserve()) {
+                                            cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
+                                                    , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
+                                                            || (myEditor.getCaretModel().getCaretCount() > 1
+                                                            && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
+                                                    )
+                                                    , settings.isPreserveCamelCaseOnPaste()
+                                                    , settings.isPreserveSnakeCaseOnPaste()
+                                                    , settings.isPreserveScreamingSnakeCaseOnPaste()
+                                                    , settings.isPreserveDashCaseOnPaste()
+                                                    , settings.isPreserveDotCaseOnPaste()
+                                                    , settings.isPreserveSlashCaseOnPaste()
+                                                    , settings.isRemovePrefixOnPaste()
+                                                    , settings.isAddPrefixOnPaste()
+                                                    , settings.getPrefixesOnPasteList()
+                                                    , settings.getRemovePrefixOnPastePatternType()
+                                            );
+                                        }
+                                    } else {
+                                        if (caretContent.isFullLine(snapshot.getIndex())) {
+                                            if (editorCaret.hasLines()) {
+                                                editorCaret.trimOrExpandToLineSelection();
+                                            }
+
+                                            int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
+                                            if (caretColumn != -1) {
+                                                editorCaret.restoreColumn(caretColumn);
+                                            }
+                                        }
+
+                                        boolean selectPasted = settings.isSelectPasted()
+                                                && SelectionPredicateType.isEnabled(settings.getSelectPastedPredicate(), editorCaret.getSelectionLineCount());
+
+                                        if (!selectPasted) {
+                                            editorCaret.removeSelection();
+                                        }
+
+                                        editorCaret.normalizeCaretPosition();
+                                        editorCaret.commit();
                                     }
                                 } else {
-                                    if (caretContent.isFullLine(snapshot.getIndex())) {
-                                        if (editorCaret.hasLines()) {
-                                            editorCaret.trimOrExpandToLineSelection();
-                                        }
-
-                                        int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
-                                        if (caretColumn != -1) {
-                                            editorCaret.restoreColumn(caretColumn);
-                                        }
-                                    }
-
-                                    boolean selectPasted = settings.isSelectPasted()
-                                            && SelectionPredicateType.isEnabled(settings.getSelectPastedPredicate(), editorCaret.getSelectionLineCount());
-
-                                    if (!selectPasted) {
-                                        editorCaret.removeSelection();
-                                    }
-
-                                    editorCaret.normalizeCaretPosition();
-                                    editorCaret.commit();
+                                    snapshot.restoreColumn();
                                 }
                             } else {
                                 snapshot.restoreColumn();
