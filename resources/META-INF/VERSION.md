@@ -59,6 +59,9 @@
 
 ### 1.5.1 - Bug Fix & Enhancement Release
 
+* Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
+  flagging error and warnings as search strings
+* Fix: batch replace options lost leading blank lines when saved or exported options
 * Fix: after paste adjustment range out of bounds exception
 * Fix: disabling `To Carets` button in multi-paste dialog on opening dialog
 * Add: paste w/o formatting action to multi-paste dialog

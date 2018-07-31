@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +54,8 @@ public class WordHighlighter extends Highlighter {
         WordHighlightProvider highlightProvider = (WordHighlightProvider) myHighlightProvider;
         if (highlightProvider.isShowHighlights()) {
             Pattern pattern = highlightProvider.getHighlightPattern();
-            if (pattern != null) {
+            Map<String, Integer> highlightWordFlags = highlightProvider.getHighlightWordFlags();
+            if (pattern != null && highlightWordFlags != null) {
                 handled = true;
                 removeHighlightsRaw();
                 Document document = myEditor.getDocument();
@@ -66,8 +68,9 @@ public class WordHighlighter extends Highlighter {
                     String group = matcher.group();
                     int startOffset = matcher.start();
                     int endOffset = matcher.end();
+                    int flags = highlightWordFlags.get(group);
                     int index = highlightProvider.getHighlightWordIndex(group);
-                    TextAttributes attributes = highlightProvider.getHighlightAttributes(index, startOffset, endOffset, null, null, EffectType.BOLD_DOTTED_LINE, 0);
+                    TextAttributes attributes = highlightProvider.getHighlightAttributes(index, flags, startOffset, endOffset, null, null, EffectType.BOLD_DOTTED_LINE, 0);
                     attributes = getAttributes(attributes, group, startOffset, endOffset);
                     if (attributes != null) {
                         RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(startOffset, endOffset, HighlighterLayer.SELECTION - 2, attributes, HighlighterTargetArea.EXACT_RANGE);

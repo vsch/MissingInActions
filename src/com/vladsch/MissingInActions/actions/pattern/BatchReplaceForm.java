@@ -93,8 +93,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_INSENSITIVE;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_SENSITIVE;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.*;
 
 public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
@@ -203,9 +202,9 @@ public class BatchReplaceForm implements Disposable {
     public void saveSettings() {
         mySettings.getBatchSearchReplace().setWholeWord(myWholeWord.isSelected());
         mySettings.getBatchSearchReplace().setCaseSensitive(myCaseSensitive.isSelected());
-        mySettings.getBatchSearchReplace().setSearchText(mySearchEditor.getDocument().getText().trim());
-        mySettings.getBatchSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText().trim());
-        mySettings.getBatchSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText().trim());
+        mySettings.getBatchSearchReplace().setSearchText(mySearchEditor.getDocument().getText());
+        mySettings.getBatchSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText());
+        mySettings.getBatchSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText());
         mySettings.setBatchHighlightAllLines(myShowHighlights.isSelected());
         mySettings.setBatchTandemEdit(myBatchTandemEdit.isSelected());
     }
@@ -1108,6 +1107,8 @@ public class BatchReplaceForm implements Disposable {
                         boolean isCaseSensitive = myCaseSensitive.isSelected();
                         boolean isBeginWord = myWholeWord.isSelected();
                         boolean isEndWord = myWholeWord.isSelected();
+                        boolean isError = false;
+                        boolean isWarning = false;
 
                         // implement # marking start of comment
                         int iComment = optionsText.indexOf('#');
@@ -1118,6 +1119,8 @@ public class BatchReplaceForm implements Disposable {
                         int iW = optionsText.indexOf('w');
                         int iB = optionsText.indexOf('b');
                         int iE = optionsText.indexOf('e');
+                        int iErr = optionsText.indexOf('!');
+                        int iWarn = optionsText.indexOf('?');
 
                         if (iC >= 0 && iC < iComment) {
                             isCaseSensitive = true;
@@ -1140,7 +1143,15 @@ public class BatchReplaceForm implements Disposable {
                             isEndWord = true;
                         }
 
-                        SearchData searchData = new SearchData(searchText, replaceText, i, myEditorSearchHighlightProvider.encodeFlags(isBeginWord, isEndWord, isCaseSensitive));
+                        if (iErr >= 0 && iErr < iComment) {
+                            isError = true;
+                        }
+
+                        if (iWarn >= 0 && iWarn < iComment) {
+                            isWarning = true;
+                        }
+
+                        SearchData searchData = new SearchData(searchText, replaceText, i, myEditorSearchHighlightProvider.encodeFlags(isBeginWord, isEndWord, isWarning, isError, isCaseSensitive));
 
                         int lMax = lineSearchData.size();
                         for (int l = lMax; l-- > 0; ) {
@@ -2005,16 +2016,37 @@ public class BatchReplaceForm implements Disposable {
 
                 if (count == 0) {
                     TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
-                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                     attributes = uiTheme.getAttributes(attributesKey);
                 } else if ((selectedLine || myHighlightAllLines) && attributes != null) {
-                    attributes = new TextAttributes(
-                            attributes.getForegroundColor(),
-                            attributes.getBackgroundColor(),
-                            effectColor,
-                            effectType,
-                            0
-                    );
+                    // see if error or warning highlight
+                    int flags = searchData.flags;
+                    if ((flags & IDE_HIGHLIGHT) != 0) {
+                        EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
+
+                        switch (flags & IDE_HIGHLIGHT) {
+                            case IDE_ERROR:
+                            case IDE_ERROR | IDE_WARNING:
+                                attributes = uiTheme.getAttributes(ERROR_ATTRIBUTES_KEY);
+                                break;
+
+                            case IDE_WARNING:
+                                attributes = uiTheme.getAttributes(WARNING_ATTRIBUTES_KEY);
+                                break;
+
+                            default:
+                                throw new IllegalStateException("Unhandled IDE_HIGHLIGHT combination " + (flags & IDE_HIGHLIGHT));
+                        }
+                    } else {
+                        attributes = new TextAttributes(
+                                attributes.getForegroundColor(),
+                                attributes.getBackgroundColor(),
+                                effectColor,
+                                effectType,
+                                0
+                        );
+                    }
+
                 } else {
                     attributes = null;
                 }

@@ -174,13 +174,14 @@ public class LineRangeHighlightProviderImpl extends HighlightProviderBase implem
      * the cached structures are updated.
      *
      * @param index       highlighted line number
+     * @param flags
      * @param startOffset start offset in editor
      * @param endOffset   end offset in editor
      * @return text attributes to use for highlight or null if not highlighted
      */
     @Override
     @Nullable
-    public TextAttributes getHighlightAttributes(final int index, final int startOffset, final int endOffset, final @Nullable Color foregroundColor, final @Nullable Color effectColor, final @Nullable EffectType effectType, final int fontType) {
+    public TextAttributes getHighlightAttributes(final int index, final int flags, final int startOffset, final int endOffset, final @Nullable Color foregroundColor, final @Nullable Color effectColor, final @Nullable EffectType effectType, final int fontType) {
         Color foreground = foregroundColor != null ? foregroundColor : mySettings.isIsolatedForegroundColorEnabled() ? mySettings.isolatedForegroundColorRGB() : null;
         Color background = mySettings.isIsolatedBackgroundColorEnabled() ? mySettings.isolatedBackgroundColorRGB() : null;
         if (index >= 0) {

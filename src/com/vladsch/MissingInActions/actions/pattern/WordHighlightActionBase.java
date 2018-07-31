@@ -33,6 +33,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import org.jetbrains.annotations.NotNull;
 
 abstract public class WordHighlightActionBase extends AnAction implements DumbAware {
     private final boolean myIsRemoveWord;
@@ -57,8 +58,8 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
     }
 
     @Override
-    public void actionPerformed(final AnActionEvent e) {
-        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+    public void actionPerformed(@NotNull final AnActionEvent e) {
+        Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
             Document document = editor.getDocument();
             CharSequence chars = document.getCharsSequence();
@@ -71,7 +72,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
                     if (myIsRemoveWord) {
                         plugin.removeHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
                     } else {
-                        plugin.addHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()), startWord, endWord, null);
+                        plugin.addHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()), startWord, endWord, false, false, null);
                     }
                 }
             }

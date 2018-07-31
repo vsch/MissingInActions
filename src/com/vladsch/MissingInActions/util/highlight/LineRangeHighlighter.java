@@ -68,7 +68,7 @@ public class LineRangeHighlighter extends LineHighlighter {
                 int firstOffset = nextLine == -1 ? endOffset : document.getLineStartOffset(nextLine) - 1;
 
                 if (startOffset < firstOffset) {
-                    TextAttributes attributes = highlightProvider.getHighlightAttributes(startLine, startOffset, firstOffset, null, null, null, 0);
+                    TextAttributes attributes = highlightProvider.getHighlightAttributes(startLine, 0, startOffset, firstOffset, null, null, null, 0);
                     attributes = getAttributes(attributes, startLine, startOffset, firstOffset);
 
                     if (attributes != null) {

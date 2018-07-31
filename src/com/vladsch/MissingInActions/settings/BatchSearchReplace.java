@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -100,6 +101,7 @@ public class BatchSearchReplace implements Serializable {
     }
 
     public void setOptionsText(@NotNull final String batchSearchOptionsText) {
+        // need to change leading blank lines to . so they are stored in XML
         myOptionsText = batchSearchOptionsText;
     }
 }

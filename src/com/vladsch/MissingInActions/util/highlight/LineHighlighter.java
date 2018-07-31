@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class LineHighlighter extends Highlighter {
     public LineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
@@ -60,7 +61,7 @@ public class LineHighlighter extends Highlighter {
                 int startOffset = document.getLineStartOffset(i);
                 int endOffset = document.getLineEndOffset(i);
                 int index = highlightProvider.getHighlightLineIndex(i);
-                TextAttributes attributes = highlightProvider.getHighlightAttributes(index, startOffset, endOffset, null, null, null, 0);
+                TextAttributes attributes = highlightProvider.getHighlightAttributes(index, 0, startOffset, endOffset, null, null, null, 0);
                 attributes = getAttributes(attributes, i, startOffset, endOffset);
 
                 if (attributes != null) {
