@@ -43,7 +43,7 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
         }
 )
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettings extends BatchSearchReplaceSettings implements ApplicationComponent, PersistentStateComponent<ApplicationSettings> {
+public class ApplicationSettings extends BatchSearchReplaceSettings implements BaseComponent, PersistentStateComponent<ApplicationSettings> {
     // @formatter:off
     private boolean         myAddPrefixOnPaste = false;
     private boolean         myAutoIndent = false;

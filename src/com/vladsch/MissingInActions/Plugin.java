@@ -30,7 +30,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -64,7 +64,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class Plugin extends WordHighlightProviderImpl implements ApplicationComponent, Disposable {
+public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
     final public static int FEATURE_ENHANCED = 1;
