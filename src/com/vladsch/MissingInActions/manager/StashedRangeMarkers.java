@@ -161,7 +161,8 @@ public class StashedRangeMarkers implements Disposable {
 
     public void remove(int deltaFromTop) {
         releaseUnused();
-        RangeMarker marker = myMarkers.remove(size() - 1 - deltaFromTop);
+        final int index = size() - 1 - deltaFromTop;
+        RangeMarker marker = isValidAt(index) ? myMarkers.remove(index) : null;
 
         if (marker != null) {
             marker.dispose();

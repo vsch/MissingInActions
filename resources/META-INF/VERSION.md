@@ -59,6 +59,8 @@
 
 ### 1.5.1 - Bug Fix & Enhancement Release
 
+* Fix: deleting all lines in batch replace tandem mode
+* Fix: add index validation to stashed range marker removal
 * Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
   flagging error and warnings as search strings
 * Fix: batch replace options lost leading blank lines when saved or exported options
