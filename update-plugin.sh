@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-HOME_DIR="/Users/vlad/src/MissingInActions"
+HOME_DIR="/Users/vlad/src/projects/MissingInActions"
 PLUGIN="MissingInActions"
 
 cd ${HOME_DIR}
@@ -20,7 +20,7 @@ function UpdProduct() {
 
 function UpdJar() {
     ZIP=$1
-    for PRODUCT in ${2:+"$@"}
+    for PRODUCT in ${@:2}
     do
         if [ -d /Users/vlad/Library/"Application Support"/${PRODUCT} ]; then
             echo updating ${PRODUCT} jar for ${ZIP}
@@ -35,7 +35,7 @@ function UpdJar() {
 
 function UpdZip() {
     ZIP=$1
-    for PRODUCT in ${2:+"$@"}
+    for PRODUCT in ${@:2}
     do
         if [ -d /Users/vlad/Library/"Application Support"/${PRODUCT} ]; then
             echo updating ${PRODUCT} zip for ${ZIP}
