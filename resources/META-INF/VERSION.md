@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.5.1 - Bug Fix & Enhancement Release](#151---bug-fix--enhancement-release)
+- [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
 - [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
 - [1.4.6 - Bug Fix Release](#146---bug-fix-release)
@@ -57,8 +57,9 @@
 
 &nbsp;</details>
 
-### 1.5.1 - Bug Fix & Enhancement Release
+### 1.6.0 - Bug Fix & Enhancement Release
 
+* Fix: recall selection from list action not working
 * Fix: deleting all lines in batch replace tandem mode
 * Fix: add index validation to stashed range marker removal
 * Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
@@ -69,8 +70,8 @@
 * Add: paste w/o formatting action to multi-paste dialog
 * Add: batch replace window test for caret offset being in found range before replacing. Fixes
   issue with mouse click action assigned to
-* Add: convert to carets action in paste selection dialog to convert lines to multi-caret
-  selection.
+* Add: convert to carets action in paste selection dialog to convert multi-line clipboard
+  contents to multi-caret selection.
 
 ### 1.5.0 - Bug Fix & Enhancement Release
 

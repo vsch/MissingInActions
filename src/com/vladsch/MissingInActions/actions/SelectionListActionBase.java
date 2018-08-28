@@ -157,10 +157,8 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
                     public void actionPerformed(final AnActionEvent e) {
                         if (!isDisabled) {
                             RangeMarker selectionRangeMarker = manager.getRangeMarker();
-                            if (selectionRangeMarker != null) {
-                                manager.recallLastSelection(index, removeRangeMarker(e, editor, selectionRangeMarker), false, true);
-                                SelectionListActionBase.this.actionPerformed(e, editor, selectionRangeMarker);
-                            }
+                            manager.recallLastSelection(index, removeRangeMarker(e, editor, selectionRangeMarker), false, true);
+                            SelectionListActionBase.this.actionPerformed(e, editor, selectionRangeMarker);
                         }
                     }
                 };

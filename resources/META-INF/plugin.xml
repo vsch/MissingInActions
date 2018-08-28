@@ -74,12 +74,28 @@
         ]]>
     </description>
 
-    <version>1.5.1</version>
+    <version>1.6.0</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.6.0 - Bug Fix &amp; Enhancement Release</h3>
+            <ul>
+                <li>Fix: recall selection from list action not working</li>
+                <li>Fix: deleting all lines in batch replace tandem mode</li>
+                <li>Fix: add index validation to stashed range marker removal</li>
+                <li>Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
+                    flagging error and warnings as search strings</li>
+                <li>Fix: batch replace options lost leading blank lines when saved or exported options</li>
+                <li>Fix: after paste adjustment range out of bounds exception</li>
+                <li>Fix: disabling <code>To Carets</code> button in multi-paste dialog on opening dialog</li>
+                <li>Add: paste w/o formatting action to multi-paste dialog</li>
+                <li>Add: batch replace window test for caret offset being in found range before replacing. Fixes
+                    issue with mouse click action assigned to</li>
+                <li>Add: convert to carets action in paste selection dialog to convert multi-line clipboard
+                    contents to multi-caret selection.</li>
+            </ul>
             <h3>1.5.0 - Bug Fix &amp; Enhancement Release</h3>
             <ul>
                 <li>Add: <code>-</code> to batch search options, when it is at beginning of line disables the row from search

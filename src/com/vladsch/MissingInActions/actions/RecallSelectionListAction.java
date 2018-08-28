@@ -44,6 +44,8 @@ public class RecallSelectionListAction extends SelectionListActionBase {
 
     @Override
     protected void actionPerformed(final AnActionEvent e, Editor editor, @Nullable final RangeMarker previousSelection) {
-        LineSelectionManager.getInstance(editor).pushSelection(previousSelection, true, true, true);
+        if (previousSelection != null) {
+            LineSelectionManager.getInstance(editor).pushSelection(previousSelection, true, true, true);
+        }
     }
 }

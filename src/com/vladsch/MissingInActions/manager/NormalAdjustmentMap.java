@@ -277,8 +277,7 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , TextStartWithSelectionAction.class
                 , ReplaceWithSelectionTextListAction.class
                 , ReplaceWithLastSelectionTextAction.class
-                , MiaComboBoxAction.class
-                , SelectionListActionBase.class
+                , RecallSelectionListAction.class
 
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndInDifferentHumpsModeWithSelectionAction.class
                 , com.vladsch.MissingInActions.actions.character.word.NextWordEndWithSelectionAction.class
