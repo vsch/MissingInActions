@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.6.1 - Bug Fix & Enhancement Release](#161---bug-fix--enhancement-release)
 - [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
 - [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
@@ -56,6 +57,10 @@
   once even if there are many carets present on that line.
 
 &nbsp;</details>
+
+### 1.6.1 - Bug Fix & Enhancement Release
+
+* Fix: update for latest API
 
 ### 1.6.0 - Bug Fix & Enhancement Release
 

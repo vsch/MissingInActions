@@ -562,27 +562,30 @@ public class BatchReplaceForm implements Disposable {
             }
         });
 
+        final VirtualFile projectFile = myProject.getProjectFile();
+        final VirtualFile projectBaseDir = projectFile == null ? null : projectFile.getParent();
+        assert projectBaseDir != null;
+
         exportXML.addActionListener(e -> {
             String title = Bundle.message("batch-search.export.title");
             String description = Bundle.message("batch-search.export.description");
             FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "xml");
             FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
-            if (myProject != null) {
-                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "batch-search-replace.xml");
-                if (file != null) {
-                    try {
-                        FileUtil.createParentDirs(file.getFile());
-                        FileOutputStream fileWriter = new FileOutputStream(file.getFile());
-                        BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
-                        XMLEncoder xmlEncoder = new XMLEncoder(fileWriter, "UTF-8", true, 0);
-                        xmlEncoder.writeObject(externalizedSettings);
-                        xmlEncoder.close();
-                        fileWriter.close();
-                        VirtualFileManager.getInstance().asyncRefresh(null);
-                        //JDOMUtil.write(root, file.getFile(), "\n");
-                    } catch (IOException e1) {
-                        Messages.showErrorDialog(e1.getMessage(), "Export Failure");
-                    }
+            VirtualFileWrapper file = saveDialog.save(projectBaseDir, "batch-search-replace.xml");
+
+            if (file != null) {
+                try {
+                    FileUtil.createParentDirs(file.getFile());
+                    FileOutputStream fileWriter = new FileOutputStream(file.getFile());
+                    BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
+                    XMLEncoder xmlEncoder = new XMLEncoder(fileWriter, "UTF-8", true, 0);
+                    xmlEncoder.writeObject(externalizedSettings);
+                    xmlEncoder.close();
+                    fileWriter.close();
+                    VirtualFileManager.getInstance().asyncRefresh(null);
+                    //JDOMUtil.write(root, file.getFile(), "\n");
+                } catch (IOException e1) {
+                    Messages.showErrorDialog(e1.getMessage(), "Export Failure");
                 }
             }
         });
@@ -600,15 +603,13 @@ public class BatchReplaceForm implements Disposable {
                 File file = new File(lastImport);
                 lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             }
-            if (lastImportFile == null) lastImportFile = myProject.getBaseDir();
+            if (lastImportFile == null) lastImportFile = projectBaseDir;
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
             if (files.length > 0) {
                 try {
                     BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(files[0].getPath()));
-                    XMLDecoder decoder = new XMLDecoder(inputStream, this, e1 -> {
-                        e1.printStackTrace();
-                    }, this.getClass().getClassLoader());
+                    XMLDecoder decoder = new XMLDecoder(inputStream, this, Throwable::printStackTrace, this.getClass().getClassLoader());
 
                     Object object = decoder.readObject();
                     BatchSearchReplaceSettings externalizedSettings = (BatchSearchReplaceSettings) object;
@@ -631,27 +632,25 @@ public class BatchReplaceForm implements Disposable {
             String description = Bundle.message("batch-search.export.description");
             FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(title, description, "json");
             FileSaverDialogImpl saveDialog = new FileSaverDialogImpl(fileSaverDescriptor, myMainPanel);
-            if (myProject != null) {
-                VirtualFileWrapper file = saveDialog.save(myProject.getBaseDir(), "batch-search-replace.json");
-                if (file != null) {
-                    try {
-                        FileUtil.createParentDirs(file.getFile());
-                        FileWriter fileWriter = new FileWriter(file.getFile());
-                        saveSettings();
-                        BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
-                        BoxedJsObject settings = BoxedJson.of();
-                        BoxedJsObject presets = BoxedJson.of();
-                        settings.put("presets", presets);
+            VirtualFileWrapper file = saveDialog.save(projectBaseDir, "batch-search-replace.json");
+            if (file != null) {
+                try {
+                    FileUtil.createParentDirs(file.getFile());
+                    FileWriter fileWriter = new FileWriter(file.getFile());
+                    saveSettings();
+                    BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
+                    BoxedJsObject settings = BoxedJson.of();
+                    BoxedJsObject presets = BoxedJson.of();
+                    settings.put("presets", presets);
 
-                        exportJSONPresets(presets);
-                        fileWriter.write(settings.toString());
+                    exportJSONPresets(presets);
+                    fileWriter.write(settings.toString());
 
-                        fileWriter.close();
-                        VirtualFileManager.getInstance().asyncRefresh(null);
-                        //JDOMUtil.write(root, file.getFile(), "\n");
-                    } catch (IOException e1) {
-                        Messages.showErrorDialog(e1.getMessage(), "Export Failure");
-                    }
+                    fileWriter.close();
+                    VirtualFileManager.getInstance().asyncRefresh(null);
+                    //JDOMUtil.write(root, file.getFile(), "\n");
+                } catch (IOException e1) {
+                    Messages.showErrorDialog(e1.getMessage(), "Export Failure");
                 }
             }
         });
@@ -669,7 +668,7 @@ public class BatchReplaceForm implements Disposable {
                 File file = new File(lastImport);
                 lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             }
-            if (lastImportFile == null) lastImportFile = myProject.getBaseDir();
+            if (lastImportFile == null) lastImportFile = projectBaseDir;
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
             if (files.length > 0) {
@@ -2046,7 +2045,6 @@ public class BatchReplaceForm implements Disposable {
                                 0
                         );
                     }
-
                 } else {
                     attributes = null;
                 }
