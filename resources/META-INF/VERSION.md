@@ -61,6 +61,7 @@
 ### 1.6.1 - Bug Fix & Enhancement Release
 
 * Fix: update for latest API
+* Fix: tool window icon to 13x13 
 
 ### 1.6.0 - Bug Fix & Enhancement Release
 

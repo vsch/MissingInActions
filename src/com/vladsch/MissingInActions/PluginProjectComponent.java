@@ -65,7 +65,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     public void dispose() {
     }
 
-    private void propertyChange(PropertyChangeEvent evt) {
+    void propertyChange(PropertyChangeEvent evt) {
         if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
             Editor newEditor = null;
             Editor oldEditor = null;

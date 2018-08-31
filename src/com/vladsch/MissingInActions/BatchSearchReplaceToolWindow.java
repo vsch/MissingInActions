@@ -52,7 +52,7 @@ public class BatchSearchReplaceToolWindow {
     public BatchSearchReplaceToolWindow(Project project) {
         this.project = project;
         toolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.BOTTOM);
-        toolWindow.setIcon(PluginIcons.Batch_search);
+        toolWindow.setIcon(PluginIcons.Batch_search_Tool);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
