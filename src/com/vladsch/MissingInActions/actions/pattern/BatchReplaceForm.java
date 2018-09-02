@@ -1952,14 +1952,14 @@ public class BatchReplaceForm implements Disposable {
                 if (myExcludedRanges != null) {
                     for (TextRange range : myExcludedRanges) {
                         if (range.containsRange(startOffset, endOffset)) {
-                            EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                            EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                             Color foreground = uiTheme.getDefaultForeground();
                             return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), foreground, EffectType.STRIKEOUT, attributes.getFontType());
                         }
                     }
                 }
                 if (myFoundRange != null && myFoundRange.containsRange(startOffset, endOffset)) {
-                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                    EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                     Color foreground = uiTheme.getDefaultForeground();
                     return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), foreground, EffectType.BOXED, attributes.getFontType());
                 }
@@ -1994,7 +1994,7 @@ public class BatchReplaceForm implements Disposable {
             boolean selectedLine = false;
 
             if (myFoundIndex == line) {
-                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                 effectColor = uiTheme.getDefaultForeground();
                 effectType = EffectType.BOXED;
                 selectedLine = true;
@@ -2003,7 +2003,7 @@ public class BatchReplaceForm implements Disposable {
             if (attributes == null && BatchReplaceForm.this.myEditor != null) {
                 // not used, overridden
                 TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
-                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getSchemeForCurrentUITheme();
+                EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                 attributes = uiTheme.getAttributes(attributesKey);
                 return new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), attributes.getForegroundColor(), EffectType.WAVE_UNDERSCORE, attributes.getFontType());
             } else {

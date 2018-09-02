@@ -74,13 +74,13 @@
         ]]>
     </description>
 
-    <version>1.6.2</version>
+    <version>1.6.4</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.6.2 - Bug Fix  Release</h3>
+            <h3>1.6.4 - Bug Fix  Release</h3>
             <ul>
                 <li>Fix: 2016.3 compatibility</li>
                 <li>Fix: error attribute used was only defined in 2017, changed to ERRORS_ATTRIBUTES</li>
