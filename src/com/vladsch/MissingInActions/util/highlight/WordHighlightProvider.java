@@ -41,7 +41,7 @@ public interface WordHighlightProvider extends HighlightProvider {
     int IDE_HIGHLIGHT = IDE_WARNING | IDE_ERROR;  // marks this highlight as using standard ide highlights
 
     TextAttributesKey TYPO_ATTRIBUTES_KEY = TextAttributesKey.createTextAttributesKey("TYPO");
-    TextAttributesKey ERROR_ATTRIBUTES_KEY = CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES;
+    TextAttributesKey ERROR_ATTRIBUTES_KEY = CodeInsightColors.ERRORS_ATTRIBUTES; // CodeInsightColors.MARKED_FOR_REMOVAL_ATTRIBUTES; // this one is only defined in 2018.1
     TextAttributesKey WARNING_ATTRIBUTES_KEY = TYPO_ATTRIBUTES_KEY;// CodeInsightColors.WEAK_WARNING_ATTRIBUTES;
 
     default int encodeFlags(boolean beginWord, boolean endWord, final boolean ideWarning, final boolean ideError, Boolean caseSensitive) {

@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.6.1 - Bug Fix & Enhancement Release](#161---bug-fix--enhancement-release)
+- [1.6.2 - Bug Fix  Release](#162---bug-fix--release)
 - [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
 - [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
@@ -58,8 +58,10 @@
 
 &nbsp;</details>
 
-### 1.6.1 - Bug Fix & Enhancement Release
+### 1.6.2 - Bug Fix  Release
 
+* Fix: 2016.3 compatibility
+* Fix: error attribute used was only defined in 2017, changed to ERRORS_ATTRIBUTES
 * Fix: update for latest API
 * Fix: tool window icon to 13x13 
 
