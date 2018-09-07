@@ -21,7 +21,10 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.util.xmlb.annotations.*;
+import com.intellij.util.xmlb.annotations.OptionTag;
+import com.intellij.util.xmlb.annotations.Property;
+import com.intellij.util.xmlb.annotations.Transient;
+import com.intellij.util.xmlb.annotations.XMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

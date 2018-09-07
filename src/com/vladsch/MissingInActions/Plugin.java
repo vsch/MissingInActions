@@ -164,7 +164,6 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
                 Plugin.this.beforeEditorTyping(c, dataContext);
             }
         });
-
     }
 
     public void addEditorActionListener(@NotNull Editor editor, @NotNull EditorActionListener listener) {

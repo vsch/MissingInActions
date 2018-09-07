@@ -34,7 +34,6 @@ import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForClipboardCaretsAction;
 import com.vladsch.MissingInActions.actions.line.DuplicateForMultipleClipboardCaretsAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.ui.MiaComboBoxAction;
 
 public class NormalAdjustmentMap extends ActionAdjustmentMap {
     public static NormalAdjustmentMap getInstance() {

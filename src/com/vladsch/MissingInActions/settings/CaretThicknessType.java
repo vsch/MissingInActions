@@ -30,7 +30,8 @@ import org.jetbrains.annotations.NotNull;
 public enum CaretThicknessType implements ComboBoxAdaptable<CaretThicknessType> {
     NORMAL(0, Bundle.message("settings.caret-thickness.normal")),
     THIN(1, Bundle.message("settings.caret-thickness.thin")),
-    HEAVY(2, Bundle.message("settings.caret-thickness.heavy")),;
+    HEAVY(2, Bundle.message("settings.caret-thickness.heavy")),
+    ;
 
     public final int intValue;
     public final @NotNull String displayName;

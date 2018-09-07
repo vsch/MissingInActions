@@ -212,15 +212,17 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                             @Override
                             public void focusLost(final FocusEvent e) {
-                                final Document document = viewer.getDocument();
-                                final int textLength = document.getTextLength();
-                                if (textLength > 0) {
-                                    WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
-                                        document.setReadOnly(false);
-                                        document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
-                                        document.setReadOnly(true);
-                                        updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
-                                    });
+                                if (!viewer.isDisposed()) {
+                                    final Document document = viewer.getDocument();
+                                    final int textLength = document.getTextLength();
+                                    if (textLength > 0) {
+                                        WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
+                                            document.setReadOnly(false);
+                                            document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
+                                            document.setReadOnly(true);
+                                            updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
+                                        });
+                                    }
                                 }
                             }
                         };

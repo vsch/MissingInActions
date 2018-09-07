@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.actions.pattern.batch;
 
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -71,7 +70,7 @@ public class BatchActionHandler extends EditorActionHandler {
                 if (batchSearchReplace != null) {
                     batchSearchReplace.setActiveEditor((EditorEx) editor);
                     batchSearchReplace.doAction(myAction);
-                    CancelableJobScheduler.getInstance().schedule(()->{
+                    CancelableJobScheduler.getInstance().schedule(() -> {
                         editor.getContentComponent().requestFocus();
                     }, 100);
                 }

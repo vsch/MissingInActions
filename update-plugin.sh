@@ -47,5 +47,5 @@ function UpdZip() {
     done
 }
 
-UpdProduct "IdeaIC2018-1-EAP" "IdeaIC2018-2-EAP" "IdeaIC2017.1" "IdeaIC2017.3" "IdeaIC2018.1" "IdeaIC2018.2" "IntelliJIdea2018.1" "IntelliJIdea2018.2" "PhpStorm2018.1" "PhpStorm2018.2" "WebStorm2018.1" "WebStorm2018.2" "CLion2018.1" "CLion2018.2"
+UpdProduct "IdeaIC2018-1-EAP" "IdeaIC2018-2-EAP" "IdeaIC2018-3-EAP" "IdeaIC2017.3" "IdeaIC2018.1" "IdeaIC2018.2" "IdeaIC2018.3" "IntelliJIdea2018.1" "IntelliJIdea2018.2" "IntelliJIdea2018.3" "PhpStorm2018.1" "PhpStorm2018.2" "PhpStorm2018.3" "WebStorm2018.1" "WebStorm2018.2" "CLion2018.1" "CLion2018.2"
 

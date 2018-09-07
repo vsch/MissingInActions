@@ -66,7 +66,8 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
         KEEP_NON_BLANK_LINES(true, false, false, false, false),
         KEEP_NON_LINE_COMMENTS(false, true, false, false, false),
         KEEP_NON_CODE_LINES(false, false, true, false, false),
-        REMOVE_WITHOUT_SELECTION(false, false, false, false, true),;
+        REMOVE_WITHOUT_SELECTION(false, false, false, false, true),
+        ;
 
         public final boolean removeBlankLines;
         public final boolean removeLineComments;

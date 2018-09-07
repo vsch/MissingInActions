@@ -24,6 +24,8 @@ package com.vladsch.MissingInActions.util.highlight;
 import java.util.EventListener;
 
 public interface HighlightListener extends EventListener {
-    default void highlightsChanged() { };
-    default void highlightsUpdated() { };
+    default void highlightsChanged() { }
+    ;
+    default void highlightsUpdated() { }
+    ;
 }

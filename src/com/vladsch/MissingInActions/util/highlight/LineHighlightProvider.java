@@ -23,9 +23,6 @@ package com.vladsch.MissingInActions.util.highlight;
 
 import com.intellij.openapi.editor.Editor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 public interface LineHighlightProvider extends HighlightProvider {
     boolean isLineHighlighted(int line);

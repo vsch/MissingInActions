@@ -31,7 +31,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
-import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
@@ -97,7 +96,6 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
                         caretModel.removeCaret(caret);
                     }
                 }
-
             }
         }
     }

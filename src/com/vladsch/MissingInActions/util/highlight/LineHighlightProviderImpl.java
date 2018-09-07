@@ -76,7 +76,7 @@ public class LineHighlightProviderImpl extends HighlightProviderBase implements 
      * Must call getHighlightPattern() before calling this function for the first time to ensure
      * the cached structures are updated.
      *
-     * @param index        highlighted line number
+     * @param index       highlighted line number
      * @param flags
      * @param startOffset start offset in editor
      * @param endOffset   end offset in editor

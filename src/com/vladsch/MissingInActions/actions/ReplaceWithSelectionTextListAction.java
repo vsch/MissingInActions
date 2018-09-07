@@ -81,7 +81,7 @@ public class ReplaceWithSelectionTextListAction extends SelectionListActionBase 
         super.update(e);
 
         Editor editor = getEventEditor(e);
-        boolean enabled  = !(editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection());
+        boolean enabled = !(editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection());
         e.getPresentation().setEnabled(enabled);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }

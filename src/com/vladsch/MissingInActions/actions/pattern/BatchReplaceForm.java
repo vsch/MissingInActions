@@ -563,7 +563,8 @@ public class BatchReplaceForm implements Disposable {
         });
 
         final VirtualFile projectFile = myProject.getProjectFile();
-        final VirtualFile projectBaseDir = projectFile == null ? null : projectFile.getParent();
+        final VirtualFile projectDir = projectFile == null ? null : projectFile.getParent();
+        final VirtualFile projectBaseDir = projectDir == null ? null : projectDir.getName().equals(".idea") ? projectDir.getParent() : projectDir;
         assert projectBaseDir != null;
 
         exportXML.addActionListener(e -> {
@@ -746,6 +747,8 @@ public class BatchReplaceForm implements Disposable {
         updateOptions(true);
 
         myInUpdate = false;
+
+        Utils.initAntiAliasing(myMainPanel);
     }
 
     private void copyRegEx(final boolean replaceText) {

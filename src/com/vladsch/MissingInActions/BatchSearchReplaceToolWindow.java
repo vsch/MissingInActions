@@ -51,7 +51,7 @@ public class BatchSearchReplaceToolWindow {
 
     public BatchSearchReplaceToolWindow(Project project) {
         this.project = project;
-        toolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.BOTTOM);
+        toolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.BOTTOM, project, true);
         toolWindow.setIcon(PluginIcons.Batch_search_Tool);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -63,7 +63,6 @@ public class BatchSearchReplaceToolWindow {
         Content content = contentFactory.createContent(mainPanel, Bundle.message("batch-search.tool-window.title"), false);
         myToolWindowContentMap.put(BATCH_REPLACE_ID, content);
         toolWindow.getContentManager().addContent(content);
-
     }
 
     public void unregisterToolWindow() {

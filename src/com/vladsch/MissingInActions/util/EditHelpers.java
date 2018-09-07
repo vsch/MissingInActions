@@ -1076,7 +1076,7 @@ public class EditHelpers {
 
         boolean mergeCharSelectionCarets = false;
         boolean mergeCharLineSelectionCarets = false;
-        for (int index: selectedIndices) {
+        for (int index : selectedIndices) {
             final Transferable transferable = allContents.get(index);
             ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
             caretContentList.add(caretContent);
@@ -1091,7 +1091,7 @@ public class EditHelpers {
         final List<TextRange> ranges = new ArrayList<>();
         final StringBuilder sb = new StringBuilder();
         String sep = "\n";
-        for (ClipboardCaretContent caretContent: caretContentList) {
+        for (ClipboardCaretContent caretContent : caretContentList) {
             int iMax = caretContent.getCaretCount();
             int firstCharSelectionIndex = -1;
             final String[] texts = caretContent.getTexts();
@@ -1146,7 +1146,7 @@ public class EditHelpers {
         int[] startOffsets = new int[ranges.size()];
         int[] endOffsets = new int[ranges.size()];
         int i = 0;
-        for (TextRange range: ranges) {
+        for (TextRange range : ranges) {
             startOffsets[i] = range.getStartOffset();
             endOffsets[i] = range.getEndOffset();
             i++;
@@ -1202,7 +1202,7 @@ public class EditHelpers {
         ArrayList<Integer> starts = new ArrayList<>();
         ArrayList<Integer> ends = new ArrayList<>();
         String sep = "";
-        for (String text: texts) {
+        for (String text : texts) {
             sep = splitCaretText(text, sb, sep, starts, ends);
         }
 
@@ -1226,7 +1226,7 @@ public class EditHelpers {
     public static List<Transferable> getSplitTransferable(@Nullable Editor editor, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
         List<ClipboardCaretContent> caretContentList = new ArrayList<>();
 
-        for (int index: selectedIndices) {
+        for (int index : selectedIndices) {
             final Transferable transferable = allContents.get(index);
             ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, transferable);
             caretContentList.add(caretContent);
@@ -1235,7 +1235,7 @@ public class EditHelpers {
 
         List<Transferable> splitTransferable = new ArrayList<>();
 
-        for (ClipboardCaretContent caretContent: caretContentList) {
+        for (ClipboardCaretContent caretContent : caretContentList) {
             splitTransferable(splitTransferable, caretContent);
         }
         return splitTransferable;
@@ -1387,7 +1387,7 @@ public class EditHelpers {
             int[] startOffsets = new int[ranges.size()];
             int[] endOffsets = new int[ranges.size()];
             int i = 0;
-            for (TextRange range: ranges) {
+            for (TextRange range : ranges) {
                 startOffsets[i] = range.getStartOffset();
                 endOffsets[i] = range.getEndOffset();
                 i++;
@@ -1460,7 +1460,7 @@ public class EditHelpers {
         for (int i = 0; i < iMax1; i++) {
             // update manager's replacement
             String[] lines = texts[i].split("\n");
-            for (String line: lines) {
+            for (String line : lines) {
                 String trimmed = line.trim();
                 if (!trimmed.isEmpty()) {
                     sb.append(sep);
@@ -1542,7 +1542,7 @@ public class EditHelpers {
         int[] startOffsets = new int[ranges.size()];
         int[] endOffsets = new int[ranges.size()];
         int i = 0;
-        for (TextRange range: ranges) {
+        for (TextRange range : ranges) {
             startOffsets[i] = range.getStartOffset();
             endOffsets[i] = range.getEndOffset();
             i++;
@@ -1605,7 +1605,7 @@ public class EditHelpers {
             HashMap<Integer, EachLineCarets> lineStats = new HashMap<>();
             studiedCarets.lineCommentProcessor = lineCommentProcessor;
 
-            for (Caret caret: allCarets) {
+            for (Caret caret : allCarets) {
                 EditorCaret editorCaret = manager.getEditorCaret(caret);
                 studiedCarets.carets.add(editorCaret);
                 studiedCarets.range = studiedCarets.range.include(editorCaret.getCaretPosition().line);
@@ -1618,7 +1618,7 @@ public class EditHelpers {
             EditorPosition position = studiedCarets.carets.get(0).getCaretPosition();
             ByLineType eachLineCarets = studiedCarets.eachLineCarets;
 
-            for (int line: lineStats.keySet()) {
+            for (int line : lineStats.keySet()) {
                 EachLineCarets lineCarets = lineStats.get(line);
                 position = position.onLine(line);
 
@@ -1652,7 +1652,7 @@ public class EditHelpers {
 
         EditorCaret firstCaret = null;
         EditorCaret lastCaret = null;
-        for (EditorCaret editorCaret: studiedCarets.carets) {
+        for (EditorCaret editorCaret : studiedCarets.carets) {
             if (editorCaret.getCaretPosition().line == studiedCarets.range.getStart()) {
                 if (firstCaret == null || firstCaret.getCaretPosition().column > editorCaret.getCaretPosition().column) {
                     firstCaret = editorCaret;

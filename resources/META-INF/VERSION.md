@@ -3,7 +3,9 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.6.2 - Bug Fix  Release](#162---bug-fix--release)
+- [Next 1.6.5 - Bug Fix Release](#next-165---bug-fix-release)
+- [1.6.4 - Bug Fix Release](#164---bug-fix-release)
+- [1.6.2 - Bug Fix Release](#162---bug-fix-release)
 - [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
 - [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
 - [1.4.8 - Bug Fix Release](#148---bug-fix-release)
@@ -58,12 +60,22 @@
 
 &nbsp;</details>
 
-### 1.6.2 - Bug Fix  Release
+### Next 1.6.5 - Bug Fix Release
+
+* Fix: Enable batch replace tool window to work in dumb mode
+* Fix: make default directory for export/import batch search replace files, one directory above
+  `.idea` if project file parent dir has that name.
+
+### 1.6.4 - Bug Fix Release
+
+* Fix: release error
+
+### 1.6.2 - Bug Fix Release
 
 * Fix: 2016.3 compatibility
 * Fix: error attribute used was only defined in 2017, changed to ERRORS_ATTRIBUTES
 * Fix: update for latest API
-* Fix: tool window icon to 13x13 
+* Fix: tool window icon to 13x13
 
 ### 1.6.0 - Bug Fix & Enhancement Release
 

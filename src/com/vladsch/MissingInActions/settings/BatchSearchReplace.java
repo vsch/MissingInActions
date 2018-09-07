@@ -21,7 +21,6 @@
 
 package com.vladsch.MissingInActions.settings;
 
-import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;

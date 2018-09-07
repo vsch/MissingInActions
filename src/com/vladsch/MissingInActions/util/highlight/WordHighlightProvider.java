@@ -24,7 +24,6 @@ package com.vladsch.MissingInActions.util.highlight;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,9 +53,12 @@ public interface WordHighlightProvider extends HighlightProvider {
     }
 
     boolean isWordHighlighted(CharSequence word);
-    @Nullable Map<String, Integer> getHighlightWordFlags();
-    @Nullable Map<String, Integer> getHighlightWordIndices();
-    @Nullable Map<String, Integer> getHighlightCaseInsensitiveWordIndices();
+    @Nullable
+    Map<String, Integer> getHighlightWordFlags();
+    @Nullable
+    Map<String, Integer> getHighlightWordIndices();
+    @Nullable
+    Map<String, Integer> getHighlightCaseInsensitiveWordIndices();
     Pattern getHighlightPattern();
     int getMaxHighlightWordIndex();
     int getHighlightWordIndex(final String word);

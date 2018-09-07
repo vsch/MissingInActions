@@ -43,7 +43,8 @@ public class DeleteRegExActionHandler extends EditorWriteActionHandler {
         NONE,
         HUMPS,
         FOLLOW,
-        INVERT,;
+        INVERT,
+        ;
 
         boolean isHumpsMode(Editor editor) {
             switch (this) {
