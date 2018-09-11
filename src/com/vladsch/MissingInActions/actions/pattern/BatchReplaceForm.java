@@ -49,6 +49,7 @@ import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
@@ -564,7 +565,7 @@ public class BatchReplaceForm implements Disposable {
 
         final VirtualFile projectFile = myProject.getProjectFile();
         final VirtualFile projectDir = projectFile == null ? null : projectFile.getParent();
-        final VirtualFile projectBaseDir = projectDir == null ? null : projectDir.getName().equals(".idea") ? projectDir.getParent() : projectDir;
+        final VirtualFile projectBaseDir = projectDir == null ? LocalFileSystem.getInstance().findFileByPath(System.getProperty("user.home")) : projectDir.getName().equals(".idea") ? projectDir.getParent() : projectDir;
         assert projectBaseDir != null;
 
         exportXML.addActionListener(e -> {

@@ -2,14 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.4 from this repo]
+[Download Latest 1.6.6 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
-- [Version 1.6.4 - Bug Fix & Enhancement Release](#version-164---bug-fix--enhancement-release)
+- [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166---bug-fix--enhancement-release)
 - [Version 1.5.0 - Bug Fix & Enhancement Release](#version-150---bug-fix--enhancement-release)
 - [Version 1.4.8 - Bug Fix Release](#version-148---bug-fix-release)
 - [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
@@ -85,10 +85,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.6.4 - Bug Fix & Enhancement Release
+## Version 1.6.6 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.6.4 from this repo][]
+[Version Notes][] [Download Latest 1.6.6 from this repo][]
 
+* Fix: batch search/replace window exception in DataGrip, when no project use user home dir.
+* Fix: Enable batch replace tool window to work in dumb mode
+* Fix: make default directory for export/import batch search replace files, one directory above
+  `.idea` if project file parent dir has that name.
 * Fix: 2016.3 compatibility
 * Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
   flagging error and warnings as search strings
@@ -618,7 +622,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.4 from this repo]: ../../raw/master/dist/MissingInActions.1.6.4.zip
+[Download Latest 1.6.6 from this repo]: ../../raw/master/dist/MissingInActions.1.6.6.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

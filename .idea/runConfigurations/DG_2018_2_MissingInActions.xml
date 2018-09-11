@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="DG-2018.2 MissingInActions" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+    <module name="MissingInActions" />
+    <option name="VM_PARAMETERS" value="-Xmx3000m -Xms1024m -ea" />
+    <option name="PROGRAM_PARAMETERS" value="" />
+    <alternative-path path="DataGrip DB-182.4505.4" alternative-path-enabled="true" />
+    <predefined_log_file id="idea.log" enabled="true" />
+    <log_file checked="false" alias="ide log" path="$USER_HOME$/Library/Caches/IdeaIC2017-1/plugins-sandbox/system/log/idea.log" skipped="false" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
