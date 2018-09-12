@@ -208,10 +208,12 @@ public class Utils {
         return text;
     }
 
+/*
     public static void initAntiAliasing(Component main) {
         for (JComponent c : UIUtil.uiTraverser(main).filter(JComponent.class)) {
             GraphicsUtil.setAntialiasingType(c, AntialiasingType.getAAHintForSwingComponent());
         }
     }
+*/
 }
 

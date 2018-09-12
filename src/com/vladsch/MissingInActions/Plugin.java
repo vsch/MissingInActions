@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions;
 
+import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -36,6 +37,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -56,13 +58,14 @@ import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
@@ -77,6 +80,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     final private AnAction myMultiPasteAction;
     ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
+    private boolean myInContentManipulation;
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
@@ -148,7 +152,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
             IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
         });
 
-        ActionManager.getInstance().addAnActionListener(new AnActionListener.Adapter() {
+        ActionManager.getInstance().addAnActionListener(new AnActionListener() {
             @Override
             public void beforeActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
                 Plugin.this.beforeActionPerformed(action, dataContext, event);
@@ -164,6 +168,59 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
                 Plugin.this.beforeEditorTyping(c, dataContext);
             }
         });
+
+        final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+        final CopyPasteManager.ContentChangedListener contentChangedListener = this::clipboardContentChanged;
+
+        copyPasteManager.addContentChangedListener(contentChangedListener);
+        myDelayedRunner.addRunnable(() -> {
+            copyPasteManager.removeContentChangedListener(contentChangedListener);
+        });
+    }
+
+    static String getStringContent(Transferable content) {
+        try {
+            return (String)content.getTransferData(DataFlavor.stringFlavor);
+        }
+        catch (UnsupportedFlavorException | IOException ignore) { }
+        return null;
+    }
+
+    static boolean isBlank(CharSequence text) {
+        final int iMax = text.length();
+        for (int i = 0; i < iMax; i++) {
+             char c = text.charAt(i);
+             if (c != ' ' && c != '\t' && c != '\n') return false;
+        }
+        return true;
+    }
+
+    private void clipboardContentChanged(Transferable oldTransferable, Transferable newTransferable) {
+        if (!myInContentManipulation && mySettings.isOnlyLatestBlankClipboard()) {
+            String clipString = getStringContent(newTransferable);
+            if (clipString != null && isBlank(clipString)) {
+                myInContentManipulation = true;
+                try {
+                    final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+                    final Transferable[] allContents = copyPasteManager.getAllContents();
+                    final ArrayList<Transferable> toDelete = new ArrayList<>();
+                    for (Transferable content : allContents) {
+                        if (content != newTransferable) {
+                            String contentString = getStringContent(content);
+                            if (contentString != null && isBlank(contentString)) {
+                                toDelete.add(content);
+                            }
+                        }
+                    }
+
+                    for (Transferable content : toDelete) {
+                        copyPasteManager.removeContent(content);
+                    }
+                } finally {
+                    myInContentManipulation = false;
+                }
+            }
+        }
     }
 
     public void addEditorActionListener(@NotNull Editor editor, @NotNull EditorActionListener listener) {

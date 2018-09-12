@@ -748,8 +748,6 @@ public class BatchReplaceForm implements Disposable {
         updateOptions(true);
 
         myInUpdate = false;
-
-        Utils.initAntiAliasing(myMainPanel);
     }
 
     private void copyRegEx(final boolean replaceText) {

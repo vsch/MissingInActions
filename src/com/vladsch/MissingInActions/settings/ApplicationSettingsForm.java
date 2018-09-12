@@ -145,6 +145,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBTextField myClosedQuoteText;
     private JLabel mySpliceDelimiterTextLabel;
     JBCheckBox myQuoteSplicedItems;
+    JBCheckBox myOnlyLatestBlankClipboard;
     CustomDeleteBackspaceForm myCustomDeleteBackspaceForm;
 
     private @NotNull String myRegexSampleText;
@@ -210,6 +211,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myMultiPasteShowEolInViewer, i::isMultiPasteShowEolInViewer, i::setMultiPasteShowEolInViewer),
                         component(myMultiPasteShowInstructions, i::isMultiPasteShowInstructions, i::setMultiPasteShowInstructions),
                         component(myQuoteSplicedItems, i::isQuoteSplicedItems, i::setQuoteSplicedItems),
+                        component(myOnlyLatestBlankClipboard, i::isOnlyLatestBlankClipboard, i::setOnlyLatestBlankClipboard),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),

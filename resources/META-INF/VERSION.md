@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
 - [Next 1.6.6 - Bug Fix Release](#next-166---bug-fix-release)
 - [1.6.4 - Bug Fix Release](#164---bug-fix-release)
 - [1.6.2 - Bug Fix Release](#162---bug-fix-release)
@@ -59,6 +60,16 @@
   once even if there are many carets present on that line.
 
 &nbsp;</details>
+
+### Next 1.6.8 - Bug Fix Release
+
+* Fix: #22, Clipboard history: ignore empty copy/paste entries (No characters, only whitespaces
+  and line returns). Add new option "Keep only latest blank clipboard content" in Settings >
+  Missing In Actions > Paste. When enabled, only the latest blank clipboard content is kept in
+  history.
+
+  **NOTE:** removal of old blank content is done when empty content is copied to the
+  clipboard.
 
 ### Next 1.6.6 - Bug Fix Release
 

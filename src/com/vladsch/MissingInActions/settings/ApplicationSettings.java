@@ -164,6 +164,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     boolean myDeleteMultiCaretLineBound = true;
     boolean myBackspaceLineBound = false;
     boolean myBackspaceMultiCaretLineBound = true;
+    boolean myOnlyLatestBlankClipboard = false;
 
     @NotNull String[] myDeleteBackspaceTests = new String[]{
             "      sample        ",
@@ -326,6 +327,14 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
 
     public void setBackspaceMultiCaretLineBound(final boolean backspaceMultiCaretLineBound) {
         myBackspaceMultiCaretLineBound = backspaceMultiCaretLineBound;
+    }
+
+    public boolean isOnlyLatestBlankClipboard() {
+        return myOnlyLatestBlankClipboard;
+    }
+
+    public void setOnlyLatestBlankClipboard(final boolean onlyLatestBlankClipboard) {
+        myOnlyLatestBlankClipboard = onlyLatestBlankClipboard;
     }
 
     public boolean isHideDisabledButtons() {

@@ -74,12 +74,23 @@
         ]]>
     </description>
 
-    <version>1.6.6</version>
+    <version>1.6.8</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>Next 1.6.8 - Bug Fix Release</h3>
+            <ul>
+                <li>
+                    <p>Fix: #22, Clipboard history: ignore empty copy/paste entries (No characters, only whitespaces
+                        and line returns). Add new option &ldquo;Keep only latest blank clipboard content&rdquo; in Settings &gt;
+                        Missing In Actions &gt; Paste. When enabled, only the latest blank clipboard content is kept in
+                        history.</p>
+                    <p><strong>NOTE:</strong> removal of old blank content is done when empty content is copied to the
+                        clipboard.</p>
+                </li>
+            </ul>
             <h3>Next 1.6.6 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: batch search/replace window exception in DataGrip</li>
