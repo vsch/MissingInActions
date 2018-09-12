@@ -2,13 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.6 from this repo]
+[Download Latest 1.6.8 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.6.8 - Bug Fix & Enhancement Release](#version-168---bug-fix--enhancement-release)
 - [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166---bug-fix--enhancement-release)
 - [Version 1.5.0 - Bug Fix & Enhancement Release](#version-150---bug-fix--enhancement-release)
 - [Version 1.4.8 - Bug Fix Release](#version-148---bug-fix-release)
@@ -85,9 +86,18 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.6.6 - Bug Fix & Enhancement Release
+## Version 1.6.8 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.6.6 from this repo][]
+[Version Notes][] [Download Latest 1.6.8 from this repo][]
+
+* Add: option "Keep only latest blank clipboard content" in Settings >
+  Missing In Actions > Paste. When enabled, only the latest blank clipboard content is kept in
+  history.
+
+  **NOTE:** removal of old blank content is done when empty content is copied to the
+  clipboard.
+
+## Version 1.6.6 - Bug Fix & Enhancement Release
 
 * Fix: batch search/replace window exception in DataGrip, when no project use user home dir.
 * Fix: Enable batch replace tool window to work in dumb mode
@@ -121,14 +131,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   ![Toolbar.png](assets/images/Toolbar.png)
 
-  ![Menu_isolation.png](resources/icons/Menu_isolation.png)  
+  ![Menu_isolation.png](resources/icons/Menu_isolation.png)
   ![Toolbar_Isolation.png](assets/images/Toolbar_Isolation.png)
 
 
-  ![Menu_highlights.png](resources/icons/Menu_highlights.png)  
+  ![Menu_highlights.png](resources/icons/Menu_highlights.png)
   ![Toolbar_Highlights.png](assets/images/Toolbar_Highlights.png)
 
-  ![Menu_carets.png](resources/icons/Menu_carets.png)  
+  ![Menu_carets.png](resources/icons/Menu_carets.png)
   ![Toolbar_MultiCaret.png](assets/images/Toolbar_MultiCaret.png)
 
 * Add: customizable backspace and delete actions with variations: spaces, alternating word, word
@@ -622,7 +632,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.6 from this repo]: ../../raw/master/dist/MissingInActions.1.6.6.zip
+[Download Latest 1.6.8 from this repo]: ../../raw/master/dist/MissingInActions.1.6.8.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
