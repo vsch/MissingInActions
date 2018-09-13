@@ -74,12 +74,16 @@
         ]]>
     </description>
 
-    <version>1.6.8</version>
+    <version>1.6.9</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>Next 1.6.10 - Bug Fix Release</h3>
+            <ul>
+                <li>Fix: NPE in plugin content handling</li>
+            </ul>
             <h3>Next 1.6.8 - Bug Fix Release</h3>
             <ul>
                 <li>

@@ -179,10 +179,12 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     }
 
     static String getStringContent(Transferable content) {
-        try {
-            return (String)content.getTransferData(DataFlavor.stringFlavor);
+        if (content != null) {
+            try {
+                return (String)content.getTransferData(DataFlavor.stringFlavor);
+            }
+            catch (UnsupportedFlavorException | IOException ignore) { }
         }
-        catch (UnsupportedFlavorException | IOException ignore) { }
         return null;
     }
 

@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [Next 1.6.10 - Bug Fix Release](#next-1610---bug-fix-release)
 - [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
 - [Next 1.6.6 - Bug Fix Release](#next-166---bug-fix-release)
 - [1.6.4 - Bug Fix Release](#164---bug-fix-release)
@@ -60,6 +61,10 @@
   once even if there are many carets present on that line.
 
 &nbsp;</details>
+
+### Next 1.6.10 - Bug Fix Release
+
+* Fix: NPE in plugin content handling
 
 ### Next 1.6.8 - Bug Fix Release
 
