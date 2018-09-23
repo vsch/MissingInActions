@@ -90,12 +90,10 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 [Version Notes][] [Download Latest 1.6.10 from this repo][]
 
-* Add: option "Keep only latest blank clipboard content" in Settings >
-  Missing In Actions > Paste. When enabled, only the latest blank clipboard content is kept in
-  history.
+* Add: option "Keep only latest blank clipboard content" in Settings > Missing In Actions >
+  Paste. When enabled, only the latest blank clipboard content is kept in history.
 
-  **NOTE:** removal of old blank content is done when empty content is copied to the
-  clipboard.
+  **NOTE:** removal of old blank content is done when empty content is copied to the clipboard.
 
 ## Version 1.6.6 - Bug Fix & Enhancement Release
 
@@ -133,7 +131,6 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   ![Menu_isolation.png](resources/icons/Menu_isolation.png)
   ![Toolbar_Isolation.png](assets/images/Toolbar_Isolation.png)
-
 
   ![Menu_highlights.png](resources/icons/Menu_highlights.png)
   ![Toolbar_Highlights.png](assets/images/Toolbar_Highlights.png)
@@ -633,7 +630,7 @@ until after you release the mouse button, otherwise the selection will be change
 selection when the mouse button is released.
 
 [Download Latest 1.6.10 from this repo]: ../../raw/master/dist/MissingInActions.1.6.10.zip
-[JetBrains plugin page]: https://plugins.jetbrains.com/plugin?pr=&pluginId=9257
+[JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
 [Paste From History: A Power User Feature]: https://vladsch.com/blog/20

@@ -1794,7 +1794,7 @@ public class BatchReplaceForm implements Disposable {
             int offset = startOfLine ? document.getLineStartOffset(lineNumber) : document.getLineEndOffset(lineNumber);
             document.insertString(offset, RepeatedCharSequence.of('\n', lineDelta));
         } else {
-            if (lineNumber <= lineCount) {
+            if (lineCount > 0 && lineNumber <= lineCount) {
                 // have something to delete
                 if (lineNumber - lineDelta >= lineCount) {
                     lineDelta = lineNumber - lineCount;
