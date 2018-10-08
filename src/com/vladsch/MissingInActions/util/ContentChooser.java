@@ -36,11 +36,11 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.speedSearch.FilteringListModel;
-import com.intellij.ui.speedSearch.ListWithFilter;
 import com.intellij.util.Alarm;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import com.vladsch.MissingInActions.util.ui.ListWithFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -169,7 +169,9 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
             }
         });
 
-        mySplitter.setFirstComponent(ListWithFilter.wrap(myList, ScrollPaneFactory.createScrollPane(myList), o -> ((Item) o).longText));
+        final JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myList);
+        final JComponent wrappedList = ListWithFilter.wrap(myList, scrollPane, o -> ((Item) o).longText);
+        mySplitter.setFirstComponent(wrappedList);
         mySplitter.setSecondComponent(new JPanel());
         rebuildListContent();
 

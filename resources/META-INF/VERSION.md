@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.6.11 - Bug Fix Release](#1611---bug-fix-release)
+- [1.6.12 - Bug Fix Release](#1612---bug-fix-release)
 - [1.6.10 - Bug Fix Release](#1610---bug-fix-release)
 - [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
 - [Next 1.6.6 - Bug Fix Release](#next-166---bug-fix-release)
@@ -63,8 +63,9 @@
 
 &nbsp;</details>
 
-### 1.6.11 - Bug Fix Release
+### 1.6.12 - Bug Fix Release
 
+* Fix: 2018.3 EAP API Change
 * Recompile for 2018.3 EAP
 * Fix: exception in batch search/replace tandem mode delete with empty text pane
 

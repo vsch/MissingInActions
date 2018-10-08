@@ -2,13 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.10 from this repo]
+[Download Latest 1.6.12 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.6.12 - Bug Fix & Enhancement Release](#version-1612---bug-fix--enhancement-release)
 - [Version 1.6.10 - Bug Fix & Enhancement Release](#version-1610---bug-fix--enhancement-release)
 - [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166---bug-fix--enhancement-release)
 - [Version 1.5.0 - Bug Fix & Enhancement Release](#version-150---bug-fix--enhancement-release)
@@ -86,9 +87,13 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.6.10 - Bug Fix & Enhancement Release
+## Version 1.6.12 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.6.10 from this repo][]
+[Version Notes][] [Download Latest 1.6.12 from this repo][]
+
+* Fix: for API change in intellij-community/master (upcoming EAP 2018.3 changes)
+
+## Version 1.6.10 - Bug Fix & Enhancement Release
 
 * Add: option "Keep only latest blank clipboard content" in Settings > Missing In Actions >
   Paste. When enabled, only the latest blank clipboard content is kept in history.
@@ -629,7 +634,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.10 from this repo]: ../../raw/master/dist/MissingInActions.1.6.10.zip
+[Download Latest 1.6.12 from this repo]: ../../raw/master/dist/MissingInActions.1.6.12.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
