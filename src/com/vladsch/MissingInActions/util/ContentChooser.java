@@ -170,8 +170,14 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
         });
 
         final JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myList);
-        final JComponent wrappedList = ListWithFilter.wrap(myList, scrollPane, o -> ((Item) o).longText);
-        mySplitter.setFirstComponent(wrappedList);
+
+        // needed for 2016.3 since speed search wrapper is not compatible with 2019.1
+        try {
+            final JComponent wrappedList = ListWithFilter.wrap(myList, scrollPane, o -> ((Item) o).longText);
+            mySplitter.setFirstComponent(wrappedList);
+        } catch (Throwable ignored) {
+            mySplitter.setFirstComponent(scrollPane);
+        }
         mySplitter.setSecondComponent(new JPanel());
         rebuildListContent();
 
@@ -331,13 +337,20 @@ public abstract class ContentChooser<Data> extends DialogWrapper {
             }
         }
         myAllContents = contents;
-        FilteringListModel listModel = (FilteringListModel) myList.getModel();
-        ((CollectionListModel) listModel.getOriginalModel()).removeAll();
-        listModel.addAll(items);
-        ListWithFilter listWithFilter = UIUtil.getParentOfType(ListWithFilter.class, myList);
-        if (listWithFilter != null) {
-            listWithFilter.getSpeedSearch().update();
-            if (listModel.getSize() == 0) listWithFilter.resetFilter();
+        ListModel listModel = myList.getModel();
+        if (listModel instanceof FilteringListModel) {
+            FilteringListModel filteringListModel = (FilteringListModel) listModel;
+            ((CollectionListModel) filteringListModel.getOriginalModel()).removeAll();
+            filteringListModel.addAll(items);
+            ListWithFilter listWithFilter = UIUtil.getParentOfType(ListWithFilter.class, myList);
+            if (listWithFilter != null) {
+                listWithFilter.getSpeedSearch().update();
+                if (filteringListModel.getSize() == 0) listWithFilter.resetFilter();
+            }
+        } else if (listModel instanceof CollectionListModel) {
+            // needed for 2016.3 since speed search wrapper is not compatible with 2019.1
+            ((CollectionListModel) listModel).removeAll();
+            ((CollectionListModel) listModel).add(items);
         }
     }
 

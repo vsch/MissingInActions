@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="2016.3 MissingInActions" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+    <module name="MissingInActions" />
+    <option name="VM_PARAMETERS" value="-Xmx3000m -Xms1024m -ea" />
+    <option name="PROGRAM_PARAMETERS" value="" />
+    <alternative-path path="IntelliJ IDEA Community Edition IC-163.15529.8" alternative-path-enabled="true" />
+    <log_file checked="false" alias="ide log" path="$USER_HOME$/Library/Caches/IdeaIC2017-1/plugins-sandbox/system/log/idea.log" skipped="false" />
+    <predefined_log_file enabled="true" id="idea.log" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

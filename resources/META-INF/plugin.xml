@@ -74,7 +74,7 @@
         ]]>
     </description>
 
-    <version>1.6.12</version>
+    <version>1.6.13</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
