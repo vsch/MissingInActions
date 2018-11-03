@@ -17,7 +17,6 @@
     <orderEntry type="module" module-name="intelliJAPI" scope="PROVIDED" />
     <orderEntry type="library" name="flexmark-util" level="project" />
     <orderEntry type="library" name="reverse-regex-util" level="project" />
-    <orderEntry type="library" name="Kotlin Runtime" level="project" />
     <orderEntry type="library" name="com.vladsch.boxed-json:boxed-json:0.5.10" level="project" />
   </component>
 </module>

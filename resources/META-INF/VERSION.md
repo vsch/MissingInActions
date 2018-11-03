@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.6.13 - Bug Fix Release](#1613---bug-fix-release)
+- [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
 - [1.6.12 - Bug Fix Release](#1612---bug-fix-release)
 - [1.6.10 - Bug Fix Release](#1610---bug-fix-release)
 - [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
@@ -64,7 +64,7 @@
 
 &nbsp;</details>
 
-### 1.6.13 - Bug Fix Release
+### 1.6.14 - Bug Fix Release
 
 * Fix: 2016.3 paste from history compatibility
 
