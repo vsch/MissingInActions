@@ -2,7 +2,7 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.12 from this repo]
+[Download Latest 1.6.14 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
@@ -89,7 +89,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 ## Version 1.6.12 - Bug Fix & Enhancement Release
 
-[Version Notes][] [Download Latest 1.6.12 from this repo][]
+[Version Notes][] [Download Latest 1.6.14 from this repo][]
 
 * Fix: for API change in intellij-community/master (upcoming EAP 2018.3 changes)
 
@@ -634,7 +634,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.12 from this repo]: ../../raw/master/dist/MissingInActions.1.6.12.zip
+[Download Latest 1.6.14 from this repo]: ../../raw/master/dist/MissingInActions.1.6.14.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
