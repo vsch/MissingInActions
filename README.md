@@ -9,6 +9,7 @@
 [TOC]: #
 
 ### Table of Contents
+- [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
 - [Version 1.6.12 - Bug Fix & Enhancement Release](#version-1612---bug-fix--enhancement-release)
 - [Version 1.6.10 - Bug Fix & Enhancement Release](#version-1610---bug-fix--enhancement-release)
 - [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166---bug-fix--enhancement-release)
@@ -87,9 +88,13 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-## Version 1.6.12 - Bug Fix & Enhancement Release
+### 1.6.14 - Bug Fix Release
 
 [Version Notes][] [Download Latest 1.6.14 from this repo][]
+
+* Fix: 2016.3 paste from history compatibility
+
+## Version 1.6.12 - Bug Fix & Enhancement Release
 
 * Fix: for API change in intellij-community/master (upcoming EAP 2018.3 changes)
 
