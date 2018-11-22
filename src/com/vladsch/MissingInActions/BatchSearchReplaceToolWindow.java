@@ -58,7 +58,7 @@ public class BatchSearchReplaceToolWindow {
 
         myBatchSearchReplace = new BatchReplaceForm(project, ApplicationSettings.getInstance());
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         mainPanel.add(myBatchSearchReplace.getMainPanel());
         Content content = contentFactory.createContent(mainPanel, Bundle.message("batch-search.tool-window.title"), false);
         myToolWindowContentMap.put(BATCH_REPLACE_ID, content);

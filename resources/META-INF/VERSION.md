@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.6.15 - Bug Fix Release](#1615---bug-fix-release)
 - [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
 - [1.6.12 - Bug Fix Release](#1612---bug-fix-release)
 - [1.6.10 - Bug Fix Release](#1610---bug-fix-release)
@@ -63,6 +64,13 @@
   once even if there are many carets present on that line.
 
 &nbsp;</details>
+
+### 1.6.15 - Bug Fix Release
+
+* Fix: bump up dependencies to newer versions
+* Fix: reduce tool window border
+* Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
+  type.
 
 ### 1.6.14 - Bug Fix Release
 

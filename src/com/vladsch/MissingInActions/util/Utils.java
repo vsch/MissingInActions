@@ -21,24 +21,19 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.ide.ui.AntialiasingType;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.JBColor;
-import com.intellij.util.ui.GraphicsUtil;
-import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.util.ui.BackgroundColor;
 import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.swing.JComponent;
 import javax.swing.JTextPane;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.util.Collection;
 import java.util.regex.Matcher;

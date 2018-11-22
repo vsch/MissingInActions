@@ -728,7 +728,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
                 }
 
                 try {
-                    myPrefixesOnPastePattern = Pattern.compile(myPrefixesOnPasteText);
+                    myPrefixesOnPastePattern = Pattern.compile(sb.toString());
                 } catch (Throwable error) {
                     myPrefixOnPastePattern = PrefixOnPastePatternType.CAMEL.getIntValue();
                     throw error;
