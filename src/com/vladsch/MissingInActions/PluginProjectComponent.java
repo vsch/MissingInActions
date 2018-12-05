@@ -32,7 +32,7 @@ import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.vladsch.MissingInActions.util.DelayedRunner;
+import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

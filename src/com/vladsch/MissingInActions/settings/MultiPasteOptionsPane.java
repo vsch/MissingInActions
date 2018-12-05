@@ -26,9 +26,13 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.Utils;
+import com.vladsch.plugin.util.html.HtmlHelpers;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import java.awt.Color;
 import java.awt.Font;
@@ -217,7 +221,7 @@ public class MultiPasteOptionsPane {
         JLabel label = new JLabel();
         Font font = label.getFont();
         Color textColor = label.getForeground();
-        String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + Utils.toRgbString(textColor) + "'>" +
+        String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + HtmlHelpers.toRgbString(textColor) + "'>" +
                 (text == null ? "" : text) +
                 "</div></body></html>";
         myTextContent = out;

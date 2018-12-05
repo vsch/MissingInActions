@@ -1,7 +1,7 @@
 <component name="MarkdownNavigator.ProfileManager">
   <settings default="" pdf-export="">
     <scope-profiles>
-      <element scope="Plugin Description" profile="Plugin Description" />
+      <element scope="plugin-description" profile="plugin-description" />
     </scope-profiles>
   </settings>
 </component>

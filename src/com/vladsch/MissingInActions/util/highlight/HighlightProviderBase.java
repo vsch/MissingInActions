@@ -29,10 +29,11 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.util.messages.MessageBusConnection;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
-import com.vladsch.MissingInActions.util.AwtRunnable;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.MissingInActions.util.ColorIterable;
-import com.vladsch.MissingInActions.util.DelayedRunner;
-import com.vladsch.MissingInActions.util.OneTimeRunnable;
+import com.vladsch.plugin.util.DelayedRunner;
+import com.vladsch.plugin.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.UIManager;
@@ -162,7 +163,7 @@ public abstract class HighlightProviderBase implements HighlightProvider, Dispos
         myHighlightRunner.cancel();
         if (myInUpdateRegion <= 0) {
             if (!myHighlightListeners.isEmpty()) {
-                myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
+                myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, () -> {
                     for (HighlightListener listener : myHighlightListeners) {
                         if (listener == null) continue;
                         listener.highlightsChanged();

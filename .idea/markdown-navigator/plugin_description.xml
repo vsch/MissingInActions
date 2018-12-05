@@ -1,7 +1,7 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="Plugin Description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true" profileName="Plugin Description">
-      <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="true" showSelectionInPreview="true" openRemoteLinks="true" replaceUnicodeEmoji="false" lastLayoutSetsDefault="false">
+    <option name="myName" value="plugin-description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true" profileName="plugin-description">
+      <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="false" openRemoteLinks="true" replaceUnicodeEmoji="false" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.panel" providerName="Default - Swing" />
         </PanelProvider>
@@ -35,12 +35,12 @@
         </PegdownExtensions>
         <ParserOptions>
           <option name="ADMONITION_EXT" value="false" />
-          <option name="ATTRIBUTES_EXT" value="false" />
+          <option name="ATTRIBUTES_EXT" value="true" />
           <option name="COMMONMARK_LISTS" value="false" />
           <option name="DUMMY" value="false" />
           <option name="EMOJI_SHORTCUTS" value="true" />
-          <option name="ENUMERATED_REFERENCES_EXT" value="false" />
-          <option name="FLEXMARK_FRONT_MATTER" value="true" />
+          <option name="ENUMERATED_REFERENCES_EXT" value="true" />
+          <option name="FLEXMARK_FRONT_MATTER" value="false" />
           <option name="GFM_LOOSE_BLANK_LINE_AFTER_ITEM_PARA" value="false" />
           <option name="GFM_TABLE_RENDERING" value="false" />
           <option name="GITBOOK_URL_ENCODING" value="true" />
@@ -52,9 +52,9 @@
           <option name="HEADER_ID_NON_ASCII_TO_LOWERCASE" value="false" />
           <option name="HEADER_ID_NO_DUPED_DASHES" value="false" />
           <option name="JEKYLL_FRONT_MATTER" value="false" />
-          <option name="MACROS_EXT" value="false" />
+          <option name="MACROS_EXT" value="true" />
           <option name="NO_TEXT_ATTRIBUTES" value="false" />
-          <option name="PARSE_HTML_ANCHOR_ID" value="false" />
+          <option name="PARSE_HTML_ANCHOR_ID" value="true" />
           <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
         </ParserOptions>
       </ParserSettings>
@@ -75,7 +75,7 @@
         <cssText />
         <cssUriHistory />
       </CssSettings>
-      <HtmlExportSettings updateOnSave="true" parentDir="$ProjectFileDir$/MissingInActionsAssets/markdown" targetDir="$ProjectFileDir$/MissingInActionsAssets/markdown" cssDir="$ProjectFileDir$/MissingInActionsAssets/markdown/css" scriptDir="$ProjectFileDir$/MissingInActionsAssets/markdown/js" plainHtml="true" imageDir="$ProjectFileDir$/MissingInActionsAssets/markdown/img" copyLinkedImages="false" imageUniquifyType="0" targetPathType="2" targetExt="" useTargetExt="false" noCssNoScripts="true" useElementStyleAttribute="false" linkToExportedHtml="false" exportOnSettingsChange="true" regenerateOnProjectOpen="false" linkFormatType="HTTP_ABSOLUTE" />
+      <HtmlExportSettings updateOnSave="true" parentDir="$ProjectFileDir$/assets/docs" targetDir="$ProjectFileDir$/assets/docs" cssDir="$ProjectFileDir$/assets/docs/css" scriptDir="$ProjectFileDir$/assets/docs/js" plainHtml="true" imageDir="$ProjectFileDir$/assets/docs/img" copyLinkedImages="false" imageUniquifyType="0" targetPathType="2" targetExt="" useTargetExt="false" noCssNoScripts="true" useElementStyleAttribute="false" linkToExportedHtml="true" exportOnSettingsChange="true" regenerateOnProjectOpen="false" linkFormatType="HTTP_ABSOLUTE" />
       <LinkMapSettings>
         <textMaps />
       </LinkMapSettings>

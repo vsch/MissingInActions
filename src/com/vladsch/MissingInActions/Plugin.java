@@ -45,11 +45,11 @@ import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.CommonUIShortcuts;
+import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
-import com.vladsch.MissingInActions.util.UtilKt;
 import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
+import com.vladsch.plugin.util.HelpersKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -593,6 +593,6 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     @Nullable
     public static String getPluginFilePath(String fileName) {
         String path = getPluginCustomPath();
-        return path == null ? null : UtilKt.suffixWith(path, '/') + fileName;
+        return path == null ? null : HelpersKt.suffixWith(path, '/') + fileName;
     }
 }

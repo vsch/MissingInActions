@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="JetBrains Attribution" pattern="file[plugin-util]:src/com/vladsch/plugin/util/ui/CheckboxAction.java||file[plugin-util]:src/com/vladsch/plugin/util/ui/CheckBoxWithColorChooser.java||file[plugin-util]:src/com/vladsch/plugin/util/ui/TextFieldAction.java||file[plugin-util]:src/com/vladsch/plugin/util/ui/ListWithFilter.java||file[plugin-util]:src/com/vladsch/plugin/util/ui/ContentChooser.java" />
+</component>

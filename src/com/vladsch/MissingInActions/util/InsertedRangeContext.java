@@ -24,13 +24,14 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
-import static com.vladsch.MissingInActions.util.StudiedWord.UPPER;
+import static com.vladsch.plugin.util.StudiedWord.UPPER;
 import static java.lang.Character.*;
 
 @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue", "SameParameterValue" })

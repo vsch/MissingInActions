@@ -37,8 +37,9 @@ import com.vladsch.MissingInActions.manager.CaretEx;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.RegExSettingsHolder;
-import com.vladsch.MissingInActions.util.Utils;
-import com.vladsch.MissingInActions.util.ui.BackgroundColor;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,11 +74,11 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
     private final RegExSettingsHolder mySettingsHolder;
 
     private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getValidTextFieldBackground() {
@@ -399,7 +400,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
             myTextPane.setVisible(false);
         } else {
             myViewPanel.setVisible(false);
-            Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }

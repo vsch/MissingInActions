@@ -25,12 +25,21 @@ import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.undo.UndoManager;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.event.VisibleAreaEvent;
+import com.intellij.openapi.editor.event.VisibleAreaListener;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.markup.EffectType;
@@ -61,17 +70,36 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.BatchSearchReplace;
 import com.vladsch.MissingInActions.settings.BatchSearchReplaceSettings;
-import com.vladsch.MissingInActions.util.*;
-import com.vladsch.MissingInActions.util.highlight.*;
-import com.vladsch.MissingInActions.util.ui.BackgroundColor;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.plugin.util.AwtRunnable;
+import com.vladsch.plugin.util.CancelableJobScheduler;
+import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.plugin.util.OneTimeRunnable;
+import com.vladsch.MissingInActions.util.highlight.HighlightListener;
+import com.vladsch.MissingInActions.util.highlight.Highlighter;
+import com.vladsch.MissingInActions.util.highlight.LineHighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.LineHighlightProviderImpl;
+import com.vladsch.MissingInActions.util.highlight.LineHighlighter;
+import com.vladsch.MissingInActions.util.highlight.WordHighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
+import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
+import com.vladsch.flexmark.util.Utils;
 import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.plugin.util.ui.Helpers;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -86,7 +114,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -94,7 +127,13 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.*;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_INSENSITIVE;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_SENSITIVE;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.ERROR_ATTRIBUTES_KEY;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_ERROR;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_HIGHLIGHT;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_WARNING;
+import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.WARNING_ATTRIBUTES_KEY;
 
 public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
@@ -128,66 +167,66 @@ public class BatchReplaceForm implements Disposable {
     private JButton mySearchCopyRegEx;
     private final JBPopupMenu myPopupMenuActions;
 
-    EditorEx myEditor;
+    private EditorEx myEditor;
     EditorEx mySearchEditor;
-    EditorEx myReplaceEditor;
-    EditorEx myOptionsEditor;
+    private EditorEx myReplaceEditor;
+    private EditorEx myOptionsEditor;
 
-    final ApplicationSettings mySettings;
+    private final ApplicationSettings mySettings;
 
-    HashMap<Integer, Integer> myWordIndexToLineMap = null;
-    HashMap<Integer, SearchData> myLineSearchData = null;
-    int[] myIndexedWordCounts = null;
-    TextRange myFoundRange = null;
-    boolean myHighlightAllLines = false;
+    private HashMap<Integer, Integer> myWordIndexToLineMap = null;
+    private HashMap<Integer, SearchData> myLineSearchData = null;
+    private int[] myIndexedWordCounts = null;
+    private TextRange myFoundRange = null;
+    private boolean myHighlightAllLines = false;
     private boolean myIsIncludeMode = false;
 
-    ArrayList<TextRange> myExcludedRanges = null;
-    WordHighlightProvider myEditorSearchHighlightProvider;
-    LineHighlightProvider mySearchHighlightProvider;
-    LineHighlightProvider myReplaceHighlightProvider;
-    LineHighlightProvider myOptionsHighlightProvider;
+    private ArrayList<TextRange> myExcludedRanges = null;
+    private WordHighlightProvider myEditorSearchHighlightProvider;
+    private LineHighlightProvider mySearchHighlightProvider;
+    private LineHighlightProvider myReplaceHighlightProvider;
+    private LineHighlightProvider myOptionsHighlightProvider;
 
-    final DocumentListener myDocumentListener;
-    final CaretListener myCaretListener;
-    final VisibleAreaListener myVisibleAreaListener;
-    final CaretListener myEditorCaretListener;
-    final HighlightListener myHighlightListener;
-    final Project myProject;
+    final private DocumentListener myDocumentListener;
+    final private CaretListener myCaretListener;
+    final private VisibleAreaListener myVisibleAreaListener;
+    final private CaretListener myEditorCaretListener;
+    final private HighlightListener myHighlightListener;
+    final private Project myProject;
 
-    int myFoundIndex = -1;
-    Boolean myFoundBackwards = null;
-    boolean myInUpdate = false;
-    long myLastEditorSync = Long.MIN_VALUE;
-    Editor myLastSyncEditor = null;
-    boolean myIsActive = false;
-    OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
-    boolean myPendingForcedUpdate = false;
-    boolean myPendingReplace = false;
-    boolean myInTandemEdit = false;
+    private int myFoundIndex = -1;
+    private Boolean myFoundBackwards = null;
+    private boolean myInUpdate = false;
+    private long myLastEditorSync = Long.MIN_VALUE;
+    private Editor myLastSyncEditor = null;
+    private boolean myIsActive = false;
+    private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
+    private boolean myPendingForcedUpdate = false;
+    private boolean myPendingReplace = false;
+    private boolean myInTandemEdit = false;
 
-    final Border myDefaultBorder;
-    final Border myDarculaBorder;
-    final Border myNoBorder;
+    private final Border myDefaultBorder;
+    private final Border myDarculaBorder;
+    private final Border myNoBorder;
 
-    void updateLastEditorSync(Editor editor) {
+    private void updateLastEditorSync(Editor editor) {
         myLastEditorSync = System.currentTimeMillis();
         myLastSyncEditor = editor;
     }
 
-    boolean canSyncEditors(Editor editor, long delayMillis) {
-        return editor == myLastSyncEditor || myLastEditorSync + delayMillis < System.currentTimeMillis();
+    private boolean canSyncEditors(Editor editor) {
+        return editor == myLastSyncEditor || myLastEditorSync + (long) BatchReplaceForm.DELAY_MILLIS < System.currentTimeMillis();
     }
 
     BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
     }
 
-    BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
+    private BackgroundColor getWarningTextFieldBackground() {
+        return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
-    BackgroundColor getValidTextFieldBackground() {
+    private BackgroundColor getValidTextFieldBackground() {
         return BackgroundColor.of(UIUtil.getTextFieldBackground());
     }
 
@@ -292,7 +331,7 @@ public class BatchReplaceForm implements Disposable {
             if (!myInUpdate) {
                 myFoundBackwards = null;
 
-                myHighlightRunner = OneTimeRunnable.schedule(100, new AwtRunnable(true, () -> {
+                myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> {
                     updateOptions(false);
                 }));
             }
@@ -1464,9 +1503,9 @@ public class BatchReplaceForm implements Disposable {
         if (!handled) {
             // must be a click, we will set a pending replace and let it try again
             myPendingReplace = true;
-            CancelableJobScheduler.getInstance().schedule(() -> {
+            MiaCancelableJobScheduler.getInstance().schedule(250, () -> {
                 myPendingReplace = false;
-            }, 250);
+            });
         }
         focusEditor();
     }
@@ -1739,7 +1778,7 @@ public class BatchReplaceForm implements Disposable {
         @Override
         public void caretPositionChanged(final CaretEvent e) {
             Editor caretEditor = e.getEditor();
-            if (!myInUpdate && canSyncEditors(caretEditor, DELAY_MILLIS)) {
+            if (!myInUpdate && canSyncEditors(caretEditor)) {
                 updateLastEditorSync(caretEditor);
                 myInUpdate = true;
                 try {
@@ -1760,7 +1799,7 @@ public class BatchReplaceForm implements Disposable {
         @Override
         public void visibleAreaChanged(final VisibleAreaEvent e) {
             Editor visibleAreaEditor = e.getEditor();
-            if (!myInUpdate && canSyncEditors(visibleAreaEditor, DELAY_MILLIS)) {
+            if (!myInUpdate && canSyncEditors(visibleAreaEditor)) {
                 updateLastEditorSync(visibleAreaEditor);
                 myInUpdate = true;
                 try {
@@ -1911,7 +1950,7 @@ public class BatchReplaceForm implements Disposable {
             myTextPane.setVisible(false);
         } else {
             mySearchViewPanel.setVisible(false);
-            Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }

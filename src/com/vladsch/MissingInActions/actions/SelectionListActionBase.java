@@ -36,7 +36,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.ui.components.JBList;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.ui.MiaComboBoxAction;
+import com.vladsch.MissingInActions.util.MiaComboBoxAction;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.PrefixedSubSequence;

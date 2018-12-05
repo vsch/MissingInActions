@@ -840,7 +840,7 @@
                             </constraints>
                             <properties/>
                           </component>
-                          <component id="e6cc1" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myPrimaryCaretColor" custom-create="true">
+                          <component id="e6cc1" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="myPrimaryCaretColor" custom-create="true">
                             <constraints>
                               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -871,7 +871,7 @@
                             </constraints>
                             <properties/>
                           </component>
-                          <component id="35b7a" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartCaretColor" custom-create="true">
+                          <component id="35b7a" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="mySearchStartCaretColor" custom-create="true">
                             <constraints>
                               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -902,7 +902,7 @@
                             </constraints>
                             <properties/>
                           </component>
-                          <component id="8bc92" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchFoundCaretColor" custom-create="true">
+                          <component id="8bc92" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="mySearchFoundCaretColor" custom-create="true">
                             <constraints>
                               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -933,7 +933,7 @@
                             </constraints>
                             <properties/>
                           </component>
-                          <component id="fd77f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="mySearchStartMatchedCaretColor" custom-create="true">
+                          <component id="fd77f" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="mySearchStartMatchedCaretColor" custom-create="true">
                             <constraints>
                               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
@@ -1173,7 +1173,7 @@
                           <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.foreground.label"/>
                         </properties>
                       </component>
-                      <component id="6acb5" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedForegroundColor" custom-create="true">
+                      <component id="6acb5" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="myIsolatedForegroundColor" custom-create="true">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -1187,7 +1187,7 @@
                           <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.line-isolation.background.label"/>
                         </properties>
                       </component>
-                      <component id="ccf03" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myIsolatedBackgroundColor" custom-create="true">
+                      <component id="ccf03" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="myIsolatedBackgroundColor" custom-create="true">
                         <constraints>
                           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -1229,7 +1229,7 @@
                         </constraints>
                         <properties/>
                       </component>
-                      <component id="9e59f" class="com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser" binding="myRecalledSelectionColor" custom-create="true">
+                      <component id="9e59f" class="com.vladsch.plugin.util.ui.CheckBoxWithColorChooser" binding="myRecalledSelectionColor" custom-create="true">
                         <constraints>
                           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                         </constraints>

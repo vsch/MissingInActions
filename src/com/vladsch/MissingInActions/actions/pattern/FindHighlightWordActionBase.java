@@ -36,8 +36,7 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 abstract public class FindHighlightWordActionBase extends AnAction implements DumbAware {
     final boolean myBackwardSearch;

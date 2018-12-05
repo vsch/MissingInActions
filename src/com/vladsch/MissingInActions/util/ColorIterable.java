@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.util;
 
+import com.vladsch.plugin.util.HelpersKt;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -50,13 +51,13 @@ public class ColorIterable implements Iterable<Color> {
     ) {
         myHueMinRaw = hueMinRaw;
         myHueMaxRaw = hueMaxRaw;
-        myHueSteps = UtilKt.minLimit(1, UtilKt.min(hueMaxRaw >= hueMinRaw ? hueMaxRaw - hueMinRaw : hueMinRaw - hueMaxRaw, hueSteps));
+        myHueSteps = HelpersKt.minLimit(1, HelpersKt.min(hueMaxRaw >= hueMinRaw ? hueMaxRaw - hueMinRaw : hueMinRaw - hueMaxRaw, hueSteps));
         mySaturationMinRaw = saturationMinRaw;
         mySaturationMaxRaw = saturationMaxRaw;
-        mySaturationSteps = UtilKt.minLimit(1, UtilKt.min(saturationMaxRaw >= saturationMinRaw ? saturationMaxRaw - saturationMinRaw : saturationMinRaw - saturationMaxRaw, saturationSteps));
+        mySaturationSteps = HelpersKt.minLimit(1, HelpersKt.min(saturationMaxRaw >= saturationMinRaw ? saturationMaxRaw - saturationMinRaw : saturationMinRaw - saturationMaxRaw, saturationSteps));
         myBrightnessMinRaw = brightnessMinRaw;
         myBrightnessMaxRaw = brightnessMaxRaw;
-        myBrightnessSteps = UtilKt.minLimit(1, UtilKt.min(brightnessMaxRaw >= brightnessMinRaw ? brightnessMaxRaw - brightnessMinRaw : brightnessMinRaw - brightnessMaxRaw, brightnessSteps));
+        myBrightnessSteps = HelpersKt.minLimit(1, HelpersKt.min(brightnessMaxRaw >= brightnessMinRaw ? brightnessMaxRaw - brightnessMinRaw : brightnessMinRaw - brightnessMaxRaw, brightnessSteps));
     }
 
     public int getMaxIndex() {

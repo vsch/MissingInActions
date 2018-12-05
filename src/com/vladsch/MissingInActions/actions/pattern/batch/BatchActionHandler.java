@@ -31,7 +31,8 @@ import com.intellij.openapi.project.Project;
 import com.vladsch.MissingInActions.BatchSearchReplaceToolWindow;
 import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
-import com.vladsch.MissingInActions.util.CancelableJobScheduler;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.plugin.util.CancelableJobScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,9 +71,9 @@ public class BatchActionHandler extends EditorActionHandler {
                 if (batchSearchReplace != null) {
                     batchSearchReplace.setActiveEditor((EditorEx) editor);
                     batchSearchReplace.doAction(myAction);
-                    CancelableJobScheduler.getInstance().schedule(() -> {
+                    MiaCancelableJobScheduler.getInstance().schedule(100, () -> {
                         editor.getContentComponent().requestFocus();
-                    }, 100);
+                    });
                 }
             }
         }

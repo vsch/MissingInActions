@@ -27,12 +27,13 @@ import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
 import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
-import static com.vladsch.MissingInActions.util.StudiedWord.*;
+import static com.vladsch.plugin.util.StudiedWord.*;
 
 @SuppressWarnings("WeakerAccess")
 public class CaseFormatPreserver {

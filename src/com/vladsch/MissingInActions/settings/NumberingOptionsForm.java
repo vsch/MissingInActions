@@ -22,17 +22,16 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.ui.DocumentAdapter;
-import com.vladsch.MissingInActions.util.ListenersRunner;
-import com.vladsch.MissingInActions.util.ReEntryGuard;
-import com.vladsch.MissingInActions.util.ui.Settable;
-import com.vladsch.MissingInActions.util.ui.SettingsComponents;
-import com.vladsch.MissingInActions.util.ui.SettingsConfigurable;
+import com.vladsch.plugin.util.ListenersRunner;
+import com.vladsch.plugin.util.ReEntryGuard;
+import com.vladsch.plugin.util.ui.Settable;
+import com.vladsch.plugin.util.ui.SettingsComponents;
+import com.vladsch.plugin.util.ui.SettingsConfigurable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptions>, Settable {
@@ -104,7 +103,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
         myComponents = new SettingsComponents<NumberingOptions>() {
             @Override
-            protected Settable[] getComponents(NumberingOptions i) {
+            protected Settable[] createComponents(NumberingOptions i) {
                 return new Settable[] {
                         component(myFirst, i::getFirst, i::setFirst),
                         component(myLast, i::getLast, i::setLast),
@@ -124,12 +123,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
             }
         };
 
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                myGuard.ifUnguarded(() -> unguarded_UpdateOptions());
-            }
-        };
+        ActionListener actionListener = e -> myGuard.ifUnguarded(this::unguarded_UpdateOptions);
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override

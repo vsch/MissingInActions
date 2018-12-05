@@ -31,10 +31,10 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.util.DelimitedBuilder;
-import com.vladsch.MissingInActions.util.Utils;
-import com.vladsch.MissingInActions.util.ui.BackgroundColor;
-import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.DelimitedBuilder;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.html.HtmlBuilder;
+import com.vladsch.plugin.util.html.HtmlHelpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +52,9 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.vladsch.plugin.util.ui.Helpers.errorColor;
+import static com.vladsch.plugin.util.ui.Helpers.warningColor;
 
 public class RegExTestDialog extends DialogWrapper {
     JPanel myMainPanel;
@@ -90,11 +93,11 @@ public class RegExTestDialog extends DialogWrapper {
     private final RegExSettingsHolder mySettingsHolder;
 
     private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(errorColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(warningColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getValidTextFieldBackground() {
@@ -106,7 +109,7 @@ public class RegExTestDialog extends DialogWrapper {
     }
 
     private BackgroundColor getInvalidTableBackground(boolean isSelected) {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTableBackground(isSelected)));
+        return BackgroundColor.of(errorColor(UIUtil.getTableBackground(isSelected)));
     }
 
     BackgroundColor getTableBackground(boolean isSelected) {
@@ -309,7 +312,7 @@ public class RegExTestDialog extends DialogWrapper {
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
             myViewPanel.setVisible(false);
-            Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }

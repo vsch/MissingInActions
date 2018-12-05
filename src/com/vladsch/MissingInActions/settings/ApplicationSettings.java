@@ -27,7 +27,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.MissingInActions.util.CaseFormatPreserver;
-import com.vladsch.MissingInActions.util.ui.Color;
+import com.vladsch.plugin.util.html.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

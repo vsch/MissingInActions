@@ -45,6 +45,7 @@ import com.vladsch.MissingInActions.util.*;
 import com.vladsch.MissingInActions.util.highlight.*;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
+import com.vladsch.plugin.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -150,7 +151,7 @@ public class LineSelectionManager implements
 
             myHighlightRunner.cancel();
 
-            myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, this::updateHighlights));
+            myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, this::updateHighlights));
         }
     }
 
@@ -249,7 +250,7 @@ public class LineSelectionManager implements
             public void documentChanged(final com.intellij.openapi.editor.event.DocumentEvent event) {
                 if (myHighlightProvider.isShowHighlights()) {
                     myHighlightRunner.cancel();
-                    myHighlightRunner = OneTimeRunnable.schedule(250, new AwtRunnable(true, () -> {
+                    myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, () -> {
                         updateHighlights();
                     }));
                 }

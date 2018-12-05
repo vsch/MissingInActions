@@ -1,3 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="IDEA plugin" />
+  <settings default="IDEA plugin">
+    <module2copyright>
+      <element module="JetBrains Attribution" copyright="JetBrains Attribution" />
+    </module2copyright>
+  </settings>
 </component>

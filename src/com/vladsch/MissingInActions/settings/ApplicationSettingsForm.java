@@ -40,11 +40,12 @@ import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.ColorIterable;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.Utils;
-import com.vladsch.MissingInActions.util.ui.CheckBoxWithColorChooser;
-import com.vladsch.MissingInActions.util.ui.HtmlBuilder;
-import com.vladsch.MissingInActions.util.ui.Settable;
-import com.vladsch.MissingInActions.util.ui.SettingsComponents;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.html.HtmlBuilder;
+import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.plugin.util.ui.CheckBoxWithColorChooser;
+import com.vladsch.plugin.util.ui.Settable;
+import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -159,7 +160,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         components = new SettingsComponents<ApplicationSettings>() {
             @Override
-            protected Settable[] getComponents(ApplicationSettings i) {
+            protected Settable[] createComponents(ApplicationSettings i) {
                 return new Settable[] {
                         component(AutoLineModeType.ADAPTER, myAutoLineMode, i::getAutoLineMode, i::setAutoLineMode),
                         component(CaretAdjustmentType.ADAPTER, myCaretOnMoveSelectionDown, i::getCaretOnMoveSelectionDown, i::setCaretOnMoveSelectionDown),
@@ -261,7 +262,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
                     SettingsComponents<ApplicationSettings> colorComponents = new SettingsComponents<ApplicationSettings>() {
                         @Override
-                        protected Settable[] getComponents(ApplicationSettings i) {
+                        protected Settable[] createComponents(ApplicationSettings i) {
                             return new Settable[] {
                                     component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
                                     component(myIsolatedForegroundColor, i::isolatedForegroundColorRGB, i::isolatedForegroundColorRGB),
@@ -379,7 +380,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         JLabel label = new JLabel();
         Font font = label.getFont();
         Color textColor = label.getForeground();
-        String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + Utils.toRgbString(textColor) + "'>" +
+        String out = "<html><head></head><body><div style='font-family:" + font.getFontName() + ";" + "font-size:" + JBUI.scale(font.getSize()) + "pt; color:" + HtmlHelpers.toRgbString(textColor) + "'>" +
+
                 (text == null ? "" : text) +
                 "</div></body></html>";
         myCaretVisualAttributesPane.setText(out);
@@ -413,7 +415,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 html.append("<br>");
             }
 
-            com.vladsch.MissingInActions.util.ui.BackgroundColor color = com.vladsch.MissingInActions.util.ui.BackgroundColor.of(hsbColor);
+            BackgroundColor color = BackgroundColor.of(hsbColor);
             html.attr(color).span().append(String.format("&nbsp;%03d&nbsp;", iterator.getIndex() + 1)).closeSpan();
         }
 

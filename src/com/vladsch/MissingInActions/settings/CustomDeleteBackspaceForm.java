@@ -29,8 +29,11 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.util.Utils;
-import com.vladsch.MissingInActions.util.ui.*;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.html.Color;
+import com.vladsch.plugin.util.html.HtmlBuilder;
+import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.plugin.util.ui.*;
 import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
@@ -68,16 +71,16 @@ public class CustomDeleteBackspaceForm {
     JBCheckBox myBackspaceMultiCaretLineBound;
     private JTextPane myErrorTextPane;
     private JTextField mySampleText;
-    ListTableModel<TextMapEntry> myTextModel;
-    TableView<TextMapEntry> myTextTable;
+    private ListTableModel<TextMapEntry> myTextModel;
+    private TableView<TextMapEntry> myTextTable;
 
-    JBTextField myFocusedRegEx = null;
-    final List<JBTextField> myRegExFields;
-    boolean myFocusedRegExReversed = false;
+    private JBTextField myFocusedRegEx = null;
+    private final List<JBTextField> myRegExFields;
+    private boolean myFocusedRegExReversed = false;
 
     private final SettingsComponents<ApplicationSettings> components;
-    final String CARET_COLOR_STRING = "#CC0030";
-    final Color CARET_COLOR = Color.of(CARET_COLOR_STRING);
+    private final String CARET_COLOR_STRING = "#CC0030";
+    private final Color CARET_COLOR = Color.of(CARET_COLOR_STRING);
 
     private static class MyAbstractHookingTableEditor extends AbstractHookingTableEditor {
         private final JBTextField myEditor = new JBTextField();
@@ -145,7 +148,7 @@ public class CustomDeleteBackspaceForm {
 
         components = new SettingsComponents<ApplicationSettings>() {
             @Override
-            protected Settable[] getComponents(ApplicationSettings i) {
+            protected Settable[] createComponents(ApplicationSettings i) {
                 return new Settable[] {
                         component(myDeleteSpacesRegEx, i::getDeleteSpacesRegEx, i::setDeleteSpacesRegEx),
                         component(myDeleteAlternatingRegEx, i::getDeleteAlternatingRegEx, i::setDeleteAlternatingRegEx),
@@ -259,11 +262,11 @@ public class CustomDeleteBackspaceForm {
     }
 
     private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getValidTextFieldBackground() {
@@ -275,7 +278,7 @@ public class CustomDeleteBackspaceForm {
     }
 
     BackgroundColor getInvalidTableBackground(boolean isSelected) {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTableBackground(isSelected)));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTableBackground(isSelected)));
     }
 
     BackgroundColor getTableBackground(boolean isSelected) {
@@ -396,7 +399,7 @@ public class CustomDeleteBackspaceForm {
                 if (myFocusedRegEx == regExField) {
                     // can display full error
                     errorPaneVisible = true;
-                    Utils.setRegExError(regExError, myErrorTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+                    HtmlHelpers.setRegExError(regExError, myErrorTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
                 }
 
                 regExField.setBackground(warningBackground);

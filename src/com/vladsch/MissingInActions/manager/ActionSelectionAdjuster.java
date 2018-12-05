@@ -49,6 +49,7 @@ import com.vladsch.MissingInActions.settings.SelectionPredicateType;
 import com.vladsch.MissingInActions.util.*;
 import com.vladsch.flexmark.util.ValueRunnable;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.plugin.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -495,7 +496,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             myRunBeforeActions.add(runnable);
 
             // now schedule it to run
-            OneTimeRunnable.schedule(triggeredAction.getDelay(), runnable);
+            OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), triggeredAction.getDelay(), runnable);
         }
     }
 

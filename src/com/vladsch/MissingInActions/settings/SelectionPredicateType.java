@@ -22,9 +22,9 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdaptable;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapter;
-import com.vladsch.MissingInActions.util.ui.ComboBoxAdapterImpl;
+import com.vladsch.plugin.util.ui.ComboBoxAdaptable;
+import com.vladsch.plugin.util.ui.ComboBoxAdapter;
+import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
 public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredicateType> {

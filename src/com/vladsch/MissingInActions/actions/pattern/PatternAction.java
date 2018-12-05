@@ -28,9 +28,9 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.Utils;
-import com.vladsch.MissingInActions.util.ui.BackgroundColor;
-import com.vladsch.MissingInActions.util.ui.TextFieldAction;
+import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.plugin.util.ui.Helpers;
+import com.vladsch.plugin.util.ui.TextFieldAction;
 
 import javax.swing.Icon;
 import java.util.regex.Pattern;
@@ -65,7 +65,7 @@ public class PatternAction extends TextFieldAction {
             presentation.putClientProperty(TEXT_FIELD_BACKGROUND, null);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             presentation.setDescription(e.getMessage());
-            presentation.putClientProperty(TEXT_FIELD_BACKGROUND, BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground())));
+            presentation.putClientProperty(TEXT_FIELD_BACKGROUND, BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground())));
         }
     }
 

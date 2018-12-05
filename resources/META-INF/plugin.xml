@@ -231,7 +231,7 @@
         </applicationConfigurable>
 
         <applicationService serviceInterface="com.vladsch.MissingInActions.manager.NormalAdjustmentMap" serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
-        <applicationService serviceInterface="com.vladsch.MissingInActions.util.CancelableJobScheduler" serviceImplementation="com.vladsch.MissingInActions.util.CancelableJobScheduler"/>
+        <applicationService serviceInterface="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler" serviceImplementation="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler"/>
 
         <!-- This is the only way to override standard editor shortcuts that are used by others -->
         <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->

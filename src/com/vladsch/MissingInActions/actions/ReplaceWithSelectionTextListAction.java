@@ -28,6 +28,7 @@ import com.intellij.openapi.util.Pair;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.MiaComboBoxAction;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,7 +81,7 @@ public class ReplaceWithSelectionTextListAction extends SelectionListActionBase 
     public void update(final AnActionEvent e) {
         super.update(e);
 
-        Editor editor = getEventEditor(e);
+        Editor editor = MiaComboBoxAction.getEventEditor(e);
         boolean enabled = !(editor == null || editor.getCaretModel().getCaretCount() > 1 || !editor.getSelectionModel().hasSelection());
         e.getPresentation().setEnabled(enabled);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
