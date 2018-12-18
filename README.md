@@ -9,8 +9,8 @@
 [TOC]: #
 
 ### Table of Contents
-- [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
-- [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
+- [Version 1.6.16 - Bug Fix Release](#version-1616-bug-fix-release)
+- [Version 1.6.14 - Bug Fix Release](#version-1614-bug-fix-release)
 - [Version 1.6.12 - Bug Fix & Enhancement Release](#version-1612-bug-fix-enhancement-release)
 - [Version 1.6.10 - Bug Fix & Enhancement Release](#version-1610-bug-fix-enhancement-release)
 - [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166-bug-fix-enhancement-release)
@@ -89,14 +89,14 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
-### 1.6.16 - Bug Fix Release
+## Version 1.6.16 - Bug Fix Release
 
 [Version Notes][] [Download Latest 1.6.16 from this repo][]
 
 * Add: option for spawn carets on digits to use: standard spawn, base 10 digit select, hex
   digit select.
 
-### 1.6.14 - Bug Fix Release
+## Version 1.6.14 - Bug Fix Release
 
 * Fix: 2016.3 paste from history compatibility
 
