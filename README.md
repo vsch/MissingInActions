@@ -2,34 +2,34 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.14 from this repo]
+[Download Latest 1.6.16 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
-- [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
-- [Version 1.6.12 - Bug Fix & Enhancement Release](#version-1612---bug-fix--enhancement-release)
-- [Version 1.6.10 - Bug Fix & Enhancement Release](#version-1610---bug-fix--enhancement-release)
-- [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166---bug-fix--enhancement-release)
-- [Version 1.5.0 - Bug Fix & Enhancement Release](#version-150---bug-fix--enhancement-release)
-- [Version 1.4.8 - Bug Fix Release](#version-148---bug-fix-release)
-- [Version 1.4.6 - Bug Fix Release](#version-146---bug-fix-release)
-- [Version 1.4.2 - Bug Fix Release](#version-142---bug-fix-release)
-- [Version 1.4.0 - Bug Fix Release](#version-140---bug-fix-release)
-- [Version 1.3.4 - Bug Fix Release](#version-134---bug-fix-release)
-- [Version 1.3.0 - Bug Fix & Enhancement Release](#version-130---bug-fix--enhancement-release)
-- [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123---bug-fix--enhancement-release)
-- [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122---bug-fix--enhancement-release)
-- [Version 1.2.0 - Enhancement Release](#version-120---enhancement-release)
-- [Version 1.1.5 - Enhancement Release](#version-115---enhancement-release)
-- [Version 1.1.4 - Enhancement Release](#version-114---enhancement-release)
-- [Version 1.1.3 - Enhancement Release](#version-113---enhancement-release)
-- [Version 1.0.0 - Bug Fix and Improvement Release](#version-100---bug-fix-and-improvement-release)
-- [Version 0.8.3 - Bug Fix and Improvement Release](#version-083---bug-fix-and-improvement-release)
-- [Version 0.8.2 - Enhanced Paste From History](#version-082---enhanced-paste-from-history)
-- [Version 0.8.0 - Mia has come of age!](#version-080---mia-has-come-of-age)
+- [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
+- [Version 1.6.12 - Bug Fix & Enhancement Release](#version-1612-bug-fix-enhancement-release)
+- [Version 1.6.10 - Bug Fix & Enhancement Release](#version-1610-bug-fix-enhancement-release)
+- [Version 1.6.6 - Bug Fix & Enhancement Release](#version-166-bug-fix-enhancement-release)
+- [Version 1.5.0 - Bug Fix & Enhancement Release](#version-150-bug-fix-enhancement-release)
+- [Version 1.4.8 - Bug Fix Release](#version-148-bug-fix-release)
+- [Version 1.4.6 - Bug Fix Release](#version-146-bug-fix-release)
+- [Version 1.4.2 - Bug Fix Release](#version-142-bug-fix-release)
+- [Version 1.4.0 - Bug Fix Release](#version-140-bug-fix-release)
+- [Version 1.3.4 - Bug Fix Release](#version-134-bug-fix-release)
+- [Version 1.3.0 - Bug Fix & Enhancement Release](#version-130-bug-fix-enhancement-release)
+- [Version 1.2.3 - Bug Fix & Enhancement Release](#version-123-bug-fix-enhancement-release)
+- [Version 1.2.2 - Bug Fix & Enhancement Release](#version-122-bug-fix-enhancement-release)
+- [Version 1.2.0 - Enhancement Release](#version-120-enhancement-release)
+- [Version 1.1.5 - Enhancement Release](#version-115-enhancement-release)
+- [Version 1.1.4 - Enhancement Release](#version-114-enhancement-release)
+- [Version 1.1.3 - Enhancement Release](#version-113-enhancement-release)
+- [Version 1.0.0 - Bug Fix and Improvement Release](#version-100-bug-fix-and-improvement-release)
+- [Version 0.8.3 - Bug Fix and Improvement Release](#version-083-bug-fix-and-improvement-release)
+- [Version 0.8.2 - Enhanced Paste From History](#version-082-enhanced-paste-from-history)
+- [Version 0.8.0 - Mia has come of age!](#version-080-mia-has-come-of-age)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
     - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
     - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
@@ -90,7 +90,7 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 ### 1.6.14 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.6.14 from this repo][]
+[Version Notes][] [Download Latest 1.6.16 from this repo][]
 
 * Fix: 2016.3 paste from history compatibility
 
@@ -639,7 +639,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.14 from this repo]: ../../raw/master/dist/MissingInActions.1.6.14.zip
+[Download Latest 1.6.16 from this repo]: ../../raw/master/dist/MissingInActions.1.6.16.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
