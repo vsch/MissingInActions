@@ -3,7 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [1.6.15 - Bug Fix Release](#1615-bug-fix-release)
+- [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
 - [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
 - [1.6.12 - Bug Fix Release](#1612-bug-fix-release)
 - [1.6.10 - Bug Fix Release](#1610-bug-fix-release)
@@ -62,19 +62,24 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 * [ ] Add: option and functionality to change duplicate lines action to only operate on a line
       once even if there are many carets present on that line.
+* [ ] Add: option for multi-caret left/right caret movement with/without selection to
+      consolidate inlays for all carets before actual movement of any carets. Otherwise
+      multi-caret editing becomes impossible if some carets perform virtual moves around inlays
+      while others do real text moves.
 
 &nbsp;</details>
 
-### 1.6.15 - Bug Fix Release
+### 1.6.16 - Bug Fix Release
 
-* [ ] Fix: in markdown code moving a line in or into a fenced code block moves the caret up one
-      line if auto format on move is enabled.
+* Add: plugin logo
+* Add: option for spawn carets for digits to use: standard spawn, base 10 digit select, hex
+  digit select.
 * Change: refactor code to common plugin-util library
 * Fix: bump up dependencies to newer versions
 * Fix: reduce tool window border
 * Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
   type.
-
+  
 ### 1.6.14 - Bug Fix Release
 
 * Fix: 2016.3 paste from history compatibility

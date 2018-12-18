@@ -52,10 +52,13 @@ abstract public class RegExCaretSearchHandler extends PatternSearchCaretHandler<
                 if (offset > range.getEnd()) {
                     int tmp = 0;
                 }
+                if (offset >= range.getEnd()) {
+                    return null;
+                }
                 myMatcher.region(offset, range.getEnd());
             } else {
-                if (offset < range.getStart()) {
-                    int tmp = 0;
+                if (offset <= range.getStart()) {
+                   return null; 
                 }
                 myMatcher.region(range.getStart(), offset);
             }

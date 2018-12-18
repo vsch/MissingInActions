@@ -74,12 +74,23 @@
         ]]>
     </description>
 
-    <version>1.6.15</version>
+    <version>1.6.16</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.6.16 - Bug Fix Release</h3>
+            <ul>
+                <li>Add: plugin logo</li>
+                <li>Add: option for spawn carets for digits to use: standard spawn, base 10 digit select, hex
+                    digit select.</li>
+                <li>Change: refactor code to common plugin-util library</li>
+                <li>Fix: bump up dependencies to newer versions</li>
+                <li>Fix: reduce tool window border</li>
+                <li>Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
+                    type.</li>
+            </ul>
             <h3>1.6.14 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: 2016.3 paste from history compatibility</li>
@@ -575,6 +586,20 @@
         </group>
 
         <group id="MissingInActions.PatternGroup" text="Pattern Caret">
+            <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericSearchAction"
+                    id="MissingInActions.ToggleSpawnNumericSearch"
+                    text="Toggle numeric match all numbers"
+                    icon="PluginIcons.Toggle_search_numeric"
+                    description="Toggle numeric match all numbers">
+            </action>
+
+            <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericHexSearchAction"
+                    id="MissingInActions.ToggleSpawnNumericHexSearch"
+                    text="Toggle numeric match all hex numbers"
+                    icon="PluginIcons.Toggle_search_hex"
+                    description="Toggle numeric match all hex numbers">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.pattern.ForwardSearchCaretSpawningAction"
                     id="MissingInActions.ForwardSearchCaretSpawning"
                     text="Forward Search Caret Spawning"
@@ -889,6 +914,8 @@
                    <!--icon="PluginIcons.Menu_spawn"-->
             <!--&gt;-->
             <!--</group>-->
+            <reference id="MissingInActions.ToggleSpawnNumericSearch"/>
+            <reference id="MissingInActions.ToggleSpawnNumericHexSearch"/>
             <reference id="MissingInActions.ForwardSearchCaretSpawning"/>
             <reference id="MissingInActions.BackwardSearchCaretSpawning"/>
             <reference id="MissingInActions.SearchCaretsOptions"/>

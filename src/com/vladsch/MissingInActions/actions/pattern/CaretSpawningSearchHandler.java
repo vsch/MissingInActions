@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.Editor;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
@@ -148,7 +149,11 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
-    protected void analyzeContext(final Editor editor, @Nullable final Caret caret, @NotNull final LineSelectionManager manager) {
+    protected void analyzeContext(
+            final Editor editor,
+            @Nullable final Caret caret,
+            @NotNull final LineSelectionManager manager
+    ) {
         int previousCaretLine = -1;
         boolean haveMultipleCaretsPerLine = false;
         boolean haveMultiLineSelection = false;
@@ -176,7 +181,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
             }
             previousCaretLine = caretLine;
 
-            if (haveMultiLineSelection && haveMultipleCaretsPerLine && haveMultipleCaretLines) break;
+            if (haveMultiLineSelection && haveMultipleCaretsPerLine && haveMultipleCaretLines)
+                break;
         }
 
         mySingleLine = !haveMultiLineSelection;
@@ -212,7 +218,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
-    protected void preparePattern(@NotNull final LineSelectionManager manager, @NotNull final Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
+    protected void preparePattern(
+            @NotNull final LineSelectionManager manager,
+            @NotNull final Caret caret,
+            @NotNull final Range range,
+            @NotNull final BasedSequence chars
+    ) {
         assert caret == myPatternCaret;
         myPattern = null;
         getPattern(manager, caret, range, chars);
@@ -230,11 +241,18 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
 
     @Nullable
     @Override
-    protected RegExPattern getPattern(@NotNull final LineSelectionManager manager, @NotNull Caret caret, @NotNull final Range range, @NotNull final BasedSequence chars) {
+    protected RegExPattern getPattern(
+            @NotNull final LineSelectionManager manager,
+            @NotNull Caret caret,
+            @NotNull final Range range,
+            @NotNull final BasedSequence chars
+    ) {
         if (myPattern == null) {
             EditorPosition caretPos = manager.getPositionFactory().fromPosition(caret.getLogicalPosition());
             int offset = caretPos.getOffset();
             int endOfLineColumn = caretPos.atEndColumn().column;
+            boolean spawnNumericSearch = ApplicationSettings.getInstance().isSpawnNumericSearch();
+            boolean spawnNumericHexSearch = ApplicationSettings.getInstance().isSpawnNumericHexSearch();
 
             if (!myBackwards) {
                 // check what is ahead of caret
@@ -251,29 +269,37 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 } else if (EditHelpers.isIdentifierPart(c)) {
                     // find end of identifier
                     int end = offset;
-                    while (end < range.getEnd() && EditHelpers.isIdentifierPart(chars.charAt(end))) end++;
+                    while (end < range.getEnd() && EditHelpers.isIdentifierPart(chars.charAt(end)))
+                        end++;
                     BasedSequence text = chars.subSequence(offset, end);
-                    boolean hexPrefix = text.startsWith("0x", true);
+                    boolean hexPrefix = spawnNumericHexSearch && text.startsWith("0x", true);
                     String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
                     String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
-                    if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                            || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                            || (text.indexOfAnyNot("0123456789") == -1)
+                    if (spawnNumericSearch && text.indexOfAny("0123456789") != -1 
+                            && (
+                                    (spawnNumericHexSearch 
+                                            && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1) 
+                                            || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1) 
+                                    || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                                    || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                                    || (text.indexOfAnyNot("0123456789") == -1)
                     )) {
                         // hex, octal or decimal, look for numeric sequence
                         if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
                             if (hexPrefix) {
                                 myPattern = ForwardPattern.compile("\\b(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else {
+                            } else if (spawnNumericHexSearch) {
                                 myPattern = ForwardPattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            } else {
+                                myPattern = ForwardPattern.compile("\\b([0-9]+|0[0-7]*|-?[0-9]+)\\b");
                             }
                         } else {
                             if (hexPrefix) {
                                 myPattern = ForwardPattern.compile("(0(?:x|X)[0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else {
+                            } else if (spawnNumericHexSearch) {
                                 myPattern = ForwardPattern.compile("([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
+                            } else {
+                                myPattern = ForwardPattern.compile("([0-9]+|0[0-7]*|-?[0-9]+)\\b");
                             }
                         }
                     } else if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
@@ -308,7 +334,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 } else if (EditHelpers.isIdentifierPart(c)) {
                     // find start of identifier
                     int start = offset;
-                    while (start > range.getStart() && EditHelpers.isIdentifierPart(chars.charAt(start - 1))) start--;
+                    while (start > range.getStart() && EditHelpers.isIdentifierPart(chars.charAt(start - 1)))
+                        start--;
 
                     BasedSequence text = chars.subSequence(start, offset);
                     boolean hexPrefix = text.startsWith("0x", true);
@@ -350,7 +377,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     } else {
                         // neither, just look for the character span of matching characters
                         int start = offset;
-                        while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
+                        while (start > range.getStart() && c == chars.charAt(start - 1))
+                            start--;
                         BasedSequence text = chars.subSequence(start, offset);
                         String quote = Pattern.quote(text.toString());
                         myPattern = ReversePattern.compile("(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")");
