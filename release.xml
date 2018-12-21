@@ -18,14 +18,14 @@
 
 <project>
     <target name="clean">
-        <delete file="idea-multimarkdown.zip"/>
+        <delete file="MissingInActions.zip"/>
     </target>
 
     <target name="zip">
         <zip destfile="MissingInActions.zip">
             <zipfileset dir="." prefix="MissingInActions" includes="lib/*.jar" />
             <zipfileset dir="out/artifacts" prefix="MissingInActions/lib" includes="*.jar"/>
-            <zipfileset dir="resources/META-INF" prefix="MissingInActions/META-INF" includes="*.svg"/>
+<!--            <zipfileset dir="resources/META-INF" prefix="MissingInActions/META-INF" includes="*.svg"/>-->
         </zip>
     </target>
 </project>

@@ -32,9 +32,9 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.flexmark.util.DelimitedBuilder;
-import com.vladsch.plugin.util.html.BackgroundColor;
-import com.vladsch.plugin.util.html.HtmlBuilder;
-import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.flexmark.util.html.ui.BackgroundColor;
+import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

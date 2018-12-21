@@ -26,7 +26,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.plugin.util.html.HtmlHelpers;
+import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;

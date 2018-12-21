@@ -28,7 +28,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.plugin.util.html.BackgroundColor;
+import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.plugin.util.ui.Helpers;
 import com.vladsch.plugin.util.ui.TextFieldAction;
 
