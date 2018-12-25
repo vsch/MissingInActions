@@ -74,13 +74,13 @@
         ]]>
     </description>
 
-    <version>1.6.18</version>
+    <version>1.6.19</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.6.18 - Bug Fix Release</h3>
+            <h3>1.6.19 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: switch to flexmark-util.html.ui helpers</li>
             </ul>
@@ -692,8 +692,7 @@
 
         <action class="com.vladsch.MissingInActions.actions.RecallSelectionListAction"
                 id="MissingInActions.RecallSelectionListButton"
-                text="Internal Recall Selection from List"
-                internal="true"
+                text=""
                 icon="PluginIcons.Recall_selection_list"
                 description="Recall Selection from List">
         </action>

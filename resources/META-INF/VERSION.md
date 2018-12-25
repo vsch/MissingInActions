@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.6.19 - Bug Fix Release](#1619-bug-fix-release)
 - [1.6.18 - Bug Fix Release](#1618-bug-fix-release)
 - [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
 - [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
@@ -69,6 +70,11 @@
       while others do real text moves.
 
 &nbsp;</details>
+
+### 1.6.19 - Bug Fix Release
+
+* Fix: update to latest libs
+* Fix: missing toolbar button for `Recall selection from list` 
 
 ### 1.6.18 - Bug Fix Release
 
