@@ -47,6 +47,10 @@ public class StashedRangeMarkers implements Disposable {
         myStashLimit = stashLimit;
     }
 
+    public static boolean isEmpty(@Nullable RangeMarker rangeMarker) {
+        return rangeMarker == null || !rangeMarker.isValid() || rangeMarker.getStartOffset() >= rangeMarker.getEndOffset();
+    }
+
     public ArrayList<RangeMarker> getMarkers() {
         return myMarkers;
     }
@@ -86,7 +90,7 @@ public class StashedRangeMarkers implements Disposable {
 
         for (int i = iMax; i-- > 0; ) {
             RangeMarker marker = myMarkers.get(i);
-            if (index < myStashLimit && marker.isValid()) {
+            if (index < myStashLimit && !isEmpty(marker)) {
                 markers[index++] = marker;
             } else {
                 if (marker != null) marker.dispose();

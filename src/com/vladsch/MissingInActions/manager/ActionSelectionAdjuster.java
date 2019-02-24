@@ -162,7 +162,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     public boolean canSwapSelection() {
         RangeMarker myLastSelectionMarker = myRangeMarkers.peek();
-        return myLastSelectionMarker != null && canSaveSelection();
+        return !StashedRangeMarkers.isEmpty(myLastSelectionMarker) && canSaveSelection();
     }
 
     @NotNull
@@ -261,7 +261,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         RangeLimitedCaretSpawningHandler caretSpawningHandler = myManager.getCaretSpawningHandler();
         myRerunCaretHandler = false;
-
+        
         if (caretSpawningHandler != null) {
             if (myManager.getStartCaretStates() != null) {
                 if (action instanceof CaretSearchAwareAction || myAdjustmentsMap.isInSet(action.getClass(), SEARCH_AWARE_CARET_ACTION)) {
