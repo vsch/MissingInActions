@@ -167,7 +167,7 @@ public class BatchReplaceForm implements Disposable {
     private JButton mySearchCopyRegEx;
     private final JBPopupMenu myPopupMenuActions;
 
-    private EditorEx myEditor;
+    private Editor myEditor;
     EditorEx mySearchEditor;
     private EditorEx myReplaceEditor;
     private EditorEx myOptionsEditor;
@@ -293,7 +293,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     @SuppressWarnings("VariableNotUsedInsideIf")
-    public void setActiveEditor(@Nullable EditorEx editor) {
+    public void setActiveEditor(@Nullable Editor editor) {
         if (editor != null && editor.isDisposed()) {
             editor = null;
         }
@@ -1034,11 +1034,6 @@ public class BatchReplaceForm implements Disposable {
         }
         //myInUpdate = savedInUpdate;
     }
-
-    //private void createUIComponents() {
-    //    //noinspection UndesirableClassUsage
-    //    myPresets = new JComboBox();
-    //}
 
     protected EditorEx createIdeaEditor(CharSequence charSequence) {
         Document doc = EditorFactory.getInstance().createDocument(charSequence);

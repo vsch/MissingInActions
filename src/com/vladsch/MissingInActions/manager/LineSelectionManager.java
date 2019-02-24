@@ -31,7 +31,12 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
-import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.event.EditorMouseEvent;
+import com.intellij.openapi.editor.event.EditorMouseListener;
+import com.intellij.openapi.editor.event.EditorMouseMotionListener;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
@@ -41,11 +46,24 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
-import com.vladsch.MissingInActions.util.*;
-import com.vladsch.MissingInActions.util.highlight.*;
+import com.vladsch.MissingInActions.util.CaseFormatPreserver;
+import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.MissingInActions.util.InsertedRangeContext;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.MissingInActions.util.highlight.HighlightListener;
+import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.Highlighter;
+import com.vladsch.MissingInActions.util.highlight.LineRangeHighlightProvider;
+import com.vladsch.MissingInActions.util.highlight.LineRangeHighlightProviderImpl;
+import com.vladsch.MissingInActions.util.highlight.LineRangeHighlighter;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
-import com.vladsch.plugin.util.*;
+import com.vladsch.plugin.util.AwtRunnable;
+import com.vladsch.plugin.util.DelayedRunner;
+import com.vladsch.plugin.util.OneTimeRunnable;
+import com.vladsch.plugin.util.ReEntryGuard;
+import com.vladsch.plugin.util.SearchPattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +75,12 @@ import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -74,8 +97,7 @@ public class LineSelectionManager implements
         , EditorActiveLookupListener
         , EditorMouseListener
         , EditorMouseMotionListener
-        , Disposable
-{
+        , Disposable {
 
     private static final String ESCAPE_SEARCH = "ESCAPE";
     final private Editor myEditor;
@@ -196,6 +218,8 @@ public class LineSelectionManager implements
 
             @Override
             public void lookAndFeelChanged(final LafManager source) {
+                if (myEditor.isDisposed()) return;  
+                
                 UIManager.LookAndFeelInfo newLookAndFeel = source.getCurrentLookAndFeel();
                 if (lookAndFeel != newLookAndFeel) {
                     lookAndFeel = newLookAndFeel;
@@ -583,6 +607,8 @@ public class LineSelectionManager implements
     }
 
     public void removeHighlights() {
+        if (myEditor.isDisposed()) return;
+        
         if (myHighlighter != null) {
             myHighlighter.removeHighlights();
             myHighlighter = null;
@@ -594,6 +620,8 @@ public class LineSelectionManager implements
     }
 
     public void updateHighlights() {
+        if (myEditor.isDisposed()) return;
+        
         myHighlightRunner.cancel();
 
         if (myHighlightProvider.isShowHighlights()) {
@@ -693,11 +721,13 @@ public class LineSelectionManager implements
     }
 
     private boolean dispatchEscape(@NotNull final AWTEvent e) {
+        if (myEditor.isDisposed()) return false;
+        
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
                 final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
 
-                if (owner != null && owner instanceof JComponent) {
+                if (owner instanceof JComponent) {
                     // register multi-paste if no already registered and remove when focus is lost
                     if (owner == myEditor.getContentComponent()) {
                         List<CaretState> caretStates = getStartCaretStates();
@@ -1062,6 +1092,11 @@ public class LineSelectionManager implements
 
     @Override
     public void caretAdded(CaretEvent e) {
+        int caretCount = myEditor.getCaretModel().getCaretCount();
+        if (caretCount == 2) {
+            Plugin.getInstance().updateEditorParameterHints(myEditor, true);
+        }
+        
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
             myCaretHighlighter.caretAdded(caret);
@@ -1070,6 +1105,12 @@ public class LineSelectionManager implements
 
     @Override
     public void caretRemoved(CaretEvent e) {
+        int caretCount = myEditor.getCaretModel().getCaretCount();
+        if (caretCount == 1) {
+            // if caret count becomes 1 due to escape 
+            Plugin.getInstance().updateEditorParameterHints(myEditor, true);
+        }
+        
         mySelectionStates.remove(e.getCaret());
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {

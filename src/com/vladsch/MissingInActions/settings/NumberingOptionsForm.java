@@ -40,11 +40,11 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     private JTextField myLast;
     private JTextField myTemplate;
     private JTextField myStep;
-    private JComboBox myNumberingBase;
+    private JComboBox<String> myNumberingBase;
     private JCheckBox myBitShift;
     private JCheckBox myRepeatSameLine;
     private JRadioButton myUpperCase;
-    private JComboBox mySeparatorFrequency;
+    private JComboBox<String> mySeparatorFrequency;
     private JTextField mySeparator;
     private JTextField myDecimalPoint;
     private JTextField myPrefix;

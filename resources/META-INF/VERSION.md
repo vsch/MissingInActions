@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [ CRITICAL](#critical)
 - [1.6.19 - Bug Fix Release](#1619-bug-fix-release)
 - [1.6.18 - Bug Fix Release](#1618-bug-fix-release)
 - [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
@@ -49,8 +50,6 @@
 
 * [ ] Add: status bar with information about selection: lines, code, comment and blank line
       count.
-* [ ] Add: reserved word list exclusion for preserve on paste. If pasting over reserved word
-      then don't make any changes to the pasted content.
 * [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
       already on code lines then remove those whose code lines contain nothing but brackets,
       parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
@@ -71,8 +70,43 @@
 
 &nbsp;</details>
 
+### :warning: CRITICAL
+
+* [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
+      using line mouse selection.
+* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret is
+  already on last line or using line mouse selection.
+* [ ] Add: for multi-caret left/right skip parameter info unless all carets have parameter info
+      in the same direction as the move. This is an alternative to turning off parameter info
+      for multi-caret mode.
+* Fix: case preserving duplicate for carets paste screws up when pasting:
+        
+        isParsed
+        isTextOnly
+        isSuppressed
+        isUnwrapSingleCell
+        
+  Over selected `isTest` in `boolean isTest() { return this == NONE; }`, cannot duplicate. Must
+  be a glitch from some exception causing the afterAction not to be invoked.
+* [ ] Fix: dot case preservation should not match if any parts is all numeric. ie. each dot
+      separated part should start with a non-digit, match identifier requirements. Cannot
+      duplicate not sure if applies. For example: `name.0.parts` pasted over with
+      `textWithSuffix` should it be `text.with.suffix` or `textWithSuffix`? 
+* [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
+      then don't make any changes to the pasted content.
+
 ### 1.6.19 - Bug Fix Release
 
+* [x] Add: option to turn off IDE parameter info when using multi-caret mode
+* [x] Fix: handling of `beforeActionPerformed` without corresponding `afterActionPerformed`.
+      Otherwise, the plugin would think all subsequent actions are nested actions and not handle
+      selection storage/recall or do proper cleanup in afterActionPerformed.
+
+      This happens on action exception or premature before call then no actual `actionPerformed`
+      call on the action, like
+      `com.intellij.openapi.actionSystem.impl.ActionButton.performAction` which fires before
+      action then checks to see if there is a context component and if not returns without
+      corresponding `actionPerformed` on the action and `afterActionPerformed` callbacks.
 * Fix: update to latest libs
 * Fix: missing toolbar button for `Recall selection from list` 
 

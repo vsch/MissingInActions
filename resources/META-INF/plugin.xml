@@ -29,9 +29,11 @@
             <p>Adds missing editor actions for end of word navigation but that is just the beginning:</p>
             <ul>
                 <li>Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
-                    previous selection from a list.</li>
+                    previous selection from a list.
+                </li>
                 <li>Enable Auto Indent Lines after move line/selection up or down actions to have lines indented
-                    automatically.</li>
+                    automatically.
+                </li>
                 <li>Use Smart Paste to eliminate case change and prefix edits when pasting identifiers. MIA will
                     match case and style of identifier at destination when you paste. Undo to get results before
                     MIA adjusted them.
@@ -46,25 +48,30 @@
                 <li>Enable Auto Line Selections and select full lines without loosing time or column position by
                     moving the caret to the start of line when selecting or pasting. <strong>Choose</strong> whether you want
                     to <strong>paste full line</strong> selections: <strong>above</strong> or <strong>below</strong> the current line regardless of the
-                    caret&rsquo;s column.</li>
+                    caret&rsquo;s column.
+                </li>
                 <li>Toggle between selection and multiple carets on selected lines to save time re-selecting the
-                    same text again.</li>
+                    same text again.
+                </li>
                 <li>Filter multiple carets saves you time when creating multiple carets by removing carets on
-                    blank or comment lines so you can edit only code lines.</li>
+                    blank or comment lines so you can edit only code lines.
+                </li>
                 <li>Enhanced Paste from History dialog:
                     <ul>
                         <li><strong>combine</strong>, <strong>arrange</strong> and <strong>reverse</strong> the order of content entries</li>
                         <li><strong>combine multiple</strong> clipboard contents <strong>with caret information intact</strong></li>
                         <li><strong>paste and re-create multiple carets</strong> from information already stored on the clipboard</li>
                         <li><strong>duplicate line/block for each caret</strong> in the clipboard content and <strong>put a caret on the
-                            first line</strong> of the block, ready for multi-caret select and paste</li>
+                            first line</strong> of the block, ready for multi-caret select and paste
+                        </li>
                         <li><strong>splice</strong> individual entries into delimited list, optionally quoting each entry</li>
                         <li>see caret information stored on the clipboard for each content entry</li>
                     </ul>
                 </li>
                 <li>Batch Search/Replace to search/replace multiple strings at the same time</li>
                 <li>Many more options and adjustments to make multiple caret text editing fast, efficient and
-                    easy.</li>
+                    easy.
+                </li>
             </ul>
             <p><strong>Plugin website:
                 <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
@@ -82,18 +89,25 @@
         <div xmlns="http://www.w3.org/1999/html">
             <h3>1.6.19 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: update to latest libs</li>
+                <li>Fix: missing toolbar button for <code>Recall selection from list</code></li>
+            </ul>
+            <h3>1.6.18 - Bug Fix Release</h3>
+            <ul>
                 <li>Fix: switch to flexmark-util.html.ui helpers</li>
             </ul>
             <h3>1.6.16 - Bug Fix Release</h3>
             <ul>
                 <li>Add: plugin logo</li>
                 <li>Add: option for spawn carets for digits to use: standard spawn, base 10 digit select, hex
-                    digit select.</li>
+                    digit select.
+                </li>
                 <li>Change: refactor code to common plugin-util library</li>
                 <li>Fix: bump up dependencies to newer versions</li>
                 <li>Fix: reduce tool window border</li>
                 <li>Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
-                    type.</li>
+                    type.
+                </li>
             </ul>
             <h3>1.6.14 - Bug Fix Release</h3>
             <ul>
@@ -125,7 +139,8 @@
                 <li>Fix: batch search/replace window exception in DataGrip</li>
                 <li>Fix: Enable batch replace tool window to work in dumb mode</li>
                 <li>Fix: make default directory for export/import batch search replace files, one directory above
-                    <code>.idea</code> if project file parent dir has that name.</li>
+                    <code>.idea</code> if project file parent dir has that name.
+                </li>
             </ul>
             <h3>1.6.4 - Bug Fix Release</h3>
             <ul>
@@ -144,77 +159,99 @@
                 <li>Fix: deleting all lines in batch replace tandem mode</li>
                 <li>Fix: add index validation to stashed range marker removal</li>
                 <li>Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
-                    flagging error and warnings as search strings</li>
+                    flagging error and warnings as search strings
+                </li>
                 <li>Fix: batch replace options lost leading blank lines when saved or exported options</li>
                 <li>Fix: after paste adjustment range out of bounds exception</li>
                 <li>Fix: disabling <code>To Carets</code> button in multi-paste dialog on opening dialog</li>
                 <li>Add: paste w/o formatting action to multi-paste dialog</li>
                 <li>Add: batch replace window test for caret offset being in found range before replacing. Fixes
-                    issue with mouse click action assigned to</li>
+                    issue with mouse click action assigned to
+                </li>
                 <li>Add: convert to carets action in paste selection dialog to convert multi-line clipboard
-                    contents to multi-caret selection.</li>
+                    contents to multi-caret selection.
+                </li>
             </ul>
             <h3>1.5.0 - Bug Fix &amp; Enhancement Release</h3>
             <ul>
                 <li>Add: <code>-</code> to batch search options, when it is at beginning of line disables the row from search
                     replace ops. Quick way to disable some and enable others. Really need a dropdown or check box
-                    to control this in the margin.</li>
+                    to control this in the margin.
+                </li>
                 <li>Add: copy batch search regex to clipboard to allow global search using IDE functionality</li>
                 <li>Fix: carets keep/drop not checking if a file has a <code>virtualFile()</code> before trying to get
                     <code>PsiFile</code></li>
                 <li>Add: <code>Replace with Selection Text</code> and <code>Replace with Selection Text from List</code> actions to
-                    replace currently selected text with text from recalled selection.</li>
+                    replace currently selected text with text from recalled selection.
+                </li>
                 <li>Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons
-                    to save space.</li>
+                    to save space.
+                </li>
                 <li>Add: batch replace sort up/down for search and replace editors. Case sensitivity for the sort
-                    controlled by the <code>Case</code> checkbox.</li>
+                    controlled by the <code>Case</code> checkbox.
+                </li>
                 <li>Add: batch replace <code>Tandem Edit</code> mode, deleting or inserting lines in one editor panel
                     replicates the action to the other two. Allows to keep the search/replace/option lines aligned
-                    when adding/removing lines.</li>
+                    when adding/removing lines.
+                </li>
                 <li>Fix: batch replace to set pending if replace invoked but not enabled, to allow mouse click for
-                    replace. If word is found then will replace. Resets pending in 250 ms.</li>
+                    replace. If word is found then will replace. Resets pending in 250 ms.
+                </li>
                 <li>Fix: batch replace to disable replace/replace all/exclude if document is not writable.</li>
                 <li>Add: after batch replace Next, Prev, Replace, Replace All, Exclude/Include and Reset, give
-                    focus back to the editor.</li>
+                    focus back to the editor.
+                </li>
                 <li>Fix: batch replace Case and Word checkboxes did not update highlights when their value
-                    changed.</li>
+                    changed.
+                </li>
                 <li>Change: select word and move to next will select this word or if not identifier, the previous
                     word. Reverse for select prev word: select this word if not identifier then select next word
-                    and move to previous word.</li>
+                    and move to previous word.
+                </li>
                 <li>Fix: different camel humps mode delete would consider trailing underscores as part of the last
-                    word part. Now stops at underscores.</li>
+                    word part. Now stops at underscores.
+                </li>
                 <li>Fix: disposed editor being passed through to active editor for batch replace tool window</li>
                 <li>Add: Select word and move to next/previous word. If caret not on identifier then first move it
-                    to next/prev identifier then perform action.</li>
+                    to next/prev identifier then perform action.
+                </li>
                 <li>Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.</li>
                 <li>Add: Next/Previous highlighted word action to move caret to next/previous highlighted word</li>
                 <li>Fix: batch replace all was too slow trying to use <code>findPrev()</code>. Now does does not update
-                    highlights or caret. Just modifies document.</li>
+                    highlights or caret. Just modifies document.
+                </li>
                 <li>Add: Toggle on paste preserve action and setting to disable on paste preserve case
-                    functionality without having to change the options when it gets in the way.</li>
+                    functionality without having to change the options when it gets in the way.
+                </li>
                 <li>Fix: NPE when caret spawning/searching from active caret search</li>
                 <li>Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.</li>
                 <li>Fix: saving a new preset would reset the preset name and load the search/replace options for
-                    the first preset in the preset list.</li>
+                    the first preset in the preset list.
+                </li>
                 <li>Fix: refactor highlight and isolation line code into re-usable classes.</li>
                 <li>Fix: check box with color button rendering, add margin, border to color button and
-                    anti-aliased drawing of border.</li>
+                    anti-aliased drawing of border.
+                </li>
                 <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt;
-                    .getEditor().</li>
+                    .getEditor().
+                </li>
                 <li>Add: highlights and caret change handling for batch search/replace.</li>
                 <li>Add: tool window for batch search/replace instead of modal</li>
                 <li>Add: presets and import/export to batch search/replace to allow selecting a set of presets.</li>
                 <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
-                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.</li>
+                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
+                </li>
                 <li>Add: Batch search/replace action and dialog. Each line in search will be replaced by
                     corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
                     sensitive, <code>i</code> - case insensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> -
-                    begin word boundary.</li>
+                    begin word boundary.
+                </li>
                 <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
                 <li>Fix: plugin description forgot to update in plugin.xml for 1.4.8</li>
                 <li>Change: change caret search regex for multi-caret search on non-identifier character c to c
                     instead of exact c count, and caret spawning regex to match the exact char count with
-                    preceding and following character not being c to prevent finding stretches with greater count.</li>
+                    preceding and following character not being c to prevent finding stretches with greater count.
+                </li>
             </ul>
         </div>
         ]]></change-notes>
@@ -853,10 +890,18 @@
                 description="Batch Search/Replace...">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.GenerateExceptionAction"
+                id="MissingInActions.GenerateException"
+                text="Generate Exception"
+                icon="PluginIcons.Generate_exception"
+                description="Generates an Exception when invoked. Used to test now Action Exceptions are handled">
+        </action>
+
         <group id="MissingInActions.Toolbars" text="Missing In Actions toolbar">
             <!--<separator/>-->
             <!--<reference id="MissingInActions.BatchSearchReplace"/>-->
             <!--<separator/>-->
+            <reference id="MissingInActions.GenerateException"/>
             <reference id="MissingInActions.ToggleOnPastePreserve"/>
             <group id="MissingInActions.IsolationModeMenu"
                    class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"
@@ -911,10 +956,10 @@
             </group>
             <separator/>
             <!--<group id="MissingInActions.CaretSearchMenu"-->
-                   <!--class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"-->
-                   <!--text="Multi-Caret Search/Spawn Actions"-->
-                   <!--popup="true"-->
-                   <!--icon="PluginIcons.Menu_spawn"-->
+            <!--class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"-->
+            <!--text="Multi-Caret Search/Spawn Actions"-->
+            <!--popup="true"-->
+            <!--icon="PluginIcons.Menu_spawn"-->
             <!--&gt;-->
             <!--</group>-->
             <reference id="MissingInActions.ToggleSpawnNumericSearch"/>

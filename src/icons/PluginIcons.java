@@ -89,4 +89,5 @@ public class PluginIcons {
     public static final Icon Copy_batch_replace_regex_disabled = load("/icons/Copy_batch_replace_regex_disabled.png");
     public static final Icon Toggle_search_numeric = load("/icons/Toggle_search_numeric.png");
     public static final Icon Toggle_search_hex = load("/icons/Toggle_search_hex.png");
+    public static final Icon Generate_exception = load("/icons/svg/Generate_exception.svg");
 }

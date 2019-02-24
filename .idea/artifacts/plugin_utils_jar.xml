@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="plugin-utils:jar">
+  <artifact type="jar" name="plugin-utils:jar">
     <output-path>$PROJECT_DIR$/excluded-lib</output-path>
     <root id="archive" name="plugin-utils.jar">
       <element id="module-output" name="plugin-util" />

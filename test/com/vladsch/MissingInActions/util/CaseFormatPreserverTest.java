@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CaseFormatPreserverTest {
     private static final String[] prefixes = new String[] { "my", "our", "is", "get", "set" };
@@ -253,6 +254,15 @@ public class CaseFormatPreserverTest {
 
         s = preserved("[dash-case-name]|\n", "SCREAMING_SNAKE", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("screaming-snake\n", s);
+
+        s = preserved("boolean [isTest]|() { return this == NONE; }\n", "isParsed", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
+        assertEquals("boolean isParsed() { return this == NONE; }\n", s);
+
+        s = preserved("[name.0.parts]|", "nameTestParts", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
+        assertEquals("name.test.parts", s);
+
+        s = preserved("[name.with.parts]|", "nameTestParts", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
+        assertEquals("name.test.parts", s);
     }
 
     @Test
@@ -419,6 +429,6 @@ public class CaseFormatPreserverTest {
             System.out.print("\n};\n");
         }
 
-        assertEquals(true, allMatch);
+        assertTrue(allMatch);
     }
 }

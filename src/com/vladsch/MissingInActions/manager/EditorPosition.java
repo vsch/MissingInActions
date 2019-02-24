@@ -52,8 +52,6 @@ public class EditorPosition extends LogicalPosition {
         return myFactory;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
     public VisualPosition toVisualPosition() {
         return myFactory.getEditor().logicalToVisualPosition(this);
     }

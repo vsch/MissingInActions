@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
@@ -214,7 +215,7 @@ public class MultiPasteOptionsPane {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        myUserDefinedMacroReplaceClipContent = new JComboBox();
+        myUserDefinedMacroReplaceClipContent = new ComboBox<>();
     }
 
     public void setContentBody(String text) {

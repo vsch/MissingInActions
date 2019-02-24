@@ -167,6 +167,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     boolean myOnlyLatestBlankClipboard = false;
     boolean mySpawnNumericSearch = false;       // match all numeric sequences as opposed to specific string
     boolean mySpawnNumericHexSearch = false;    // include hex digits
+    boolean myDisableParameterInfo = false;      // include hex digits
+    boolean myShowGenerateException = false;      // include hex digits
 
     @NotNull String[] myDeleteBackspaceTests = new String[]{
             "      sample        ",
@@ -353,6 +355,22 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
 
     public void setSpawnNumericSearch(final boolean spawnNumericSearch) {
         mySpawnNumericSearch = spawnNumericSearch;
+    }
+
+    public boolean isDisableParameterInfo() {
+        return myDisableParameterInfo;
+    }
+
+    public void setDisableParameterInfo(final boolean disableParameterInfo) {
+        myDisableParameterInfo = disableParameterInfo;
+    }
+
+    public boolean isShowGenerateException() {
+        return myShowGenerateException;
+    }
+
+    public void setShowGenerateException(final boolean showGenerateException) {
+        myShowGenerateException = showGenerateException;
     }
 
     public boolean isHideDisabledButtons() {

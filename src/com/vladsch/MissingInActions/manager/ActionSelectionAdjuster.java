@@ -24,7 +24,13 @@ package com.vladsch.MissingInActions.manager;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -46,7 +52,13 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.LinePasteCaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.SelectionPredicateType;
-import com.vladsch.MissingInActions.util.*;
+import com.vladsch.MissingInActions.util.ActionContext;
+import com.vladsch.MissingInActions.util.CaretSnapshot;
+import com.vladsch.MissingInActions.util.CaseFormatPreserver;
+import com.vladsch.MissingInActions.util.ClipboardCaretContent;
+import com.vladsch.MissingInActions.util.EditorActionListener;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.flexmark.util.Pair;
 import com.vladsch.flexmark.util.ValueRunnable;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.OneTimeRunnable;
@@ -54,21 +66,35 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.datatransfer.Transferable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
-import static com.vladsch.MissingInActions.manager.ActionSetType.*;
+import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER;
+import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_LINE_UP_AUTO_INDENT_TRIGGER;
+import static com.vladsch.MissingInActions.manager.ActionSetType.MOVE_SEARCH_CARET_ACTION;
+import static com.vladsch.MissingInActions.manager.ActionSetType.SEARCH_AWARE_CARET_ACTION;
+import static com.vladsch.MissingInActions.manager.ActionSetType.SELECTION_ALWAYS_STASH;
+import static com.vladsch.MissingInActions.manager.ActionSetType.SELECTION_STASH_ACTIONS;
 import static com.vladsch.MissingInActions.manager.AdjustmentType.*;
 
 @SuppressWarnings("WeakerAccess")
 public class ActionSelectionAdjuster implements EditorActionListener, Disposable {
+    public static final AnActionEvent[] EMPTY_EVENTS = new AnActionEvent[0];
     private static final Logger LOG = getInstance("com.vladsch.MissingInActions.manager");
     private static final AnActionEvent LAST_CLEANUP_EVENT = null;
 
     final private @NotNull AfterActionList myAfterActions = new AfterActionList();
     final private @NotNull AfterActionList myAfterActionsCleanup = new AfterActionList();
+    final private @NotNull LinkedHashMap<AnActionEvent, AnAction> myActionEventActionMap = new LinkedHashMap<>();
     final private @NotNull LineSelectionManager myManager;
     final private @NotNull Editor myEditor;
     private @NotNull ActionAdjustmentMap myAdjustmentsMap = ActionAdjustmentMap.EMPTY;
@@ -151,6 +177,41 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         myRangeMarkers.dispose();
     }
 
+    final private static Pair<String, String> ACTION_BUTTON_ACTION = new Pair<>("com.intellij.openapi.actionSystem.impl.ActionButton", "performAction");
+    final private static Pair<String, String> IDE_KEY_EVENT_DISPATCHER_PROCESS_ACTION = new Pair<>("com.intellij.openapi.keymap.impl.IdeKeyEventDispatcher", "processAction");
+
+    // treat immediately followed duplicates as one call
+    final private static Pair<String, String> EDITOR_ACTION_ACTION_PERFORMED = new Pair<>("com.intellij.openapi.editor.actionSystem.EditorAction", "actionPerformed");
+
+    private boolean matchStackElement(StackTraceElement stackTraceElement, Pair<String, String> classMethod) {
+        return stackTraceElement.getClassName().equals(classMethod.getFirst()) && stackTraceElement.getMethodName().equals(classMethod.getSecond());
+    }
+
+    private int nestedStackActions(StackTraceElement[] stackTrace) {
+        // these are source action triggers
+        int levels = 0;
+        int i = stackTrace.length;
+        boolean foundStart = false;
+        int lastEditorActionPerformed = -1;
+        while (i-- > 0) {
+            StackTraceElement stackTraceElement = stackTrace[i];
+            if (!foundStart) {
+                if (matchStackElement(stackTraceElement, IDE_KEY_EVENT_DISPATCHER_PROCESS_ACTION)
+                        || matchStackElement(stackTraceElement, ACTION_BUTTON_ACTION)) {
+                    foundStart = true;
+                }
+            } else {
+                if (matchStackElement(stackTraceElement, EDITOR_ACTION_ACTION_PERFORMED)) {
+                    if (lastEditorActionPerformed != i - 1) {
+                        levels++;
+                    }
+                    lastEditorActionPerformed = i;
+                }
+            }
+        }
+        return levels;
+    }
+
     @Override
     public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
         if (EDITOR.getData(dataContext) != myEditor) {
@@ -158,6 +219,36 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
 
         int nesting = myNestingLevel.incrementAndGet();
+        if (nesting > 1) {
+            // need to validate that previous nested action(s) did not crap out or was cancelled by manager
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            int stackNesting = nestedStackActions(stackTrace);
+
+            boolean cancelledActions = stackNesting < nesting - 1;
+
+            if (cancelledActions) {
+                // cancel all above what we can see on the stack
+                AnActionEvent[] actionEvents = myActionEventActionMap.isEmpty() ? EMPTY_EVENTS : myActionEventActionMap.keySet().toArray(EMPTY_EVENTS);
+                int i = actionEvents.length;
+
+                // set current level to true level so last cleanup gets done  
+                myNestingLevel.set(actionEvents.length);
+                
+                while (i-- > stackNesting) {
+                    AnActionEvent actionEvent = actionEvents[i];
+                    AnAction anAction = myActionEventActionMap.get(actionEvent);
+                    boolean eventCrappedOut = anAction != null;
+                    if (eventCrappedOut) {
+                        afterActionPerformed(anAction, actionEvent, true);
+                    }
+                }
+
+                nesting = stackNesting + 1;
+                myNestingLevel.set(nesting);
+            }
+        }
+
+        myActionEventActionMap.put(event, action);
 
         if (nesting == 1 && canSaveSelection()) {
             // top level, can tentatively save the current selection
@@ -252,11 +343,17 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     @Override
     public void afterActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
+        afterActionPerformed(action, event, false);
+    }
+
+    public void afterActionPerformed(AnAction action, AnActionEvent event, boolean wasCancelled) {
+        myActionEventActionMap.remove(event);
+
         Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
         Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
 
         try {
-            if (runnable != null) {
+            if (runnable != null && !wasCancelled) {
                 if (debug) System.out.println("running After " + action + ", nesting: " + myNestingLevel.get() + "\n");
                 // after actions should not check for support, that was done in before, just do what is in the queue
                 guard(() -> runnable.forEach(Runnable::run));
@@ -473,9 +570,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         AnActionEvent event = createAnEvent(action, autoTriggered);
         Editor editor = EDITOR.getData(event.getDataContext());
         if (editor == myEditor) {
-            beforeActionPerformed(action, event.getDataContext(), event);
-            ActionUtil.performActionDumbAware(action, event);
-            afterActionPerformed(action, event.getDataContext(), event);
+            ActionUtil.performActionDumbAwareWithCallbacks(action, event, event.getDataContext());
         }
     }
 

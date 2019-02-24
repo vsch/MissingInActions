@@ -21,13 +21,19 @@
 
 package com.vladsch.MissingInActions;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.codeInsight.hints.ParameterHintsPassFactory;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
@@ -37,19 +43,30 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
+import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
+import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,7 +82,11 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
@@ -81,6 +102,9 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
     private boolean myInContentManipulation;
+    private boolean mySavedShowParameterHints;
+    private boolean myDisabledShowParameterHints;
+    final private boolean myParameterHintsAvailable;
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
@@ -90,6 +114,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         myActionEventEditorMap = new HashMap<>();
         myEditorActionListeners = new HashMap<>();
         myPasteOverrideComponent = null;
+        myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
 
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
@@ -115,6 +140,16 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     public void initComponent() {
         super.initComponent();
 
+        if (myParameterHintsAvailable) {
+            mySavedShowParameterHints = EditorSettingsExternalizable.getInstance().isShowParameterNameHints();
+            // restore setting on exit, just in case editor change listener didn't
+            myDelayedRunner.addRunnable(() -> {
+                EditorSettingsExternalizable.getInstance().setShowParameterNameHints(mySavedShowParameterHints);
+            });
+        }
+        
+        myDisabledShowParameterHints = false;
+
         // register editor factory listener
         final EditorFactoryListener editorFactoryListener = new EditorFactoryListener() {
             @Override
@@ -139,6 +174,27 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
                 }
             }
         });
+
+        if (myParameterHintsAvailable) {
+            FileEditorManagerListener editorManagerListener = new FileEditorManagerListener() {
+                @Override
+                public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+                }
+
+                @Override
+                public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+                }
+
+                @Override
+                public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
+                    updateEditorParameterHints(getEditorEx(event.getNewEditor()), event.getNewEditor() != event.getOldEditor());
+                }
+            };
+
+            ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorManagerListener);
+        }
 
         final IdeEventQueue.EventDispatcher eventDispatcher = new IdeEventQueue.EventDispatcher() {
             @Override
@@ -178,12 +234,58 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         });
     }
 
+    public void updateEditorParameterHints(final @Nullable Editor activeEditor, final boolean forceUpdate) {
+        if (myParameterHintsAvailable) {
+            EditorSettingsExternalizable editorSettings = EditorSettingsExternalizable.getInstance();
+            boolean wasShowParameterHints = editorSettings.isShowParameterNameHints();
+            boolean wasDisabledShowParameterHints = myDisabledShowParameterHints;
+
+            // now manage parameter hints
+            myDisabledShowParameterHints = activeEditor != null && (activeEditor.getCaretModel().getCaretCount() > 1 && ApplicationSettings.getInstance().isDisableParameterInfo());
+
+            if (!(myDisabledShowParameterHints || wasDisabledShowParameterHints)) {
+                // can update our saved setting here
+                mySavedShowParameterHints = editorSettings.isShowParameterNameHints();
+            } else {
+                boolean showParameterHints = mySavedShowParameterHints && !myDisabledShowParameterHints;
+
+                if (wasShowParameterHints != showParameterHints) {
+                    editorSettings.setShowParameterNameHints(showParameterHints);
+
+                    if (activeEditor != null) {
+                        ParameterHintsPassFactory.forceHintsUpdateOnNextPass(activeEditor);
+                        if (forceUpdate && activeEditor instanceof EditorEx) {
+                            Project project = activeEditor.getProject();
+                            VirtualFile virtualFile = ((EditorEx) activeEditor).getVirtualFile();
+                            if (project != null && virtualFile != null) {
+                                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+                                if (psiFile != null) {
+                                    DaemonCodeAnalyzer.getInstance(project).restart(psiFile);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Nullable
+    public static Editor getEditorEx(final @Nullable FileEditor fileEditor) {
+        if (fileEditor != null) {
+            if (fileEditor instanceof TextEditor) {
+                Editor editor = ((TextEditor) fileEditor).getEditor();
+                return editor;
+            }
+        }
+        return null;
+    }
+
     static String getStringContent(Transferable content) {
         if (content != null) {
             try {
-                return (String)content.getTransferData(DataFlavor.stringFlavor);
-            }
-            catch (UnsupportedFlavorException | IOException ignore) { }
+                return (String) content.getTransferData(DataFlavor.stringFlavor);
+            } catch (UnsupportedFlavorException | IOException ignore) { }
         }
         return null;
     }
@@ -191,8 +293,8 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     static boolean isBlank(CharSequence text) {
         final int iMax = text.length();
         for (int i = 0; i < iMax; i++) {
-             char c = text.charAt(i);
-             if (c != ' ' && c != '\t' && c != '\n') return false;
+            char c = text.charAt(i);
+            if (c != ' ' && c != '\t' && c != '\n') return false;
         }
         return true;
     }
@@ -501,6 +603,10 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
 
     public static Plugin getInstance() {
         return ApplicationManager.getApplication().getComponent(Plugin.class);
+    }
+
+    public boolean isParameterHintsAvailable() {
+        return myParameterHintsAvailable;
     }
 
     @SuppressWarnings("FieldCanBeLocal")

@@ -43,6 +43,7 @@ import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
+import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.ui.CheckBoxWithColorChooser;
 import com.vladsch.plugin.util.ui.Settable;
 import com.vladsch.plugin.util.ui.SettingsComponents;
@@ -111,27 +112,27 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myUpDownSelection;
     JBTextField myPrefixOnPasteText;
     JButton myEditRegExButton;
-    JComboBox myAutoLineMode;
-    JComboBox myCaretOnMoveSelectionDown;
-    JComboBox myCaretOnMoveSelectionUp;
-    JComboBox myDuplicateAtStartOrEndPredicate;
-    JComboBox myLinePasteCaretAdjustment;
-    JComboBox myMouseModifier;
-    JComboBox myRemovePrefixOnPastePattern;
-    JComboBox mySelectPastedMultiCaretPredicate;
-    JComboBox mySelectPastedPredicate;
+    JComboBox<String> myAutoLineMode;
+    JComboBox<String> myCaretOnMoveSelectionDown;
+    JComboBox<String> myCaretOnMoveSelectionUp;
+    JComboBox<String> myDuplicateAtStartOrEndPredicate;
+    JComboBox<String> myLinePasteCaretAdjustment;
+    JComboBox<String> myMouseModifier;
+    JComboBox<String> myRemovePrefixOnPastePattern;
+    JComboBox<String> mySelectPastedMultiCaretPredicate;
+    JComboBox<String> mySelectPastedPredicate;
     JCheckBox mySearchCancelOnEscape;
     JCheckBox myOnPastePreserve;
     JCheckBox myHideDisabledButtons;
     JSpinner myAutoIndentDelay;
     JSpinner mySelectionStashLimit;
-    JComboBox myPrimaryCaretThickness;
+    JComboBox<String> myPrimaryCaretThickness;
     CheckBoxWithColorChooser myPrimaryCaretColor;
-    JComboBox mySearchStartCaretThickness;
+    JComboBox<String> mySearchStartCaretThickness;
     CheckBoxWithColorChooser mySearchStartCaretColor;
-    JComboBox mySearchStartFoundCaretThickness;
+    JComboBox<String> mySearchStartFoundCaretThickness;
     CheckBoxWithColorChooser mySearchStartMatchedCaretColor;
-    JComboBox mySearchFoundCaretThickness;
+    JComboBox<String> mySearchFoundCaretThickness;
     CheckBoxWithColorChooser mySearchFoundCaretColor;
     JTextPane myCaretVisualAttributesPane;
     CheckBoxWithColorChooser myRecalledSelectionColor;
@@ -158,6 +159,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox mySpawnNumericHexSearch;
     JBCheckBox mySpawnNumericSearch;
     CustomDeleteBackspaceForm myCustomDeleteBackspaceForm;
+    private JBCheckBox myDisableParameterInfo;
+    private JBCheckBox myShowGenerateException;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -225,6 +228,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myOnlyLatestBlankClipboard, i::isOnlyLatestBlankClipboard, i::setOnlyLatestBlankClipboard),
                         component(mySpawnNumericHexSearch, i::isSpawnNumericHexSearch, i::setSpawnNumericHexSearch),
                         component(mySpawnNumericSearch, i::isSpawnNumericSearch, i::setSpawnNumericSearch),
+                        component(myDisableParameterInfo, i::isDisableParameterInfo, i::setDisableParameterInfo),
+                        component(myShowGenerateException, i::isShowGenerateException, i::setShowGenerateException),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),
@@ -264,6 +269,12 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 updateOptions(false);
             }
         };
+
+        if (!Plugin.getInstance().isParameterHintsAvailable()) {
+            myDisableParameterInfo.setEnabled(false);
+            myDisableParameterInfo.setSelected(false);
+            myDisableParameterInfo.setToolTipText(Bundle.message("settings.multi-caret.disable-parameter-info.not-available.description"));
+        }
 
         myLafManagerListener = new LafManagerListener() {
             boolean darculaUI = UIUtil.isUnderDarcula();
@@ -327,6 +338,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 updateOptions(false);
             }
         };
+        
         final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(final DocumentEvent e) {
@@ -334,6 +346,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 updateOptions(false);
             }
         };
+        
         myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
         myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
 

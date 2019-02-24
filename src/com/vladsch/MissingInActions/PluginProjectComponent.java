@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions;
 
+import com.intellij.codeInsight.hints.ParameterHintsPassFactory;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
@@ -28,10 +29,12 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +67,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     @Override
     public void dispose() {
     }
-
+    
     void propertyChange(PropertyChangeEvent evt) {
         if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
             Editor newEditor = null;
@@ -169,17 +172,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
 
             @Override
             public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
-                EditorEx activeEditor = null;
-                FileEditor fileEditor = event.getNewEditor();
-
-                if (fileEditor != null) {
-                    if (fileEditor instanceof TextEditor) {
-                        Editor editor = ((TextEditor) fileEditor).getEditor();
-                        if (editor instanceof EditorEx) {
-                            activeEditor = (EditorEx) editor;
-                        }
-                    }
-                }
+                Editor activeEditor = Plugin.getEditorEx(event.getNewEditor());
 
                 if (mySearchReplaceToolWindow != null) {
                     mySearchReplaceToolWindow.setActiveEditor(activeEditor);
