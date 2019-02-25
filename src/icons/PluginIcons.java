@@ -23,69 +23,17 @@ package icons;
 
 import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.util.IconLoader;
+import com.vladsch.plugin.util.ui.Helpers;
 
 import javax.swing.Icon;
 import javax.swing.UIManager;
 import java.util.HashMap;
 
 public class PluginIcons {
-    private static final HashMap<String, Icon> ourIconCache = new HashMap<>();
-    private static boolean ourDarkIcons = false;
-    private static boolean ourLoadSvg = false;
-    private static float ourScale = 1.0f;
-
-    public static boolean isDarcula() {
-        UIManager.LookAndFeelInfo feel = LafManager.getInstance().getCurrentLookAndFeel();
-        if (feel != null) {
-            String name = feel.getName();
-            if (name != null) {
-                return name.contains("Darcula");
-            }
-        }
-        return false;
-    }
-
     private static Icon load(String path) {
-        return IconLoader.getIcon(path, PluginIcons.class);
-        //Icon icon = null;
-        //
-        //if (!ourLoadSvg) {
-        //    icon = IconLoader.getIcon(path, PluginIcons.class);
-        //
-        //    if (path.endsWith(".svg") && icon.getIconWidth() < 16) {
-        //        ourLoadSvg = true;
-        //        icon = null;
-        //    }
-        //}
-        //
-        //if (icon == null) {
-        //    // cannot load SVG, we'll do our own
-        //    boolean darcula = isDarcula();
-        //    if (darcula != ourDarkIcons) {
-        //        ourIconCache.clear();
-        //        ourDarkIcons = darcula;
-        //        Icon dummy = IconLoader.getIcon("/icons/Accept_search.png");
-        //        ourScale = dummy.getIconWidth()/16.0f;
-        //    }
-        //
-        //    icon = ourIconCache.get(path);
-        //    if (icon == null) {
-        //        InputStream stream = PluginIcons.class.getResourceAsStream(ourDarkIcons ? path.substring(0, path.length() - 4) + "_dark.svg" : path);
-        //        if (stream == null) throw new IllegalStateException("Icon resource not found: " + path);
-        //
-        //        Image image = ImageUtils.loadSvgImageFromStream(stream, ourScale, ourScale, true);
-        //        if (image != null) {
-        //            icon = IconUtil.createImageIcon(image);
-        //        } else {
-        //            // TODO: create empty icon and return that
-        //            icon = IconLoader.getIcon(path, PluginIcons.class);
-        //        }
-        //        ourIconCache.put(path, icon);
-        //    }
-        //}
-        //return icon;
+        return Helpers.load(path, PluginIcons.class);
     }
-
+    
     public static final Icon Accept_search = load("/icons/Accept_search.png");
     public static final Icon Accept_inverted_search = load("/icons/Accept_inverted_search.png");
     public static final Icon Backward_search = load("/icons/Backward_search.png");
