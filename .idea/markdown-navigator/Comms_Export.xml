@@ -75,7 +75,6 @@
         </StylesheetProvider>
         <ScriptProviders>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.hljs.html.script" providerName="HighlightJS Script" />
-          <provider providerId="com.vladsch.idea.multimarkdown.editor.katex.html.script" providerName="Katex Script" />
           <provider providerId="com.vladsch.idea.multimarkdown.editor.mermaid.html.script" providerName="Mermaid Script" />
         </ScriptProviders>
         <cssText />

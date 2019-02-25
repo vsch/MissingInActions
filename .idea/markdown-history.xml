@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="MarkdownNavigatorHistory">
-    <PasteImageHistory filename="BeforeBuildMenu" directory="$USER_HOME$/Desktop" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="2" onPasteReferenceElement="2" cornerRadius="20" borderColor="-1966010" transparentColor="-1" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="0" trimRight="0" transparent="false" roundCorners="false" showPreview="true" bordered="false" scaled="false" cropped="false" hideInapplicableOperations="true" scale="50" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="false" showHighlights="false" mouseSelectionAddsHighlight="false" outerFilled="false" outerFillColor="-16777216" outerFillTransparent="true" outerFillAlpha="30">
-      <highlightList />
+    <PasteImageHistory filename="Screenshot_DisableParameterInfo" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="2" onPasteReferenceElement="2" cornerRadius="10" borderColor="-3092272" transparentColor="-1250068" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="2" trimRight="0" transparent="false" roundCorners="true" showPreview="true" bordered="true" scaled="true" cropped="true" hideInapplicableOperations="true" preserveLinkFormat="false" scale="40" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="true" showHighlights="true" mouseSelectionAddsHighlight="true" outerFilled="true" outerFillColor="-16777216" outerFillTransparent="true" outerFillAlpha="30">
+      <highlightList>
+        <ImageHighlight top="213" left="220" right="467" bottom="235" roundCorners="true" cornerRadius="10" bordered="true" borderColor="-2752436" borderWidth="2" innerFilled="false" innerFillColor="-1" innerFillTransparent="false" innerFillAlpha="0" shape="1" />
+      </highlightList>
       <directories>
-        <option name="$PROJECT_DIR$/resources/icons" />
         <option name="$PROJECT_DIR$/assets/images" />
-        <option name="$PROJECT_DIR$/MissingInActionsAssets/doc/YouTrack/copy-paste" />
-        <option name="$PROJECT_DIR$/MissingInActions.wiki/img" />
+        <option name="$PROJECT_DIR$/resources/icons" />
         <option name="$PROJECT_DIR$/assets/images/noload" />
+        <option name="$PROJECT_DIR$/MissingInActionsAssets/doc/comms/youtrack/copy-paste" />
+        <option name="$PROJECT_DIR$/MissingInActions.wiki/img" />
+        <option name="$PROJECT_DIR$/resources/icons/svg" />
+        <option name="$PROJECT_DIR$" />
         <option name="$PROJECT_DIR$/resources/META-INF" />
-        <option name="$USER_HOME$/Desktop" />
       </directories>
       <filenames />
     </PasteImageHistory>
-    <CopyImageHistory filename="Batch_Replace" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteReferenceElement="2" cornerRadius="20" borderColor="-16777216" transparentColor="-1" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="0" trimRight="0" transparent="false" roundCorners="false" showPreview="true" bordered="false" scaled="false" cropped="false" hideInapplicableOperations="true" scale="50" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="true" showHighlights="false" mouseSelectionAddsHighlight="false" outerFilled="false" outerFillColor="0" outerFillTransparent="true" outerFillAlpha="30">
+    <CopyImageHistory filename="Batch_Replace" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteReferenceElement="2" cornerRadius="20" borderColor="-16777216" transparentColor="-1" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="0" trimRight="0" transparent="false" roundCorners="false" showPreview="true" bordered="false" scaled="false" cropped="false" hideInapplicableOperations="true" preserveLinkFormat="false" scale="50" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="true" showHighlights="false" mouseSelectionAddsHighlight="false" outerFilled="false" outerFillColor="0" outerFillTransparent="true" outerFillAlpha="30">
       <highlightList />
       <directories>
         <option name="$PROJECT_DIR$/resources/icons" />
@@ -25,6 +28,6 @@
       </directories>
       <filenames />
     </CopyImageHistory>
-    <PasteLinkHistory onPasteImageTargetRef="3" onPasteTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteWikiElement="2" onPasteReferenceElement="2" hideInapplicableOperations="false" saveAsDefaultOnOK="false" linkFormat="0" />
+    <PasteLinkHistory onPasteImageTargetRef="3" onPasteTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteWikiElement="2" onPasteReferenceElement="2" hideInapplicableOperations="false" preserveLinkFormat="false" useHeadingForLinkText="false" saveAsDefaultOnOK="false" linkFormat="0" />
   </component>
 </project>

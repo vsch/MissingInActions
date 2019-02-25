@@ -3,6 +3,7 @@
     <scope-profiles>
       <element scope="plugin-description" profile="plugin-description" />
       <element scope="Comms" profile="Comms Export" />
+      <element scope="Version" profile="Version" />
     </scope-profiles>
   </settings>
 </component>

@@ -88,6 +88,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
+
 public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
@@ -147,7 +149,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
                 EditorSettingsExternalizable.getInstance().setShowParameterNameHints(mySavedShowParameterHints);
             });
         }
-        
+
         myDisabledShowParameterHints = false;
 
         // register editor factory listener
@@ -234,7 +236,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         });
     }
 
-    public void updateEditorParameterHints(final @Nullable Editor activeEditor, final boolean forceUpdate) {
+    public void updateEditorParameterHints(final @Nullable Editor activeEditor, boolean forceUpdate) {
         if (myParameterHintsAvailable) {
             EditorSettingsExternalizable editorSettings = EditorSettingsExternalizable.getInstance();
             boolean wasShowParameterHints = editorSettings.isShowParameterNameHints();
@@ -253,7 +255,11 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
                     editorSettings.setShowParameterNameHints(showParameterHints);
 
                     if (activeEditor != null) {
-                        ParameterHintsPassFactory.forceHintsUpdateOnNextPass(activeEditor);
+                        if (isParameterHintsForceUpdateAvailable()) {
+                            ParameterHintsPassFactory.forceHintsUpdateOnNextPass(activeEditor);
+                        } else {
+                            forceUpdate = true;
+                        }
                         if (forceUpdate && activeEditor instanceof EditorEx) {
                             Project project = activeEditor.getProject();
                             VirtualFile virtualFile = ((EditorEx) activeEditor).getVirtualFile();

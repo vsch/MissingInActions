@@ -4,44 +4,44 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.6.19 - Bug Fix Release](#1619-bug-fix-release)
-- [1.6.18 - Bug Fix Release](#1618-bug-fix-release)
-- [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
-- [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
-- [1.6.12 - Bug Fix Release](#1612-bug-fix-release)
-- [1.6.10 - Bug Fix Release](#1610-bug-fix-release)
-- [Next 1.6.8 - Bug Fix Release](#next-168-bug-fix-release)
-- [Next 1.6.6 - Bug Fix Release](#next-166-bug-fix-release)
-- [1.6.4 - Bug Fix Release](#164-bug-fix-release)
-- [1.6.2 - Bug Fix Release](#162-bug-fix-release)
-- [1.6.0 - Bug Fix & Enhancement Release](#160-bug-fix-enhancement-release)
-- [1.5.0 - Bug Fix & Enhancement Release](#150-bug-fix-enhancement-release)
-- [1.4.8 - Bug Fix Release](#148-bug-fix-release)
-- [1.4.6 - Bug Fix Release](#146-bug-fix-release)
-- [1.4.4 - Bug Fix Release](#144-bug-fix-release)
-- [1.4.2 - Enhancement Release](#142-enhancement-release)
-- [1.4.0 - Bug Fix Release](#140-bug-fix-release)
-- [1.3.0 - Bug Fix Release](#130-bug-fix-release)
-- [1.2.0 - Enhancement Release](#120-enhancement-release)
-- [1.1.7 - Enhancement Release](#117-enhancement-release)
-- [1.1.6 - Enhancement Release](#116-enhancement-release)
-- [1.1.5 - Enhancement Release](#115-enhancement-release)
-- [1.1.4 - Enhancement Release](#114-enhancement-release)
-- [1.1.3 - Bug Fix & Enhancement Release](#113-bug-fix-enhancement-release)
-- [1.1.2 - Enhancement Release](#112-enhancement-release)
-- [1.1.1 - Enhancement Release](#111-enhancement-release)
-- [1.1.0 - Enhancement Release](#110-enhancement-release)
-- [1.0.0 - Bug Fixes and Enhancements](#100-bug-fixes-and-enhancements)
-- [0.8.3 - Bug Fixes and Enhancements](#083-bug-fixes-and-enhancements)
-- [0.8.2 - Bug Fixes and Enhancements](#082-bug-fixes-and-enhancements)
-- [0.8.0 - Bug Fixes and New Features](#080-bug-fixes-and-new-features)
-- [0.7.2 - Refactoring and Code Cleanup](#072-refactoring-and-code-cleanup)
-- [0.7.0 - Enhancements](#070-enhancements)
-- [0.6.2 - Bug Fix and Features](#062-bug-fix-and-features)
-- [0.6.1 - Bug Fix and Features](#061-bug-fix-and-features)
-- [0.6.0 - Bug Fix and Features](#060-bug-fix-and-features)
-- [0.5.1 - Bug Fix](#051-bug-fix)
-- [0.5.0 - Initial Release](#050-initial-release)
+- [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
+- [1.6.18 - Bug Fix Release](#1618---bug-fix-release)
+- [1.6.16 - Bug Fix Release](#1616---bug-fix-release)
+- [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
+- [1.6.12 - Bug Fix Release](#1612---bug-fix-release)
+- [1.6.10 - Bug Fix Release](#1610---bug-fix-release)
+- [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
+- [Next 1.6.6 - Bug Fix Release](#next-166---bug-fix-release)
+- [1.6.4 - Bug Fix Release](#164---bug-fix-release)
+- [1.6.2 - Bug Fix Release](#162---bug-fix-release)
+- [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
+- [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
+- [1.4.8 - Bug Fix Release](#148---bug-fix-release)
+- [1.4.6 - Bug Fix Release](#146---bug-fix-release)
+- [1.4.4 - Bug Fix Release](#144---bug-fix-release)
+- [1.4.2 - Enhancement Release](#142---enhancement-release)
+- [1.4.0 - Bug Fix Release](#140---bug-fix-release)
+- [1.3.0 - Bug Fix Release](#130---bug-fix-release)
+- [1.2.0 - Enhancement Release](#120---enhancement-release)
+- [1.1.7 - Enhancement Release](#117---enhancement-release)
+- [1.1.6 - Enhancement Release](#116---enhancement-release)
+- [1.1.5 - Enhancement Release](#115---enhancement-release)
+- [1.1.4 - Enhancement Release](#114---enhancement-release)
+- [1.1.3 - Bug Fix & Enhancement Release](#113---bug-fix--enhancement-release)
+- [1.1.2 - Enhancement Release](#112---enhancement-release)
+- [1.1.1 - Enhancement Release](#111---enhancement-release)
+- [1.1.0 - Enhancement Release](#110---enhancement-release)
+- [1.0.0 - Bug Fixes and Enhancements](#100---bug-fixes-and-enhancements)
+- [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
+- [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
+- [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
+- [0.7.2 - Refactoring and Code Cleanup](#072---refactoring-and-code-cleanup)
+- [0.7.0 - Enhancements](#070---enhancements)
+- [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
+- [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
+- [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
+- [0.5.1 - Bug Fix](#051---bug-fix)
+- [0.5.0 - Initial Release](#050---initial-release)
 
 
 &nbsp;<details id="todo"><summary>**To Do List**</summary>
@@ -74,41 +74,33 @@
 
 * [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
       using line mouse selection.
-* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret is
-  already on last line or using line mouse selection.
+* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
+      is already on last line or using line mouse selection.
 * [ ] Add: for multi-caret left/right skip parameter info unless all carets have parameter info
       in the same direction as the move. This is an alternative to turning off parameter info
       for multi-caret mode.
-* Fix: case preserving duplicate for carets paste screws up when pasting:
-        
-        isParsed
-        isTextOnly
-        isSuppressed
-        isUnwrapSingleCell
-        
-  Over selected `isTest` in `boolean isTest() { return this == NONE; }`, cannot duplicate. Must
-  be a glitch from some exception causing the afterAction not to be invoked.
 * [ ] Fix: dot case preservation should not match if any parts is all numeric. ie. each dot
       separated part should start with a non-digit, match identifier requirements. Cannot
       duplicate not sure if applies. For example: `name.0.parts` pasted over with
-      `textWithSuffix` should it be `text.with.suffix` or `textWithSuffix`? 
+      `textWithSuffix` should it be `text.with.suffix` or `textWithSuffix`?
 * [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
 
-### 1.6.19 - Bug Fix Release
+### 1.6.20 - Bug Fix Release
 
-* [x] Add: option to turn off IDE parameter info when using multi-caret mode
-* [x] Fix: handling of `beforeActionPerformed` without corresponding `afterActionPerformed`.
+* Fix: clear out empty stored selections
+* Add: option to turn off IDE parameter info when using multi-caret mode
+* Fix: handling of `beforeActionPerformed` without corresponding `afterActionPerformed`.
       Otherwise, the plugin would think all subsequent actions are nested actions and not handle
       selection storage/recall or do proper cleanup in afterActionPerformed.
 
-      This happens on action exception or premature before call then no actual `actionPerformed`
-      call on the action, like
-      `com.intellij.openapi.actionSystem.impl.ActionButton.performAction` which fires before
-      action then checks to see if there is a context component and if not returns without
-      corresponding `actionPerformed` on the action and `afterActionPerformed` callbacks.
+  This happens on action exception or premature before call then no actual `actionPerformed`
+  call on the action, like `com.intellij.openapi.actionSystem.impl.ActionButton.performAction`
+  which fires before action then checks to see if there is a context component and if not
+  returns without corresponding `actionPerformed` on the action and `afterActionPerformed`
+  callbacks.
 * Fix: update to latest libs
-* Fix: missing toolbar button for `Recall selection from list` 
+* Fix: missing toolbar button for `Recall selection from list`
 
 ### 1.6.18 - Bug Fix Release
 
@@ -124,7 +116,7 @@
 * Fix: reduce tool window border
 * Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
   type.
-  
+
 ### 1.6.14 - Bug Fix Release
 
 * Fix: 2016.3 paste from history compatibility
@@ -379,27 +371,27 @@
 * Add: Word Highlighting Actions, toolbar buttons and settings:
 
   * Toggle highlight word mode
-    ![Toggle Word Highlights](/resources/icons/Toggle_word_highlights%402x.png): turns
-    highlighted words on/off. Can be used to turn off highlights without clearing highlight word
-    list.
+    ![Toggle Word Highlights](/resources/icons/Toggle_word_highlights%402x.png)
+    \: turns highlighted words on/off. Can be used to turn off highlights without clearing
+    highlight word list.
   * Toggle highlight word case sensitive mode
-    ![Toggle Case Sensitive Highlights](/resources/icons/Toggle_case_sensitive_highlights%402x.png):
-    toggles highlight word case sensitive matching on/off.
+    ![Toggle Case Sensitive Highlights](/resources/icons/Toggle_case_sensitive_highlights%402x.png)
+    \: toggles highlight word case sensitive matching on/off.
   * Clear highlighted words
-    ![Clear Word Highlights](/resources/icons/Clear_word_highlights%402x.png): clears all
-    highlighted words.
+    ![Clear Word Highlights](/resources/icons/Clear_word_highlights%402x.png)
+    \: clears all highlighted words.
   * Add selection to highlighted words
-    ![Add Word Highlight](/resources/icons/Add_word_highlight%402x.png): adds the current
-    carets' selection to list of highlighted words.
+    ![Add Word Highlight](/resources/icons/Add_word_highlight%402x.png)
+    \: adds the current carets' selection to list of highlighted words.
   * Remove selection from highlighted words
-    ![Remove Word Highlight](/resources/icons/Remove_word_highlight%402x.png): adds the current
-    carets' selection to list of highlighted words.
+    ![Remove Word Highlight](/resources/icons/Remove_word_highlight%402x.png)
+    \: adds the current carets' selection to list of highlighted words.
   * Keep carets whose selections are highlighted words
-    ![Keep Word Highlighted Carets](/resources/icons/Keep_word_highlighted_carets%402x.png):
-    removes all carets without selection or whose selection text is not a highlighted word.
+    ![Keep Word Highlighted Carets](/resources/icons/Keep_word_highlighted_carets%402x.png)
+    \: removes all carets without selection or whose selection text is not a highlighted word.
   * Remove selection from highlighted words.
-    ![Remove Word Highlighted Carets](/resources/icons/Remove_word_highlighted_carets%402x.png):
-    removes all carets whose selection text is a highlighted word.
+    ![Remove Word Highlighted Carets](/resources/icons/Remove_word_highlighted_carets%402x.png)
+    \: removes all carets whose selection text is a highlighted word.
   * Setting allows to define the background colors to be used for highlighted words based on
     hue, saturation and brightness boundaries and steps.
 
@@ -813,7 +805,6 @@
   * on all lines
   * only on non-blank lines
   * only on blank lines
-
 
 [Readme]: https://github.com/vsch/MissingInActions/blob/master/README.md
 

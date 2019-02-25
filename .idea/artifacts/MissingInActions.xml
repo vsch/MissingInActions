@@ -1,12 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="MissingInActions">
     <output-path>$PROJECT_DIR$/out/artifacts</output-path>
-    <properties id="ant-postprocessing">
-      <options>
-        <file>file://$PROJECT_DIR$/miaRelease.xml</file>
-        <target>zip</target>
-      </options>
-    </properties>
     <root id="archive" name="MissingInActions.jar">
       <element id="module-output" name="MissingInActions" />
       <element id="module-output" name="plugin-util" />

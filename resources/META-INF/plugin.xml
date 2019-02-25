@@ -81,14 +81,26 @@
         ]]>
     </description>
 
-    <version>1.6.19</version>
+    <version>1.6.20</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.6.19 - Bug Fix Release</h3>
+            <h3>1.6.20 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: clear out empty stored selections</li>
+                <li>Add: option to turn off IDE parameter info when using multi-caret mode</li>
+                <li>
+                    <p>Fix: handling of <code>beforeActionPerformed</code> without corresponding <code>afterActionPerformed</code>.
+                        Otherwise, the plugin would think all subsequent actions are nested actions and not handle
+                        selection storage/recall or do proper cleanup in afterActionPerformed.</p>
+                    <p>This happens on action exception or premature before call then no actual <code>actionPerformed</code>
+                        call on the action, like <code>com.intellij.openapi.actionSystem.impl.ActionButton.performAction</code>
+                        which fires before action then checks to see if there is a context component and if not
+                        returns without corresponding <code>actionPerformed</code> on the action and <code>afterActionPerformed</code>
+                        callbacks.</p>
+                </li>
                 <li>Fix: update to latest libs</li>
                 <li>Fix: missing toolbar button for <code>Recall selection from list</code></li>
             </ul>
