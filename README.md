@@ -93,9 +93,9 @@ Adds missing editor actions for end of word navigation but that is just the begi
 ## Version 1.6.20 - Bug Fix Release
 
 [Version Notes][] [Download Latest 1.6.20 from this repo][]
-* New: option `` to turn off IDE parameter info when using multi-caret mode. Otherwise carets
-  can windup on different sides of the parameter name info resulting in different positions in
-  real text after caret move left/right.
+* New: option `Disable parameter info in multi-caret mode` to turn off IDE parameter info when
+  using multi-caret mode. Otherwise carets can windup on different sides of the parameter name
+  info resulting in different positions in real text after caret move left/right.
   
   ![ScreenShot_DisableParameterInfo](assets/images/ScreenShot_DisableParameterInfo.png)
 * Fix: clear out empty stored selections
