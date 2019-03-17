@@ -84,6 +84,10 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
 public abstract class MultiplePasteActionBase extends AnAction implements DumbAware {
     static final Logger LOG = getInstance("com.vladsch.MissingInActions.actions");
+    private static final int PASTE_WITH_CARETS = 1;
+    private static final int PASTE_SPLICED = 2;
+    private static final int PASTE_SIMPLE = 3;
+    private static final int PASTE_SPLICED_AND_QUOTED = 4;
     String myEolText;
 
     public MultiplePasteActionBase() {
@@ -382,25 +386,25 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 Action[] actions = super.createActions();
                 if (canCreateMultiCarets) {
                     int actionOffset = haveSimplePasteAction ? 1 : 0;
-                    Action[] multiCaretActions = new Action[actions.length + 2 + actionOffset];
+                    Action[] multiCaretActions = new Action[actions.length + 3 + actionOffset];
                     System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
                     //noinspection SerializableInnerClassWithNonSerializableOuterClass
                     Action createWithMultiCarets = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
-                            alternateAction[0] = 1;
+                            alternateAction[0] = PASTE_WITH_CARETS;
                             super.doAction(e);
                         }
                     };
                     final String name = getCreateWithCaretsName(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
-                    multiCaretActions[actions.length + 1 + actionOffset] = createWithMultiCarets;
+                    multiCaretActions[actions.length + 2 + actionOffset] = createWithMultiCarets;
 
                     // create merge comma separate
                     Action spliceCommaSeparated = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
-                            alternateAction[0] = 2;
+                            alternateAction[0] = PASTE_SPLICED;
                             super.doAction(e);
                         }
                     };
@@ -408,12 +412,24 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     spliceCommaSeparated.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
                     multiCaretActions[actions.length + actionOffset] = spliceCommaSeparated;
 
+                    // create merge comma separate
+                    Action splicedQuoted = new OkAction() {
+                        @Override
+                        protected void doAction(final ActionEvent e) {
+                            alternateAction[0] = PASTE_SPLICED_AND_QUOTED;
+                            super.doAction(e);
+                        }
+                    };
+
+                    splicedQuoted.putValue(Action.NAME, Bundle.message("content-chooser.splice-and-quote.label"));
+                    multiCaretActions[actions.length + 1 + actionOffset] = splicedQuoted;
+
                     if (haveSimplePasteAction) {
                         // create simple paste
                         Action pasteSimple = new OkAction() {
                             @Override
                             protected void doAction(final ActionEvent e) {
-                                alternateAction[0] = 3;
+                                alternateAction[0] = PASTE_SIMPLE;
                                 super.doAction(e);
                             }
                         };
@@ -678,8 +694,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 }
 
                 //int selectedIndex = myEmptyContentDescription.getSelectedClipboardContentIndex();
-                boolean recreateCarets = alternateAction[0] == 1;
-                if (alternateAction[0] == 2) {
+                boolean recreateCarets = alternateAction[0] == PASTE_WITH_CARETS;
+                if (alternateAction[0] == PASTE_SPLICED) {
                     // we handle the splicing and adding this content to the clipboard
                     final Transferable contents = CopyPasteManager.getInstance().getContents();
                     if (contents != null) {
@@ -687,7 +703,21 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         if (clipboardCaretContent != null) {
                             Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
                                     , settings.getSpliceDelimiterText()
-                                    , settings.isQuoteSplicedItems()
+                                    , false //settings.isQuoteSplicedItems()
+                                    , settings.getOpenQuoteText()
+                                    , settings.getClosedQuoteText());
+                            CopyPasteManager.getInstance().setContents(mergedTransferable);
+                        }
+                    }
+                } else if (alternateAction[0] == PASTE_SPLICED_AND_QUOTED) {
+                    // we handle the splicing and adding this content to the clipboard
+                    final Transferable contents = CopyPasteManager.getInstance().getContents();
+                    if (contents != null) {
+                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+                        if (clipboardCaretContent != null) {
+                            Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
+                                    , settings.getSpliceDelimiterText()
+                                    , true//settings.isQuoteSplicedItems()
                                     , settings.getOpenQuoteText()
                                     , settings.getClosedQuoteText());
                             CopyPasteManager.getInstance().setContents(mergedTransferable);
@@ -695,7 +725,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     }
                 }
 
-                final AnAction pasteAction = alternateAction[0] == 2 ? simplePasteAction : getPasteAction(editor, recreateCarets);
+                final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED || alternateAction[0] == PASTE_SPLICED_AND_QUOTED ? simplePasteAction : getPasteAction(editor, recreateCarets);
 
                 if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
                     // need to create the replaced content

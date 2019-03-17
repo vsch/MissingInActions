@@ -69,6 +69,7 @@ public class MultiPasteOptionsPane {
         mySettingsChangedRunnable = null;
         mySettings = ApplicationSettings.getInstance();
         myTextContent = "";
+        myQuoteSplicedItems.setVisible(false);
 
         myShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
         myMultiPasteShowEolInViewer.setSelected(mySettings.isMultiPasteShowEolInViewer());

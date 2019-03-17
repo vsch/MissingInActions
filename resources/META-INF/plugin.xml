@@ -74,19 +74,33 @@
                 </li>
             </ul>
             <p><strong>Plugin website:
-                <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
+                <a href="https://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Repo</span></a></strong></p>
             <p><strong>Bug tracking &amp; feature requests:
-                <a href="http://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Issues</span></a></strong></p>
+                <a href="https://github.com/vsch/MissingInActions"><span style="color:#30A0D8">Missing In Actions GitHub Issues</span></a></strong></p>
         </div>
         ]]>
     </description>
 
-    <version>1.6.27</version>
+    <version>1.7.0</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.7.0 - Enhancement Release</h3>
+            <ul>
+                <li>Fix: shorted all clipboard history paste buttons to remove common <code>Paste</code> prefix</li>
+                <li>Add: separate <code>Quoted Spliced</code> button to eliminate sticky quoted flag affecting <code>Spliced</code></li>
+                <li>Add: multiple caret clipboard content is now shared between IDE instances so copying in one
+                    and pasting in another does not loose the clipboard caret information.
+                </li>
+                <li>Fix: incorrect paste location for duplicate for carets and paste if pasting in trailing
+                    blanks. Cannot reproduce.
+                </li>
+                <li>Fix: incorrect duplicate for carets result if primary caret has selection and is not at
+                    the start or end of its selection.
+                </li>
+            </ul>
             <h3>1.6.20 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: clear out empty stored selections</li>
@@ -128,7 +142,7 @@
         <extensionPoint qualifiedName="com.vladsch.shared.clipboard.data.provider"
                         interface="com.vladsch.MissingInActions.util.SharedClipboardDataProvider"/>
     </extensionPoints>
-    
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationConfigurable id="MissingInActions.Settings.Application"

@@ -30,7 +30,10 @@ import com.vladsch.plugin.util.clipboard.ClipboardUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
+import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.Externalizable;
@@ -43,6 +46,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.BiFunction;
 
+import static com.vladsch.plugin.util.AppUtils.isClipboardChangeNotificationsAvailable;
+
 public class SharedCaretStateTransferableData implements TextBlockTransferableData, Externalizable {
     private static final Logger LOG = ClipboardUtils.LOG;
     private final static ExtensionPointName<SharedClipboardDataProvider> EP_NAME = ExtensionPointName.create("com.vladsch.shared.clipboard.data.provider");
@@ -54,7 +59,7 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
     private static boolean sharingCaretState = false;
     private static boolean initialized = false;
     private static HashMap<String, BiFunction<Transferable, DataFlavor, Object>> sharedDataLoaders = new HashMap<>();
-    
+
     private int[] startOffsets;
     private int[] endOffsets;
 
@@ -144,9 +149,16 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
         return data;
     }
 
-    private static final CopyPasteManager.ContentChangedListener ourContentChangedListener = new CopyPasteManager.ContentChangedListener() {
+    final private static CopyPasteManager.ContentChangedListener ourContentChangedListener = new CopyPasteManager.ContentChangedListener() {
         @Override
         public void contentChanged(@Nullable final Transferable oldTransferable, final Transferable newTransferable) {
+            replaceClipboardIfNeeded();
+        }
+    };
+
+    final private static FlavorListener ourFlavorListener = new FlavorListener() {
+        @Override
+        public void flavorsChanged(FlavorEvent e) {
             replaceClipboardIfNeeded();
         }
     };
@@ -252,11 +264,21 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
     public static void initialize() {
         if (!initialized) {
             initialized = true;
-            
+
             for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
                 provider.initialize((flavor, loader) -> {
                     sharedDataLoaders.put(flavor.getMimeType(), loader);
                 });
+            }
+
+            if (!isClipboardChangeNotificationsAvailable()) {
+                Clipboard clipboard = ClipboardUtils.getSystemClipboard();
+                if (clipboard != null) {
+                    clipboard.addFlavorListener(ourFlavorListener);
+                    LOG.warn("Registered system clipboard listener for legacy IDE");
+                } else {
+                    LOG.warn("Could not register system clipboard listener for legacy IDE");
+                }
             }
 
             CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener);
