@@ -27,7 +27,6 @@ import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
-import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -103,7 +102,6 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
     final private HashSet<Editor> myPasteOverrideEditors;
     final private AnAction myMultiPasteAction;
-    private ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
     private boolean myInContentManipulation;
     private boolean mySavedShowParameterHints;
@@ -128,9 +126,6 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         myPasteOverrideComponent = null;
         myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
 
-        mySettings = ApplicationSettings.getInstance();
-        settingsChanged(mySettings);
-
         clearHighlights();
     }
 
@@ -149,8 +144,16 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     }
 
     @Override
+    public void disposeComponent() {
+        super.disposeComponent();
+    }
+
+    @Override
     public void initComponent() {
         super.initComponent();
+
+        SharedCaretStateTransferableData.initialize();
+        myDelayedRunner.addRunnable(SharedCaretStateTransferableData::dispose);
 
         if (myParameterHintsAvailable) {
             mySavedShowParameterHints = EditorSettingsExternalizable.getInstance().isShowParameterNameHints();
@@ -426,13 +429,6 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         }
     }
 
-    @Override
-    public void disposeComponent() {
-        LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
-
-        myDelayedRunner.runAll();
-    }
-
     void initProjectComponent(@NotNull Project project) {
 
     }
@@ -475,6 +471,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
         }
 
         super.settingsChanged(settings);
+
         myRestartRequiredChecker.informRestartIfNeeded(settings);
     }
 
@@ -518,7 +515,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     }
 
     // EditorFactoryListener
-    void editorCreated(@NotNull EditorFactoryEvent event) {
+    private void editorCreated(@NotNull EditorFactoryEvent event) {
         final Editor editor = event.getEditor();
         LineSelectionManager manager = new LineSelectionManager(editor);
         myLineSelectionManagers.put(editor, manager);
@@ -544,7 +541,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     }
 
     // EditorFactoryListener
-    void editorReleased(@NotNull EditorFactoryEvent event) {
+    private void editorReleased(@NotNull EditorFactoryEvent event) {
         myDelayedRunner.runAllFor(event.getEditor());
     }
 
@@ -582,7 +579,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     //    }
     //}
 
-    boolean dispatch(@NotNull final AWTEvent e) {
+    private boolean dispatch(@NotNull final AWTEvent e) {
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
                 return component instanceof JTextComponent;

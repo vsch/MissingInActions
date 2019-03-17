@@ -17,33 +17,132 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.codeInsight.editorActions.TextBlockTransferable;
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretStateTransferableData;
+import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.ide.CopyPasteManager;
-import com.intellij.openapi.util.SystemInfo;
 import com.vladsch.plugin.util.clipboard.AugmentedTextBlockTransferable;
-import com.vladsch.plugin.util.clipboard.TextBlockDataFlavorRegistrar;
+import com.vladsch.plugin.util.clipboard.ClipboardUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.function.BiFunction;
 
-public class SharedCaretStateTransferableData {
-    private static final Logger LOG = Logger.getInstance("com.vladsch.plugin.util.clipboard");
+public class SharedCaretStateTransferableData implements TextBlockTransferableData, Externalizable {
+    private static final Logger LOG = ClipboardUtils.LOG;
+    private final static ExtensionPointName<SharedClipboardDataProvider> EP_NAME = ExtensionPointName.create("com.vladsch.shared.clipboard.data.provider");
 
-    private static final DataFlavor ORIGINAL_FLAVOR = CaretStateTransferableData.FLAVOR;
-    private static DataFlavor ourFlavor = null;
-    private static final Object ourFlavorLock = new Object();
+    private static final DataFlavor SHARED_FLAVOR = ClipboardUtils.createDataFlavor("application/x-caret-state", "Shared Caret State", SharedCaretStateTransferableData.class, null, true);
+    private static final int[] EMPTY_OFFSETS = new int[0];
 
     private static boolean inReplaceContent = false;
+    private static boolean sharingCaretState = false;
+    private static boolean initialized = false;
+    private static HashMap<String, BiFunction<Transferable, DataFlavor, Object>> sharedDataLoaders = new HashMap<>();
+    
+    private int[] startOffsets;
+    private int[] endOffsets;
+
+    public SharedCaretStateTransferableData() {
+        this(EMPTY_OFFSETS, EMPTY_OFFSETS);
+    }
+
+    public SharedCaretStateTransferableData(@NotNull CaretStateTransferableData other) {
+        this(other.startOffsets, other.endOffsets);
+    }
+
+    private SharedCaretStateTransferableData(@NotNull final int[] startOffsets, @NotNull final int[] endOffsets) {
+        this.startOffsets = startOffsets;
+        this.endOffsets = endOffsets;
+    }
+
+    public int[] getStartOffsets() {
+        return startOffsets;
+    }
+
+    public int[] getEndOffsets() {
+        return endOffsets;
+    }
+
+    public DataFlavor getFlavor() {
+        return SHARED_FLAVOR;
+    }
+
+    @Override
+    public int getPriority() {
+        return -100; // uses -ve of that for sorting up
+    }
+
+    @Override
+    public int getOffsetCount() {
+        return startOffsets.length + endOffsets.length;
+    }
+
+    @Override
+    public int getOffsets(final int[] offsets, final int index) {
+        System.arraycopy(startOffsets, 0, offsets, index, startOffsets.length);
+        System.arraycopy(endOffsets, 0, offsets, index + startOffsets.length, endOffsets.length);
+        return index + getOffsetCount();
+    }
+
+    @Override
+    public int setOffsets(final int[] offsets, final int index) {
+        System.arraycopy(offsets, index, startOffsets, 0, startOffsets.length);
+        System.arraycopy(offsets, index + startOffsets.length, endOffsets, 0, endOffsets.length);
+        return index + getOffsetCount();
+    }
+
+    // this will not change unless CaretStateTransferableData adds more data, unlikely
+    static final long serialVersionUID = 0;
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        writeIntArray(out, startOffsets);
+        writeIntArray(out, endOffsets);
+    }
+
+    private void writeIntArray(final ObjectOutput out, int[] data) throws IOException {
+        int iMax = data.length;
+        out.writeInt(iMax);
+
+        for (int i = 0; i < iMax; i++) {
+            out.writeInt(data[i]);
+        }
+    }
+
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        startOffsets = readIntArray(in);
+        endOffsets = readIntArray(in);
+    }
+
+    private int[] readIntArray(final ObjectInput in) throws IOException {
+        int iMax = in.readInt();
+        if (iMax == 0) return EMPTY_OFFSETS;
+
+        int[] data = new int[iMax];
+
+        for (int i = 0; i < iMax; i++) {
+            data[i] = in.readInt();
+        }
+
+        return data;
+    }
 
     private static final CopyPasteManager.ContentChangedListener ourContentChangedListener = new CopyPasteManager.ContentChangedListener() {
         @Override
@@ -51,6 +150,30 @@ public class SharedCaretStateTransferableData {
             replaceClipboardIfNeeded();
         }
     };
+
+    private static SharedCaretStateTransferableData getSharedDataOrNull(@NotNull Transferable transferable) {
+        try {
+            return (SharedCaretStateTransferableData) transferable.getTransferData(SHARED_FLAVOR);
+        } catch (UnsupportedFlavorException e) {
+            LOG.error(e);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
+        return null;
+    }
+
+    private static class SharedClipboardDataBuilderImpl implements SharedClipboardDataBuilder {
+        LinkedHashMap<TextBlockTransferableData, BiFunction<Transferable, DataFlavor, Object>> augmentedData = new LinkedHashMap<>();
+
+        public void addSharedClipboardData(@NotNull TextBlockTransferableData textBlock, @Nullable BiFunction<Transferable, DataFlavor, Object> dataLoader) {
+            String mimeType = textBlock.getFlavor().getMimeType();
+            augmentedData.put(textBlock, dataLoader);
+        }
+
+        public boolean isEmpty() {
+            return augmentedData.isEmpty();
+        }
+    }
 
     private static void replaceClipboardIfNeeded() {
         if (!inReplaceContent) {
@@ -60,39 +183,58 @@ public class SharedCaretStateTransferableData {
 
             Transferable transferable = CopyPasteManager.getInstance().getContents();
 
-            if (transferable != null &&
-                    !(transferable instanceof AugmentedTextBlockTransferable) &&
-                    !(transferable instanceof TextBlockTransferable) &&
-                    transferable.isDataFlavorSupported(DataFlavor.stringFlavor) &&
-                    transferable.isDataFlavorSupported(CaretStateTransferableData.FLAVOR)) {
-                // see if have other flavours on the clipboard 
-                Transferable newTransferable = TextBlockDataFlavorRegistrar.getInstance().augmentTransferable(transferable);
-                if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
+            SharedClipboardDataBuilderImpl builder = new SharedClipboardDataBuilderImpl();
 
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    CopyPasteManagerEx.getInstanceEx().setContents(newTransferable);
-                    inReplaceContent = false;
-                    if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
-                }, ModalityState.any());
-            } else {
-                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update not needed");
-                inReplaceContent = false;
+            if (transferable != null) {
+                if (transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    boolean caretSupported = transferable.isDataFlavorSupported(CaretStateTransferableData.FLAVOR);
+                    boolean sharedCaretSupported = transferable.isDataFlavorSupported(SHARED_FLAVOR);
+
+                    if (sharingCaretState) {
+                        if (caretSupported && !sharedCaretSupported) {
+                            // need to add shared state
+                            CaretStateTransferableData caretData = (CaretStateTransferableData) ClipboardUtils.getTransferDataOrNull(transferable, CaretStateTransferableData.FLAVOR);
+                            if (caretData != null) {
+                                builder.addSharedClipboardData(new SharedCaretStateTransferableData(caretData), (transferable1, flavor) -> getSharedDataOrNull(transferable1));
+                            }
+                        } else if (!caretSupported && sharedCaretSupported) {
+                            // need to add caret state
+                            SharedCaretStateTransferableData sharedCaretData = getSharedDataOrNull(transferable);
+                            if (sharedCaretData != null) {
+                                builder.addSharedClipboardData(new CaretStateTransferableData(sharedCaretData.startOffsets, sharedCaretData.endOffsets), null);
+                            }
+                        }
+                    }
+
+                    // let EPs contribute
+                    for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
+                        provider.addSharedClipboardData(transferable, builder);
+                    }
+
+                    if (!builder.isEmpty()) {
+                        Transferable newTransferable = AugmentedTextBlockTransferable.create(transferable, builder.augmentedData, sharedDataLoaders);
+                        if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
+
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            CopyPasteManagerEx.getInstanceEx().setContents(newTransferable);
+                            inReplaceContent = false;
+                            if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
+                        }, ModalityState.any());
+
+                        return;
+                    }
+                }
             }
+
+            if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update not needed");
+            inReplaceContent = false;
         }
     }
 
-    @Nullable
-    private static Clipboard getSystemClipboard() {
-        try {
-            return Toolkit.getDefaultToolkit().getSystemClipboard();
-        } catch (IllegalStateException e) {
-            if (SystemInfo.isWindows) {
-                LOG.debug("Clipboard is busy");
-            } else {
-                LOG.warn(e);
-            }
-            return null;
-        }
+    private static <T> void changeFinalValue(final Field field, Object instance, T data) throws IllegalAccessException, NoSuchFieldException {
+        makeNonFinal(field);
+        field.set(instance, data);
+        makeFinal(field);
     }
 
     private static void makeNonFinal(final Field field) throws IllegalAccessException, NoSuchFieldException {
@@ -107,53 +249,34 @@ public class SharedCaretStateTransferableData {
         modifiers.setInt(field, field.getModifiers() | Modifier.FINAL);
     }
 
-    public static void shareCaretStateTransferable() {
-        // need to replace its FLAVOR with ours using reflection
-        if (ourFlavor == null) {
-            synchronized (ourFlavorLock) {
-                if (ourFlavor == null) {
-                    ourFlavor = TextBlockDataFlavorRegistrar.getInstance().getOrCreateDataFlavor("application/x-multi-caret-info",
-                            "Shared Caret State",
-                            CaretStateTransferableData.class,
-                            null,
-                            true,
-                            null
-                    );
-                }
+    public static void initialize() {
+        if (!initialized) {
+            initialized = true;
+            
+            for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
+                provider.initialize((flavor, loader) -> {
+                    sharedDataLoaders.put(flavor.getMimeType(), loader);
+                });
             }
-        }
-
-        Class caretTransferable = CaretStateTransferableData.class;
-        try {
-            Field flavor = caretTransferable.getField("FLAVOR");
-            makeNonFinal(flavor);
-            flavor.set(null, ourFlavor);
-            makeFinal(flavor);
 
             CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener);
-
             ApplicationManager.getApplication().invokeLater(SharedCaretStateTransferableData::replaceClipboardIfNeeded);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         }
     }
 
-    public static void unshareCaretStateTransferable() {
-        // restore old value
-        Class caretTransferable = CaretStateTransferableData.class;
-        try {
-            Field flavor = caretTransferable.getField("FLAVOR");
-            makeNonFinal(flavor);
-            flavor.set(null, ORIGINAL_FLAVOR);
-            makeFinal(flavor);
-
+    public static void dispose() {
+        if (initialized) {
+            initialized = false;
             CopyPasteManager.getInstance().removeContentChangedListener(ourContentChangedListener);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         }
+    }
+
+    public static void shareCaretStateTransferable() {
+        sharingCaretState = true;
+        if (initialized) ApplicationManager.getApplication().invokeLater(SharedCaretStateTransferableData::replaceClipboardIfNeeded);
+    }
+
+    public static void unshareCaretStateTransferable() {
+        sharingCaretState = false;
     }
 }

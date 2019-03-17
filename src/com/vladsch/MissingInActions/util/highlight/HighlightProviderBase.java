@@ -51,7 +51,7 @@ public abstract class HighlightProviderBase implements HighlightProvider, Dispos
     protected @NotNull ApplicationSettings mySettings;
 
     private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
-    final HashSet<HighlightListener> myHighlightListeners;
+    private final HashSet<HighlightListener> myHighlightListeners;
 
     public HighlightProviderBase(@NotNull ApplicationSettings settings) {
         mySettings = settings;

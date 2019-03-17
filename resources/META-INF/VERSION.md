@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.6.25 - Bug Fix Release](#1625---bug-fix-release)
+- [1.6.27 - Bug Fix Release](#1627---bug-fix-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
 - [1.6.18 - Bug Fix Release](#1618---bug-fix-release)
 - [1.6.16 - Bug Fix Release](#1616---bug-fix-release)
@@ -87,7 +87,7 @@
 * [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
 
-### 1.6.25 - Bug Fix Release
+### 1.6.27 - Bug Fix Release
 
 * [ ] Add: separate Paste Quoted button to eliminate sticky quoted flag
 * [ ] Add: save highlight state in local settings to restore on IDE startup
@@ -98,8 +98,7 @@
   * [ ] Add: copy profile under a new name and/or to another open project batch search window,
         with overwrite prompting.
 * [x] Add: copy multi-caret text puts another flavour on the clipboard to allow Mia running in
-      another IDE instance to make multiple carets transferable between IDE instances. Only
-      supported if JetBrains makes `CaretStateTransferableData` implement `Serializable`,  
+      another IDE instance to make multiple carets transferable between IDE instances. 
 * [x] Add: register IDE caret state transferable so it can be shared between IDEs, as long as
       Mia is installed. Allows sharing multi-caret paste between IDEs
 * [x] Fix: incorrect paste location for duplicate for carets and paste if pasting in trailing

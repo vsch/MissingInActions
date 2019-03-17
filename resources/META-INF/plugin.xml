@@ -81,9 +81,8 @@
         ]]>
     </description>
 
-    <version>1.6.25</version>
+    <version>1.6.27</version>
     <depends>com.intellij.modules.lang</depends>
-    <depends optional="false">com.vladsch.plugins.sharedResourceRegistrar</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
@@ -123,15 +122,13 @@
         <component>
             <implementation-class>com.vladsch.MissingInActions.settings.ApplicationSettings</implementation-class>
         </component>
-        <component>
-            <implementation-class>com.vladsch.plugin.util.clipboard.TextBlockDataFlavorRegistrar</implementation-class>
-        </component>
     </application-components>
 
-    <extensions defaultExtensionNs="com.vladsch.shared.plugin">
-        <resources implementation="com.vladsch.plugin.util.clipboard.PluginUtilSharedResources"/>
-    </extensions>
-
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.vladsch.shared.clipboard.data.provider"
+                        interface="com.vladsch.MissingInActions.util.SharedClipboardDataProvider"/>
+    </extensionPoints>
+    
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationConfigurable id="MissingInActions.Settings.Application"
