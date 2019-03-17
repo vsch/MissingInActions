@@ -68,7 +68,10 @@ public class WordHighlighter extends Highlighter {
                     String group = matcher.group();
                     int startOffset = matcher.start();
                     int endOffset = matcher.end();
-                    int flags = highlightWordFlags.get(group);
+                    
+                    Integer flags = highlightWordFlags.get(group);
+                    if (flags == null) flags = 0;
+                    
                     int index = highlightProvider.getHighlightWordIndex(group);
                     TextAttributes attributes = highlightProvider.getHighlightAttributes(index, flags, startOffset, endOffset, null, null, EffectType.BOLD_DOTTED_LINE, 0);
                     attributes = getAttributes(attributes, group, startOffset, endOffset);

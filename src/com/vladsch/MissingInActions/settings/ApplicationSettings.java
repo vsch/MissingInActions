@@ -150,6 +150,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private boolean myUserDefinedMacroSmartReplace = true;
     private boolean myBatchHighlightAllLines = false;
     private boolean myBatchTandemEdit = false;
+    private boolean myRegisterCaretStateTransferable = true;
 
     // customizable delete/backspace
     @NotNull String myDeleteSpacesRegEx = "(\\s+)";
@@ -186,6 +187,14 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
             "|",
             "|",
     };
+
+    public boolean isRegisterCaretStateTransferable() {
+        return myRegisterCaretStateTransferable;
+    }
+
+    public void setRegisterCaretStateTransferable(final boolean registerCaretStateTransferable) {
+        myRegisterCaretStateTransferable = registerCaretStateTransferable;
+    }
 
     public boolean isBatchTandemEdit() {
         return myBatchTandemEdit;

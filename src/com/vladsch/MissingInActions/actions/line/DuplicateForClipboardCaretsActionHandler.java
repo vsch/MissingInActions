@@ -208,6 +208,12 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
             EditHelpers.scrollToCaret(editor);
         } else {
             manager.guard(() -> {
+                Caret primaryCaret = editor.getCaretModel().getPrimaryCaret();
+                if (primaryCaret.hasSelection()) {
+                    // make sure the primary caret, if it has selection, is at end (or start of selection) because
+                    // recreated selections are done relative to its position
+                    primaryCaret.moveToOffset(primaryCaret.getSelectionEnd());
+                }
                 EditorCaret editorCaret = manager.getEditorCaret(editor.getCaretModel().getPrimaryCaret());
 
                 int selectionSize = editorCaret.getSelectionEnd().getOffset() - editorCaret.getSelectionStart().getOffset();

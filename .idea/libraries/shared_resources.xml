@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="shared-resources">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../shared-resource-registrar/shared-resource-registrar.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../shared-resource-registrar/src" />
+    </SOURCES>
+  </library>
+</component>

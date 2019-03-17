@@ -81,8 +81,9 @@
         ]]>
     </description>
 
-    <version>1.6.20</version>
+    <version>1.6.25</version>
     <depends>com.intellij.modules.lang</depends>
+    <depends optional="false">com.vladsch.plugins.sharedResourceRegistrar</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
@@ -104,167 +105,6 @@
                 <li>Fix: update to latest libs</li>
                 <li>Fix: missing toolbar button for <code>Recall selection from list</code></li>
             </ul>
-            <h3>1.6.18 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: switch to flexmark-util.html.ui helpers</li>
-            </ul>
-            <h3>1.6.16 - Bug Fix Release</h3>
-            <ul>
-                <li>Add: plugin logo</li>
-                <li>Add: option for spawn carets for digits to use: standard spawn, base 10 digit select, hex
-                    digit select.
-                </li>
-                <li>Change: refactor code to common plugin-util library</li>
-                <li>Fix: bump up dependencies to newer versions</li>
-                <li>Fix: reduce tool window border</li>
-                <li>Fix: settings prefixes on paste pattern to always proper regex regardless of what the pattern
-                    type.
-                </li>
-            </ul>
-            <h3>1.6.14 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: 2016.3 paste from history compatibility</li>
-            </ul>
-            <h3>1.6.12 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: 2018.3 EAP API Change</li>
-                <li>Recompile for 2018.3 EAP</li>
-                <li>Fix: exception in batch search/replace tandem mode delete with empty text pane</li>
-            </ul>
-            <h3>1.6.10 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: NPE in plugin content handling</li>
-            </ul>
-            <h3>Next 1.6.8 - Bug Fix Release</h3>
-            <ul>
-                <li>
-                    <p>Fix: #22, Clipboard history: ignore empty copy/paste entries (No characters, only whitespaces
-                        and line returns). Add new option &ldquo;Keep only latest blank clipboard content&rdquo; in Settings &gt;
-                        Missing In Actions &gt; Paste. When enabled, only the latest blank clipboard content is kept in
-                        history.</p>
-                    <p><strong>NOTE:</strong> removal of old blank content is done when empty content is copied to the
-                        clipboard.</p>
-                </li>
-            </ul>
-            <h3>Next 1.6.6 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: batch search/replace window exception in DataGrip</li>
-                <li>Fix: Enable batch replace tool window to work in dumb mode</li>
-                <li>Fix: make default directory for export/import batch search replace files, one directory above
-                    <code>.idea</code> if project file parent dir has that name.
-                </li>
-            </ul>
-            <h3>1.6.4 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: release error</li>
-            </ul>
-            <h3>1.6.2 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: 2016.3 compatibility</li>
-                <li>Fix: error attribute used was only defined in 2017, changed to ERRORS_ATTRIBUTES</li>
-                <li>Fix: update for latest API</li>
-                <li>Fix: tool window icon to 13x13</li>
-            </ul>
-            <h3>1.6.0 - Bug Fix &amp; Enhancement Release</h3>
-            <ul>
-                <li>Fix: recall selection from list action not working</li>
-                <li>Fix: deleting all lines in batch replace tandem mode</li>
-                <li>Fix: add index validation to stashed range marker removal</li>
-                <li>Add: batch replace word options for error highlight (!) and warning highlight (?) to allow
-                    flagging error and warnings as search strings
-                </li>
-                <li>Fix: batch replace options lost leading blank lines when saved or exported options</li>
-                <li>Fix: after paste adjustment range out of bounds exception</li>
-                <li>Fix: disabling <code>To Carets</code> button in multi-paste dialog on opening dialog</li>
-                <li>Add: paste w/o formatting action to multi-paste dialog</li>
-                <li>Add: batch replace window test for caret offset being in found range before replacing. Fixes
-                    issue with mouse click action assigned to
-                </li>
-                <li>Add: convert to carets action in paste selection dialog to convert multi-line clipboard
-                    contents to multi-caret selection.
-                </li>
-            </ul>
-            <h3>1.5.0 - Bug Fix &amp; Enhancement Release</h3>
-            <ul>
-                <li>Add: <code>-</code> to batch search options, when it is at beginning of line disables the row from search
-                    replace ops. Quick way to disable some and enable others. Really need a dropdown or check box
-                    to control this in the margin.
-                </li>
-                <li>Add: copy batch search regex to clipboard to allow global search using IDE functionality</li>
-                <li>Fix: carets keep/drop not checking if a file has a <code>virtualFile()</code> before trying to get
-                    <code>PsiFile</code></li>
-                <li>Add: <code>Replace with Selection Text</code> and <code>Replace with Selection Text from List</code> actions to
-                    replace currently selected text with text from recalled selection.
-                </li>
-                <li>Change: replace batch replace highlights checkbox and tandem edit checkbox with toggle buttons
-                    to save space.
-                </li>
-                <li>Add: batch replace sort up/down for search and replace editors. Case sensitivity for the sort
-                    controlled by the <code>Case</code> checkbox.
-                </li>
-                <li>Add: batch replace <code>Tandem Edit</code> mode, deleting or inserting lines in one editor panel
-                    replicates the action to the other two. Allows to keep the search/replace/option lines aligned
-                    when adding/removing lines.
-                </li>
-                <li>Fix: batch replace to set pending if replace invoked but not enabled, to allow mouse click for
-                    replace. If word is found then will replace. Resets pending in 250 ms.
-                </li>
-                <li>Fix: batch replace to disable replace/replace all/exclude if document is not writable.</li>
-                <li>Add: after batch replace Next, Prev, Replace, Replace All, Exclude/Include and Reset, give
-                    focus back to the editor.
-                </li>
-                <li>Fix: batch replace Case and Word checkboxes did not update highlights when their value
-                    changed.
-                </li>
-                <li>Change: select word and move to next will select this word or if not identifier, the previous
-                    word. Reverse for select prev word: select this word if not identifier then select next word
-                    and move to previous word.
-                </li>
-                <li>Fix: different camel humps mode delete would consider trailing underscores as part of the last
-                    word part. Now stops at underscores.
-                </li>
-                <li>Fix: disposed editor being passed through to active editor for batch replace tool window</li>
-                <li>Add: Select word and move to next/previous word. If caret not on identifier then first move it
-                    to next/prev identifier then perform action.
-                </li>
-                <li>Add: Camel Humps and Different Camel Humps mode versions of custom delete/backspace actions.</li>
-                <li>Add: Next/Previous highlighted word action to move caret to next/previous highlighted word</li>
-                <li>Fix: batch replace all was too slow trying to use <code>findPrev()</code>. Now does does not update
-                    highlights or caret. Just modifies document.
-                </li>
-                <li>Add: Toggle on paste preserve action and setting to disable on paste preserve case
-                    functionality without having to change the options when it gets in the way.
-                </li>
-                <li>Fix: NPE when caret spawning/searching from active caret search</li>
-                <li>Fix: reduce toolbar size by moving most actions to popup menus: isolation, highlights, carets.</li>
-                <li>Fix: saving a new preset would reset the preset name and load the search/replace options for
-                    the first preset in the preset list.
-                </li>
-                <li>Fix: refactor highlight and isolation line code into re-usable classes.</li>
-                <li>Fix: check box with color button rendering, add margin, border to color button and
-                    anti-aliased drawing of border.
-                </li>
-                <li>Fix: file editor to editor conversion to work properly, FileEditor -&gt; TextEditor -&gt;
-                    .getEditor().
-                </li>
-                <li>Add: highlights and caret change handling for batch search/replace.</li>
-                <li>Add: tool window for batch search/replace instead of modal</li>
-                <li>Add: presets and import/export to batch search/replace to allow selecting a set of presets.</li>
-                <li>Add: customizable backspace and delete actions with variations: spaces, alternating word, word
-                    excluding 1 space, and word. All are customizable with regex for selecting what is deleted.
-                </li>
-                <li>Add: Batch search/replace action and dialog. Each line in search will be replaced by
-                    corresponding line in replace. Third pane is options, each is a character: <code>c</code> - case
-                    sensitive, <code>i</code> - case insensitive, <code>w</code> - word (same as <code>be</code>), <code>e</code> - end word boundary, <code>b</code> -
-                    begin word boundary.
-                </li>
-                <li>Fix: toolbar combo action incompatibility with 2018.2 intellij-community master branch</li>
-                <li>Fix: plugin description forgot to update in plugin.xml for 1.4.8</li>
-                <li>Change: change caret search regex for multi-caret search on non-identifier character c to c
-                    instead of exact c count, and caret spawning regex to match the exact char count with
-                    preceding and following character not being c to prevent finding stretches with greater count.
-                </li>
-            </ul>
         </div>
         ]]></change-notes>
 
@@ -283,7 +123,14 @@
         <component>
             <implementation-class>com.vladsch.MissingInActions.settings.ApplicationSettings</implementation-class>
         </component>
+        <component>
+            <implementation-class>com.vladsch.plugin.util.clipboard.TextBlockDataFlavorRegistrar</implementation-class>
+        </component>
     </application-components>
+
+    <extensions defaultExtensionNs="com.vladsch.shared.plugin">
+        <resources implementation="com.vladsch.plugin.util.clipboard.PluginUtilSharedResources"/>
+    </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -294,8 +141,8 @@
                                  instance="com.vladsch.MissingInActions.settings.ApplicationConfigurable">
         </applicationConfigurable>
 
-        <applicationService serviceInterface="com.vladsch.MissingInActions.manager.NormalAdjustmentMap" serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
-        <applicationService serviceInterface="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler" serviceImplementation="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler"/>
+        <applicationService serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
+        <applicationService serviceImplementation="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler"/>
 
         <!-- This is the only way to override standard editor shortcuts that are used by others -->
         <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->

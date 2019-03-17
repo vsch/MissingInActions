@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Plain Text Completions" pattern="file[MissingInActions]:MissingInActions.wiki//*||file[MissingInActions]:MissingInActionsAssets/doc//*||file[MissingInActions]:README.md||file[MissingInActions]:ToDo.md" />
+</component>

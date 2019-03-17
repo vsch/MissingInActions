@@ -63,7 +63,9 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
 import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
+import com.vladsch.plugin.util.AppRestartRequiredChecker;
 import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
@@ -101,12 +103,20 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
     final private HashSet<Editor> myPasteOverrideEditors;
     final private AnAction myMultiPasteAction;
-    ApplicationSettings mySettings;
+    private ApplicationSettings mySettings;
     private @Nullable JComponent myPasteOverrideComponent;
     private boolean myInContentManipulation;
     private boolean mySavedShowParameterHints;
     private boolean myDisabledShowParameterHints;
     final private boolean myParameterHintsAvailable;
+    private boolean myRegisterCaretStateTransferable;
+
+    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title")) {
+        @Override
+        protected long getRestartNeededReasons(final ApplicationSettings settings) {
+            return 0L; // (!settings.isRegisterCaretStateTransferable() && myRegisterCaretStateTransferable) ? 1L : 0L;
+        }
+    };
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
@@ -453,7 +463,19 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
             }
         }
 
+        if (myRegisterCaretStateTransferable != mySettings.isRegisterCaretStateTransferable()) {
+            if (mySettings.isRegisterCaretStateTransferable()) {
+                // register caret state transferable flavour
+                myRegisterCaretStateTransferable = true;
+                SharedCaretStateTransferableData.shareCaretStateTransferable();
+            } else {
+                myRegisterCaretStateTransferable = false;
+                SharedCaretStateTransferableData.unshareCaretStateTransferable();
+            }
+        }
+
         super.settingsChanged(settings);
+        myRestartRequiredChecker.informRestartIfNeeded(settings);
     }
 
     private void registerPasteOverrides(@NotNull Editor editor) {
