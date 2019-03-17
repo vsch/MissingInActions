@@ -2,13 +2,14 @@
 ================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.6.20 from this repo]
+[Download Latest 1.7.0 from this repo]
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.7.0 - Enhancement Release](#version-170-enhancement-release)
 - [Version 1.6.20 - Bug Fix Release](#version-1620-bug-fix-release)
 - [Version 1.6.18 - Bug Fix Release](#version-1618-bug-fix-release)
 - [Version 1.6.14 - Bug Fix Release](#version-1614-bug-fix-release)
@@ -90,9 +91,16 @@ Adds missing editor actions for end of word navigation but that is just the begi
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   easy.
 
+## Version 1.7.0 - Enhancement Release
+
+[Version Notes][] [Download Latest 1.7.0 from this repo][]
+
+* New: multiple caret clipboard content is now shared between IDE instances so copying in one
+  and pasting in another does not loose the clipboard caret information.
+* Add: separate `Quoted Spliced` button to eliminate sticky quoted flag affecting `Spliced`
+
 ## Version 1.6.20 - Bug Fix Release
 
-[Version Notes][] [Download Latest 1.6.20 from this repo][]
 * New: option `Disable parameter info in multi-caret mode` to turn off IDE parameter info when
   using multi-caret mode. Otherwise carets can windup on different sides of the parameter name
   info resulting in different positions in real text after caret move left/right.
@@ -658,7 +666,7 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[Download Latest 1.6.20 from this repo]: ../../raw/master/dist/MissingInActions.1.6.20.zip
+[Download Latest 1.7.0 from this repo]: ../../raw/master/dist/MissingInActions.1.7.0.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

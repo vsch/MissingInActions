@@ -96,7 +96,7 @@
 
 ### 1.7.0 - Enhancement Release
 
-* Fix: shorted all clipboard history paste buttons to remove common `Paste` prefix
+* Fix: shortened all clipboard history paste buttons to remove common `Paste` prefix
 * Add: separate `Quoted Spliced` button to eliminate sticky quoted flag affecting `Spliced`
 * Add: multiple caret clipboard content is now shared between IDE instances so copying in one
   and pasting in another does not loose the clipboard caret information.
