@@ -23,20 +23,25 @@ package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
+import javax.swing.text.Highlighter;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -62,8 +67,11 @@ public class MultiPasteOptionsPane {
     JBTextField myClosedQuoteText;
     JBCheckBox myQuoteSplicedItems;
     JLabel mySpliceDelimiterTextLabel;
-    Runnable mySettingsChangedRunnable;
-    String myTextContent;
+    private Runnable mySettingsChangedRunnable;
+    private String myTextContent;
+    private Border myNormalBorder;
+    private Border myHighlightBorder;
+    private Border myNormalPanelBorder;
 
     public MultiPasteOptionsPane() {
         mySettingsChangedRunnable = null;
@@ -142,6 +150,10 @@ public class MultiPasteOptionsPane {
         updateUIState();
 
         myTextPane.setVisible(myShowInstructions.isSelected());
+        
+        myNormalBorder = mySpliceDelimiterText.getBorder();
+        myNormalPanelBorder = myPanel.getBorder();
+        myHighlightBorder = BorderFactory.createLineBorder(JBColor.MAGENTA, 3, true);
     }
 
     public void updateSettings(final boolean informChange) {
@@ -217,6 +229,19 @@ public class MultiPasteOptionsPane {
     private void createUIComponents() {
         // TODO: place custom component creation code here
         myUserDefinedMacroReplaceClipContent = new ComboBox<>();
+    }
+
+    public void setSpliceDelimiterTextHighlight(boolean highlight) {
+        mySpliceDelimiterText.setBorder(highlight ? myHighlightBorder : myNormalBorder);
+    }
+
+    public void setQuoteTextHighlight(boolean highlight) {
+        myOpenQuoteText.setBorder(highlight ? myHighlightBorder : myNormalBorder);
+        myClosedQuoteText.setBorder(highlight ? myHighlightBorder : myNormalBorder);
+    }
+
+    public void setPanelHighlight(boolean highlight) {
+        myPanel.setBorder(highlight ? myHighlightBorder : myNormalPanelBorder);
     }
 
     public void setContentBody(String text) {

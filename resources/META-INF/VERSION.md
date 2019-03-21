@@ -4,6 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
+- [1.7.1 - Enhancement Release](#171---enhancement-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
 - [1.6.18 - Bug Fix Release](#1618---bug-fix-release)
@@ -86,13 +87,19 @@
       `textWithSuffix` should it be `text.with.suffix` or `textWithSuffix`?
 * [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
-* [ ] Add: save highlight state in local settings to restore on IDE startup
-* [ ] Add: saving isolation ranges in editor state
+* [ ] Add: save highlight state local settings to restore on IDE startup
+* [ ] Add: save isolation ranges in editor state
 * [ ] Add: export/import a single profile to batch search/replace management as opposed to all
       profiles. Keeping all profiles per project and importing/exporting a single profile
       between projects is useful.
   * [ ] Add: copy profile under a new name and/or to another open project batch search window,
         with overwrite prompting.
+
+### 1.7.1 - Enhancement Release
+
+* Fix: change `Without Formatting` to `No Formatting`, shorter to take less space.
+* Add: tooltip text to paste from history buttons.
+* Add: highlights of significant options when mouse hovers over corresponding button.
 
 ### 1.7.0 - Enhancement Release
 

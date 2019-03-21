@@ -69,6 +69,12 @@ public class DuplicateForMultipleClipboardCaretsAction extends MultiplePasteActi
 
     @Nullable
     @Override
+    protected String getCreateWithCaretsTooltip(int caretCount) {
+        return Bundle.message("content-chooser.duplicate-and-paste.description");
+    }
+
+    @Nullable
+    @Override
     protected Action getPasteAction(@NotNull final JComponent focusedComponent) {
         return null;
     }

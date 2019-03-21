@@ -3,7 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts</output-path>
     <root id="archive" name="MissingInActions.jar">
       <element id="module-output" name="MissingInActions" />
-      <element id="module-output" name="plugin-util" />
       <element id="directory" name="icons">
         <element id="dir-copy" path="$PROJECT_DIR$/resources/icons" />
       </element>

@@ -64,6 +64,12 @@ public class MiaMultiplePasteAction extends MultiplePasteActionBase {
 
     @Nullable
     @Override
+    protected String getCreateWithCaretsTooltip(int caretCount) {
+        return caretCount > 1 ? null : Bundle.message("content-chooser.add-with-carets.description");
+    }
+
+    @Nullable
+    @Override
     protected Action getPasteAction(@NotNull final JComponent focusedComponent) {
         return focusedComponent.getActionMap().get(DefaultEditorKit.pasteAction);
     }

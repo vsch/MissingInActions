@@ -49,21 +49,25 @@ import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.MultiPasteOptionsPane;
-import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.MissingInActions.util.ClipboardCaretContent;
+import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.flexmark.util.Utils;
+import com.vladsch.plugin.util.AwtRunnable;
+import com.vladsch.plugin.util.DelayedRunner;
+import com.vladsch.plugin.util.SearchPattern;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import com.vladsch.plugin.util.ui.ContentChooser;
-import com.vladsch.plugin.util.DelayedRunner;
-import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.plugin.util.SearchPattern;
-import com.vladsch.flexmark.util.Utils;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+import javax.swing.ButtonModel;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -72,8 +76,11 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,6 +120,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
     @Nullable
     protected abstract String getCreateWithCaretsName(int caretCount);
 
+    @Nullable
+    protected abstract String getCreateWithCaretsTooltip(int caretCount);
+
     @Override
     final public void actionPerformed(final AnActionEvent e) {
         Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
@@ -126,7 +136,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
         final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && getCreateWithCaretsName(editor.getCaretModel().getCaretCount()) != null;
-        final MultiPasteOptionsPane myEmptyContentDescription = new MultiPasteOptionsPane();
+        final MultiPasteOptionsPane multiPasteOptionsPane = new MultiPasteOptionsPane();
         //final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
         //final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
@@ -146,13 +156,78 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         AwtRunnable listUpdater = new AwtRunnable(true, () -> {
             if (choosers[0] != null) {
                 choosers[0].updateListContents(true);
-                updateClipboardData(editor, copyPasteManager, myEmptyContentDescription);
+                updateClipboardData(editor, copyPasteManager, multiPasteOptionsPane);
             }
         });
 
-        updateClipboardData(editor, copyPasteManager, myEmptyContentDescription);
+        updateClipboardData(editor, copyPasteManager, multiPasteOptionsPane);
 
         choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), true, true) {
+
+            private int mySplicedQuotedActionIndex;
+            private int mySplicedActionIndex;
+            private boolean listenersInitialized = false;
+
+            @Override
+            protected void init() {
+                super.init();
+                addActionListeners();
+            }
+
+            private void addActionListeners() {
+                // add action listeners
+                final JButton button1 = getButton(myActions[mySplicedActionIndex]);
+                if (button1 != null) {
+                    button1.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(final MouseEvent e) {
+                            super.mouseEntered(e);
+                            multiPasteOptionsPane.setSpliceDelimiterTextHighlight(true);
+                        }
+
+                        @Override
+                        public void mouseExited(final MouseEvent e) {
+                            super.mouseExited(e);
+                            multiPasteOptionsPane.setSpliceDelimiterTextHighlight(false);
+                        }
+                    });
+                }
+
+                JButton button2 = getButton(myActions[mySplicedQuotedActionIndex]);
+                if (button2 != null) {
+                    button2.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(final MouseEvent e) {
+                            super.mouseEntered(e);
+                            multiPasteOptionsPane.setQuoteTextHighlight(true);
+                        }
+
+                        @Override
+                        public void mouseExited(final MouseEvent e) {
+                            super.mouseExited(e);
+                            multiPasteOptionsPane.setQuoteTextHighlight(false);
+                        }
+                    });
+                }
+                
+                JButton optionsButton = getButton(myLeftSideActions[0]);
+                if (optionsButton != null) {
+                    optionsButton.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(final MouseEvent e) {
+                            super.mouseEntered(e);
+                            multiPasteOptionsPane.setPanelHighlight(true);
+                        }
+
+                        @Override
+                        public void mouseExited(final MouseEvent e) {
+                            super.mouseExited(e);
+                            multiPasteOptionsPane.setPanelHighlight(false);
+                        }
+                    });
+                }
+            }
+
             @Override
             protected String getStringRepresentationFor(final Transferable content) {
                 //return (String) content.getTransferData(DataFlavor.stringFlavor);
@@ -380,6 +455,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 }
             }
 
+            Action[] myActions;
+            Action[] myLeftSideActions;
+
             @NotNull
             @Override
             protected Action[] createActions() {
@@ -397,11 +475,13 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         }
                     };
                     final String name = getCreateWithCaretsName(editor.getCaretModel().getCaretCount());
+                    final String tooltip = name == null ? Bundle.message("content-chooser.add-with-carets.description") : getCreateWithCaretsTooltip(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
+                    if (tooltip != null) createWithMultiCarets.putValue(Action.SHORT_DESCRIPTION, tooltip);
                     multiCaretActions[actions.length + 2 + actionOffset] = createWithMultiCarets;
 
                     // create merge comma separate
-                    Action spliceCommaSeparated = new OkAction() {
+                    Action spliced = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
                             alternateAction[0] = PASTE_SPLICED;
@@ -409,8 +489,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         }
                     };
 
-                    spliceCommaSeparated.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
-                    multiCaretActions[actions.length + actionOffset] = spliceCommaSeparated;
+                    spliced.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
+                    spliced.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-with-comma.description"));
+                    mySplicedActionIndex = actions.length + actionOffset;
+
+                    multiCaretActions[mySplicedActionIndex] = spliced;
 
                     // create merge comma separate
                     Action splicedQuoted = new OkAction() {
@@ -422,7 +505,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     };
 
                     splicedQuoted.putValue(Action.NAME, Bundle.message("content-chooser.splice-and-quote.label"));
-                    multiCaretActions[actions.length + 1 + actionOffset] = splicedQuoted;
+                    splicedQuoted.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-and-quote.description"));
+                    mySplicedQuotedActionIndex = actions.length + 1 + actionOffset;
+                    multiCaretActions[mySplicedQuotedActionIndex] = splicedQuoted;
 
                     if (haveSimplePasteAction) {
                         // create simple paste
@@ -436,11 +521,14 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                         //String actionText = ActionsBundle.actionText(IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
                         pasteSimple.putValue(Action.NAME, Bundle.message("content-chooser.simple-paste.label"));
+                        pasteSimple.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.simple-paste.description"));
                         multiCaretActions[actions.length] = pasteSimple;
                     }
 
+                    myActions = multiCaretActions;
                     return multiCaretActions;
                 }
+                myActions = actions;
                 return actions;
             }
 
@@ -455,12 +543,13 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         final boolean showOptions = !settings.isMultiPasteShowOptions();
                         settings.setMultiPasteShowOptions(showOptions);
                         putValue(Action.NAME, showOptions ? Bundle.message("content-chooser.hide-options.label") : Bundle.message("content-chooser.show-options.label"));
-                        myEmptyContentDescription.myPanel.setVisible(showOptions);
+                        multiPasteOptionsPane.myPanel.setVisible(showOptions);
                     }
                 };
 
                 final boolean showOptions = settings.isMultiPasteShowOptions();
                 showOptionsAction.putValue(Action.NAME, showOptions ? Bundle.message("content-chooser.hide-options.label") : Bundle.message("content-chooser.show-options.label"));
+                showOptionsAction.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.show-options.description"));
 
                 Action convertToCarets = new OkAction() {
                     @SuppressWarnings("SerializableStoresNonSerializable")
@@ -471,9 +560,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 };
 
                 convertToCarets.putValue(Action.NAME, Bundle.message("content-chooser.convert-to-carets.label"));
+                convertToCarets.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.convert-to-carets.description"));
                 convertToCarets.setEnabled(convertToCaretsEnabled[0]);
                 convertToCaretsAction[0] = convertToCarets;
-                return new Action[] { showOptionsAction, convertToCarets };
+                myLeftSideActions = new Action[] { showOptionsAction, convertToCarets };
+                return myLeftSideActions;
             }
 
             @Nullable
@@ -488,8 +579,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 if (!moveLineUpShortcut.isEmpty()) moveLineUpShortcut = String.format(" (%s)", moveLineUpShortcut);
                 if (!moveLineDownShortcut.isEmpty()) moveLineDownShortcut = String.format(" (%s)", moveLineDownShortcut);
                 String bannerSlogan = Bundle.indexedMessage("content-chooser.above-editor.description", copyShortcut, deleteShortcut, moveLineUpShortcut, moveLineDownShortcut);
-                myEmptyContentDescription.setContentBody(Utils.join(bannerSlogan.split("\n"), "<ul align='left'>", "</ul>", "<li>", "</li>"));
-                myEmptyContentDescription.setSettingsChangedRunnable(() -> {
+                multiPasteOptionsPane.setContentBody(Utils.join(bannerSlogan.split("\n"), "<ul align='left'>", "</ul>", "<li>", "</li>"));
+                multiPasteOptionsPane.setSettingsChangedRunnable(() -> {
                     if (choosers[0] != null) {
                         final int[] indices = choosers[0].getSelectedIndices();
                         choosers[0].updateListContents(false);
@@ -497,8 +588,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     }
                 });
 
-                myEmptyContentDescription.myPanel.setVisible(settings.isMultiPasteShowOptions());
-                return myEmptyContentDescription.myPanel;
+                multiPasteOptionsPane.myPanel.setVisible(settings.isMultiPasteShowOptions());
+                return multiPasteOptionsPane.myPanel;
             }
 
             private void moveSelections(final ContentChooser<Transferable> chooser, boolean moveUp) {
@@ -658,7 +749,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         for (Transferable item : allContents) {
                             final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, item);
                             if (caretContent != null && caretContent.allChars()) {
-                                if (index == myEmptyContentDescription.getSelectedClipboardContentIndex()) {
+                                if (index == multiPasteOptionsPane.getSelectedClipboardContentIndex()) {
                                     userData = caretContent.getTexts();
                                     break;
                                 }
