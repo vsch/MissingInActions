@@ -89,6 +89,19 @@ public class BatchSearchReplaceToolWindow {
         }
     }
 
+    public void hide() {
+        if (toolWindow != null) {
+            toolWindow.hide(null);
+        }
+    }
+
+    public boolean isShowing() {
+        if (toolWindow != null) {
+            return toolWindow.isVisible();
+        }
+        return false;
+    }
+
     public ContentManager getContentManager() {
         return toolWindow.getContentManager();
     }

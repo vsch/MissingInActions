@@ -34,6 +34,8 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
+
 public class BatchSearchAction extends EditorAction {
     public BatchSearchAction() {
         super(new Handler());
@@ -57,13 +59,47 @@ public class BatchSearchAction extends EditorAction {
 
         @Override
         protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
-            if (editor instanceof EditorEx) {
-                Project project = editor.getProject();
-                if (project != null) {
-                    PluginProjectComponent.getInstance(project).showBatchSearchReplace();
-                    //boolean valid = BatchReplaceDialog.showDialog(editor.getComponent(), project, ApplicationSettings.getInstance(), (EditorEx) editor);
-                }
+            showBatchSearchWindow(editor);
+        }
+    }
+
+    public static void showBatchSearchWindow(@NotNull final DataContext dataContext) {
+        showBatchSearchWindow(EDITOR.getData(dataContext));
+    }
+    
+    public static void showBatchSearchWindow(@Nullable final Editor editor) {
+        if (editor instanceof EditorEx) {
+            Project project = editor.getProject();
+            if (project != null) {
+                PluginProjectComponent.getInstance(project).showBatchSearchReplace();
             }
         }
+    }
+
+    public static void hideBatchSearchWindow(@NotNull final DataContext dataContext) {
+        hideBatchSearchWindow(EDITOR.getData(dataContext));
+    }
+    
+    public static void hideBatchSearchWindow(@Nullable final Editor editor) {
+        if (editor instanceof EditorEx) {
+            Project project = editor.getProject();
+            if (project != null) {
+                PluginProjectComponent.getInstance(project).hideBatchSearchReplace();
+            }
+        }
+    }
+
+    public static boolean isShowingBatchSearchWindow(@NotNull final DataContext dataContext) {
+        return isShowingBatchSearchWindow(EDITOR.getData(dataContext));
+    }
+
+    public static boolean isShowingBatchSearchWindow(@Nullable final Editor editor) {
+        if (editor instanceof EditorEx) {
+            Project project = editor.getProject();
+            if (project != null) {
+                return PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().isShowing();
+            }
+        }
+        return false;
     }
 }

@@ -30,7 +30,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 public class ClearWordHighlightsAction extends AnAction implements DumbAware {
     @Override
     public void update(final AnActionEvent e) {
-        e.getPresentation().setEnabled(Plugin.getInstance().haveHighlights());
+        e.getPresentation().setEnabled(Plugin.getInstance().haveHighlights() || BatchSearchAction.isShowingBatchSearchWindow(e.getDataContext()));
         super.update(e);
 
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
@@ -38,6 +38,8 @@ public class ClearWordHighlightsAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(final AnActionEvent e) {
+        BatchSearchAction.hideBatchSearchWindow(e.getDataContext());
+        
         Plugin plugin = Plugin.getInstance();
         plugin.clearHighlights();
     }

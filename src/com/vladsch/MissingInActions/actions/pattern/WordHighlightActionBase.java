@@ -50,7 +50,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         if (editor != null && editor.getSelectionModel().hasSelection()) {
             enabled = !myIsRemoveWord || Plugin.getInstance().haveHighlights();
         }
-        e.getPresentation().setEnabled(enabled);
+        e.getPresentation().setEnabled(enabled || BatchSearchAction.isShowingBatchSearchWindow(editor));
         super.update(e);
 
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
@@ -60,6 +60,8 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
     public void actionPerformed(@NotNull final AnActionEvent e) {
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
+            BatchSearchAction.hideBatchSearchWindow(editor);
+            
             Document document = editor.getDocument();
             CharSequence chars = document.getCharsSequence();
             Plugin plugin = Plugin.getInstance();

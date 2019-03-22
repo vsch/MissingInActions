@@ -198,6 +198,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         mySearchReplaceToolWindow.activate();
     }
 
+    public void hideBatchSearchReplace() {
+        mySearchReplaceToolWindow.hide();
+    }
+
     public BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
         return mySearchReplaceToolWindow;
     }

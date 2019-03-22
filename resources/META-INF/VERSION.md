@@ -97,7 +97,19 @@
 
 ### 1.7.1 - Enhancement Release
 
-* Fix: change `Without Formatting` to `No Formatting`, shorter to take less space.
+* [ ] Add: batch search/replace:
+  * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
+        both of these colored with the same colors to allow using color alignment for validation
+  * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
+        for keywords, only if highlighting search words
+  * [ ] Add: line marker icons to replace editor allow toggling `!` error and `-` unused
+        coloring for keywords, only if highlighting search words
+  * [ ] Fix: options string `!` and `-` apply to both search and replace highlighting
+* Fix: When `User defined macro` is disabled but selected, paste from history does duplication
+  by whatever clipboard content is selected.
+* Fix: when adding/removing/clearing highlighters using actions, hide batch search/replace
+  window.
+* Fix: change `Without Formatting` to `No Formatting`, shorten to take less space.
 * Add: tooltip text to paste from history buttons.
 * Add: highlights of significant options when mouse hovers over corresponding button.
 
@@ -109,8 +121,8 @@
   and pasting in another does not loose the clipboard caret information.
 * Fix: incorrect paste location for duplicate for carets and paste if pasting in trailing
   blanks. Cannot reproduce.
-* Fix: incorrect duplicate for carets result if primary caret has selection and is not at
-      the start or end of its selection.
+* Fix: incorrect duplicate for carets result if primary caret has selection and is not at the
+  start or end of its selection.
 
 ### 1.6.20 - Bug Fix Release
 

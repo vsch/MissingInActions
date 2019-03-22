@@ -742,7 +742,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 String[] userData = null;
-                if (settings.isIncludeUserDefinedMacro()) {
+                if (settings.isReplaceMacroVariables() && settings.isIncludeUserDefinedMacro()) {
                     if (settings.isUserDefinedMacroClipContent()) {
                         final Transferable[] allContents = copyPasteManager.getAllContents();
                         int index = 0;
@@ -784,7 +784,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     }
                 }
 
-                //int selectedIndex = myEmptyContentDescription.getSelectedClipboardContentIndex();
                 boolean recreateCarets = alternateAction[0] == PASTE_WITH_CARETS;
                 if (alternateAction[0] == PASTE_SPLICED) {
                     // we handle the splicing and adding this content to the clipboard
@@ -818,26 +817,28 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                 final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED || alternateAction[0] == PASTE_SPLICED_AND_QUOTED ? simplePasteAction : getPasteAction(editor, recreateCarets);
 
-                if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
-                    // need to create the replaced content
-                    final Transferable contents = CopyPasteManager.getInstance().getContents();
-                    if (contents != null) {
-                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
-                        if (clipboardCaretContent != null) {
-                            Transferable mergedTransferable = (userData != null && userData.length > 1) ? EditHelpers.getReplacedTransferable(editor, clipboardCaretContent, userData)
-                                    : EditHelpers.getReplacedTransferable(editor, clipboardCaretContent);
-                            CopyPasteManager.getInstance().setContents(mergedTransferable);
+                if (pasteAction != null) {
+                    if (manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
+                        // need to create the replaced content
+                        final Transferable contents = CopyPasteManager.getInstance().getContents();
+                        if (contents != null) {
+                            ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+                            if (clipboardCaretContent != null) {
+                                Transferable mergedTransferable = (userData != null && userData.length > 1) ? EditHelpers.getReplacedTransferable(editor, clipboardCaretContent, userData)
+                                        : EditHelpers.getReplacedTransferable(editor, clipboardCaretContent);
+                                CopyPasteManager.getInstance().setContents(mergedTransferable);
+                            }
                         }
                     }
+
+                    AnActionEvent newEvent = new AnActionEvent(e.getInputEvent(),
+                            DataManager.getInstance().getDataContext(focusedComponent),
+                            e.getPlace(), e.getPresentation(),
+                            ActionManager.getInstance(),
+                            e.getModifiers());
+
+                    pasteAction.actionPerformed(newEvent);
                 }
-
-                AnActionEvent newEvent = new AnActionEvent(e.getInputEvent(),
-                        DataManager.getInstance().getDataContext(focusedComponent),
-                        e.getPlace(), e.getPresentation(),
-                        ActionManager.getInstance(),
-                        e.getModifiers());
-
-                pasteAction.actionPerformed(newEvent);
             } else {
                 final Action pasteAction = getPasteAction(focusedComponent);
                 if (pasteAction != null) {
