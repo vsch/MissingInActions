@@ -185,11 +185,11 @@ public class DuplicateForClipboardCaretsActionHandler extends EditorWriteActionH
                     }
                 }
 
+                // clear last pasted information, it is no good
                 ClipboardCaretContent.setLastPastedClipboardCarets(editor, null);
             });
 
             if (myDoPaste) {
-                // clear last pasted information, it is no good and will be cleared by running our action
                 if (mergedTransferable != null) {
                     CopyPasteManager.getInstance().setContents(mergedTransferable);
                 }

@@ -168,6 +168,12 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             private int mySplicedActionIndex;
             private boolean listenersInitialized = false;
 
+            @Nullable
+            @Override
+            protected String getHelpId() {
+                return super.getHelpId();
+            }
+
             @Override
             protected void init() {
                 super.init();

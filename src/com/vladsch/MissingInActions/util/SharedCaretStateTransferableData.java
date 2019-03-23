@@ -228,9 +228,20 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
                         if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
 
                         ApplicationManager.getApplication().invokeLater(() -> {
-                            CopyPasteManagerEx.getInstanceEx().setContents(newTransferable);
+                            // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
+                            CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+                            
+                            Transferable[] allContents = copyPasteManager.getAllContents();
+                            final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
+                            if (firstTransferable == transferable) {
+                                // still here and first
+                                copyPasteManager.setContents(newTransferable);
+                                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
+                            } else {
+                                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded transferable was removed or changed, skipping.");
+                            }
+
                             inReplaceContent = false;
-                            if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
                         }, ModalityState.any());
 
                         return;

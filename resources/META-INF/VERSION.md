@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.1 - Enhancement Release](#171---enhancement-release)
+- [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
 - [1.6.18 - Bug Fix Release](#1618---bug-fix-release)
@@ -94,9 +94,6 @@
       between projects is useful.
   * [ ] Add: copy profile under a new name and/or to another open project batch search window,
         with overwrite prompting.
-
-### 1.7.1 - Enhancement Release
-
 * [ ] Add: batch search/replace:
   * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
         both of these colored with the same colors to allow using color alignment for validation
@@ -105,6 +102,11 @@
   * [ ] Add: line marker icons to replace editor allow toggling `!` error and `-` unused
         coloring for keywords, only if highlighting search words
   * [ ] Fix: options string `!` and `-` apply to both search and replace highlighting
+
+### 1.7.2 - Bug Fix Release
+
+* Fix: clipboard sharing code prevented duplicated caret content from being automatically
+  deleted.
 * Fix: When `User defined macro` is disabled but selected, paste from history does duplication
   by whatever clipboard content is selected.
 * Fix: when adding/removing/clearing highlighters using actions, hide batch search/replace
