@@ -44,6 +44,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import static com.vladsch.plugin.util.AppUtils.isClipboardChangeNotificationsAvailable;
@@ -230,10 +231,11 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
                         ApplicationManager.getApplication().invokeLater(() -> {
                             // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
                             CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
-                            
+
                             Transferable[] allContents = copyPasteManager.getAllContents();
                             final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
-                            if (firstTransferable == transferable) {
+                            
+                            if (Objects.equals(getStringContent(firstTransferable), getStringContent(transferable))) {
                                 // still here and first
                                 copyPasteManager.setContents(newTransferable);
                                 if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
@@ -252,6 +254,17 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
             if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update not needed");
             inReplaceContent = false;
         }
+    }
+
+    private static String getStringContent(@Nullable Transferable content) {
+        if (content != null) {
+            try {
+                return (String) content.getTransferData(DataFlavor.stringFlavor);
+            } catch (UnsupportedFlavorException | IOException ignore) {
+
+            }
+        }
+        return null;
     }
 
     private static <T> void changeFinalValue(final Field field, Object instance, T data) throws IllegalAccessException, NoSuchFieldException {

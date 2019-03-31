@@ -4,6 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
+- [1.7.3 - Bug Fix Release](#173---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
@@ -65,10 +66,6 @@
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
 * [ ] Add: option and functionality to change duplicate lines action to only operate on a line
       once even if there are many carets present on that line.
-* [ ] Add: option for multi-caret left/right caret movement with/without selection to
-      consolidate inlays for all carets before actual movement of any carets. Otherwise
-      multi-caret editing becomes impossible if some carets perform virtual moves around inlays
-      while others do real text moves.
 
 &nbsp;</details>
 
@@ -78,13 +75,6 @@
       using line mouse selection.
 * [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
       is already on last line or using line mouse selection.
-* [ ] Add: for multi-caret left/right skip parameter info unless all carets have parameter info
-      in the same direction as the move. This is an alternative to turning off parameter info
-      for multi-caret mode.
-* [ ] Fix: dot case preservation should not match if any parts is all numeric. ie. each dot
-      separated part should start with a non-digit, match identifier requirements. Cannot
-      duplicate not sure if applies. For example: `name.0.parts` pasted over with
-      `textWithSuffix` should it be `text.with.suffix` or `textWithSuffix`?
 * [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
 * [ ] Add: save highlight state local settings to restore on IDE startup
@@ -98,10 +88,12 @@
   * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
         both of these colored with the same colors to allow using color alignment for validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
-        for keywords, only if highlighting search words
-  * [ ] Add: line marker icons to replace editor allow toggling `!` error and `-` unused
-        coloring for keywords, only if highlighting search words
-  * [ ] Fix: options string `!` and `-` apply to both search and replace highlighting
+        for keywords
+
+### 1.7.3 - Bug Fix Release
+
+* Fix: too strict clipboard content comparison during replacement would not replace shared
+  content in some circumstances. Replaced with string comparison of clipboard content.
 
 ### 1.7.2 - Bug Fix Release
 

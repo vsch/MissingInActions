@@ -148,7 +148,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private @NotNull String myClosedQuoteText = "\"";
     private boolean myQuoteSplicedItems = false;
     private boolean myUserDefinedMacroSmartReplace = true;
-    private boolean myBatchHighlightAllLines = false;
+    private boolean myBatchHighlightSearchLines = false;
+    private boolean myBatchHighlightReplaceLines = false; // highlight search strings using corresponding colors from search strings
     private boolean myBatchTandemEdit = false;
     private boolean myRegisterCaretStateTransferable = true;
 
@@ -212,12 +213,20 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
         myOnPastePreserve = onPastePreserve;
     }
 
-    public boolean isBatchHighlightAllLines() {
-        return myBatchHighlightAllLines;
+    public boolean isBatchHighlightSearchLines() {
+        return myBatchHighlightSearchLines;
     }
 
-    public void setBatchHighlightAllLines(final boolean batchHighlightAllLines) {
-        myBatchHighlightAllLines = batchHighlightAllLines;
+    public void setBatchHighlightSearchLines(final boolean batchHighlightSearchLines) {
+        myBatchHighlightSearchLines = batchHighlightSearchLines;
+    }
+
+    public boolean isBatchHighlightReplaceLines() {
+        return myBatchHighlightReplaceLines;
+    }
+
+    public void setBatchHighlightReplaceLines(final boolean batchHighlightReplaceLines) {
+        myBatchHighlightReplaceLines = batchHighlightReplaceLines;
     }
 
     @NotNull

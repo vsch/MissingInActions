@@ -71,11 +71,8 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.BatchSearchReplace;
 import com.vladsch.MissingInActions.settings.BatchSearchReplaceSettings;
-import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
-import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
-import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.plugin.util.OneTimeRunnable;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.MissingInActions.util.highlight.HighlightListener;
 import com.vladsch.MissingInActions.util.highlight.Highlighter;
 import com.vladsch.MissingInActions.util.highlight.LineHighlightProvider;
@@ -87,8 +84,11 @@ import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.flexmark.util.Utils;
-import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
+import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
+import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import com.vladsch.plugin.util.AwtRunnable;
+import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.Helpers;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
@@ -103,15 +103,12 @@ import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
@@ -156,15 +153,14 @@ public class BatchReplaceForm implements Disposable {
     JButton mySavePreset;
     private JButton myManageActions;
     private JButton myReset;
-    private JBCheckBox myShowHighlights;
-    JBCheckBox myBatchTandemEdit;
     private JButton myReplaceSortUp;
     private JButton myReplaceSortDown;
     private JButton mySearchSortUp;
     private JButton mySearchSortDown;
     private JButton myToggleTandemEdit;
-    private JButton myToggleHighlights;
+    private JButton myToggleSearchHighlights;
     private JButton mySearchCopyRegEx;
+    private JButton myToggleReplaceHighlights;
     private final JBPopupMenu myPopupMenuActions;
 
     private Editor myEditor;
@@ -178,7 +174,9 @@ public class BatchReplaceForm implements Disposable {
     private HashMap<Integer, SearchData> myLineSearchData = null;
     private int[] myIndexedWordCounts = null;
     private TextRange myFoundRange = null;
-    private boolean myHighlightAllLines = false;
+    private boolean myHighlightSearchLines = false;
+    private boolean myHighlightReplaceLines = false;
+    private boolean myBatchTandemEdit = false;
     private boolean myIsIncludeMode = false;
 
     private ArrayList<TextRange> myExcludedRanges = null;
@@ -239,16 +237,19 @@ public class BatchReplaceForm implements Disposable {
         disposeEditors();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void saveSettings() {
         mySettings.getBatchSearchReplace().setWholeWord(myWholeWord.isSelected());
         mySettings.getBatchSearchReplace().setCaseSensitive(myCaseSensitive.isSelected());
         mySettings.getBatchSearchReplace().setSearchText(mySearchEditor.getDocument().getText());
         mySettings.getBatchSearchReplace().setReplaceText(myReplaceEditor.getDocument().getText());
         mySettings.getBatchSearchReplace().setOptionsText(myOptionsEditor.getDocument().getText());
-        mySettings.setBatchHighlightAllLines(myShowHighlights.isSelected());
-        mySettings.setBatchTandemEdit(myBatchTandemEdit.isSelected());
+        mySettings.setBatchHighlightSearchLines(myHighlightSearchLines);
+        mySettings.setBatchHighlightReplaceLines(myHighlightReplaceLines);
+        mySettings.setBatchTandemEdit(myBatchTandemEdit);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void disposeEditors() {
         if (mySearchEditor != null) {
             // release the editors
@@ -325,25 +326,23 @@ public class BatchReplaceForm implements Disposable {
 
     private class MainEditorCaretListener implements CaretListener {
         @Override
-        public void caretPositionChanged(final CaretEvent e) {
+        public void caretPositionChanged(@NotNull final CaretEvent e) {
             myHighlightRunner.cancel();
 
             if (!myInUpdate) {
                 myFoundBackwards = null;
 
-                myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> {
-                    updateOptions(false);
-                }));
+                myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> updateOptions(false)));
             }
         }
 
         @Override
-        public void caretAdded(final CaretEvent e) {
+        public void caretAdded(@NotNull final CaretEvent e) {
 
         }
 
         @Override
-        public void caretRemoved(final CaretEvent e) {
+        public void caretRemoved(@NotNull final CaretEvent e) {
 
         }
     }
@@ -380,8 +379,12 @@ public class BatchReplaceForm implements Disposable {
         boolean caseSensitive = mySettings.getBatchSearchReplace().isCaseSensitive();
         myCaseSensitive.setSelected(caseSensitive);
         myWholeWord.setSelected(mySettings.getBatchSearchReplace().isWholeWord());
-        myShowHighlights.setSelected(mySettings.isBatchHighlightAllLines());
-        myBatchTandemEdit.setSelected(mySettings.isBatchTandemEdit());
+        myHighlightSearchLines = mySettings.isBatchHighlightSearchLines();
+        myHighlightReplaceLines = mySettings.isBatchHighlightReplaceLines();
+        myBatchTandemEdit = mySettings.isBatchTandemEdit();
+        
+        // TODO: enable adding replace strings to highlights and remove line
+        myToggleReplaceHighlights.setVisible(false);
 
         mySampleText.setVisible(false);
 
@@ -424,45 +427,29 @@ public class BatchReplaceForm implements Disposable {
         myNoBorder = myOptionsViewPanel.getBorder();
         updateIconButtons();
 
-        mySearchCopyRegEx.addActionListener(e -> {
-            copyRegEx(false);
-        });
+        mySearchCopyRegEx.addActionListener(e -> copyRegEx(false));
 
-        mySearchSortUp.addActionListener(e -> {
-            sortDocument(false, false);
-        });
-        mySearchSortDown.addActionListener(e -> {
-            sortDocument(false, true);
-        });
-        myReplaceSortUp.addActionListener(e -> {
-            sortDocument(true, false);
-        });
-        myReplaceSortDown.addActionListener(e -> {
-            sortDocument(true, true);
-        });
+        mySearchSortUp.addActionListener(e -> sortDocument(false, false));
+        mySearchSortDown.addActionListener(e -> sortDocument(false, true));
+        myReplaceSortUp.addActionListener(e -> sortDocument(true, false));
+        myReplaceSortDown.addActionListener(e -> sortDocument(true, true));
+
         myToggleTandemEdit.addActionListener(e -> {
-            myBatchTandemEdit.setSelected(!myBatchTandemEdit.isSelected());
+            myBatchTandemEdit = !myBatchTandemEdit;
             updateIconButtons();
         });
-        myToggleHighlights.addActionListener(e -> {
-            myShowHighlights.setSelected(!myShowHighlights.isSelected());
-            updateIconButtons();
 
-            myHighlightAllLines = myShowHighlights.isSelected();
+        myToggleSearchHighlights.addActionListener(e -> {
+            myHighlightSearchLines = !myHighlightSearchLines;
+            updateIconButtons();
             updateFoundRanges();
         });
 
-        myBatchTandemEdit.addActionListener(e -> {
+        myToggleReplaceHighlights.addActionListener(e -> {
+            myHighlightReplaceLines = !myHighlightReplaceLines;
             updateIconButtons();
-        });
-
-        myShowHighlights.addActionListener(e -> {
-            updateIconButtons();
-
-            myHighlightAllLines = myShowHighlights.isSelected();
             updateFoundRanges();
         });
-        myHighlightAllLines = myShowHighlights.isSelected();
 
         myDocumentListener = new EditorDocumentListener();
 
@@ -509,10 +496,6 @@ public class BatchReplaceForm implements Disposable {
                 fillPresets();
             }
         });
-
-        //myPresets.addItemListener(e -> {
-        //    int tmp = 0;
-        //});
 
         myPopupMenuActions = new JBPopupMenu("Actions");
         final JBMenuItem exportXML = new JBMenuItem(Bundle.message("batch-search.export-xml.label"));
@@ -574,7 +557,7 @@ public class BatchReplaceForm implements Disposable {
                     });
                     myInUpdate = savedInUpdate;
                     updateOptions(true);
-                } catch (UnsupportedFlavorException | IOException e1) {
+                } catch (UnsupportedFlavorException | IOException ignored) {
 
                 }
             }
@@ -679,7 +662,6 @@ public class BatchReplaceForm implements Disposable {
                     FileUtil.createParentDirs(file.getFile());
                     FileWriter fileWriter = new FileWriter(file.getFile());
                     saveSettings();
-                    BatchSearchReplaceSettings externalizedSettings = new BatchSearchReplaceSettings(mySettings);
                     BoxedJsObject settings = BoxedJson.of();
                     BoxedJsObject presets = BoxedJson.of();
                     settings.put("presets", presets);
@@ -752,33 +734,28 @@ public class BatchReplaceForm implements Disposable {
 
         myManageActions.setComponentPopupMenu(myPopupMenuActions);
 
-        myManageActions.addActionListener(e -> {
-            myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100);
-        });
+        myManageActions.addActionListener(e -> myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100));
 
-        myMainPanel.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if (myEditor != null) {
-                    String propertyName = evt.getPropertyName();
-                    if (propertyName.equals("ancestor")) {
-                        int tmp = 0;
+        myMainPanel.addPropertyChangeListener(evt -> {
+            if (myEditor != null) {
+                String propertyName = evt.getPropertyName();
+                if (propertyName.equals("ancestor")) {
+                    int tmp = 0;
 
-                        if (evt.getNewValue() != null) {
-                            myIsActive = true;
-                            LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
-                            updateOptions(true);
-                        } else {
-                            myIsActive = false;
-                            saveSettings();
-                            LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
-                        }
-                    } else if (propertyName.equals("Frame.active")) {
-                        if (!(boolean) evt.getNewValue()) {
-                            saveSettings();
-                        }
-                        int tmp = 0;
+                    if (evt.getNewValue() != null) {
+                        myIsActive = true;
+                        LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
+                        updateOptions(true);
+                    } else {
+                        myIsActive = false;
+                        saveSettings();
+                        LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
                     }
+                } else if (propertyName.equals("Frame.active")) {
+                    if (!(boolean) evt.getNewValue()) {
+                        saveSettings();
+                    }
+                    int tmp = 0;
                 }
             }
         });
@@ -789,6 +766,7 @@ public class BatchReplaceForm implements Disposable {
         myInUpdate = false;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void copyRegEx(final boolean replaceText) {
         if (myEditorSearchHighlightProvider.haveHighlights()) {
             Pattern pattern = myEditorSearchHighlightProvider.getHighlightPattern();
@@ -799,13 +777,17 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    public void updateIconButtons() {
-        myToggleTandemEdit.setIcon(myBatchTandemEdit.isSelected() ? AllIcons.Ide.Readonly : AllIcons.Ide.Readwrite);
-        myToggleTandemEdit.setSelected(myBatchTandemEdit.isSelected());
-        myToggleHighlights.setIcon(myShowHighlights.isSelected() ? PluginIcons.Toggle_word_highlights : PluginIcons.No_word_highlights);
-        myToggleHighlights.setSelected(myShowHighlights.isSelected());
+    private void updateIconButtons() {
+        myToggleTandemEdit.setIcon(myBatchTandemEdit ? AllIcons.Ide.Readonly : AllIcons.Ide.Readwrite);
+        myToggleTandemEdit.setSelected(myBatchTandemEdit);
 
-        if (myBatchTandemEdit.isSelected()) {
+        myToggleSearchHighlights.setIcon(myHighlightSearchLines ? PluginIcons.Toggle_word_highlights : PluginIcons.No_word_highlights);
+        myToggleSearchHighlights.setSelected(myHighlightSearchLines);
+
+        myToggleReplaceHighlights.setIcon(myHighlightReplaceLines ? PluginIcons.Toggle_word_highlights : PluginIcons.No_word_highlights);
+        myToggleReplaceHighlights.setSelected(myHighlightReplaceLines);
+
+        if (myBatchTandemEdit) {
             mySearchViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
             myReplaceViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
             myOptionsViewPanel.setBorder(UIUtil.isUnderDarcula() ? myDarculaBorder : myDefaultBorder);
@@ -891,7 +873,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    public void settingsChanged(final boolean loadPresets) {
+    private void settingsChanged(final boolean loadPresets) {
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
         // update dialog
@@ -917,7 +899,7 @@ public class BatchReplaceForm implements Disposable {
         updateOptions(true);
     }
 
-    void sortDocument(boolean sortReplace, boolean sortDown) {
+    private void sortDocument(boolean sortReplace, boolean sortDown) {
         if (myInUpdate) return;
         myInUpdate = true;
 
@@ -962,31 +944,28 @@ public class BatchReplaceForm implements Disposable {
 
         boolean caseSensitive = myCaseSensitive.isSelected();
 
-        Arrays.sort(orderLines, new Comparator<Integer>() {
-            @Override
-            public int compare(final Integer o1, final Integer o2) {
-                int result;
-                if (sortReplace) {
-                    if (caseSensitive) {
-                        result = replaceLines[o1].compareTo(replaceLines[o2]);
-                    } else {
-                        result = replaceLines[o1].compareToIgnoreCase(replaceLines[o2]);
-                        if (result == 0) {
-                            result = replaceLines[o1].compareTo(replaceLines[o2]);
-                        }
-                    }
+        Arrays.sort(orderLines, (o1, o2) -> {
+            int result;
+            if (sortReplace) {
+                if (caseSensitive) {
+                    result = replaceLines[o1].compareTo(replaceLines[o2]);
                 } else {
-                    if (caseSensitive) {
-                        result = searchLines[o1].compareTo(searchLines[o2]);
-                    } else {
-                        result = searchLines[o1].compareToIgnoreCase(searchLines[o2]);
-                        if (result == 0) {
-                            result = searchLines[o1].compareTo(searchLines[o2]);
-                        }
+                    result = replaceLines[o1].compareToIgnoreCase(replaceLines[o2]);
+                    if (result == 0) {
+                        result = replaceLines[o1].compareTo(replaceLines[o2]);
                     }
                 }
-                return sortDown ? -result : result;
+            } else {
+                if (caseSensitive) {
+                    result = searchLines[o1].compareTo(searchLines[o2]);
+                } else {
+                    result = searchLines[o1].compareToIgnoreCase(searchLines[o2]);
+                    if (result == 0) {
+                        result = searchLines[o1].compareTo(searchLines[o2]);
+                    }
+                }
             }
+            return sortDown ? -result : result;
         });
 
         // now we rebuild the editor text
@@ -1015,7 +994,7 @@ public class BatchReplaceForm implements Disposable {
         updateOptions(true);
     }
 
-    public void fillPresets() {
+    private void fillPresets() {
         //boolean savedInUpdate = myInUpdate;
         //myInUpdate = true;
         String presetName = mySettings.getBatchPresetName();
@@ -1035,7 +1014,7 @@ public class BatchReplaceForm implements Disposable {
         //myInUpdate = savedInUpdate;
     }
 
-    protected EditorEx createIdeaEditor(CharSequence charSequence) {
+    private EditorEx createIdeaEditor(CharSequence charSequence) {
         Document doc = EditorFactory.getInstance().createDocument(charSequence);
         FileType fileType = FileTypeManager.getInstance().getStdFileType("text");
         Editor editor = EditorFactory.getInstance().createEditor(doc, myProject, fileType, false);
@@ -1046,7 +1025,7 @@ public class BatchReplaceForm implements Disposable {
         return (EditorEx) editor;
     }
 
-    void updateOptions(final boolean searchReplaceTextChanged) {
+    private void updateOptions(final boolean searchReplaceTextChanged) {
         //noinspection VariableNotUsedInsideIf
         if (myEditor == null || myEditor.isDisposed()) return;
 
@@ -1078,7 +1057,7 @@ public class BatchReplaceForm implements Disposable {
                     final String replaceText = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
                     final String searchText = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
                     clipboardLoadEnabled = !replaceText.isEmpty() && !searchText.isEmpty();
-                } catch (UnsupportedFlavorException | IOException e1) {
+                } catch (UnsupportedFlavorException | IOException ignored) {
                 }
             }
 
@@ -1262,7 +1241,7 @@ public class BatchReplaceForm implements Disposable {
         final int flags;
         int wordIndex;
 
-        public SearchData(final String word, final String replace, final int lineNumber, final int flags) {
+        SearchData(final String word, final String replace, final int lineNumber, final int flags) {
             this.word = word;
             this.replace = replace;
             this.lineNumber = lineNumber;
@@ -1270,7 +1249,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    void updateRangeButtons() {
+    private void updateRangeButtons() {
         boolean isWritable = myEditor.getDocument().isWritable();
         myReplace.setEnabled(myFoundRange != null && isWritable);
         myExclude.setEnabled(myFoundRange != null && isWritable);
@@ -1325,7 +1304,8 @@ public class BatchReplaceForm implements Disposable {
     public static final String INCLUDE = "INCLUDE";
     public static final String RESET = "RESET";
     public static final String TOGGLE_EXCLUDE_INCLUDE = "TOGGLE_EXCLUDE_INCLUDE";
-    public static final String TOGGLE_HIGHLIGHT = "TOGGLE_HIGHLIGHT";
+    public static final String TOGGLE_SEARCH_HIGHLIGHT = "TOGGLE_SEARCH_HIGHLIGHT";
+    public static final String TOGGLE_REPLACE_HIGHLIGHT = "TOGGLE_REPLACE_HIGHLIGHT";
 
     public boolean isActionEnabled(String action) {
         switch (action) {
@@ -1345,8 +1325,10 @@ public class BatchReplaceForm implements Disposable {
                 return myReset.isEnabled();
             case TOGGLE_EXCLUDE_INCLUDE:
                 return myExclude.isEnabled();
-            case TOGGLE_HIGHLIGHT:
-                return myShowHighlights.isEnabled();
+            case TOGGLE_SEARCH_HIGHLIGHT:
+                return myToggleSearchHighlights.isEnabled();
+            case TOGGLE_REPLACE_HIGHLIGHT:
+                return myToggleReplaceHighlights.isEnabled();
             default:
                 return false;
         }
@@ -1378,20 +1360,23 @@ public class BatchReplaceForm implements Disposable {
             case TOGGLE_EXCLUDE_INCLUDE:
                 if (myExclude.isEnabled()) exclude();
                 break;
-            case TOGGLE_HIGHLIGHT:
-                if (myShowHighlights.isEnabled()) myShowHighlights.setSelected(!myShowHighlights.isSelected());
+            case TOGGLE_SEARCH_HIGHLIGHT:
+                if (myToggleSearchHighlights.isEnabled()) myHighlightSearchLines = !myHighlightSearchLines;
+                break;
+            case TOGGLE_REPLACE_HIGHLIGHT:
+                if (myToggleReplaceHighlights.isEnabled()) myHighlightReplaceLines = !myHighlightReplaceLines;
                 break;
             default:
         }
     }
 
-    void focusEditor() {
+    private void focusEditor() {
         if (myEditor != null && !myEditor.isDisposed()) {
             myEditor.getContentComponent().requestFocus();
         }
     }
 
-    void findNext() {
+    private void findNext() {
         if (myEditor == null) return;
 
         WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
@@ -1417,7 +1402,7 @@ public class BatchReplaceForm implements Disposable {
         focusEditor();
     }
 
-    void findPrevious() {
+    private void findPrevious() {
         if (myEditor == null) return;
 
         WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
@@ -1443,7 +1428,7 @@ public class BatchReplaceForm implements Disposable {
         focusEditor();
     }
 
-    void adjustExclusions(TextRange foundRange, int replacementLength) {
+    private void adjustExclusions(TextRange foundRange, int replacementLength) {
         if (myExcludedRanges != null) {
             int iMax = myExcludedRanges.size();
             int delta = replacementLength - foundRange.getLength();
@@ -1457,13 +1442,12 @@ public class BatchReplaceForm implements Disposable {
                     myExcludedRanges.set(i, range.grown(delta));
                 } else {
                     // nothing to do
-
                 }
             }
         }
     }
 
-    void replace() {
+    private void replace() {
         if (myEditor == null || !myEditor.getDocument().isWritable()) return;
 
         boolean handled = false;
@@ -1498,14 +1482,12 @@ public class BatchReplaceForm implements Disposable {
         if (!handled) {
             // must be a click, we will set a pending replace and let it try again
             myPendingReplace = true;
-            MiaCancelableJobScheduler.getInstance().schedule(250, () -> {
-                myPendingReplace = false;
-            });
+            MiaCancelableJobScheduler.getInstance().schedule(250, () -> myPendingReplace = false);
         }
         focusEditor();
     }
 
-    void addExclusion() {
+    private void addExclusion() {
         if (myFoundRange != null && myFoundIndex != -1) {
             if (myExcludedRanges == null) {
                 myExcludedRanges = new ArrayList<>();
@@ -1514,7 +1496,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    void exclude() {
+    private void exclude() {
         if (myEditor == null) return;
 
         if (myFoundRange != null && myFoundIndex != -1) {
@@ -1542,7 +1524,7 @@ public class BatchReplaceForm implements Disposable {
         focusEditor();
     }
 
-    void reset() {
+    private void reset() {
         if (myEditor == null) return;
 
         if (myExcludedRanges != null) {
@@ -1553,11 +1535,11 @@ public class BatchReplaceForm implements Disposable {
         focusEditor();
     }
 
-    boolean isExcludedRange() {
+    private boolean isExcludedRange() {
         return getExcludedRange() != -1;
     }
 
-    int getExcludedRange() {
+    private int getExcludedRange() {
         if (myExcludedRanges != null) {
             int iMax = myExcludedRanges.size();
             for (int i = 0; i < iMax; i++) {
@@ -1569,13 +1551,12 @@ public class BatchReplaceForm implements Disposable {
         return -1;
     }
 
-    void replaceAll() {
+    private void replaceAll() {
         if (myEditor == null) return;
 
         if (!myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty()) {
             WriteCommandAction.runWriteCommandAction(myProject, () -> {
-                int length = myEditor.getDocument().getTextLength();
-                int caretOffset = length;
+                int caretOffset = myEditor.getDocument().getTextLength();
                 //myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
                 //myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
 
@@ -1662,40 +1643,40 @@ public class BatchReplaceForm implements Disposable {
         Project myEditorProject = myProject;
 
         // @formatter:off
-        ignoreErrors(()->{ myViewerSettings.setRightMarginShown(myEditorSettings.isRightMarginShown()); });
-        ignoreErrors(()->{ myViewerSettings.setGutterIconsShown(myEditorSettings.areGutterIconsShown()); });
-        ignoreErrors(()->{ myViewerSettings.setAdditionalPageAtBottom(myEditorSettings.isAdditionalPageAtBottom()); });
-        ignoreErrors(()->{ myViewerSettings.setAllowSingleLogicalLineFolding(myEditorSettings.isAllowSingleLogicalLineFolding()); });
-        ignoreErrors(()->{ myViewerSettings.setAnimatedScrolling(myEditorSettings.isAnimatedScrolling()); });
-        ignoreErrors(()->{ myViewerSettings.setAutoCodeFoldingEnabled(myEditorSettings.isAutoCodeFoldingEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setBlinkCaret(myEditorSettings.isBlinkCaret()); });
-        ignoreErrors(()->{ myViewerSettings.setBlockCursor(myEditorSettings.isBlockCursor()); });
-        ignoreErrors(()->{ myViewerSettings.setCamelWords(myEditorSettings.isCamelWords()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretInsideTabs(myEditorSettings.isCaretInsideTabs()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretRowShown(myEditorSettings.isCaretRowShown()); });
-        ignoreErrors(()->{ myViewerSettings.setDndEnabled(myEditorSettings.isDndEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setFoldingOutlineShown(myEditorSettings.isFoldingOutlineShown()); });
-        ignoreErrors(()->{ myViewerSettings.setIndentGuidesShown(myEditorSettings.isIndentGuidesShown()); });
-        ignoreErrors(()->{ myViewerSettings.setInnerWhitespaceShown(myEditorSettings.isInnerWhitespaceShown()); });
-        ignoreErrors(()->{ myViewerSettings.setLeadingWhitespaceShown(myEditorSettings.isLeadingWhitespaceShown()); });
-        //ignoreErrors(()->{ myViewerSettings.setLineMarkerAreaShown(myEditorSettings.isLineMarkerAreaShown()); });
-        ignoreErrors(()->{ myViewerSettings.setLineMarkerAreaShown(false); });
-        ignoreErrors(()->{ myViewerSettings.setLineNumbersShown(myEditorSettings.isLineNumbersShown()); });
-        ignoreErrors(()->{ myViewerSettings.setMouseClickSelectionHonorsCamelWords(myEditorSettings.isMouseClickSelectionHonorsCamelWords()); });
-        ignoreErrors(()->{ myViewerSettings.setRefrainFromScrolling(myEditorSettings.isRefrainFromScrolling()); });
-        ignoreErrors(()->{ myViewerSettings.setSmartHome(myEditorSettings.isSmartHome()); });
-        ignoreErrors(()->{ myViewerSettings.setTrailingWhitespaceShown(myEditorSettings.isTrailingWhitespaceShown()); });
-        ignoreErrors(()->{ myViewerSettings.setUseCustomSoftWrapIndent(myEditorSettings.isUseCustomSoftWrapIndent()); });
-        ignoreErrors(()->{ myViewerSettings.setUseSoftWraps(myEditorSettings.isUseSoftWraps()); });
-        //ignoreErrors(()->{ myViewerSettings.setVariableInplaceRenameEnabled(myEditorSettings.isVariableInplaceRenameEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setVirtualSpace(myEditorSettings.isVirtualSpace()); });
-        ignoreErrors(()->{ myViewerSettings.setWheelFontChangeEnabled(myEditorSettings.isWheelFontChangeEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setWhitespacesShown(myEditorSettings.isWhitespacesShown()); });
-        //ignoreErrors(()->{ myViewerSettings.setAdditionalColumnsCount(myEditorSettings.getAdditionalColumnsCount()); });
-        //ignoreErrors(()->{ myViewerSettings.setAdditionalLinesCount(myEditorSettings.getAdditionalLinesCount()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretBlinkPeriod(myEditorSettings.getCaretBlinkPeriod()); });
-        ignoreErrors(()->{ myViewerSettings.setCustomSoftWrapIndent(myEditorSettings.getCustomSoftWrapIndent()); });
-        ignoreErrors(()->{ myViewerSettings.setLineCursorWidth(myEditorSettings.getLineCursorWidth()); });
+        ignoreErrors(() -> myViewerSettings.setRightMarginShown(myEditorSettings.isRightMarginShown()));
+        ignoreErrors(() -> myViewerSettings.setGutterIconsShown(myEditorSettings.areGutterIconsShown()));
+        ignoreErrors(() -> myViewerSettings.setAdditionalPageAtBottom(myEditorSettings.isAdditionalPageAtBottom()));
+        ignoreErrors(() -> myViewerSettings.setAllowSingleLogicalLineFolding(myEditorSettings.isAllowSingleLogicalLineFolding()));
+        ignoreErrors(() -> myViewerSettings.setAnimatedScrolling(myEditorSettings.isAnimatedScrolling()));
+        ignoreErrors(() -> myViewerSettings.setAutoCodeFoldingEnabled(myEditorSettings.isAutoCodeFoldingEnabled()));
+        ignoreErrors(() -> myViewerSettings.setBlinkCaret(myEditorSettings.isBlinkCaret()));
+        ignoreErrors(() -> myViewerSettings.setBlockCursor(myEditorSettings.isBlockCursor()));
+        ignoreErrors(() -> myViewerSettings.setCamelWords(myEditorSettings.isCamelWords()));
+        ignoreErrors(() -> myViewerSettings.setCaretInsideTabs(myEditorSettings.isCaretInsideTabs()));
+        ignoreErrors(() -> myViewerSettings.setCaretRowShown(myEditorSettings.isCaretRowShown()));
+        ignoreErrors(() -> myViewerSettings.setDndEnabled(myEditorSettings.isDndEnabled()));
+        ignoreErrors(() -> myViewerSettings.setFoldingOutlineShown(myEditorSettings.isFoldingOutlineShown()));
+        ignoreErrors(() -> myViewerSettings.setIndentGuidesShown(myEditorSettings.isIndentGuidesShown()));
+        ignoreErrors(() -> myViewerSettings.setInnerWhitespaceShown(myEditorSettings.isInnerWhitespaceShown()));
+        ignoreErrors(() -> myViewerSettings.setLeadingWhitespaceShown(myEditorSettings.isLeadingWhitespaceShown()));
+        //ignoreErrors(() -> myViewerSettings.setLineMarkerAreaShown(myEditorSettings.isLineMarkerAreaShown()));
+        ignoreErrors(() -> myViewerSettings.setLineMarkerAreaShown(false));
+        ignoreErrors(() -> myViewerSettings.setLineNumbersShown(myEditorSettings.isLineNumbersShown()));
+        ignoreErrors(() -> myViewerSettings.setMouseClickSelectionHonorsCamelWords(myEditorSettings.isMouseClickSelectionHonorsCamelWords()));
+        ignoreErrors(() -> myViewerSettings.setRefrainFromScrolling(myEditorSettings.isRefrainFromScrolling()));
+        ignoreErrors(() -> myViewerSettings.setSmartHome(myEditorSettings.isSmartHome()));
+        ignoreErrors(() -> myViewerSettings.setTrailingWhitespaceShown(myEditorSettings.isTrailingWhitespaceShown()));
+        ignoreErrors(() -> myViewerSettings.setUseCustomSoftWrapIndent(myEditorSettings.isUseCustomSoftWrapIndent()));
+        ignoreErrors(() -> myViewerSettings.setUseSoftWraps(myEditorSettings.isUseSoftWraps()));
+        //ignoreErrors(() -> myViewerSettings.setVariableInplaceRenameEnabled(myEditorSettings.isVariableInplaceRenameEnabled()));
+        ignoreErrors(() -> myViewerSettings.setVirtualSpace(myEditorSettings.isVirtualSpace()));
+        ignoreErrors(() -> myViewerSettings.setWheelFontChangeEnabled(myEditorSettings.isWheelFontChangeEnabled()));
+        ignoreErrors(() -> myViewerSettings.setWhitespacesShown(myEditorSettings.isWhitespacesShown()));
+        //ignoreErrors(() -> myViewerSettings.setAdditionalColumnsCount(myEditorSettings.getAdditionalColumnsCount()));
+        //ignoreErrors(() -> myViewerSettings.setAdditionalLinesCount(myEditorSettings.getAdditionalLinesCount()));
+        ignoreErrors(() -> myViewerSettings.setCaretBlinkPeriod(myEditorSettings.getCaretBlinkPeriod()));
+        ignoreErrors(() -> myViewerSettings.setCustomSoftWrapIndent(myEditorSettings.getCustomSoftWrapIndent()));
+        ignoreErrors(() -> myViewerSettings.setLineCursorWidth(myEditorSettings.getLineCursorWidth()));
         // @formatter:on
 
         //boolean isUseTabCharacter(Project project); void setUseTabCharacter(boolean useTabCharacter);
@@ -1703,10 +1684,10 @@ public class BatchReplaceForm implements Disposable {
         //int getRightMargin(Project project); void setRightMargin(int myRightMargin);
         //int getTabSize(Project project); void setTabSize(int tabSize);
         // @formatter:off
-        ignoreErrors(() -> { myViewerSettings.setUseTabCharacter(myEditorSettings.isUseTabCharacter(myEditorProject)); });
-        //ignoreErrors(() -> { myViewerSettings.setWrapWhenTypingReachesRightMargin(myEditorSettings.isWrapWhenTypingReachesRightMargin(myEditorProject)); });
-        ignoreErrors(() -> { myViewerSettings.setRightMargin(myEditorSettings.getRightMargin(myEditorProject)); });
-        ignoreErrors(() -> { myViewerSettings.setTabSize(myEditorSettings.getTabSize(myEditorProject)); });
+        ignoreErrors(() -> myViewerSettings.setUseTabCharacter(myEditorSettings.isUseTabCharacter(myEditorProject)));
+        //ignoreErrors(() -> myViewerSettings.setWrapWhenTypingReachesRightMargin(myEditorSettings.isWrapWhenTypingReachesRightMargin(myEditorProject)));
+        ignoreErrors(() -> myViewerSettings.setRightMargin(myEditorSettings.getRightMargin(myEditorProject)));
+        ignoreErrors(() -> myViewerSettings.setTabSize(myEditorSettings.getTabSize(myEditorProject)));
         // @formatter:on
     }
 
@@ -1725,7 +1706,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    void updateFoundRanges() {
+    private void updateFoundRanges() {
         boolean savedInUpdate = myInUpdate;
         myInUpdate = true;
 
@@ -1759,13 +1740,13 @@ public class BatchReplaceForm implements Disposable {
         myInUpdate = savedInUpdate;
     }
 
-    public static void adjustOtherEditorCaretLine(final int caretLine, final EditorEx editor) {
+    private static void adjustOtherEditorCaretLine(final int caretLine, final EditorEx editor) {
         if (caretLine < editor.getDocument().getLineCount()) {
             editor.getCaretModel().getPrimaryCaret().moveToOffset(editor.getDocument().getLineStartOffset(caretLine));
         }
     }
 
-    public static void adjustOtherEditorScrollOffset(final int scrollOffset, final EditorEx editor) {
+    private static void adjustOtherEditorScrollOffset(final int scrollOffset, final EditorEx editor) {
         editor.getScrollingModel().scrollVertically(scrollOffset);
     }
 
@@ -1798,7 +1779,6 @@ public class BatchReplaceForm implements Disposable {
                 updateLastEditorSync(visibleAreaEditor);
                 myInUpdate = true;
                 try {
-                    Rectangle rectangle = e.getNewRectangle();
                     int scrollOffset = visibleAreaEditor.getScrollingModel().getVerticalScrollOffset();
 
                     if (mySearchEditor != visibleAreaEditor) adjustOtherEditorScrollOffset(scrollOffset, mySearchEditor);
@@ -1811,7 +1791,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    static void replicateLineChange(final Document document, int lineNumber, int lineDelta, boolean startOfLine) {
+    private static void replicateLineChange(final Document document, int lineNumber, int lineDelta, boolean startOfLine) {
         int lineCount = document.getLineCount();
         if (lineDelta > 0) {
             // inserted
@@ -1850,7 +1830,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    static int countOccurrences(CharSequence charSequence, char c) {
+    private static int countOccurrences(CharSequence charSequence, char c) {
         int iMax = charSequence.length();
         int occurrences = 0;
         for (int i = 0; i < iMax; i++) {
@@ -1861,11 +1841,11 @@ public class BatchReplaceForm implements Disposable {
         return occurrences;
     }
 
-    void replicateEdit(final DocumentEvent event) {
+    private void replicateEdit(final DocumentEvent event) {
         // figure out if lines were added/removed and replicate to other editors
         if (event.isWholeTextReplaced()) {
             // here we turn off tandem edit mode
-            myBatchTandemEdit.setSelected(false);
+            myBatchTandemEdit = false;
         } else {
             CharSequence beforeSeq = event.getOldFragment();
             CharSequence afterSeq = event.getNewFragment();
@@ -1890,8 +1870,8 @@ public class BatchReplaceForm implements Disposable {
 
     private class EditorDocumentListener implements DocumentListener {
         @Override
-        public void documentChanged(final DocumentEvent event) {
-            if (myBatchTandemEdit.isSelected()) {
+        public void documentChanged(@NotNull final DocumentEvent event) {
+            if (myBatchTandemEdit) {
                 if (!myInTandemEdit && !myInUpdate) {
                     // see if undo in progress
                     UndoManager undoManager = UndoManager.getInstance(myProject);
@@ -1951,7 +1931,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private class SearchWordHighlighterProvider extends WordHighlightProviderImpl {
-        public SearchWordHighlighterProvider(@NotNull final ApplicationSettings settings) {
+        SearchWordHighlighterProvider(@NotNull final ApplicationSettings settings) {
             super(settings);
         }
 
@@ -1962,7 +1942,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private class EditorLineHighlighterProvider extends LineHighlightProviderImpl {
-        public EditorLineHighlighterProvider(@NotNull final ApplicationSettings settings) {
+        EditorLineHighlighterProvider(@NotNull final ApplicationSettings settings) {
             super(settings);
         }
 
@@ -1978,7 +1958,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private class SearchWordHighlighter extends WordHighlighter {
-        public SearchWordHighlighter(@NotNull WordHighlightProvider highlightProvider, @NotNull final Editor editor) {
+        SearchWordHighlighter(@NotNull WordHighlightProvider highlightProvider, @NotNull final Editor editor) {
             super(highlightProvider, editor);
         }
 
@@ -2005,7 +1985,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private class EditorLineHighlighter extends LineHighlighter {
-        public EditorLineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
+        EditorLineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
             super(highlightProvider, editor);
         }
 
@@ -2053,7 +2033,7 @@ public class BatchReplaceForm implements Disposable {
                     TextAttributesKey attributesKey = CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
                     EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
                     attributes = uiTheme.getAttributes(attributesKey);
-                } else if ((selectedLine || myHighlightAllLines) && attributes != null) {
+                } else if ((selectedLine || myHighlightSearchLines) && attributes != null) {
                     // see if error or warning highlight
                     int flags = searchData.flags;
                     if ((flags & IDE_HIGHLIGHT) != 0) {

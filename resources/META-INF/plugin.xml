@@ -81,12 +81,17 @@
         ]]>
     </description>
 
-    <version>1.7.2</version>
+    <version>1.7.3</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.7.3 - Bug Fix Release</h3>
+            <ul>
+                <li>Fix: too strict clipboard content replacement would not replace shared content in some
+                    circumstances. Replaced with string comparison of clipboard content.</li>
+            </ul>
             <h3>1.7.2 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: clipboard sharing code prevented duplicated caret content from being automatically
