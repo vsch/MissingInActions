@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.3 - Bug Fix Release](#173---bug-fix-release)
+- [1.7.3.2 - Bug Fix Release](#1732---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
@@ -90,8 +90,10 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.3 - Bug Fix Release
+### 1.7.3.2 - Bug Fix Release
 
+* Add: `resources/search/searchableOptions.xml` for full text search across all
+  configuration settings.
 * Fix: too strict clipboard content comparison during replacement would not replace shared
   content in some circumstances. Replaced with string comparison of clipboard content.
 * Fix: Moved png and svg icons to different sub-directories. IDE versions 2017 generates a gray
