@@ -136,7 +136,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Sort_down.png"/>
+                              <icon value="icons/png/Sort_down.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-down.description"/>
                             </properties>
@@ -151,7 +151,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Sort_up.png"/>
+                              <icon value="icons/png/Sort_up.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-up.description"/>
                             </properties>
@@ -166,7 +166,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Toggle_word_highlights.png"/>
+                              <icon value="icons/png/Toggle_word_highlights.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.show-search-highlights.description"/>
                             </properties>
@@ -201,7 +201,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Tandem_locked.png"/>
+                              <icon value="icons/png/Tandem_locked.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.tandem-edit.description"/>
                             </properties>
@@ -216,7 +216,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Copy_batch_replace_regex.png"/>
+                              <icon value="icons/png/Copy_batch_replace_regex.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.copy-regex.description"/>
                             </properties>
@@ -269,7 +269,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Sort_down.png"/>
+                              <icon value="icons/png/Sort_down.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-down.description"/>
                             </properties>
@@ -284,7 +284,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Sort_up.png"/>
+                              <icon value="icons/png/Sort_up.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.sort-up.description"/>
                             </properties>
@@ -299,7 +299,7 @@
                             </constraints>
                             <properties>
                               <hideActionText value="true"/>
-                              <icon value="icons/Toggle_word_highlights.png"/>
+                              <icon value="icons/png/Toggle_word_highlights.png"/>
                               <text value=""/>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="batch-search.show-replace-highlights.description"/>
                             </properties>
