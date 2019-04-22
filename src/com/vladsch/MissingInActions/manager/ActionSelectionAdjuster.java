@@ -59,7 +59,7 @@ import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.flexmark.util.Pair;
-import com.vladsch.flexmark.util.ValueRunnable;
+import java.util.function.Consumer;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -231,9 +231,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 AnActionEvent[] actionEvents = myActionEventActionMap.isEmpty() ? EMPTY_EVENTS : myActionEventActionMap.keySet().toArray(EMPTY_EVENTS);
                 int i = actionEvents.length;
 
-                // set current level to true level so last cleanup gets done  
+                // set current level to true level so last cleanup gets done
                 myNestingLevel.set(actionEvents.length);
-                
+
                 while (i-- > stackNesting) {
                     AnActionEvent actionEvent = actionEvents[i];
                     AnAction anAction = myActionEventActionMap.get(actionEvent);
@@ -261,7 +261,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         RangeLimitedCaretSpawningHandler caretSpawningHandler = myManager.getCaretSpawningHandler();
         myRerunCaretHandler = false;
-        
+
         if (caretSpawningHandler != null) {
             if (myManager.getStartCaretStates() != null) {
                 if (action instanceof CaretSearchAwareAction || myAdjustmentsMap.isInSet(action.getClass(), SEARCH_AWARE_CARET_ACTION)) {
@@ -491,17 +491,17 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         myAfterActions.addAfterAction(event, runnable);
     }
 
-    private void afterActionForAllCarets(AnActionEvent event, ValueRunnable<Caret> runnable) {
+    private void afterActionForAllCarets(AnActionEvent event, Consumer<Caret> runnable) {
         myAfterActions.addAfterAction(event, () -> forAllCarets(runnable));
     }
 
-    private void forAllCarets(ValueRunnable<Caret> runnable) {
+    private void forAllCarets(Consumer<Caret> runnable) {
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-            runnable.run(caret);
+            runnable.accept(caret);
         }
     }
 
-    private void forAllCarets(@NotNull AnActionEvent event, ValueRunnable<Caret> runnable, @NotNull ValueRunnable<Caret> afterAction) {
+    private void forAllCarets(@NotNull AnActionEvent event, Consumer<Caret> runnable, @NotNull Consumer<Caret> afterAction) {
         forAllCarets(runnable);
         afterActionForAllCarets(event, afterAction);
     }

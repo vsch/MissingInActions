@@ -169,15 +169,16 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             private boolean listenersInitialized = false;
 
             @Nullable
-            @Override
             protected String getHelpId() {
-                return super.getHelpId();
+                return null;
             }
 
             @Override
             protected void init() {
                 super.init();
                 addActionListeners();
+                Action action = getHelpAction();
+                action.setEnabled(false);
             }
 
             private void addActionListeners() {
@@ -215,7 +216,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         }
                     });
                 }
-                
+
                 JButton optionsButton = getButton(myLeftSideActions[0]);
                 if (optionsButton != null) {
                     optionsButton.addMouseListener(new MouseAdapter() {

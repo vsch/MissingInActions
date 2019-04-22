@@ -194,7 +194,12 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
 
             if (LOG.isDebugEnabled()) LOG.debug("Entering replaceClipboardIfNeeded update");
 
-            Transferable transferable = CopyPasteManager.getInstance().getContents();
+            Transferable transferable;
+            try {
+                transferable = CopyPasteManager.getInstance().getContents();
+            } catch (Exception ignored) {
+                transferable = null;
+            }
 
             SharedClipboardDataBuilderImpl builder = new SharedClipboardDataBuilderImpl();
 
@@ -228,14 +233,15 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
                         Transferable newTransferable = AugmentedTextBlockTransferable.create(transferable, builder.augmentedData, sharedDataLoaders);
                         if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
 
+                        Transferable finalTransferable = transferable;
                         ApplicationManager.getApplication().invokeLater(() -> {
                             // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
                             CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
 
                             Transferable[] allContents = copyPasteManager.getAllContents();
                             final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
-                            
-                            if (Objects.equals(getStringContent(firstTransferable), getStringContent(transferable))) {
+
+                            if (Objects.equals(getStringContent(firstTransferable), getStringContent(finalTransferable))) {
                                 // still here and first
                                 copyPasteManager.setContents(newTransferable);
                                 if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");

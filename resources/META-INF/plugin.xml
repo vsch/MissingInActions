@@ -81,14 +81,15 @@
         ]]>
     </description>
 
-    <version>1.7.3.2</version>
+    <version>1.7.3.5</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.3.2 - Bug Fix Release</h3>
+            <h3>1.7.3.5 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: handle spurious IOException in shared transferable</li>
                 <li>Add: <code>resources/search/searchableOptions.xml</code> for full text search across all
                     configuration settings.</li>
                 <li>Fix: too strict clipboard content comparison during replacement would not replace shared

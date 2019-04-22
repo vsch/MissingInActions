@@ -23,7 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.editor.Caret;
 import com.vladsch.MissingInActions.manager.EditorCaret;
-import com.vladsch.flexmark.util.ValueRunnable;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,10 +56,10 @@ public class ActionContext {
     }
 
     @Nullable
-    public CaretSnapshot runFor(Caret caret, ValueRunnable<CaretSnapshot> runnable) {
+    public CaretSnapshot runFor(Caret caret, Consumer<CaretSnapshot> runnable) {
         CaretSnapshot snapshot = myCaretSnapshots.get(caret);
         if (snapshot != null) {
-            runnable.run(snapshot);
+            runnable.accept(snapshot);
         }
         return snapshot;
     }
