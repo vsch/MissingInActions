@@ -25,7 +25,6 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
-import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
 import com.vladsch.flexmark.util.options.MutableDataSet;
@@ -37,21 +36,21 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     final static public DataKey<EditorCaretSnapshot>    CARET                   = new DataKey<>("CARET", EditorCaretSnapshot.NULL);
     final static public DataKey<Params>                 PARAMS                  = new DataKey<>("PARAMS", value-> new Params(null));
 
-    final static public DataKey<Boolean>                HAS_LINES               = new DynamicDefaultKey<>("HAS_LINES", holder -> CARET.getFrom(holder).hasLines());
-    final static public DataKey<Boolean>                HAS_SELECTION           = new DynamicDefaultKey<>("HAS_SELECTION", holder -> CARET.getFrom(holder).hasSelection());
-    final static public DataKey<Boolean>                IS_LINE                 = new DynamicDefaultKey<>("IS_LINE", holder -> CARET.getFrom(holder).isLine());
-    final static public DataKey<Boolean>                IS_START_ANCHOR         = new DynamicDefaultKey<>("IS_START_ANCHOR", holder -> CARET.getFrom(holder).isStartAnchor());
-    final static public DataKey<EditorPosition>         ANCHOR_POSITION         = new DynamicDefaultKey<>("ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAnchorPosition());
-    final static public DataKey<EditorPosition>         ANTI_ANCHOR_POSITION    = new DynamicDefaultKey<>("ANTI_ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAntiAnchorPosition());
-    final static public DataKey<EditorPosition>         CARET_POSITION          = new DynamicDefaultKey<>("CARET_POSITION", holder -> CARET.getFrom(holder).getCaretPosition());
-    final static public DataKey<EditorPosition>         LINE_SELECTION_END      = new DynamicDefaultKey<>("LINE_SELECTION_END", holder -> CARET.getFrom(holder).getLineSelectionEnd());
-    final static public DataKey<EditorPosition>         LINE_SELECTION_START    = new DynamicDefaultKey<>("LINE_SELECTION_START", holder -> CARET.getFrom(holder).getLineSelectionStart());
-    final static public DataKey<EditorPosition>         SELECTION_END           = new DynamicDefaultKey<>("SELECTION_END", holder -> CARET.getFrom(holder).getSelectionEnd());
-    final static public DataKey<EditorPosition>         SELECTION_START         = new DynamicDefaultKey<>("SELECTION_START", holder -> CARET.getFrom(holder).getSelectionStart());
-    final static public DataKey<Integer>                ANCHOR_COLUMN           = new DynamicDefaultKey<>("ANCHOR_COLUMN", holder -> CARET.getFrom(holder).getAnchorColumn());
-    final static public DataKey<Integer>                COLUMN                  = new DynamicDefaultKey<>("COLUMN", holder -> CARET.getFrom(holder).getColumn());
-    final static public DataKey<Integer>                INDENT                  = new DynamicDefaultKey<>("INDENT", holder -> CARET.getFrom(holder).getIndent());
-    final static public DataKey<Integer>                SELECTION_LINE_COUNT    = new DynamicDefaultKey<>("SELECTION_LINE_COUNT", holder -> CARET.getFrom(holder).getSelectionLineCount());
+    final static public DataKey<Boolean>                HAS_LINES               = new DataKey<>("HAS_LINES", holder -> CARET.getFrom(holder).hasLines());
+    final static public DataKey<Boolean>                HAS_SELECTION           = new DataKey<>("HAS_SELECTION", holder -> CARET.getFrom(holder).hasSelection());
+    final static public DataKey<Boolean>                IS_LINE                 = new DataKey<>("IS_LINE", holder -> CARET.getFrom(holder).isLine());
+    final static public DataKey<Boolean>                IS_START_ANCHOR         = new DataKey<>("IS_START_ANCHOR", holder -> CARET.getFrom(holder).isStartAnchor());
+    final static public DataKey<EditorPosition>         ANCHOR_POSITION         = new DataKey<>("ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAnchorPosition());
+    final static public DataKey<EditorPosition>         ANTI_ANCHOR_POSITION    = new DataKey<>("ANTI_ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAntiAnchorPosition());
+    final static public DataKey<EditorPosition>         CARET_POSITION          = new DataKey<>("CARET_POSITION", holder -> CARET.getFrom(holder).getCaretPosition());
+    final static public DataKey<EditorPosition>         LINE_SELECTION_END      = new DataKey<>("LINE_SELECTION_END", holder -> CARET.getFrom(holder).getLineSelectionEnd());
+    final static public DataKey<EditorPosition>         LINE_SELECTION_START    = new DataKey<>("LINE_SELECTION_START", holder -> CARET.getFrom(holder).getLineSelectionStart());
+    final static public DataKey<EditorPosition>         SELECTION_END           = new DataKey<>("SELECTION_END", holder -> CARET.getFrom(holder).getSelectionEnd());
+    final static public DataKey<EditorPosition>         SELECTION_START         = new DataKey<>("SELECTION_START", holder -> CARET.getFrom(holder).getSelectionStart());
+    final static public DataKey<Integer>                ANCHOR_COLUMN           = new DataKey<>("ANCHOR_COLUMN", holder -> CARET.getFrom(holder).getAnchorColumn());
+    final static public DataKey<Integer>                COLUMN                  = new DataKey<>("COLUMN", holder -> CARET.getFrom(holder).getColumn());
+    final static public DataKey<Integer>                INDENT                  = new DataKey<>("INDENT", holder -> CARET.getFrom(holder).getIndent());
+    final static public DataKey<Integer>                SELECTION_LINE_COUNT    = new DataKey<>("SELECTION_LINE_COUNT", holder -> CARET.getFrom(holder).getSelectionLineCount());
     // @formatter:on
 
     // user params
