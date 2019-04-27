@@ -25,7 +25,7 @@
     <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
     <description><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h1><img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions</h1>
+            <h1><img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions</h1>
             <p>Adds missing editor actions for end of word navigation but that is just the beginning:</p>
             <ul>
                 <li>Automatic Selection stack, stores last 5 selections by default. Recall last selection or any

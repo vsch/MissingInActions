@@ -1,4 +1,4 @@
-<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png?" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions
+<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions
 ===============================================================================================================================================================================
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
@@ -46,4 +46,4 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 **Bug tracking & feature requests:
 [<span style="color:#30A0D8">Missing In Actions GitHub Issues</span>](https://github.com/vsch/MissingInActions)**
- 
+
