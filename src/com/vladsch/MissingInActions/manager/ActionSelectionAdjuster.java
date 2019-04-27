@@ -868,12 +868,71 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 }
                 return;
             }
-        }
 
-        if (adjustments == DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN) {
-            // DONE: all selection models
-            adjustCutAndDuplicateAction(settings, action, event);
-            return;
+            if (adjustments == DUPLICATE__IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN) {
+                // DONE: all selection models
+                adjustCutAndDuplicateAction(settings, action, event);
+                return;
+            }
+
+            if (adjustments == CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN) {
+                // DONE: all selection models
+                if (settings.isDeleteOperations()) {
+                    adjustCutAndDuplicateAction(settings, action, event);
+                    return;
+                }
+            }
+
+            if (adjustments == JOIN__MOVE_LINES_UP_DOWN___NOTHING__NORMALIZE_CARET_POSITION) {
+                // DONE: all selection models
+                forAllEditorCarets(event, (editorCaret, snapshot) -> {
+                    if (editorCaret.isLine()) {
+                        editorCaret
+                                .toLineEquivalentCharSelection()
+                                .normalizeCaretPosition()
+                                .commit();
+                        return true;
+                    }
+                    return false;
+                }, (editorCaret, snapshot) -> {
+                    if (snapshot != null && snapshot.isLine() && editorCaret.isLine()) {
+                        editorCaret
+                                .setIsStartAnchor(snapshot.isStartAnchor())
+                                .setAnchorColumn(editorCaret.getAnchorPosition().atColumn(snapshot.getAnchorColumn()))
+                                .restoreColumn(snapshot)
+                                .normalizeCaretPosition()
+                        ;
+
+                        int value = -1;
+                        if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER)) {
+                            value = settings.getCaretOnMoveSelectionUp();
+                        } else if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
+                            value = settings.getCaretOnMoveSelectionDown();
+                        }
+
+                        if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER, MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
+                            if (value != -1) {
+                                boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
+                                        .to(CaretAdjustmentType.TO_START, () -> {
+                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                        })
+                                        .to(CaretAdjustmentType.TO_END, () -> {
+                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                        })
+                                        .to(CaretAdjustmentType.TO_ANCHOR, () -> {
+                                        })
+                                        .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
+                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
+                                        })
+                                );
+
+                                editorCaret.commit();
+                            }
+                        }
+                    }
+                });
+                return;
+            }
         }
 
         if (adjustments == TOGGLE_CASE___IF_NO_SELECTION__REMOVE_SELECTION) {
@@ -889,57 +948,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     }
                 });
             }
-            return;
-        }
-
-        if (adjustments == JOIN__MOVE_LINES_UP_DOWN___NOTHING__NORMALIZE_CARET_POSITION) {
-            // DONE: all selection models
-            forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                if (editorCaret.isLine()) {
-                    editorCaret
-                            .toLineEquivalentCharSelection()
-                            .normalizeCaretPosition()
-                            .commit();
-                    return true;
-                }
-                return false;
-            }, (editorCaret, snapshot) -> {
-                if (snapshot != null && snapshot.isLine() && editorCaret.isLine()) {
-                    editorCaret
-                            .setIsStartAnchor(snapshot.isStartAnchor())
-                            .setAnchorColumn(editorCaret.getAnchorPosition().atColumn(snapshot.getAnchorColumn()))
-                            .restoreColumn(snapshot)
-                            .normalizeCaretPosition()
-                    ;
-
-                    int value = -1;
-                    if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER)) {
-                        value = settings.getCaretOnMoveSelectionUp();
-                    } else if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
-                        value = settings.getCaretOnMoveSelectionDown();
-                    }
-
-                    if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER, MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
-                        if (value != -1) {
-                            boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
-                                    .to(CaretAdjustmentType.TO_START, () -> {
-                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
-                                    })
-                                    .to(CaretAdjustmentType.TO_END, () -> {
-                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
-                                    })
-                                    .to(CaretAdjustmentType.TO_ANCHOR, () -> {
-                                    })
-                                    .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
-                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-                                    })
-                            );
-
-                            editorCaret.commit();
-                        }
-                    }
-                }
-            });
             return;
         }
 

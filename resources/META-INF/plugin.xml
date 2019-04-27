@@ -81,14 +81,21 @@
         ]]>
     </description>
 
-    <version>1.7.3.5</version>
+    <version>1.7.4</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.3.5 - Bug Fix Release</h3>
+            <h3>1.7.4 - Bug Fix Release</h3>
             <ul>
+                <li>Fix: <a href="https://github.com/vsch/MissingInActions/issues/23">#23, Plugin changes built-in IDEA behavior</a>
+                    <ul>
+                        <li>Disable caret adjustments for cut/duplicate line if line adjustments are disabled</li>
+                        <li>Disable caret adjustments for cut if delete line selection caret adjustments are disabled.</li>
+                    </ul>
+                </li>
+                <li>Fix: update to latest plugin-util</li>
                 <li>Fix: handle spurious IOException in shared transferable</li>
                 <li>Add: <code>resources/search/searchableOptions.xml</code> for full text search across all
                     configuration settings.</li>

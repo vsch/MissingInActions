@@ -210,10 +210,13 @@ public class NormalAdjustmentMap extends ActionAdjustmentMap {
                 , AutoIndentLinesAction.class
         );
 
-        addActionAdjustment(AdjustmentType.DUPLICATE__CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
+        addActionAdjustment(AdjustmentType.DUPLICATE__IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , DuplicateAction.class
                 , DuplicateForClipboardCaretsAction.class
                 , DuplicateLinesAction.class
+        );
+
+        addActionAdjustment(AdjustmentType.CUT___IF_NO_SELECTION__REMOVE_SELECTION___IF_LINE_RESTORE_COLUMN
                 , CutAction.class
         );
 

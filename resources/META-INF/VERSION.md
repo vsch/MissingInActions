@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.3.5 - Bug Fix Release](#1735---bug-fix-release)
+- [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
 - [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
@@ -90,8 +90,11 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.3.5 - Bug Fix Release
+### 1.7.4 - Bug Fix Release
 
+* Fix: [#23, Plugin changes built-in IDEA behavior]
+  * Disable caret adjustments for cut/duplicate line if line adjustments are disabled
+  * Disable caret adjustments for cut if delete line selection caret adjustments are disabled.
 * Fix: update to latest plugin-util
 * Fix: handle spurious IOException in shared transferable
 * Add: `resources/search/searchableOptions.xml` for full text search across all
@@ -846,4 +849,6 @@
   * only on blank lines
 
 [Readme]: https://github.com/vsch/MissingInActions/blob/master/README.md
+[#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
+
 
