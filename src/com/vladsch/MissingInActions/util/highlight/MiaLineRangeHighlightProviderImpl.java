@@ -25,17 +25,19 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.plugin.util.ui.highlight.LineRangeHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.LineRangeHighlighter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.BitSet;
 
-public class LineRangeHighlightProviderImpl extends HighlightProviderBase implements LineRangeHighlightProvider {
+public class MiaLineRangeHighlightProviderImpl extends MiaHighlightProviderBase implements LineRangeHighlightProvider<ApplicationSettings> {
     @Nullable protected BitSet myHighlightLines;
     protected boolean myInvertedHighlights;
 
-    public LineRangeHighlightProviderImpl(@NotNull ApplicationSettings settings) {
+    public MiaLineRangeHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);
         myHighlightsMode = false;
         myInvertedHighlights = true;
@@ -52,8 +54,8 @@ public class LineRangeHighlightProviderImpl extends HighlightProviderBase implem
     }
 
     @Override
-    public LineRangeHighlighter getHighlighter(@NotNull final Editor editor) {
-        return new LineRangeHighlighter(this, editor);
+    public LineRangeHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
+        return new LineRangeHighlighter<>(this, editor);
     }
 
     public void clearHighlights() {

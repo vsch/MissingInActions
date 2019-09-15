@@ -235,6 +235,7 @@ public class ClipboardCaretContent {
     @Nullable
     public static Transferable getTransferable(final @NotNull Editor editor, DataContext dataContext) {
         try {
+            //noinspection deprecation, Part of TRANSFERABLE_PROVIDER
             Producer<Transferable> producer = PasteAction.TRANSFERABLE_PROVIDER.getData(dataContext);
             //noinspection UnnecessaryLocalVariable
             Transferable transferable = EditorModificationUtil.getContentsToPasteToEditor(producer);

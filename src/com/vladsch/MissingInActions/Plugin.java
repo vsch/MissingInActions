@@ -63,10 +63,11 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
-import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
+import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
 import com.vladsch.plugin.util.AppRestartRequiredChecker;
 import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
+import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +92,7 @@ import java.util.Set;
 
 import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
 
-public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
+public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponent {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
     final public static int FEATURE_ENHANCED = 1;
@@ -446,7 +447,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
     }
 
     @Override
-    public void settingsChanged(@NotNull ApplicationSettings settings) {
+    public void settingsChanged(final ColorIterable colors, final ApplicationSettings settings) {
         myDelayedRunner.runAllFor(myMultiPasteAction);
         mySettings = settings;
 
@@ -470,7 +471,7 @@ public class Plugin extends WordHighlightProviderImpl implements BaseComponent {
             }
         }
 
-        super.settingsChanged(settings);
+        super.settingsChanged(colors, settings);
 
         myRestartRequiredChecker.informRestartIfNeeded(settings);
     }

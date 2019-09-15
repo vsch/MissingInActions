@@ -25,9 +25,9 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
-import com.vladsch.flexmark.util.options.DataKey;
-import com.vladsch.flexmark.util.options.MutableDataHolder;
-import com.vladsch.flexmark.util.options.MutableDataSet;
+import com.vladsch.flexmark.util.data.DataKey;
+import com.vladsch.flexmark.util.data.MutableDataHolder;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("WeakerAccess")

@@ -25,6 +25,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.plugin.util.ui.highlight.LineHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.LineHighlighter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,17 +34,17 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LineHighlightProviderImpl extends HighlightProviderBase implements LineHighlightProvider {
+public class MiaLineHighlightProviderImpl extends MiaHighlightProviderBase implements LineHighlightProvider<ApplicationSettings> {
     @Nullable protected Map<Integer, Integer> myHighlightLines;
     protected int myOriginalOrderIndex = 0;
 
-    public LineHighlightProviderImpl(@NotNull ApplicationSettings settings) {
+    public MiaLineHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);
     }
 
     @Override
-    public LineHighlighter getHighlighter(@NotNull final Editor editor) {
-        return new LineHighlighter(this, editor);
+    public LineHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
+        return new LineHighlighter<>(this, editor);
     }
 
     public void clearHighlights() {

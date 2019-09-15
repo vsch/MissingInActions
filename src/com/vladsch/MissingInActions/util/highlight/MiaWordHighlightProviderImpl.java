@@ -28,6 +28,8 @@ import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.Pair;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +41,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-public class WordHighlightProviderImpl extends HighlightProviderBase implements WordHighlightProvider {
+public class MiaWordHighlightProviderImpl extends MiaHighlightProviderBase implements WordHighlightProvider<ApplicationSettings> {
     @Nullable protected Map<String, Integer> myHighlightWordFlags;
     @Nullable protected Map<String, Integer> myOriginalIndexMap;
     protected int myOriginalOrderIndex = 0;
@@ -48,13 +50,13 @@ public class WordHighlightProviderImpl extends HighlightProviderBase implements 
     @Nullable protected Map<String, Integer> myHighlightWordIndices;
     @Nullable protected Map<String, Integer> myHighlightCaseInsensitiveWordIndices;
 
-    public WordHighlightProviderImpl(@NotNull ApplicationSettings settings) {
+    public MiaWordHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);
     }
 
     @Override
-    public WordHighlighter getHighlighter(@NotNull final Editor editor) {
-        return new WordHighlighter(this, editor);
+    public WordHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
+        return new WordHighlighter<>(this, editor);
     }
 
     @Override

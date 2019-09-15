@@ -81,12 +81,18 @@
         ]]>
     </description>
 
-    <version>1.7.4</version>
+    <version>1.7.4.5</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.7.4.5 - Bug Fix Release</h3>
+            <ul>
+                <li>Fix: extract highlight code core to plugin-utils.</li>
+                <li>Fix: invalid caret validation after edit causing Caret is invalid state exception</li>
+                <li>Fix: update to flexmark-util 0.50.34</li>
+            </ul>
             <h3>1.7.4 - Bug Fix Release</h3>
             <ul>
                 <li>Fix: <a href="https://github.com/vsch/MissingInActions/issues/23">#23, Plugin changes built-in IDEA behavior</a>

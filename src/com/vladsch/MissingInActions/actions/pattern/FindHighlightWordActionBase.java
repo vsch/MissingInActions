@@ -35,7 +35,7 @@ import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
+import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
 import org.jetbrains.annotations.Nullable;
 
 abstract public class FindHighlightWordActionBase extends AnAction implements DumbAware {
@@ -68,7 +68,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
     TextRange findNext(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         if (editor != null && Plugin.getInstance().haveHighlights()) {
-            WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(editor).getHighlighter();
+            WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
                 int offset = editor.getCaretModel().getOffset();
@@ -89,7 +89,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
     TextRange findPrevious(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         if (editor != null && Plugin.getInstance().haveHighlights()) {
-            WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(editor).getHighlighter();
+            WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
                 int offset = editor.getCaretModel().getOffset();

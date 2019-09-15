@@ -73,14 +73,8 @@ import com.vladsch.MissingInActions.settings.BatchSearchReplace;
 import com.vladsch.MissingInActions.settings.BatchSearchReplaceSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
-import com.vladsch.MissingInActions.util.highlight.HighlightListener;
-import com.vladsch.MissingInActions.util.highlight.Highlighter;
-import com.vladsch.MissingInActions.util.highlight.LineHighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.LineHighlightProviderImpl;
-import com.vladsch.MissingInActions.util.highlight.LineHighlighter;
-import com.vladsch.MissingInActions.util.highlight.WordHighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.WordHighlightProviderImpl;
-import com.vladsch.MissingInActions.util.highlight.WordHighlighter;
+import com.vladsch.MissingInActions.util.highlight.MiaLineHighlightProviderImpl;
+import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.flexmark.util.Utils;
@@ -90,6 +84,12 @@ import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.Helpers;
+import com.vladsch.plugin.util.ui.highlight.HighlightListener;
+import com.vladsch.plugin.util.ui.highlight.Highlighter;
+import com.vladsch.plugin.util.ui.highlight.LineHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.LineHighlighter;
+import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,13 +124,13 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_INSENSITIVE;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.CASE_SENSITIVE;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.ERROR_ATTRIBUTES_KEY;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_ERROR;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_HIGHLIGHT;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.IDE_WARNING;
-import static com.vladsch.MissingInActions.util.highlight.WordHighlightProvider.WARNING_ATTRIBUTES_KEY;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.CASE_INSENSITIVE;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.CASE_SENSITIVE;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.ERROR_ATTRIBUTES_KEY;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_ERROR;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_HIGHLIGHT;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_WARNING;
+import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.WARNING_ATTRIBUTES_KEY;
 
 public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
@@ -180,10 +180,10 @@ public class BatchReplaceForm implements Disposable {
     private boolean myIsIncludeMode = false;
 
     private ArrayList<TextRange> myExcludedRanges = null;
-    private WordHighlightProvider myEditorSearchHighlightProvider;
-    private LineHighlightProvider mySearchHighlightProvider;
-    private LineHighlightProvider myReplaceHighlightProvider;
-    private LineHighlightProvider myOptionsHighlightProvider;
+    private WordHighlightProvider<ApplicationSettings> myEditorSearchHighlightProvider;
+    private LineHighlightProvider<ApplicationSettings> mySearchHighlightProvider;
+    private LineHighlightProvider<ApplicationSettings> myReplaceHighlightProvider;
+    private LineHighlightProvider<ApplicationSettings> myOptionsHighlightProvider;
 
     final private DocumentListener myDocumentListener;
     final private CaretListener myCaretListener;
@@ -356,9 +356,9 @@ public class BatchReplaceForm implements Disposable {
         @Override
         public void highlightsUpdated() {
             if (!myInUpdate && myEditor != null) {
-                Highlighter highlighter = LineSelectionManager.getInstance(myEditor).getHighlighter();
+                Highlighter<ApplicationSettings> highlighter = LineSelectionManager.getInstance(myEditor).getHighlighter();
                 if (highlighter instanceof WordHighlighter) {
-                    myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
+                    myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedWordCounts();
                 }
                 LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
                 LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
@@ -382,7 +382,7 @@ public class BatchReplaceForm implements Disposable {
         myHighlightSearchLines = mySettings.isBatchHighlightSearchLines();
         myHighlightReplaceLines = mySettings.isBatchHighlightReplaceLines();
         myBatchTandemEdit = mySettings.isBatchTandemEdit();
-        
+
         // TODO: enable adding replace strings to highlights and remove line
         myToggleReplaceHighlights.setVisible(false);
 
@@ -1718,9 +1718,9 @@ public class BatchReplaceForm implements Disposable {
         } else {
             LineSelectionManager selectionManager = LineSelectionManager.getInstance(myEditor);
             selectionManager.updateHighlights();
-            Highlighter highlighter = selectionManager.getHighlighter();
+            Highlighter<ApplicationSettings> highlighter = selectionManager.getHighlighter();
             if (highlighter instanceof WordHighlighter) {
-                myIndexedWordCounts = ((WordHighlighter) highlighter).getIndexedWordCounts();
+                myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedWordCounts();
             }
 
             updateFoundRange(mySearchEditor);
@@ -1930,18 +1930,18 @@ public class BatchReplaceForm implements Disposable {
         return error;
     }
 
-    private class SearchWordHighlighterProvider extends WordHighlightProviderImpl {
+    private class SearchWordHighlighterProvider extends MiaWordHighlightProviderImpl {
         SearchWordHighlighterProvider(@NotNull final ApplicationSettings settings) {
             super(settings);
         }
 
         @Override
-        public WordHighlighter getHighlighter(@NotNull final Editor editor) {
+        public WordHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
             return new SearchWordHighlighter(this, editor);
         }
     }
 
-    private class EditorLineHighlighterProvider extends LineHighlightProviderImpl {
+    private class EditorLineHighlighterProvider extends MiaLineHighlightProviderImpl {
         EditorLineHighlighterProvider(@NotNull final ApplicationSettings settings) {
             super(settings);
         }
@@ -1952,13 +1952,13 @@ public class BatchReplaceForm implements Disposable {
         }
 
         @Override
-        public LineHighlighter getHighlighter(@NotNull final Editor editor) {
+        public LineHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
             return new EditorLineHighlighter(this, editor);
         }
     }
 
-    private class SearchWordHighlighter extends WordHighlighter {
-        SearchWordHighlighter(@NotNull WordHighlightProvider highlightProvider, @NotNull final Editor editor) {
+    private class SearchWordHighlighter extends WordHighlighter<ApplicationSettings> {
+        SearchWordHighlighter(@NotNull WordHighlightProvider<ApplicationSettings> highlightProvider, @NotNull final Editor editor) {
             super(highlightProvider, editor);
         }
 
@@ -1984,8 +1984,8 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    private class EditorLineHighlighter extends LineHighlighter {
-        EditorLineHighlighter(@NotNull LineHighlightProvider highlightProvider, @NotNull final Editor editor) {
+    private class EditorLineHighlighter extends LineHighlighter<ApplicationSettings> {
+        EditorLineHighlighter(@NotNull LineHighlightProvider<ApplicationSettings> highlightProvider, @NotNull final Editor editor) {
             super(highlightProvider, editor);
         }
 

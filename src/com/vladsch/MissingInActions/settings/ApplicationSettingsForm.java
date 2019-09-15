@@ -38,13 +38,12 @@ import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.util.ColorIterable;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
-import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.ui.CheckBoxWithColorChooser;
+import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.Settable;
 import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
@@ -340,7 +339,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 updateOptions(false);
             }
         };
-        
+
         final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(final DocumentEvent e) {
@@ -348,7 +347,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 updateOptions(false);
             }
         };
-        
+
         myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
         myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
 

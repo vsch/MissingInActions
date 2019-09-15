@@ -4,6 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
+- [1.7.4.5 - Bug Fix Release](#1745---bug-fix-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -89,6 +90,12 @@
         both of these colored with the same colors to allow using color alignment for validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
+
+### 1.7.4.5 - Bug Fix Release
+
+* Fix: extract highlight code core to plugin-utils.
+* Fix: invalid caret validation after edit causing Caret is invalid state exception
+* Fix: update to flexmark-util 0.50.34
 
 ### 1.7.4 - Bug Fix Release
 

@@ -51,12 +51,7 @@ import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.InsertedRangeContext;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
-import com.vladsch.MissingInActions.util.highlight.HighlightListener;
-import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.Highlighter;
-import com.vladsch.MissingInActions.util.highlight.LineRangeHighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.LineRangeHighlightProviderImpl;
-import com.vladsch.MissingInActions.util.highlight.LineRangeHighlighter;
+import com.vladsch.MissingInActions.util.highlight.MiaLineRangeHighlightProviderImpl;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.plugin.util.AwtRunnable;
@@ -64,6 +59,11 @@ import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ReEntryGuard;
 import com.vladsch.plugin.util.SearchPattern;
+import com.vladsch.plugin.util.ui.highlight.HighlightListener;
+import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.Highlighter;
+import com.vladsch.plugin.util.ui.highlight.LineRangeHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.LineRangeHighlighter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,16 +119,16 @@ public class LineSelectionManager implements
     @Nullable private Set<CaretEx> myStartMatchedCarets;
     @Nullable private Set<CaretEx> myFoundCarets;
     @Nullable private List<CaretState> myStartCaretStates;
-    final @NotNull LineRangeHighlightProvider myIsolationHighlightProvider;
-    @Nullable LineRangeHighlighter myIsolationHighlighter;
-    @NotNull HighlightProvider myHighlightProvider = Plugin.getInstance();
+    final @NotNull LineRangeHighlightProvider<ApplicationSettings> myIsolationHighlightProvider;
+    @Nullable LineRangeHighlighter<ApplicationSettings> myIsolationHighlighter;
+    @NotNull HighlightProvider<ApplicationSettings> myHighlightProvider = Plugin.getInstance();
     OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
     private HashMap<String, String> myOnPasteReplacementMap = null;
     private SearchPattern myOnPasteUserSearchPattern = null;
     @NotNull private String myOnPasteUserReplacementText = "";
     private Pattern myOnPasteSearchPattern = null;
     private final HighlightListener myHighlightListener;
-    @Nullable protected Highlighter myHighlighter = null;
+    @Nullable protected Highlighter<ApplicationSettings> myHighlighter = null;
     final @NotNull HighlightListener myIsolatedLinesListener;
     boolean myInSelectionStackPopup = false;
 
@@ -155,8 +155,8 @@ public class LineSelectionManager implements
         return Plugin.getInstance().getSelectionManager(editor);
     }
 
-    public void setHighlightProvider(@Nullable HighlightProvider highlightProvider) {
-        HighlightProvider oldHighlightProvider = myHighlightProvider;
+    public void setHighlightProvider(@Nullable HighlightProvider<ApplicationSettings> highlightProvider) {
+        HighlightProvider<ApplicationSettings> oldHighlightProvider = myHighlightProvider;
         myHighlightProvider = highlightProvider == null ? Plugin.getInstance() : highlightProvider;
         if (myHighlightProvider != oldHighlightProvider) {
             removeHighlights();
@@ -185,7 +185,8 @@ public class LineSelectionManager implements
         myInSelectionStackPopup = inSelectionStackPopup;
     }
 
-    public HighlightProvider getHighlightProvider() {
+    @NotNull
+    public HighlightProvider<ApplicationSettings> getHighlightProvider() {
         return myHighlightProvider;
     }
 
@@ -217,9 +218,9 @@ public class LineSelectionManager implements
             UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
 
             @Override
-            public void lookAndFeelChanged(final LafManager source) {
-                if (myEditor.isDisposed()) return;  
-                
+            public void lookAndFeelChanged(@NotNull final LafManager source) {
+                if (myEditor.isDisposed()) return;
+
                 UIManager.LookAndFeelInfo newLookAndFeel = source.getCurrentLookAndFeel();
                 if (lookAndFeel != newLookAndFeel) {
                     lookAndFeel = newLookAndFeel;
@@ -249,7 +250,7 @@ public class LineSelectionManager implements
         myFoundCarets = null;
         myStartCaretStates = null;
 
-        myIsolationHighlightProvider = new LineRangeHighlightProviderImpl(mySettings);
+        myIsolationHighlightProvider = new MiaLineRangeHighlightProviderImpl(mySettings);
         myIsolatedLinesListener = new HighlightListener() {
             @Override
             public void highlightsChanged() {
@@ -266,12 +267,12 @@ public class LineSelectionManager implements
 
         DocumentListener documentListener = new DocumentListener() {
             @Override
-            public void beforeDocumentChange(final com.intellij.openapi.editor.event.DocumentEvent event) {
+            public void beforeDocumentChange(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
 
             }
 
             @Override
-            public void documentChanged(final com.intellij.openapi.editor.event.DocumentEvent event) {
+            public void documentChanged(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
                 if (myHighlightProvider.isShowHighlights()) {
                     myHighlightRunner.cancel();
                     myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, () -> {
@@ -311,7 +312,7 @@ public class LineSelectionManager implements
     }
 
     public void setOnPasteReplacementText(@Nullable final HashMap<String, String> onPasteReplacementMap) {
-        myOnPasteReplacementMap = onPasteReplacementMap == null ? null : new HashMap<String, String>(onPasteReplacementMap);
+        myOnPasteReplacementMap = onPasteReplacementMap == null ? null : new HashMap<>(onPasteReplacementMap);
         myOnPasteSearchPattern = null;
     }
 
@@ -608,20 +609,21 @@ public class LineSelectionManager implements
 
     public void removeHighlights() {
         if (myEditor.isDisposed()) return;
-        
+
         if (myHighlighter != null) {
             myHighlighter.removeHighlights();
             myHighlighter = null;
         }
     }
 
-    public Highlighter getHighlighter() {
+    @Nullable
+    public Highlighter<ApplicationSettings> getHighlighter() {
         return myHighlighter;
     }
 
     public void updateHighlights() {
         if (myEditor.isDisposed()) return;
-        
+
         myHighlightRunner.cancel();
 
         if (myHighlightProvider.isShowHighlights()) {
@@ -706,12 +708,7 @@ public class LineSelectionManager implements
 
     private void addEscapeDispatcher() {
         if (mySettings.isSearchCancelOnEscape()) {
-            final IdeEventQueue.EventDispatcher eventDispatcher = new IdeEventQueue.EventDispatcher() {
-                @Override
-                public boolean dispatch(@NotNull final AWTEvent e) {
-                    return LineSelectionManager.this.dispatchEscape(e);
-                }
-            };
+            final IdeEventQueue.EventDispatcher eventDispatcher = LineSelectionManager.this::dispatchEscape;
 
             IdeEventQueue.getInstance().addDispatcher(eventDispatcher, this);
             myDelayedRunner.addRunnable(ESCAPE_SEARCH, () -> {
@@ -722,7 +719,7 @@ public class LineSelectionManager implements
 
     private boolean dispatchEscape(@NotNull final AWTEvent e) {
         if (myEditor.isDisposed()) return false;
-        
+
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
                 final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
@@ -814,7 +811,7 @@ public class LineSelectionManager implements
             //});
 
             if (myEditor.getProject() != null) {
-                Plugin.getInstance().addEditorActiveLookupListener(myEditor, this);
+                Plugin.addEditorActiveLookupListener(myEditor, this);
             }
 
             if (settings.isMouseLineSelection()) {
@@ -884,7 +881,7 @@ public class LineSelectionManager implements
     }
 
     @Override
-    public void mouseClicked(EditorMouseEvent e) {
+    public void mouseClicked(@NotNull EditorMouseEvent e) {
 
     }
 
@@ -961,17 +958,17 @@ public class LineSelectionManager implements
     }
 
     @Override
-    public void mouseEntered(EditorMouseEvent e) {
+    public void mouseEntered(@NotNull EditorMouseEvent e) {
 
     }
 
     @Override
-    public void mouseExited(EditorMouseEvent e) {
+    public void mouseExited(@NotNull EditorMouseEvent e) {
 
     }
 
     @Override
-    public void mouseMoved(EditorMouseEvent e) {
+    public void mouseMoved(@NotNull EditorMouseEvent e) {
 
     }
 
@@ -1060,7 +1057,7 @@ public class LineSelectionManager implements
     }
 
     @Override
-    public void caretPositionChanged(CaretEvent e) {
+    public void caretPositionChanged(@NotNull CaretEvent e) {
         myCaretGuard.ifUnguarded(() -> {
             Caret caret = e.getCaret();
             if (myMouseAnchor == -1 && caret != null) {
@@ -1091,12 +1088,12 @@ public class LineSelectionManager implements
     //}
 
     @Override
-    public void caretAdded(CaretEvent e) {
+    public void caretAdded(@NotNull CaretEvent e) {
         int caretCount = myEditor.getCaretModel().getCaretCount();
         if (caretCount == 2) {
             Plugin.getInstance().updateEditorParameterHints(myEditor, true);
         }
-        
+
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {
             myCaretHighlighter.caretAdded(caret);
@@ -1104,13 +1101,13 @@ public class LineSelectionManager implements
     }
 
     @Override
-    public void caretRemoved(CaretEvent e) {
+    public void caretRemoved(@NotNull CaretEvent e) {
         int caretCount = myEditor.getCaretModel().getCaretCount();
         if (caretCount == 1) {
-            // if caret count becomes 1 due to escape 
+            // if caret count becomes 1 due to escape
             Plugin.getInstance().updateEditorParameterHints(myEditor, true);
         }
-        
+
         mySelectionStates.remove(e.getCaret());
         Caret caret = e.getCaret();
         if (myMouseAnchor == -1 && caret != null) {

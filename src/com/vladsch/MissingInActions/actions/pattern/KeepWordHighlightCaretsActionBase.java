@@ -33,8 +33,8 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.MissingInActions.util.highlight.HighlightProvider;
-import com.vladsch.MissingInActions.util.highlight.WordHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
         boolean selected = false;
 
         if (editor != null && editor.getSelectionModel().hasSelection()) {
-            final HighlightProvider highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
+            final HighlightProvider<ApplicationSettings> highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
             enabled = !myIsRemoveCaret || highlightProvider instanceof WordHighlightProvider && highlightProvider.haveHighlights();
         }
         e.getPresentation().setEnabled(enabled);
@@ -69,9 +69,9 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
             final Document document = editor.getDocument();
             final CaretModel caretModel = editor.getCaretModel();
             final CharSequence chars = document.getCharsSequence();
-            final HighlightProvider highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
+            final HighlightProvider<ApplicationSettings> highlightProvider = LineSelectionManager.getInstance(editor).getHighlightProvider();
             if (highlightProvider instanceof WordHighlightProvider) {
-                final WordHighlightProvider wordHighlightProvider = (WordHighlightProvider) highlightProvider;
+                final WordHighlightProvider<ApplicationSettings> wordHighlightProvider = (WordHighlightProvider<ApplicationSettings>) highlightProvider;
 
                 final List<Caret> removedCarets = new ArrayList<>();
                 int removedCaretCount = 0;

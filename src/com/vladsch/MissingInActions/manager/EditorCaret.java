@@ -22,7 +22,11 @@
 package com.vladsch.MissingInActions.manager;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.project.Project;
 import com.vladsch.MissingInActions.util.CaretSnapshot;
 import com.vladsch.MissingInActions.util.EditorCaretSnapshot;
@@ -309,24 +313,27 @@ public class EditorCaret implements EditorCaretSnapshot {
     @SuppressWarnings("SameParameterValue")
     public void commit(boolean scrollToCaret) {
         myFactory.getManager().guard(() -> {
-            if (!myCaretPosition.equals(myCaret.getLogicalPosition())) {
-                myCaret.moveToLogicalPosition(myCaretPosition);
-                if (scrollToCaret) scrollToCaret();
-            }
+            // validate caret first
+            if (myCaret.isValid()) {
+                if (!myCaretPosition.equals(myCaret.getLogicalPosition())) {
+                    myCaret.moveToLogicalPosition(myCaretPosition);
+                    if (scrollToCaret) scrollToCaret();
+                }
 
-            if (myIsLine && (mySelectionStart.column != 0 || mySelectionEnd.column != 0)) {
-                mySelectionStart = getLineSelectionStart();
-                mySelectionEnd = getLineSelectionEnd();
-                normalizeCaretPosition();
-            }
+                if (myIsLine && (mySelectionStart.column != 0 || mySelectionEnd.column != 0)) {
+                    mySelectionStart = getLineSelectionStart();
+                    mySelectionEnd = getLineSelectionEnd();
+                    normalizeCaretPosition();
+                }
 
-            int startOffset = mySelectionStart.getOffset();
-            int endOffset = mySelectionEnd.getOffset();
-            if (startOffset != myCaret.getSelectionStart() || endOffset != myCaret.getSelectionEnd()) {
-                myCaret.setSelection(startOffset, endOffset);
-            }
+                int startOffset = mySelectionStart.getOffset();
+                int endOffset = mySelectionEnd.getOffset();
+                if (startOffset != myCaret.getSelectionStart() || endOffset != myCaret.getSelectionEnd()) {
+                    myCaret.setSelection(startOffset, endOffset);
+                }
 
-            commitState();
+                commitState();
+            }
         });
     }
 
