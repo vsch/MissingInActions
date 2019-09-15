@@ -109,7 +109,10 @@
                       </component>
                       <component id="8fd92" class="javax.swing.JComboBox" binding="myMouseModifier" custom-create="true">
                         <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                            <preferred-size width="300" height="-1"/>
+                            <maximum-size width="300" height="-1"/>
+                          </grid>
                         </constraints>
                         <properties/>
                       </component>
