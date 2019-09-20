@@ -1,6 +1,6 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="plugin-description" profileName="plugin-description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true">
+    <option name="myName" value="plugin-description" profileName="plugin-description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveLinkMapSettings="true" haveHtmlExportSettings="true">
       <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="false" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.panel" providerName="Default - Swing" />
