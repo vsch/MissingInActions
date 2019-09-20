@@ -110,12 +110,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     final private boolean myParameterHintsAvailable;
     private boolean myRegisterCaretStateTransferable;
 
-    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title")) {
-        @Override
-        protected long getRestartNeededReasons(final ApplicationSettings settings) {
-            return 0L; // (!settings.isRegisterCaretStateTransferable() && myRegisterCaretStateTransferable) ? 1L : 0L;
-        }
-    };
+//    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
@@ -473,7 +468,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
         super.settingsChanged(colors, settings);
 
-        myRestartRequiredChecker.informRestartIfNeeded(settings);
+//        myRestartRequiredChecker.informRestartIfNeeded(settings);
     }
 
     private void registerPasteOverrides(@NotNull Editor editor) {

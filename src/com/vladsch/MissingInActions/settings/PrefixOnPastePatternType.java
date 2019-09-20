@@ -79,11 +79,9 @@ public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPasteP
             }
         } else if (this == CAMEL) {
             for (String prefix : prefixes) {
-                if (text.startsWith(prefix) && text.length() > prefix.length()) return prefix;
-                if (text.startsWith(prefix) && text.length() > prefix.length() && Character.isLowerCase(text.charAt(prefix.length() - 1))) return prefix;
+                if (text.startsWith(prefix) && text.length() > prefix.length() && Character.isUpperCase(text.charAt(prefix.length()))) return prefix;
             }
-        }
-        if (this == REGEX) {
+        } else if (this == REGEX) {
             try {
                 Pattern pattern;
                 Matcher matcher;

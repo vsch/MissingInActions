@@ -263,6 +263,9 @@ public class CaseFormatPreserverTest {
 
         s = preserved("[name.with.parts]|", "nameTestParts", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
         assertEquals("name.test.parts", s);
+
+        s = preserved("boolean [settingsExtension]|\n", "projectSettingsExtension", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("boolean projectSettingsExtension\n", s);
     }
 
     @Test
