@@ -31,6 +31,7 @@ import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.HyperlinkLabel;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
@@ -53,7 +54,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
@@ -75,7 +75,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     private CustomizedBoundaryForm myCustomizedPrevWordBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordEndBounds;
     private CustomizedBoundaryForm myCustomizedPrevWordStartBounds;
-    private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm;
+    @SuppressWarnings("unused") private CustomizedBoundaryLabelForm myCustomizedBoundaryLabelForm;
     private HyperlinkLabel myPreambleLabel;
     private HyperlinkLabel mySetVirtualSpace;
     JBCheckBox myAddPrefixOnPaste;
@@ -153,7 +153,6 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBTextField myOpenQuoteText;
     JBTextField myClosedQuoteText;
     private JLabel mySpliceDelimiterTextLabel;
-    JBCheckBox myQuoteSplicedItems;
     JBCheckBox myOnlyLatestBlankClipboard;
     JBCheckBox mySpawnNumericHexSearch;
     JBCheckBox mySpawnNumericSearch;
@@ -224,7 +223,6 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myMultiPasteShowEolInList, i::isMultiPasteShowEolInList, i::setMultiPasteShowEolInList),
                         component(myMultiPasteShowEolInViewer, i::isMultiPasteShowEolInViewer, i::setMultiPasteShowEolInViewer),
                         component(myMultiPasteShowInstructions, i::isMultiPasteShowInstructions, i::setMultiPasteShowInstructions),
-                        component(myQuoteSplicedItems, i::isQuoteSplicedItems, i::setQuoteSplicedItems),
                         component(myOnlyLatestBlankClipboard, i::isOnlyLatestBlankClipboard, i::setOnlyLatestBlankClipboard),
                         component(mySpawnNumericHexSearch, i::isSpawnNumericHexSearch, i::setSpawnNumericHexSearch),
                         component(mySpawnNumericSearch, i::isSpawnNumericSearch, i::setSpawnNumericSearch),
@@ -592,7 +590,6 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myMultiPasteDeleteRepeatedCaretData.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
-        myQuoteSplicedItems.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected() && !(myOpenQuoteText.getText().isEmpty() && myClosedQuoteText.getText().isEmpty()));
         mySpawnNumericHexSearch.setEnabled(mySpawnNumericSearch.isEnabled() && mySpawnNumericSearch.isSelected());
 
         final boolean regexPrefixes = PrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == PrefixOnPastePatternType.REGEX;
@@ -669,43 +666,33 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myGradientHueSteps = new JSpinner(new SpinnerNumberModel(24, 1, 60, 1));
 
         mySetVirtualSpace = new HyperlinkLabel();
-        mySetVirtualSpace.addHyperlinkListener(new HyperlinkListener() {
-            public void hyperlinkUpdate(final HyperlinkEvent e) {
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
-                    EditorSettingsExternalizable.getInstance().setVirtualSpace(!isVirtualSpace);
-                    mySettings.setWeSetVirtualSpace(!isVirtualSpace);
-                    updateOptions(false);
-                    //DataContext context = DataManager.getInstance().getDataContextFromFocus().getResult();
-                    //if (context != null) {
-                    //    Settings settings = Settings.KEY.getData(context);
-                    //    if (settings != null) {
-                    //        Configurable configurable = settings.find(EditorOptions.ID);
-                    //        settings.select(configurable);
-                    //    }
-                    //}
-                }
+        mySetVirtualSpace.addHyperlinkListener(e -> {
+            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                boolean isVirtualSpace = EditorSettingsExternalizable.getInstance().isVirtualSpace();
+                EditorSettingsExternalizable.getInstance().setVirtualSpace(!isVirtualSpace);
+                mySettings.setWeSetVirtualSpace(!isVirtualSpace);
+                updateOptions(false);
             }
         });
 
         myPrimaryCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
-        myPrimaryCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        myPrimaryCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.BLACK);
         mySearchStartCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
-        mySearchStartCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        mySearchStartCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.black);
         mySearchStartFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
-        mySearchStartMatchedCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
+        mySearchStartMatchedCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.black);
         mySearchFoundCaretThickness = CaretThicknessType.ADAPTER.createComboBox();
-        mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.black);
-        myRecalledSelectionColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
-        myIsolatedForegroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
-        myIsolatedBackgroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, Color.cyan);
+        mySearchFoundCaretColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.black);
+        myRecalledSelectionColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.cyan);
+        myIsolatedForegroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.cyan);
+        myIsolatedBackgroundColor = new CheckBoxWithColorChooser(Bundle.message("settings.primary-caret-color.label"), false, JBColor.cyan);
     }
 
-    private class EditingCommitter implements IdeEventQueue.EventDispatcher {
+    private static class EditingCommitter implements IdeEventQueue.EventDispatcher {
         @Override
-        public boolean dispatch(AWTEvent e) {
+        public boolean dispatch(@NotNull AWTEvent e) {
             if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_ENTER) {
-                if ((((KeyEvent) e).getModifiers() & ~(InputEvent.CTRL_DOWN_MASK | InputEvent.CTRL_MASK)) == 0) {
+                if ((((KeyEvent) e).getModifiersEx() & ~(InputEvent.CTRL_DOWN_MASK)) == 0) {
                     Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTable);
 
                     if (owner instanceof JTable && ((JTable) owner).isEditing()) {

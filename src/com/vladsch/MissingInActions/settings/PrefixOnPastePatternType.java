@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPastePatternType> {
     ANY(0, Bundle.message("settings.remove-prefix-on-paste-type.any")),
-    CAMEL(1, Bundle.message("settings.line-settings.remove-prefix-on-paste-type.camel")),
+    CAMEL(1, Bundle.message("settings.remove-prefix-on-paste-type.camel")),
     REGEX(2, Bundle.message("settings.remove-prefix-on-paste-type.regex"));
 
     ///**

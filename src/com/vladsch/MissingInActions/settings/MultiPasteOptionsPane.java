@@ -65,7 +65,6 @@ public class MultiPasteOptionsPane {
     JBTextField mySpliceDelimiterText;
     JBTextField myOpenQuoteText;
     JBTextField myClosedQuoteText;
-    JBCheckBox myQuoteSplicedItems;
     JLabel mySpliceDelimiterTextLabel;
     private Runnable mySettingsChangedRunnable;
     private String myTextContent;
@@ -77,7 +76,6 @@ public class MultiPasteOptionsPane {
         mySettingsChangedRunnable = null;
         mySettings = ApplicationSettings.getInstance();
         myTextContent = "";
-        myQuoteSplicedItems.setVisible(false);
 
         myShowInstructions.setSelected(mySettings.isMultiPasteShowInstructions());
         myMultiPasteShowEolInViewer.setSelected(mySettings.isMultiPasteShowEolInViewer());
@@ -93,7 +91,6 @@ public class MultiPasteOptionsPane {
         mySpliceDelimiterText.setText(mySettings.getSpliceDelimiterText());
         myOpenQuoteText.setText(mySettings.getOpenQuoteText());
         myClosedQuoteText.setText(mySettings.getClosedQuoteText());
-        myQuoteSplicedItems.setSelected(mySettings.isQuoteSplicedItems());
         myUserDefinedMacroReplace.setText(mySettings.getUserDefinedMacroReplace());
 
         myShowInstructions.addActionListener(event -> {
@@ -124,7 +121,6 @@ public class MultiPasteOptionsPane {
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
         myUserDefinedMacroSmartReplace.addActionListener(userMacroActionListener);
         myRegexUserDefinedMacro.addActionListener(actionListener);
-        myQuoteSplicedItems.addActionListener(actionListener);
 
         final DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
@@ -150,7 +146,7 @@ public class MultiPasteOptionsPane {
         updateUIState();
 
         myTextPane.setVisible(myShowInstructions.isSelected());
-        
+
         myNormalBorder = mySpliceDelimiterText.getBorder();
         myNormalPanelBorder = myPanel.getBorder();
         myHighlightBorder = BorderFactory.createLineBorder(JBColor.MAGENTA, 3, true);
@@ -170,7 +166,6 @@ public class MultiPasteOptionsPane {
         mySettings.setSpliceDelimiterText(mySpliceDelimiterText.getText());
         mySettings.setOpenQuoteText(myOpenQuoteText.getText());
         mySettings.setClosedQuoteText(myClosedQuoteText.getText());
-        mySettings.setQuoteSplicedItems(myQuoteSplicedItems.isSelected());
         mySettings.setUserDefinedMacroReplace(myUserDefinedMacroReplace.getText());
 
         updateUIState();
@@ -191,8 +186,6 @@ public class MultiPasteOptionsPane {
 
         myUserDefinedMacroReplace.setVisible(!myUserDefinedMacroClipContent.isSelected());
         myUserDefinedMacroReplaceClipContent.setVisible(myUserDefinedMacroClipContent.isSelected());
-
-        myQuoteSplicedItems.setEnabled(!(myOpenQuoteText.getText().isEmpty() && myClosedQuoteText.getText().isEmpty()));
     }
 
     private void updateTextPane() {

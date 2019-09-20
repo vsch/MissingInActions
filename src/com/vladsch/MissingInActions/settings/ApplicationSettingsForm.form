@@ -477,7 +477,7 @@
                                   <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="content-chooser.slice-with-comma-text.label"/>
                                 </properties>
                               </component>
-                              <component id="7d24e" class="com.intellij.ui.components.JBCheckBox" binding="myQuoteSplicedItems">
+                              <component id="f7b1b" class="javax.swing.JLabel">
                                 <constraints>
                                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
@@ -695,7 +695,7 @@
                     <border type="empty" title-resource-bundle="com/vladsch/MissingInActions/localization/strings" title-key="settings.prefix.title"/>
                     <children>
                       <grid id="c3718" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <margin top="0" left="0" bottom="0" right="10"/>
                         <constraints>
                           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
                         </constraints>
@@ -722,7 +722,10 @@
                         <children>
                           <component id="3a24f" class="javax.swing.JComboBox" binding="myRemovePrefixOnPastePattern" custom-create="true">
                             <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                                <minimum-size width="300" height="-1"/>
+                                <preferred-size width="400" height="-1"/>
+                              </grid>
                             </constraints>
                             <properties>
                               <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.remove-prefix-on-paste-type.description"/>
@@ -1321,7 +1324,7 @@
                     </constraints>
                     <properties>
                       <selected value="false"/>
-                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret.diable-parameter-info.label"/>
+                      <text resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret.disable-parameter-info.label"/>
                       <toolTipText resource-bundle="com/vladsch/MissingInActions/localization/strings" key="settings.multi-caret.disable-parameter-info.description"/>
                     </properties>
                   </component>

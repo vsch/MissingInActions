@@ -147,7 +147,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private @NotNull String mySpliceDelimiterText = ", ";
     private @NotNull String myOpenQuoteText = "\"";
     private @NotNull String myClosedQuoteText = "\"";
-    private boolean myQuoteSplicedItems = false;
     private boolean myUserDefinedMacroSmartReplace = true;
     private boolean myBatchHighlightSearchLines = false;
     private boolean myBatchHighlightReplaceLines = false; // highlight search strings using corresponding colors from search strings
@@ -422,14 +421,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
 
     public void setUserDefinedMacroClipContent(final boolean userDefinedMacroClipContent) {
         myUserDefinedMacroClipContent = userDefinedMacroClipContent;
-    }
-
-    public boolean isQuoteSplicedItems() {
-        return myQuoteSplicedItems;
-    }
-
-    public void setQuoteSplicedItems(final boolean quoteSplicedItems) {
-        myQuoteSplicedItems = quoteSplicedItems;
     }
 
     public boolean isRegexUserDefinedMacro() {
