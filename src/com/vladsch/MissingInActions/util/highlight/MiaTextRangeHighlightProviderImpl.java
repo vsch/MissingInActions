@@ -24,12 +24,12 @@ package com.vladsch.MissingInActions.util.highlight;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.plugin.util.CancelableJobScheduler;
 import com.vladsch.plugin.util.ui.ColorIterable;
-import com.vladsch.plugin.util.ui.highlight.WordHighlightProviderBase;
+import com.vladsch.plugin.util.ui.highlight.TextRangeHighlightProviderBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MiaWordHighlightProviderImpl extends WordHighlightProviderBase<ApplicationSettings> {
-    public MiaWordHighlightProviderImpl(@NotNull ApplicationSettings settings) {
+public class MiaTextRangeHighlightProviderImpl extends TextRangeHighlightProviderBase<ApplicationSettings> {
+    public MiaTextRangeHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);
     }
 

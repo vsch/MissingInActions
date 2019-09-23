@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.4.9 - Bug Fix Release](#1749---bug-fix-release)
+- [1.7.6 - Bug Fix Release & Enhancement Release](#176---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,8 +91,23 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.4.9 - Bug Fix Release
+### 1.7.6 - Bug Fix Release & Enhancement Release
 
+* Add: search highlighting in paste from history if replacing macro variables in
+  pasted text is enabled.
+* Add: option to show text after replacements in paste from history preview, with replaced
+  regions highlighted.
+* Add: `__Filepath__` variants to replaced variables to replace with file path which will be
+  pasted into.
+  * `__Filepath__` : file path as is.
+  * `__FILEPATH__` : file path all caps.
+  * `__filepath__` : file path lowercase.
+  * `__File-path__` : file path with leading `/` removed and `/` replaced by `-`.
+  * `__FILE-PATH__` : file path as above but in all caps.
+  * `__file-path__` : file path as above but in lowercase.
+  * `__File.path__` : file path with leading `/` removed and `/` replaced by `.`.
+  * `__FILE.PATH__` : file path as above but in all caps.
+  * `__file.path__` : file path as above but in lowercase.
 * Fix: replacement of user macro would not be done if there were not macro variables defined.
 * Fix: user replace macro with clipboard content would fail because of index mismatch.
 * Fix: non-regex prefix set to followed by uppercase letter had erroneous test. When pasting

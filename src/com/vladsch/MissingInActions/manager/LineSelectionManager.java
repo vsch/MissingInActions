@@ -54,6 +54,7 @@ import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.MissingInActions.util.highlight.MiaLineRangeHighlightProviderImpl;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
+import com.vladsch.flexmark.util.sequence.Range;
 import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.OneTimeRunnable;
@@ -81,6 +82,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -339,6 +342,11 @@ public class LineSelectionManager implements
 
     @NotNull
     public String replaceOnPaste(@NotNull String text) {
+        return replaceOnPaste(text, null);
+    }
+
+    @NotNull
+    public String replaceOnPaste(@NotNull String text, @Nullable BiConsumer<String, TextRange> rangeConsumer) {
         if ((myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) && myOnPasteUserSearchPattern == null) {
             return text;
         }
@@ -364,14 +372,19 @@ public class LineSelectionManager implements
             }
 
             String replace = myOnPasteReplacementMap == null ? null : myOnPasteReplacementMap.get(matcher.group());
+            int startLength = sb.length();
+            int replaceLength = 0;
             if (replace != null) {
                 sb.append(replace);
+                replaceLength = replace.length();
             } else {
                 // must be user text
+                replaceLength = myOnPasteUserReplacementText.length();
+
                 if (smartReplace) {
                     preserver.studyFormatBefore(chars, 0, start, end, patternType, prefixes, separators);
                     String edited = sb.toString() + myOnPasteUserReplacementText + text.substring(end);
-                    final TextRange range = new TextRange(sb.length(), sb.length() + myOnPasteUserReplacementText.length());
+                    final TextRange range = new TextRange(startLength, startLength + replaceLength);
                     final BasedSequence chars1 = BasedSequenceImpl.of(edited);
 
                     InsertedRangeContext i = preserver.preserveFormatAfter(
@@ -395,9 +408,11 @@ public class LineSelectionManager implements
                     } else {
                         // extract the changed paste replacement
                         sb.append(i.word());
+                        replaceLength = i.word().length();
+
                         if (i.getCaretDelta() > 0) {
                             // changed the next character(s), we grab it too
-                            sb.append(edited.substring(sb.length() + myOnPasteUserReplacementText.length() - i.getCaretDelta()));
+                            sb.append(edited.substring(startLength + myOnPasteUserReplacementText.length() - i.getCaretDelta()));
                             end += i.getCaretDelta();
                         }
                     }
@@ -405,6 +420,12 @@ public class LineSelectionManager implements
                     sb.append(myOnPasteUserReplacementText);
                 }
             }
+
+            if (rangeConsumer != null) {
+                final TextRange range = new TextRange(startLength, startLength + replaceLength);
+                rangeConsumer.accept(matcher.group(), range);
+            }
+
             lastPos = end;
         }
 

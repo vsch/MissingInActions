@@ -143,7 +143,7 @@ public class ClipboardCaretContent {
     }
 
     @Nullable
-    public String[] getTexts() { return myTexts; }
+    public String[] getTexts() { return myTexts == null ? null : myTexts.clone(); }
 
     public boolean hasFullLines() {
         return myFullLines.nextSetBit(0) != -1;
@@ -434,18 +434,30 @@ public class ClipboardCaretContent {
 
     @NotNull
     public String getStringRep(final int maxLen, final String showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
+        return getStringRep(myTexts, null, this, maxLen, showEOL, addCharFinalEOL, removeFullLineEOL);
+    }
+
+    @NotNull
+    public static String getStringRep(String[] texts, @Nullable int[] endOffsets, ClipboardCaretContent caretContent, final int maxLen, final String showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
         // convert multi caret text to \n separated ranges
         StringBuilder sb = new StringBuilder();
-        final String[] texts = this.getTexts();
         if (texts != null) {
-            int iMax = myCaretCount;
+            int iMax = caretContent.myCaretCount;
+            if (endOffsets != null) {
+                for (int i = 0; i < iMax; i++) {
+                   endOffsets[i] = -1;
+                }
+            }
+
             for (int i = 0; i < iMax; i++) {
-                //noinspection ConstantConditions
                 if (maxLen > 0 && sb.length() >= maxLen) {
                     if (sb.length() == maxLen) sb.append(' ');
                     break;
                 }
-                if (this.isFullLine(i)) {
+
+                int startOffset = sb.length();
+
+                if (caretContent.isFullLine(i)) {
                     if (showEOL != null) {
                         sb.append(texts[i].substring(0, texts[i].length() - 1));
                         sb.append(showEOL);
@@ -465,7 +477,10 @@ public class ClipboardCaretContent {
                         sb.append('\n');
                     }
                 }
+
+                if (endOffsets != null) endOffsets[i] = sb.length() - startOffset - texts[i].length();
             }
+
             final String s = sb.toString();
             return maxLen > 0 && s.length() >= maxLen ? s.substring(0, maxLen) + "..." : s;
         }

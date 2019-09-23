@@ -35,8 +35,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.ex.MarkupModelEx;
-import com.intellij.openapi.editor.impl.DocumentMarkupModel;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
@@ -51,6 +49,8 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.MultiPasteOptionsPane;
 import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.highlight.MiaHighlightProviderUtils;
+import com.vladsch.MissingInActions.util.highlight.MiaTextRangeHighlightProviderImpl;
 import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
 import com.vladsch.flexmark.util.Utils;
 import com.vladsch.plugin.util.AwtRunnable;
@@ -58,7 +58,7 @@ import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.SearchPattern;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import com.vladsch.plugin.util.ui.ContentChooser;
-import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
+import com.vladsch.plugin.util.ui.highlight.Highlighter;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -148,7 +148,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final AnAction simplePasteAction = ActionManager.getInstance().getAction("EditorPasteSimple"); //IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
         final boolean haveSimplePasteAction = simplePasteAction != null;
         final boolean[] convertToCaretsEnabled = new boolean[] { false };
-        final MiaWordHighlightProviderImpl highlightProvider = new MiaWordHighlightProviderImpl(settings);
         final Supplier<String[]> getUserReplacementData = () -> {
             String[] userData = null;
             if (settings.isReplaceMacroVariables() && settings.isIncludeUserDefinedMacro()) {
@@ -169,7 +168,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             return userData;
         };
 
-        highlightProvider.settingsChanged(MiaWordHighlightProviderImpl.getColorIterable(settings), settings);
         // Can change according to settings later
         // myEolText = "⏎";
 
@@ -301,12 +299,12 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 settings.setLineMarkerAreaShown(true);
                 settings.setLineNumbersShown(true);
                 settings.setTrailingWhitespaceShown(true);
+                settings.setCaretRowShown(false);
                 lastViewer[0] = viewer;
                 return viewer;
             }
 
-            @Override
-            protected void updateViewerForSelection(@NotNull final Editor viewer, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
+            FocusAdapter updateViewerForSelection(@NotNull final Editor viewer, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices, boolean fromFocusListener, final boolean inFocus) {
                 if (viewer.getDocument().getTextLength() > 0) {
                     // can create highlights in the editor to separate carets
                     final ClipboardCaretContent caretContent;
@@ -325,58 +323,139 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                     // convert multi caret text to \n separated ranges
                     final String[] texts = caretContent.getTexts();
+                    Highlighter<ApplicationSettings> highlighter = null;
+                    boolean isReplacedPreview = !inFocus && settings.isReplaceMacroVariables() && settings.isShowMacroResultPreview();
+                    final Document document = viewer.getDocument();
+                    int[] endOffsets = null;
+
+                    if (texts != null) {
+                        int iMax = texts.length;
+                        endOffsets = new int[iMax];
+                        getStringRep(texts, endOffsets, editor, content, settings.isMultiPasteShowEolInViewer(), false, true);
+
+                        if (isReplacedPreview) {
+                            // show replaced text
+                            LineSelectionManager manager = LineSelectionManager.getInstance(viewer);
+                            String[] userData = getUserReplacementData.get();
+
+                            HashMap<String, String> replacementsMap = editor == null ? null : EditHelpers.getOnPasteReplacements(editor);
+                            manager.setOnPasteReplacementText(replacementsMap);
+
+                            manager.setOnPasteUserSearchPattern(null);
+                            if (userData != null && userData.length > 0) {
+                                String search = settings.getUserDefinedMacroSearch();
+                                if (!search.isEmpty()) {
+                                    manager.setOnPasteUserSearchPattern(new SearchPattern(search, settings.isRegexUserDefinedMacro()));
+                                    manager.setOnPasteUserReplacementText(userData[0]);
+                                }
+                            }
+
+                            final MiaTextRangeHighlightProviderImpl highlightProvider = new MiaTextRangeHighlightProviderImpl(settings);
+                            highlightProvider.settingsChanged(MiaHighlightProviderUtils.getColorIterable(settings), settings);
+
+                            HashMap<String, Integer> orderIndexMap = new HashMap<>();
+                            int r = 0;
+                            if (manager.getOnPasteUserSearchPattern() != null) {
+                                orderIndexMap.put(manager.getOnPasteUserSearchPattern().getText(), r++);
+                            }
+
+                            if (replacementsMap != null) {
+                                for (String replacement : replacementsMap.keySet()) {
+                                    orderIndexMap.put(replacement, r++);
+                                }
+                            }
+
+                            int offset = 0;
+                            for (int i = 0; i < iMax; i++) {
+                                int finalOffset = offset;
+                                int originalTextLength = texts[i].length();
+                                texts[i] = manager.replaceOnPaste(texts[i], (s, range) -> {
+                                    highlightProvider.addHighlightRange(range.shiftRight(finalOffset), 0, orderIndexMap.getOrDefault(s, -1));
+                                });
+
+                                offset += texts[i].length() + endOffsets[i];
+                                // overwrite with corrected offset for length change by replacement
+                                endOffsets[i] = texts[i].length() - originalTextLength + endOffsets[i];
+                            }
+                            highlighter = highlightProvider.getHighlighter(viewer);
+                        } else {
+                            if (settings.isReplaceMacroVariables()) {
+                                Map<String, String> map = getReplacementMap();
+                                if (!map.isEmpty()) {
+                                    final MiaWordHighlightProviderImpl highlightProvider = new MiaWordHighlightProviderImpl(settings);
+                                    highlightProvider.settingsChanged(MiaHighlightProviderUtils.getColorIterable(settings), settings);
+                                    highlightProvider.clearHighlights();
+                                    highlightProvider.setHighlightWordsCaseSensitive(true);
+                                    for (String word : map.keySet()) {
+                                        highlightProvider.addHighlightRange(word,/*beginWord*/false, /*endWord*/false, /*ideWarning*/false, /*ideError*/false,/*caseSensitive*/true);
+                                    }
+                                    highlighter = highlightProvider.getHighlighter(viewer);
+                                }
+                            }
+                        }
+                    }
 
                     updateConvertToCarets(texts);
 
-                    //noinspection VariableNotUsedInsideIf
+                    int[] finalEndOffsets = endOffsets;
+
                     if (texts != null) {
-                        updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
+                        // update viewer text
+                        Highlighter<ApplicationSettings> finalHighlighter = highlighter;
+                        WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
+                            document.setReadOnly(false);
+                            document.replaceString(0, document.getTextLength(),
+                                    inFocus ? getStringRep(texts, null, editor, content, false, true, false)
+                                            : getStringRep(texts, null, editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
+                            document.setReadOnly(true);
 
-                        final FocusAdapter focusAdapter = new FocusAdapter() {
-                            @Override
-                            public void focusGained(final FocusEvent e) {
-                                WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
-                                    final Document document = viewer.getDocument();
-                                    document.setReadOnly(false);
-                                    document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
-                                    document.setReadOnly(true);
-                                    updateEditorHighlightRegions(viewer, caretContent, false);
-                                });
-                            }
+                            updateEditorHighlightRegions(viewer, finalEndOffsets, caretContent, settings.isMultiPasteShowEolInViewer());
+                            if (finalHighlighter != null) finalHighlighter.updateHighlights();
+                        });
 
-                            @Override
-                            public void focusLost(final FocusEvent e) {
-                                if (!viewer.isDisposed()) {
-                                    final Document document = viewer.getDocument();
-                                    final int textLength = document.getTextLength();
-                                    if (textLength > 0) {
-                                        WriteCommandAction.runWriteCommandAction(viewer.getProject(), () -> {
-                                            document.setReadOnly(false);
-                                            document.replaceString(0, document.getTextLength(), getStringRep(editor, content, settings.isMultiPasteShowEolInViewer(), false, true));
-                                            document.setReadOnly(true);
-                                            updateEditorHighlightRegions(viewer, caretContent, settings.isMultiPasteShowEolInViewer());
-                                        });
+                        if (!fromFocusListener) {
+                            return new FocusAdapter() {
+                                @Override
+                                public void focusGained(final FocusEvent e1) {
+                                    final EditorSettings settings = viewer.getSettings();
+                                    settings.setCaretRowShown(true);
+                                    updateViewerForSelection(viewer, allContents, selectedIndices, true, true);
+                                }
+
+                                @Override
+                                public void focusLost(final FocusEvent e1) {
+                                    if (!viewer.isDisposed()) {
+                                        final int textLength = document.getTextLength();
+                                        if (textLength > 0) {
+                                            final EditorSettings settings = viewer.getSettings();
+                                            settings.setCaretRowShown(false);
+                                            updateViewerForSelection(viewer, allContents, selectedIndices, true, false);
+                                        }
                                     }
                                 }
-                            }
-                        };
-
-                        viewer.getContentComponent().addFocusListener(focusAdapter);
-                        delayedRunner.addRunnable(() -> viewer.getContentComponent().removeFocusListener(focusAdapter));
+                            };
+                        }
                     }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void updateViewerForSelection(@NotNull final Editor viewer, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices) {
+                FocusAdapter focusAdapter = updateViewerForSelection(viewer, allContents, selectedIndices, false, false);
+                if (focusAdapter != null) {
+                    viewer.getContentComponent().addFocusListener(focusAdapter);
+                    delayedRunner.addRunnable(() -> viewer.getContentComponent().removeFocusListener(focusAdapter));
                 }
             }
 
-            void updateEditorHighlightRegions(@NotNull Editor viewer, ClipboardCaretContent caretContent, boolean multiPasteShowEolInViewer) {
+            void updateEditorHighlightRegions(@NotNull Editor viewer, @Nullable int[] endOffsets, ClipboardCaretContent caretContent, boolean multiPasteShowEolInViewer) {
 //                MarkupModelEx markupModel = (MarkupModelEx) DocumentMarkupModel.forDocument(viewer.getDocument(), project, true);
                 MarkupModel markupModel = viewer.getMarkupModel();
 
                 markupModel.removeAllHighlighters();
 
-//                if (settings.isReplaceMacroVariables() && settings.isShowMacroResultPreview()) {
-//                    // show replaced text
-//                } else {
-//                }
                 final TextRange[] textRanges = caretContent.getTextRanges();
                 final int iMax = textRanges.length;
                 final GutterIconRenderer charLinesSelection = new CaretIconRenderer(PluginIcons.Clipboard_char_lines_caret);
@@ -387,21 +466,9 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     final TextRange range = textRanges[i];
                     final int startOffset = range.getStartOffset() + offset;
                     offset += caretContent.isFullLine(i) && !multiPasteShowEolInViewer && i == iMax - 1 ? 0 : 1;
+                    if (endOffsets != null) offset += endOffsets[i];
                     RangeHighlighter highlighter = markupModel.addLineHighlighter(viewer.offsetToLogicalPosition(startOffset).line, 1, null);
                     highlighter.setGutterIconRenderer(caretContent.isFullLine(i) ? lineSelection : caretContent.isCharLine(i) ? charLinesSelection : charSelection);
-                }
-
-                if (settings.isReplaceMacroVariables()) {
-                    Map<String, String> map = getReplacementMap();
-                    if (!map.isEmpty()) {
-                        highlightProvider.clearHighlights();
-                        WordHighlighter<ApplicationSettings> highlighter = highlightProvider.getHighlighter(viewer);
-                        highlightProvider.setHighlightWordsCaseSensitive(true);
-                        for (String word : map.keySet()) {
-                            highlightProvider.addHighlightWord(word,/*beginWord*/false, /*endWord*/false, /*ideWarning*/false, /*ideError*/false,/*caseSensitive*/true);
-                        }
-                        highlighter.updateHighlights();
-                    }
                 }
             }
 
@@ -923,9 +990,14 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
     @NotNull
     String getStringRep(final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
+        return getStringRep(null, null, editor, content, showEOL, addCharFinalEOL, removeFullLineEOL);
+    }
+
+    @NotNull
+    String getStringRep(@Nullable String[] texts, @Nullable int[] endOffsets, final @Nullable Editor editor, final Transferable content, final boolean showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
         final ClipboardCaretContent caretContent = ClipboardCaretContent.studyTransferable(editor, content);
         if (caretContent != null) {
-            return caretContent.getStringRep(0, showEOL ? myEolText : null, addCharFinalEOL, removeFullLineEOL);
+            return ClipboardCaretContent.getStringRep(texts == null ? caretContent.getTexts() : texts, endOffsets, caretContent, 0, showEOL ? myEolText : null, addCharFinalEOL, removeFullLineEOL);
         }
         return "";
     }

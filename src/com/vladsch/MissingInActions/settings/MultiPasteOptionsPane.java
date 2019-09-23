@@ -143,16 +143,19 @@ public class MultiPasteOptionsPane {
                 updateSettings(0);
             }
         };
-        myUserDefinedMacroSearch.getDocument().addDocumentListener(new DocumentAdapter() {
+
+        DocumentAdapter updatingDocumentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull final DocumentEvent e) {
                 if (myUserDefinedMacroSearch != null) {
                     updateSettings(myUserDefinedMacroSearch.isEnabled() ? USER_MACRO_CHANGED : 0);
-//                    myUserDefinedMacroReplace.requestFocus();
                 }
             }
-        });
-        myUserDefinedMacroReplace.getDocument().addDocumentListener(documentAdapter);
+        };
+
+        myUserDefinedMacroSearch.getDocument().addDocumentListener(updatingDocumentAdapter);
+        myUserDefinedMacroReplace.getDocument().addDocumentListener(updatingDocumentAdapter);
+
         mySpliceDelimiterText.getDocument().addDocumentListener(documentAdapter);
         myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
         myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);

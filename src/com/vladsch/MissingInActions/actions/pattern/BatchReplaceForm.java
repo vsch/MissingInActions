@@ -88,8 +88,11 @@ import com.vladsch.plugin.util.ui.highlight.HighlightListener;
 import com.vladsch.plugin.util.ui.highlight.Highlighter;
 import com.vladsch.plugin.util.ui.highlight.LineHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.LineHighlighter;
+import com.vladsch.plugin.util.ui.highlight.TypedRangeHighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.TypedRangeHighlightProviderBase;
 import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
+import com.vladsch.plugin.util.ui.highlight.WordHighlighterFlags;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,12 +127,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.CASE_INSENSITIVE;
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.CASE_SENSITIVE;
 import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.ERROR_ATTRIBUTES_KEY;
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_ERROR;
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_HIGHLIGHT;
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.IDE_WARNING;
 import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.WARNING_ATTRIBUTES_KEY;
 
 public class BatchReplaceForm implements Disposable {
@@ -358,7 +356,7 @@ public class BatchReplaceForm implements Disposable {
             if (!myInUpdate && myEditor != null) {
                 Highlighter<ApplicationSettings> highlighter = LineSelectionManager.getInstance(myEditor).getHighlighter();
                 if (highlighter instanceof WordHighlighter) {
-                    myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedWordCounts();
+                    myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedRangeCounts();
                 }
                 LineSelectionManager.getInstance(mySearchEditor).updateHighlights();
                 LineSelectionManager.getInstance(myReplaceEditor).updateHighlights();
@@ -1170,8 +1168,8 @@ public class BatchReplaceForm implements Disposable {
                         int lMax = lineSearchData.size();
                         for (int l = lMax; l-- > 0; ) {
                             SearchData data = lineSearchData.get(l);
-                            if ((data.flags & CASE_INSENSITIVE) == 0 && (searchData.flags & CASE_INSENSITIVE) == 0) {
-                                // case sensitive, we need to remove all that match
+                            if (!WordHighlighterFlags.haveFlags(data.flags, WordHighlighterFlags.CASE_INSENSITIVE) && !WordHighlighterFlags.haveFlags(data.flags, WordHighlighterFlags.CASE_INSENSITIVE)) {
+                                // case insensitive, we need to remove all that match
                                 if (data.word.equals(searchData.word)) {
                                     // we need to delete this one
                                     lineSearchData.remove(l);
@@ -1193,7 +1191,7 @@ public class BatchReplaceForm implements Disposable {
                 for (int i = 0; i < iMax; i++) {
                     SearchData searchData = lineSearchData.get(i);
                     searchData.wordIndex = i;
-                    myEditorSearchHighlightProvider.addHighlightWord(searchData.word, searchData.flags);
+                    myEditorSearchHighlightProvider.addHighlightRange(searchData.word, searchData.flags);
                     mySearchHighlightProvider.addHighlightLine(searchData.lineNumber);
                     myReplaceHighlightProvider.addHighlightLine(searchData.lineNumber);
                     myOptionsHighlightProvider.addHighlightLine(searchData.lineNumber);
@@ -1459,7 +1457,8 @@ public class BatchReplaceForm implements Disposable {
                 String text = myFoundRange.subSequence(myEditor.getDocument().getCharsSequence()).toString();
                 final SearchData searchData = myLineSearchData.get(myFoundIndex);
                 String found = searchData.word;
-                if ((searchData.flags & CASE_SENSITIVE) != 0 && text.equals(found) || (searchData.flags & CASE_INSENSITIVE) != 0 && text.equalsIgnoreCase(found)) {
+                if (WordHighlighterFlags.haveFlags(searchData.flags, WordHighlighterFlags.CASE_SENSITIVE) && text.equals(found) ||
+                        WordHighlighterFlags.haveFlags(searchData.flags, WordHighlighterFlags.CASE_INSENSITIVE) && text.equalsIgnoreCase(found)) {
                     handled = true;
                     WriteCommandAction.runWriteCommandAction(myProject, () -> {
                         String replacement = searchData.replace;
@@ -1720,7 +1719,7 @@ public class BatchReplaceForm implements Disposable {
             selectionManager.updateHighlights();
             Highlighter<ApplicationSettings> highlighter = selectionManager.getHighlighter();
             if (highlighter instanceof WordHighlighter) {
-                myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedWordCounts();
+                myIndexedWordCounts = ((WordHighlighter<ApplicationSettings>) highlighter).getIndexedRangeCounts();
             }
 
             updateFoundRange(mySearchEditor);
@@ -2036,22 +2035,9 @@ public class BatchReplaceForm implements Disposable {
                 } else if ((selectedLine || myHighlightSearchLines) && attributes != null) {
                     // see if error or warning highlight
                     int flags = searchData.flags;
-                    if ((flags & IDE_HIGHLIGHT) != 0) {
-                        EditorColorsScheme uiTheme = EditorColorsManager.getInstance().getGlobalScheme();
-
-                        switch (flags & IDE_HIGHLIGHT) {
-                            case IDE_ERROR:
-                            case IDE_ERROR | IDE_WARNING:
-                                attributes = uiTheme.getAttributes(ERROR_ATTRIBUTES_KEY);
-                                break;
-
-                            case IDE_WARNING:
-                                attributes = uiTheme.getAttributes(WARNING_ATTRIBUTES_KEY);
-                                break;
-
-                            default:
-                                throw new IllegalStateException("Unhandled IDE_HIGHLIGHT combination " + (flags & IDE_HIGHLIGHT));
-                        }
+                    TextAttributes ideAttributes = TypedRangeHighlightProviderBase.getIdeAttributes(flags);
+                    if (ideAttributes != null) {
+                        attributes = ideAttributes;
                     } else {
                         attributes = new TextAttributes(
                                 attributes.getForegroundColor(),

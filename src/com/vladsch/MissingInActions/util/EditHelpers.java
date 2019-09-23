@@ -51,6 +51,7 @@ import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.flexmark.util.Utils;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -1574,9 +1575,12 @@ public class EditHelpers {
             final EditorEx editorEx = (EditorEx) editor;
             final Project project = editorEx.getProject();
             final PsiFile psiFile = project == null ? null : PsiManager.getInstance(project).findFile(editorEx.getVirtualFile());
+
             HashMap<String, String> map = new HashMap<>();
-            StudiedWord word = new StudiedWord(editorEx.getVirtualFile().getNameWithoutExtension(), StudiedWord.DOT | StudiedWord.DASH | StudiedWord.UNDER | StudiedWord.SLASH | StudiedWord.SPACE);
-            final String pascalCase = word.makePascalCase();
+            StudiedWord word;
+
+            word = new StudiedWord(editorEx.getVirtualFile().getNameWithoutExtension(), StudiedWord.DOT | StudiedWord.DASH | StudiedWord.UNDER | StudiedWord.SLASH | StudiedWord.SPACE);
+            String pascalCase = word.makePascalCase();
             map.put("__Filename__", word.getWord().toString());
             map.put("__FILENAME__", pascalCase.toUpperCase());
             map.put("__filename__", pascalCase.toLowerCase());
@@ -1590,6 +1594,27 @@ public class EditHelpers {
             map.put("__FILE_NAME__", word.makeScreamingSnakeCase());
             map.put("__file/name__", word.makeSlashCase());
             map.put("__FILE/NAME__", word.makeScreamingSlashCase());
+
+            String path = editorEx.getVirtualFile().getParent().getPath();
+            map.put("__Filepath__", path);
+            map.put("__FilePath__", path);
+            map.put("__filePath__", path);
+            map.put("__FILEPATH__", path.toUpperCase());
+            map.put("__filepath__", path.toLowerCase());
+
+            path = Utils.removePrefix(editorEx.getVirtualFile().getParent().getPath(), "/");
+            map.put("__File-path__", path.replace('/','-'));
+            map.put("__File-Path__", path.replace('/','-'));
+            map.put("__file-Path__", path.replace('/','-'));
+            map.put("__FILE-PATH__", path.toUpperCase().replace('/','.'));
+            map.put("__file-path__", path.toLowerCase().replace('/','-'));
+
+            map.put("__File.path__", path.replace('/','.'));
+            map.put("__File.Path__", path.replace('/','.'));
+            map.put("__file.Path__", path.replace('/','.'));
+            map.put("__FILE.PATH__", path.toUpperCase().replace('/','.'));
+            map.put("__file.path__", path.toLowerCase().replace('/','.'));
+
             return map;
         }
         return null;

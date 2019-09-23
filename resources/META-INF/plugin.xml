@@ -81,17 +81,40 @@
         ]]>
     </description>
 
-    <version>1.7.4.9</version>
+    <version>1.7.6</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.4.5 - Bug Fix Release</h3>
+            <h3>1.7.6 - Bug Fix Release &amp; Enhancement Release</h3>
             <ul>
+                <li>Add: search highlighting in paste from history if replacing macro variables in
+                    pasted text is enabled.</li>
+                <li>Add: option to show text after replacements in paste from history preview, with replaced
+                    regions highlighted.</li>
+                <li>Add: <code>__Filepath__</code> variants to replaced variables to replace with file path which will be
+                    pasted into.
+                    <ul>
+                        <li><code>__Filepath__</code> : file path as is.</li>
+                        <li><code>__FILEPATH__</code> : file path all caps.</li>
+                        <li><code>__filepath__</code> : file path lowercase.</li>
+                        <li><code>__File-path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>-</code>.</li>
+                        <li><code>__FILE-PATH__</code> : file path as above but in all caps.</li>
+                        <li><code>__file-path__</code> : file path as above but in lowercase.</li>
+                        <li><code>__File.path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>.</code>.</li>
+                        <li><code>__FILE.PATH__</code> : file path as above but in all caps.</li>
+                        <li><code>__file.path__</code> : file path as above but in lowercase.</li>
+                    </ul>
+                </li>
+                <li>Fix: replacement of user macro would not be done if there were not macro variables defined.</li>
+                <li>Fix: user replace macro with clipboard content would fail because of index mismatch.</li>
+                <li>Fix: non-regex prefix set to followed by uppercase letter had erroneous test. When pasting
+                    <code>projectSettings</code> on to <code>settingsText</code> results in <code>setProjectSettings</code></li>
+                <li>Fix: update to latest plugin-utils.</li>
                 <li>Fix: extract highlight code core to plugin-utils.</li>
                 <li>Fix: invalid caret validation after edit causing Caret is invalid state exception</li>
-                <li>Fix: update to flexmark-util 0.50.34</li>
+                <li>Fix: update to flexmark-util 0.50.42</li>
             </ul>
             <h3>1.7.4 - Bug Fix Release</h3>
             <ul>

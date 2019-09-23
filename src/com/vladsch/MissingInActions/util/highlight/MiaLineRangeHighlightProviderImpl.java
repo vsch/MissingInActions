@@ -21,154 +21,37 @@
 
 package com.vladsch.MissingInActions.util.highlight;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.plugin.util.ui.highlight.LineRangeHighlightProvider;
-import com.vladsch.plugin.util.ui.highlight.LineRangeHighlighter;
+import com.vladsch.plugin.util.CancelableJobScheduler;
+import com.vladsch.plugin.util.ui.ColorIterable;
+import com.vladsch.plugin.util.ui.highlight.LineRangeHighlightProviderBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
-import java.util.BitSet;
 
-public class MiaLineRangeHighlightProviderImpl extends MiaHighlightProviderBase implements LineRangeHighlightProvider<ApplicationSettings> {
-    @Nullable protected BitSet myHighlightLines;
-    protected boolean myInvertedHighlights;
-
+public class MiaLineRangeHighlightProviderImpl extends LineRangeHighlightProviderBase<ApplicationSettings> {
     public MiaLineRangeHighlightProviderImpl(@NotNull ApplicationSettings settings) {
         super(settings);
-        myHighlightsMode = false;
-        myInvertedHighlights = true;
     }
 
     @Override
-    public boolean isInvertedHighlights() {
-        return myInvertedHighlights;
-    }
-
-    @Override
-    public void setInvertedHighlights(final boolean invertedHighlights) {
-        myInvertedHighlights = invertedHighlights;
-    }
-
-    @Override
-    public LineRangeHighlighter<ApplicationSettings> getHighlighter(@NotNull final Editor editor) {
-        return new LineRangeHighlighter<>(this, editor);
-    }
-
-    public void clearHighlights() {
-        myHighlightLines = null;
-        fireHighlightsChanged();
-    }
-
-    @Override
-    public boolean isLineHighlighted(int line) {
-        return myHighlightLines != null && myHighlightLines.get(line);
-    }
-
-    @Override
-    public boolean haveHighlights() {
-        return myHighlightLines != null;
-    }
-
-    // LineHighlightProvider
-    @Override
-    public boolean isShowHighlights() {
-        return isHighlightsMode() && myHighlightLines != null && !myHighlightLines.isEmpty();
-    }
-
-    @Override
-    public int getHighlightLineIndex(final int line) {
-        return myHighlightLines != null && myHighlightLines.get(line) ? line : -1;
-    }
-
-    @Override
-    public void addHighlightLine(final int line) {
-        // remove and add so flags will be modified and it will be moved to the end of list (which is considered the head)
-        if (myHighlightLines == null) {
-            myHighlightLines = new BitSet();
-            myHighlightLines.set(line);
-            fireHighlightsChanged();
-        } else if (!myHighlightLines.get(line)) {
-            myHighlightLines.set(line);
-            fireHighlightsChanged();
-        }
-    }
-
-    @Override
-    public void removeHighlightLine(final int line) {
-        if (myHighlightLines != null) {
-            if (myHighlightLines.get(line)) {
-                myHighlightLines.clear(line);
-                fireHighlightsChanged();
-            }
-        }
+    protected void subscribeSettingsChanged() {
+        MiaHighlightProviderUtils.subscribeSettingsChanged(this);
     }
 
     @Nullable
     @Override
-    public BitSet getHighlightLines() {
-        return myHighlightLines;
+    protected CancelableJobScheduler getCancellableJobScheduler() {
+        return MiaHighlightProviderUtils.getCancellableJobScheduler();
     }
 
+    @NotNull
     @Override
-    public void setHighlightLines(final BitSet bitSet, Boolean highlightMode) {
-        if (bitSet != null && !bitSet.isEmpty()) {
-            boolean highlightsMode = highlightMode != null ? highlightMode : isHighlightsMode();
-            enterUpdateRegion();
-            setHighlightsMode(highlightsMode);
-            myHighlightLines = (BitSet) bitSet.clone();
-            fireHighlightsChanged();
-            leaveUpdateRegion();
-        } else {
-            clearHighlights();
-        }
-    }
-
-    @Nullable
-    @Override
-    public BitSet addHighlightLines(final int startLine, final int endLine) {
-        if (startLine >= 0 && startLine < endLine) {
-            if (myHighlightLines == null) myHighlightLines = new BitSet();
-            myHighlightLines.set(startLine, endLine);
-            fireHighlightsChanged();
-        }
-        return myHighlightLines;
-    }
-
-    @Nullable
-    @Override
-    public BitSet addHighlightLines(@Nullable final BitSet bitSet) {
-        if (bitSet != null && !bitSet.isEmpty()) {
-            if (myHighlightLines == null) myHighlightLines = new BitSet();
-            myHighlightLines.or(bitSet);
-            fireHighlightsChanged();
-        }
-        return myHighlightLines;
-    }
-
-    @Nullable
-    @Override
-    public BitSet removeHighlightLines(@Nullable final BitSet bitSet) {
-        if (myHighlightLines != null && bitSet != null && !bitSet.isEmpty()) {
-            myHighlightLines.andNot(bitSet);
-            if (myHighlightLines.isEmpty()) myHighlightLines = null;
-            fireHighlightsChanged();
-        }
-        return myHighlightLines;
-    }
-
-    @Nullable
-    @Override
-    public BitSet removeHighlightLines(final int startLine, final int endLine) {
-        if (myHighlightLines != null && startLine >= 0 && startLine < endLine) {
-            myHighlightLines.clear(startLine, endLine);
-            if (myHighlightLines.isEmpty()) myHighlightLines = null;
-            fireHighlightsChanged();
-        }
-        return myHighlightLines;
+    protected ColorIterable getColors(@NotNull final ApplicationSettings settings) {
+        return MiaHighlightProviderUtils.getColors(settings);
     }
 
     /**
@@ -179,6 +62,7 @@ public class MiaLineRangeHighlightProviderImpl extends MiaHighlightProviderBase 
      * @param flags
      * @param startOffset start offset in editor
      * @param endOffset   end offset in editor
+     *
      * @return text attributes to use for highlight or null if not highlighted
      */
     @Override

@@ -61,7 +61,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
             BatchSearchAction.hideBatchSearchWindow(editor);
-            
+
             Document document = editor.getDocument();
             CharSequence chars = document.getCharsSequence();
             Plugin plugin = Plugin.getInstance();
@@ -71,9 +71,9 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
                     boolean startWord = EditHelpers.isWordStart(chars, caret.getSelectionStart(), false);
                     boolean endWord = EditHelpers.isWordEnd(chars, caret.getSelectionEnd(), false);
                     if (myIsRemoveWord) {
-                        plugin.removeHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()));
+                        plugin.removeHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString());
                     } else {
-                        plugin.addHighlightWord(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()), startWord, endWord, false, false, null);
+                        plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
                     }
                 }
             }

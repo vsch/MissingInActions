@@ -31,25 +31,20 @@ import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.highlight.HighlightProviderBase;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class MiaHighlightProviderBase extends HighlightProviderBase<ApplicationSettings> {
-    public MiaHighlightProviderBase(@NotNull ApplicationSettings settings) {
-        super(settings);
-    }
+public class MiaHighlightProviderUtils {
 
-    @Override
-    protected CancelableJobScheduler getCancellableJobScheduler() {
+    public static CancelableJobScheduler getCancellableJobScheduler() {
         return MiaCancelableJobScheduler.getInstance();
     }
 
-    @Override
-    protected void subscribeSettingsChanged() {
+    public static void subscribeSettingsChanged(HighlightProviderBase<ApplicationSettings> highlightProvider) {
         //noinspection ThisEscapedInObjectConstruction
-        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, settings1 -> settingsChanged(getColors(settings1), settings1));
-        myDelayedRunner.addRunnable(messageBusConnection::disconnect);
+        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(highlightProvider);
+        messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, settings1 -> highlightProvider.settingsChanged(getColors(settings1), settings1));
+        highlightProvider.getDelayedRunner().addRunnable(messageBusConnection::disconnect);
     }
 
-    protected ColorIterable getColors(@NotNull ApplicationSettings settings) {
+    public static ColorIterable getColors(@NotNull ApplicationSettings settings) {
         return getColorIterable(settings);
     }
 
