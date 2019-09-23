@@ -1,6 +1,6 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="plugin-description" profileName="plugin-description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveLinkMapSettings="true" haveHtmlExportSettings="true">
+    <option name="myName" value="plugin-description" profileName="plugin-description" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveHtmlExportSettings="true" haveLinkMapSettings="true">
       <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="false" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.panel" providerName="Default - Swing" />
@@ -83,6 +83,8 @@
       <LinkMapSettings>
         <textMaps />
       </LinkMapSettings>
+      <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
+      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
     </option>
   </profile>
 </component>

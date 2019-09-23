@@ -22,7 +22,11 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.BaseComponent;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.RoamingType;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -152,6 +156,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private boolean myBatchHighlightReplaceLines = false; // highlight search strings using corresponding colors from search strings
     private boolean myBatchTandemEdit = false;
     private boolean myRegisterCaretStateTransferable = true;
+    private boolean myShowMacroResultPreview = false;
+    // @formatter:on
 
     // customizable delete/backspace
     @NotNull String myDeleteSpacesRegEx = "(\\s+)";
@@ -172,7 +178,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     boolean myDisableParameterInfo = false;      // include hex digits
     boolean myShowGenerateException = false;      // include hex digits
 
-    @NotNull String[] myDeleteBackspaceTests = new String[]{
+    @NotNull String[] myDeleteBackspaceTests = new String[] {
             "      sample        ",
             "Sample Text with     =    random([]).test ;     ",
             "Sam|ple Text with     =    random([]).test ;     ",
@@ -180,7 +186,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
             "(|Sample Text with     =    random([]).te|st ;     ",
             "Sample Text with     =    random([]).te|st|;",
     };
-    @NotNull String[] myDeleteBackspaceTestCaretMarkers = new String[]{
+    @NotNull String[] myDeleteBackspaceTestCaretMarkers = new String[] {
             "|",
             "|",
             "|",
@@ -188,6 +194,14 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
             "|",
             "|",
     };
+
+    public boolean isShowMacroResultPreview() {
+        return myShowMacroResultPreview;
+    }
+
+    public void setShowMacroResultPreview(final boolean showMacroResultPreview) {
+        myShowMacroResultPreview = showMacroResultPreview;
+    }
 
     public boolean isRegisterCaretStateTransferable() {
         return myRegisterCaretStateTransferable;

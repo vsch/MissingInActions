@@ -22,13 +22,17 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.wm.impl.FocusManagerImpl;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
+import com.vladsch.plugin.util.CancellableRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -38,12 +42,12 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
-import javax.swing.text.Highlighter;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class MultiPasteOptionsPane {
     final ApplicationSettings mySettings;
@@ -61,16 +65,23 @@ public class MultiPasteOptionsPane {
     JBCheckBox myUserDefinedMacroSmartReplace;
     JTextField myUserDefinedMacroSearch;
     JTextField myUserDefinedMacroReplace;
+    JBCheckBox myShowMacroResultPreview;
     JComboBox<String> myUserDefinedMacroReplaceClipContent;
     JBTextField mySpliceDelimiterText;
     JBTextField myOpenQuoteText;
     JBTextField myClosedQuoteText;
     JLabel mySpliceDelimiterTextLabel;
-    private Runnable mySettingsChangedRunnable;
+    private Consumer<Integer> mySettingsChangedRunnable;
     private String myTextContent;
     private Border myNormalBorder;
     private Border myHighlightBorder;
     private Border myNormalPanelBorder;
+    private List<Integer> myUserDefinedMacroReplaceClipIndices = Collections.emptyList();
+    CancellableRunnable myViewerUpdater = CancellableRunnable.NULL;
+
+    final public static int LIST_CHANGED = 1;
+    final public static int USER_MACRO_CHANGED = 2;
+    final public static int OTHER_CHANGED = 4;
 
     public MultiPasteOptionsPane() {
         mySettingsChangedRunnable = null;
@@ -87,28 +98,23 @@ public class MultiPasteOptionsPane {
         myRegexUserDefinedMacro.setSelected(mySettings.isRegexUserDefinedMacro());
         myUserDefinedMacroClipContent.setSelected(mySettings.isUserDefinedMacroClipContent());
         myUserDefinedMacroSmartReplace.setSelected(mySettings.isUserDefinedMacroSmartReplace());
+        myShowMacroResultPreview.setSelected(mySettings.isShowMacroResultPreview());
         myUserDefinedMacroSearch.setText(mySettings.getUserDefinedMacroSearch());
         mySpliceDelimiterText.setText(mySettings.getSpliceDelimiterText());
         myOpenQuoteText.setText(mySettings.getOpenQuoteText());
         myClosedQuoteText.setText(mySettings.getClosedQuoteText());
         myUserDefinedMacroReplace.setText(mySettings.getUserDefinedMacroReplace());
 
-        myShowInstructions.addActionListener(event -> {
-            updateTextPane();
-        });
+        myShowInstructions.addActionListener(event -> updateTextPane());
 
-        final ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                updateSettings(true);
-            }
-        };
+        final ActionListener actionListener = e -> updateSettings(OTHER_CHANGED);
 
-        final ActionListener userMacroActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                updateSettings(true);
-                myUserDefinedMacroReplace.requestFocus();
+        final ActionListener userMacroActionListener = e -> {
+            updateSettings(OTHER_CHANGED);
+            if (!myUserDefinedMacroClipContent.isSelected()) {
+                MiaCancelableJobScheduler.getInstance().schedule(250, () -> {
+                    myUserDefinedMacroReplace.requestFocus();
+                });
             }
         };
 
@@ -121,22 +127,31 @@ public class MultiPasteOptionsPane {
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
         myUserDefinedMacroSmartReplace.addActionListener(userMacroActionListener);
         myRegexUserDefinedMacro.addActionListener(actionListener);
+        myShowMacroResultPreview.addActionListener(actionListener);
 
         final DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(final DocumentEvent e) {
-                updateSettings(false);
+            protected void textChanged(@NotNull final DocumentEvent e) {
+                updateSettings(0);
             }
         };
 
         final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(final DocumentEvent e) {
+            protected void textChanged(@NotNull final DocumentEvent e) {
                 myClosedQuoteText.setText(EditHelpers.getCorrespondingQuoteLike(myOpenQuoteText.getText()));
-                updateSettings(false);
+                updateSettings(0);
             }
         };
-        myUserDefinedMacroSearch.getDocument().addDocumentListener(documentAdapter);
+        myUserDefinedMacroSearch.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull final DocumentEvent e) {
+                if (myUserDefinedMacroSearch != null) {
+                    updateSettings(myUserDefinedMacroSearch.isEnabled() ? USER_MACRO_CHANGED : 0);
+//                    myUserDefinedMacroReplace.requestFocus();
+                }
+            }
+        });
         myUserDefinedMacroReplace.getDocument().addDocumentListener(documentAdapter);
         mySpliceDelimiterText.getDocument().addDocumentListener(documentAdapter);
         myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
@@ -152,7 +167,7 @@ public class MultiPasteOptionsPane {
         myHighlightBorder = BorderFactory.createLineBorder(JBColor.MAGENTA, 3, true);
     }
 
-    public void updateSettings(final boolean informChange) {
+    public void updateSettings(final int informChangeFlags) {
         mySettings.setMultiPasteShowEolInViewer(myMultiPasteShowEolInViewer.isSelected());
         mySettings.setMultiPasteShowEolInList(myMultiPasteShowEolInList.isSelected());
         mySettings.setMultiPastePreserveOriginal(myMultiPastePreserveOriginal.isSelected());
@@ -162,6 +177,7 @@ public class MultiPasteOptionsPane {
         mySettings.setRegexUserDefinedMacro(myRegexUserDefinedMacro.isSelected());
         mySettings.setUserDefinedMacroClipContent(myUserDefinedMacroClipContent.isSelected());
         mySettings.setUserDefinedMacroSmartReplace(myUserDefinedMacroSmartReplace.isSelected());
+        mySettings.setShowMacroResultPreview(myShowMacroResultPreview.isSelected());
         mySettings.setUserDefinedMacroSearch(myUserDefinedMacroSearch.getText());
         mySettings.setSpliceDelimiterText(mySpliceDelimiterText.getText());
         mySettings.setOpenQuoteText(myOpenQuoteText.getText());
@@ -170,13 +186,14 @@ public class MultiPasteOptionsPane {
 
         updateUIState();
 
-        if (informChange && mySettingsChangedRunnable != null) {
-            mySettingsChangedRunnable.run();
+        if (informChangeFlags > 0 && mySettingsChangedRunnable != null) {
+            mySettingsChangedRunnable.accept(informChangeFlags);
         }
     }
 
     public void updateUIState() {
         myIncludeUserDefinedMacro.setEnabled(myReplaceMacroVariables.isSelected());
+        myShowMacroResultPreview.setEnabled(myReplaceMacroVariables.isSelected());
         myRegexUserDefinedMacro.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
         myUserDefinedMacroClipContent.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
         myUserDefinedMacroSmartReplace.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
@@ -196,18 +213,24 @@ public class MultiPasteOptionsPane {
         myPanel.getParent().validate();
     }
 
-    public void updatedClipboardContents(final java.util.List<String> selections) {
+    public void updatedClipboardContents(final List<String> selections, final List<Integer> indices) {
         myUserDefinedMacroReplaceClipContent.removeAllItems();
+        myUserDefinedMacroReplaceClipIndices = indices;
         for (String item : selections) {
             myUserDefinedMacroReplaceClipContent.addItem(item);
         }
     }
 
     public int getSelectedClipboardContentIndex() {
-        return myUserDefinedMacroReplaceClipContent.getSelectedIndex();
+        int index = myUserDefinedMacroReplaceClipContent.getSelectedIndex();
+        return index >= 0 && index < myUserDefinedMacroReplaceClipIndices.size() ? myUserDefinedMacroReplaceClipIndices.get(index) : -1;
     }
 
     public void setSettingsChangedRunnable(final Runnable settingsChangedRunnable) {
+        mySettingsChangedRunnable = (flags) -> settingsChangedRunnable.run();
+    }
+
+    public void setSettingsChangedRunnable(final Consumer<Integer> settingsChangedRunnable) {
         mySettingsChangedRunnable = settingsChangedRunnable;
     }
 

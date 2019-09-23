@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.4.7 - Bug Fix Release](#1747---bug-fix-release)
+- [1.7.4.9 - Bug Fix Release](#1749---bug-fix-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,8 +91,10 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.4.7 - Bug Fix Release
+### 1.7.4.9 - Bug Fix Release
 
+* Fix: replacement of user macro would not be done if there were not macro variables defined.
+* Fix: user replace macro with clipboard content would fail because of index mismatch.
 * Fix: non-regex prefix set to followed by uppercase letter had erroneous test. When pasting
   `projectSettings` on to `settingsText` results in `setProjectSettings`
 * Fix: update to latest plugin-utils.

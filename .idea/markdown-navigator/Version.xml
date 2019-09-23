@@ -1,6 +1,6 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="Version" profileName="Version" havePreviewSettings="false" haveParserSettings="true" haveHtmlSettings="false" haveLinkMapSettings="false" haveHtmlExportSettings="false">
+    <option name="myName" value="Version" profileName="Version" havePreviewSettings="false" haveParserSettings="true" haveHtmlSettings="false" haveHtmlExportSettings="false" haveLinkMapSettings="false">
       <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="1" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="false" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
@@ -116,6 +116,8 @@ code {
       <LinkMapSettings>
         <textMaps />
       </LinkMapSettings>
+      <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
+      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
     </option>
   </profile>
 </component>

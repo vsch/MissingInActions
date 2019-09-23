@@ -50,6 +50,10 @@ public abstract class MiaHighlightProviderBase extends HighlightProviderBase<App
     }
 
     protected ColorIterable getColors(@NotNull ApplicationSettings settings) {
+        return getColorIterable(settings);
+    }
+
+    public static ColorIterable getColorIterable(@NotNull ApplicationSettings settings) {
         return new ColorIterable(
                 settings.getHueMin(),
                 settings.getHueMax(),

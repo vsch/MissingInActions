@@ -323,9 +323,7 @@ public class LineSelectionManager implements
                     Pattern test = Pattern.compile(pattern.getPatternText());
                 }
                 myOnPasteUserSearchPattern = pattern;
-                myOnPasteSearchPattern = null;
             } catch (PatternSyntaxException ignored) {
-                myOnPasteSearchPattern = null;
             }
         }
         myOnPasteSearchPattern = null;
@@ -341,7 +339,7 @@ public class LineSelectionManager implements
 
     @NotNull
     public String replaceOnPaste(@NotNull String text) {
-        if (myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) {
+        if ((myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) && myOnPasteUserSearchPattern == null) {
             return text;
         }
 
@@ -365,7 +363,7 @@ public class LineSelectionManager implements
                 sb.append(text, lastPos, start);
             }
 
-            String replace = myOnPasteReplacementMap.get(matcher.group());
+            String replace = myOnPasteReplacementMap == null ? null : myOnPasteReplacementMap.get(matcher.group());
             if (replace != null) {
                 sb.append(replace);
             } else {
@@ -421,16 +419,18 @@ public class LineSelectionManager implements
         if (myOnPasteSearchPattern == null) {
             StringBuilder sb = new StringBuilder();
             String splice = "";
-            for (String search : myOnPasteReplacementMap.keySet()) {
-                sb.append(splice);
+            if (myOnPasteReplacementMap != null) {
+                for (String search : myOnPasteReplacementMap.keySet()) {
+                    sb.append(splice);
 
-                sb.append(SearchPattern.getPatternText(search, false, true));
-                splice = "|";
+                    sb.append(SearchPattern.getPatternText(search, false, true));
+                    splice = "|";
+                }
             }
 
             if (myOnPasteUserSearchPattern != null) {
                 sb.append(splice);
-                sb.append(myOnPasteUserSearchPattern.getPatternText(myOnPasteUserSearchPattern.isRegex() || !ApplicationSettings.getInstance().isUserDefinedMacroClipContent()));
+                sb.append(myOnPasteUserSearchPattern.getPatternText(true/*myOnPasteUserSearchPattern.isRegex() || !ApplicationSettings.getInstance().isUserDefinedMacroClipContent()*/));
                 splice = "|";
             }
 
