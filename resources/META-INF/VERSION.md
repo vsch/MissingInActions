@@ -95,6 +95,10 @@
 
 * [ ] Add: `To Lines` action in paste from history to convert multiple selection to merged
       **lines** content without having to paste it. Opposite of `To Carets`
+* Add: allow paste from history with preview macro replacement results to be selected and copied
+  as new clipboard content.
+* Fix: paste from history user macro variable replacement and macro variable replacement are now
+  two independent options.
 * Fix: paste from history user variable case sensitive only if not using smart paste options for
   replacement.
 * Fix: paste from history with replacements from clipboard would duplicate for every caret in

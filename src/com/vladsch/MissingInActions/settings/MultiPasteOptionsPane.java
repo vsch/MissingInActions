@@ -22,14 +22,12 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.wm.impl.FocusManagerImpl;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 import com.vladsch.plugin.util.CancellableRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +57,7 @@ public class MultiPasteOptionsPane {
     JBCheckBox myMultiPastePreserveOriginal;
     JBCheckBox myMultiPasteDeleteRepeatedCaretData;
     JBCheckBox myReplaceMacroVariables;
-    JBCheckBox myIncludeUserDefinedMacro;
+    JBCheckBox myReplaceUserDefinedMacro;
     JBCheckBox myRegexUserDefinedMacro;
     JBCheckBox myUserDefinedMacroClipContent;
     JBCheckBox myUserDefinedMacroSmartReplace;
@@ -94,7 +92,7 @@ public class MultiPasteOptionsPane {
         myMultiPastePreserveOriginal.setSelected(mySettings.isMultiPastePreserveOriginal());
         myMultiPasteDeleteRepeatedCaretData.setSelected(mySettings.isMultiPasteDeleteRepeatedCaretData());
         myReplaceMacroVariables.setSelected(mySettings.isReplaceMacroVariables());
-        myIncludeUserDefinedMacro.setSelected(mySettings.isIncludeUserDefinedMacro());
+        myReplaceUserDefinedMacro.setSelected(mySettings.isReplaceUserDefinedMacro());
         myRegexUserDefinedMacro.setSelected(mySettings.isRegexUserDefinedMacro());
         myUserDefinedMacroClipContent.setSelected(mySettings.isUserDefinedMacroClipContent());
         myUserDefinedMacroSmartReplace.setSelected(mySettings.isUserDefinedMacroSmartReplace());
@@ -123,7 +121,7 @@ public class MultiPasteOptionsPane {
         myMultiPastePreserveOriginal.addActionListener(actionListener);
         myMultiPasteDeleteRepeatedCaretData.addActionListener(actionListener);
         myReplaceMacroVariables.addActionListener(actionListener);
-        myIncludeUserDefinedMacro.addActionListener(actionListener);
+        myReplaceUserDefinedMacro.addActionListener(actionListener);
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
         myUserDefinedMacroSmartReplace.addActionListener(userMacroActionListener);
         myUserDefinedMacroReplaceClipContent.addActionListener(userMacroActionListener);
@@ -177,7 +175,7 @@ public class MultiPasteOptionsPane {
         mySettings.setMultiPastePreserveOriginal(myMultiPastePreserveOriginal.isSelected());
         mySettings.setMultiPasteDeleteRepeatedCaretData(myMultiPasteDeleteRepeatedCaretData.isSelected());
         mySettings.setReplaceMacroVariables(myReplaceMacroVariables.isSelected());
-        mySettings.setIncludeUserDefinedMacro(myIncludeUserDefinedMacro.isSelected());
+        mySettings.setReplaceUserDefinedMacro(myReplaceUserDefinedMacro.isSelected());
         mySettings.setRegexUserDefinedMacro(myRegexUserDefinedMacro.isSelected());
         mySettings.setUserDefinedMacroClipContent(myUserDefinedMacroClipContent.isSelected());
         mySettings.setUserDefinedMacroSmartReplace(myUserDefinedMacroSmartReplace.isSelected());
@@ -196,14 +194,13 @@ public class MultiPasteOptionsPane {
     }
 
     public void updateUIState() {
-        myIncludeUserDefinedMacro.setEnabled(myReplaceMacroVariables.isSelected());
-        myShowMacroResultPreview.setEnabled(myReplaceMacroVariables.isSelected());
-        myRegexUserDefinedMacro.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
-        myUserDefinedMacroClipContent.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
-        myUserDefinedMacroSmartReplace.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
-        myUserDefinedMacroSearch.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected());
-        myUserDefinedMacroReplace.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected() && !myUserDefinedMacroClipContent.isSelected());
-        myUserDefinedMacroReplaceClipContent.setEnabled(myReplaceMacroVariables.isSelected() && myIncludeUserDefinedMacro.isSelected() && myUserDefinedMacroClipContent.isSelected());
+        myShowMacroResultPreview.setEnabled(myReplaceMacroVariables.isSelected() || myReplaceUserDefinedMacro.isSelected());
+        myRegexUserDefinedMacro.setEnabled(myReplaceUserDefinedMacro.isSelected());
+        myUserDefinedMacroClipContent.setEnabled(myReplaceUserDefinedMacro.isSelected());
+        myUserDefinedMacroSmartReplace.setEnabled(myReplaceUserDefinedMacro.isSelected());
+        myUserDefinedMacroSearch.setEnabled(myReplaceUserDefinedMacro.isSelected());
+        myUserDefinedMacroReplace.setEnabled(myReplaceUserDefinedMacro.isSelected() && !myUserDefinedMacroClipContent.isSelected());
+        myUserDefinedMacroReplaceClipContent.setEnabled(myReplaceUserDefinedMacro.isSelected() && myUserDefinedMacroClipContent.isSelected());
 
         myUserDefinedMacroReplace.setVisible(!myUserDefinedMacroClipContent.isSelected());
         myUserDefinedMacroReplaceClipContent.setVisible(myUserDefinedMacroClipContent.isSelected());

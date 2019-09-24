@@ -143,7 +143,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private int             myDarkGradientBrightnessSteps = ColorIterable.DARK_GRADIENT_BRIGHTNESS_STEPS;
     private boolean         myHideDisabledButtons = false;
     private boolean         myOnPastePreserve = true;
-    private boolean         myIncludeUserDefinedMacro = false;
+    private boolean         myReplaceUserDefinedMacro = false;
     private boolean         myRegexUserDefinedMacro = false;
     private boolean         myUserDefinedMacroClipContent = false;
     private @NotNull String myUserDefinedMacroSearch = "";
@@ -421,12 +421,12 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
         myUserDefinedMacroSmartReplace = userDefinedMacroSmartReplace;
     }
 
-    public boolean isIncludeUserDefinedMacro() {
-        return myIncludeUserDefinedMacro;
+    public boolean isReplaceUserDefinedMacro() {
+        return myReplaceUserDefinedMacro;
     }
 
-    public void setIncludeUserDefinedMacro(final boolean includeUserDefinedMacro) {
-        myIncludeUserDefinedMacro = includeUserDefinedMacro;
+    public void setReplaceUserDefinedMacro(final boolean replaceUserDefinedMacro) {
+        myReplaceUserDefinedMacro = replaceUserDefinedMacro;
     }
 
     public boolean isUserDefinedMacroClipContent() {

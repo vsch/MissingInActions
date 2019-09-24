@@ -151,7 +151,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final boolean[] haveReplacedMacroVariables = new boolean[] { false };
         final Supplier<String[]> getUserReplacementData = () -> {
             String[] userData = null;
-            if (settings.isReplaceMacroVariables() && settings.isIncludeUserDefinedMacro()) {
+            if (settings.isReplaceUserDefinedMacro()) {
                 if (settings.isUserDefinedMacroClipContent()) {
                     final Transferable[] allContents = copyPasteManager.getAllContents();
                     int selectedIndex = multiPasteOptionsPane.getSelectedClipboardContentIndex();
@@ -210,9 +210,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             }
 
             protected void listItemDeleted() {
-                if (settings.isReplaceMacroVariables() &&
-                        settings.isIncludeUserDefinedMacro() &&
-                        settings.isUserDefinedMacroClipContent())
+                if (settings.isReplaceUserDefinedMacro() && settings.isUserDefinedMacroClipContent())
                     listUpdater.run();
             }
 
@@ -334,7 +332,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     Transferable textsContent = content;
                     ClipboardCaretContent textsCaretContent = caretContent;
                     Highlighter<ApplicationSettings> highlighter = null;
-                    boolean isReplacedPreview = !inFocus && settings.isReplaceMacroVariables() && settings.isShowMacroResultPreview();
+                    boolean isReplacedPreview = /*!inFocus &&*/ (settings.isReplaceMacroVariables() || settings.isReplaceUserDefinedMacro()) && settings.isShowMacroResultPreview();
                     final Document document = viewer.getDocument();
                     haveReplacedMacroVariables[0] = false;
 
@@ -344,7 +342,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         manager.setOnPasteUserSearchPattern(null);
 
                         String[] userData = null;
-                        if (settings.isReplaceMacroVariables() && settings.isIncludeUserDefinedMacro()) {
+                        if (settings.isReplaceUserDefinedMacro()) {
                             userData = getUserReplacementData.get();
                             if (userData != null && userData.length > 0) {
                                 String search = settings.getUserDefinedMacroSearch();
@@ -366,7 +364,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             }
                         }
 
-                        HashMap<String, String> replacementsMap = editor == null ? null : EditHelpers.getOnPasteReplacements(editor);
+                        HashMap<String, String> replacementsMap = editor == null || !settings.isReplaceMacroVariables() ? null : EditHelpers.getOnPasteReplacements(editor);
                         manager.setOnPasteReplacementText(replacementsMap);
 
                         final MiaTextRangeHighlightProviderImpl highlightProvider = new MiaTextRangeHighlightProviderImpl(settings);
@@ -393,7 +391,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 textsCaretContent = mergedContent;
                             }
                         } else {
-                            if (settings.isReplaceMacroVariables()) {
+                            if (settings.isReplaceMacroVariables() || settings.isReplaceUserDefinedMacro()) {
                                 int[] offset = { 0 };
                                 for (String s : texts) {
                                     HighlightElement textHighlight = new HighlightElement(textHighlights.size(), s, offset[0]);
@@ -979,7 +977,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED || alternateAction[0] == PASTE_SPLICED_AND_QUOTED ? simplePasteAction : getPasteAction(editor, recreateCarets);
 
                 if (pasteAction != null) {
-                    if (settings.isReplaceMacroVariables() && manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
+                    if ((settings.isReplaceMacroVariables() || settings.isReplaceUserDefinedMacro()) && manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
                         // need to create the replaced content
                         final Transferable contents = copyPasteManager.getContents();
                         if (contents != null) {
