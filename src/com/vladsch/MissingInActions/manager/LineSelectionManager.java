@@ -51,6 +51,7 @@ import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.InsertedRangeContext;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
+import com.vladsch.MissingInActions.util.TextOffsetConsumer;
 import com.vladsch.MissingInActions.util.highlight.MiaLineRangeHighlightProviderImpl;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
@@ -328,6 +329,8 @@ public class LineSelectionManager implements
                 myOnPasteUserSearchPattern = pattern;
             } catch (PatternSyntaxException ignored) {
             }
+        } else {
+            myOnPasteUserSearchPattern = null;
         }
         myOnPasteSearchPattern = null;
     }
@@ -346,7 +349,7 @@ public class LineSelectionManager implements
     }
 
     @NotNull
-    public String replaceOnPaste(@NotNull String text, @Nullable BiConsumer<String, TextRange> rangeConsumer) {
+    public String replaceOnPaste(@NotNull String text, @Nullable TextOffsetConsumer rangeConsumer) {
         if ((myOnPasteReplacementMap == null || myOnPasteReplacementMap.isEmpty()) && myOnPasteUserSearchPattern == null) {
             return text;
         }
@@ -363,6 +366,7 @@ public class LineSelectionManager implements
         int separators = settings.getPreserveOnPasteSeparators();
         final PrefixOnPastePatternType patternType = settings.getRemovePrefixOnPastePatternType();
         final String[] prefixes = settings.getPrefixesOnPasteList();
+        int rangeIndex = 0;
 
         while (matcher.find()) {
             final int start = matcher.start();
@@ -371,14 +375,17 @@ public class LineSelectionManager implements
                 sb.append(text, lastPos, start);
             }
 
-            String replace = myOnPasteReplacementMap == null ? null : myOnPasteReplacementMap.get(matcher.group());
+            String searchText = matcher.group();
+            String replace = myOnPasteReplacementMap == null ? null : myOnPasteReplacementMap.get(searchText);
             int startLength = sb.length();
             int replaceLength = 0;
+
             if (replace != null) {
                 sb.append(replace);
                 replaceLength = replace.length();
             } else {
                 // must be user text
+                searchText = null;
                 replaceLength = myOnPasteUserReplacementText.length();
 
                 if (smartReplace) {
@@ -422,10 +429,12 @@ public class LineSelectionManager implements
             }
 
             if (rangeConsumer != null) {
-                final TextRange range = new TextRange(startLength, startLength + replaceLength);
-                rangeConsumer.accept(matcher.group(), range);
+                final TextRange replacedRange = new TextRange(startLength, startLength + replaceLength);
+                final TextRange searchedRange = new TextRange(matcher.start(), matcher.end());
+                rangeConsumer.accept(-1, null, 0, rangeIndex, searchedRange, replacedRange, searchText);
             }
 
+            rangeIndex++;
             lastPos = end;
         }
 
@@ -451,7 +460,7 @@ public class LineSelectionManager implements
 
             if (myOnPasteUserSearchPattern != null) {
                 sb.append(splice);
-                sb.append(myOnPasteUserSearchPattern.getPatternText(true/*myOnPasteUserSearchPattern.isRegex() || !ApplicationSettings.getInstance().isUserDefinedMacroClipContent()*/));
+                sb.append(myOnPasteUserSearchPattern.getPatternText(!ApplicationSettings.getInstance().isUserDefinedMacroSmartReplace()));
                 splice = "|";
             }
 

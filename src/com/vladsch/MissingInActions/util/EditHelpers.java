@@ -62,10 +62,19 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPasswordField;
 import java.awt.datatransfer.Transferable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
-import static java.lang.Character.*;
+import static java.lang.Character.isJavaIdentifierPart;
+import static java.lang.Character.isLetterOrDigit;
+import static java.lang.Character.isUpperCase;
+import static java.lang.Character.isWhitespace;
 
 @SuppressWarnings({ "SameParameterValue", "WeakerAccess" })
 public class EditHelpers {
@@ -1049,6 +1058,7 @@ public class EditHelpers {
      * Insert spaces to make sure position ends on real characters
      *
      * @param position position to which to extend real line
+     *
      * @return number of spaces inserted to convert virtual to real spaces
      */
     public static int ensureRealSpaces(@NotNull EditorPosition position) {
@@ -1501,6 +1511,16 @@ public class EditHelpers {
             ClipboardCaretContent clipboardCaretContent,
             String[] userData
     ) {
+        return getReplacedTransferable(editor, clipboardCaretContent, userData, null);
+    }
+
+    @NotNull
+    public static Transferable getReplacedTransferable(
+            final @NotNull Editor editor,
+            ClipboardCaretContent clipboardCaretContent,
+            String[] userData,
+            @Nullable TextOffsetConsumer offsetConsumer
+    ) {
         Transferable mergedTransferable;
         String sep = "\n";
         int iMax = clipboardCaretContent.getCaretCount();
@@ -1511,32 +1531,43 @@ public class EditHelpers {
 
         StringBuilder sb = new StringBuilder();
         List<TextRange> ranges = new ArrayList<>();
+        int[] textIndex = { 0 };
+        int[] rangeOffset = { 0 };
+        String[] text = {""};
+        @Nullable TextOffsetConsumer offsetRangeConsumer = offsetConsumer == null ? null :
+                (dummyIndex, dummyText, dummyOffset, rangeIndex,  foundRange,  replacedRange, foundText) -> offsetConsumer.accept(textIndex[0], text[0], rangeOffset[0], rangeIndex, foundRange, replacedRange, foundText);
 
         // here we build a single text based on permutations
-
-        int jMax = userData.length;
+        int jMax = userData == null ? 1 : userData.length;
         for (int i = 0; i < iMax; i++) {
             for (int j = 0; j < jMax; j++) {
                 // update manager's replacement
-                manager.setOnPasteUserReplacementText(userData[j]);
+                if (userData != null) manager.setOnPasteUserReplacementText(userData[j]);
+
+                text[0] = texts[i];
+
                 if (clipboardCaretContent.isFullLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
                     ranges.add(new TextRange(startOffset, endOffset));
+                    rangeOffset[0] += endOffset - startOffset;
                 } else if (clipboardCaretContent.isCharLine(i)) {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
                     sb.append(sep);
                     ranges.add(new TextRange(startOffset, endOffset));
+                    rangeOffset[0] += endOffset - startOffset;
                 } else {
                     int startOffset = sb.length();
-                    sb.append(manager.replaceOnPaste(texts[i]));
+                    sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
-                    //if (iMax1 > 1 || jMax > 1) sb.append(sep);
                     ranges.add(new TextRange(startOffset, endOffset));
+                    rangeOffset[0] += endOffset - startOffset;
                 }
+
+                textIndex[0]++;
             }
         }
 
@@ -1603,17 +1634,17 @@ public class EditHelpers {
             map.put("__filepath__", path.toLowerCase());
 
             path = Utils.removePrefix(editorEx.getVirtualFile().getParent().getPath(), "/");
-            map.put("__File-path__", path.replace('/','-'));
-            map.put("__File-Path__", path.replace('/','-'));
-            map.put("__file-Path__", path.replace('/','-'));
-            map.put("__FILE-PATH__", path.toUpperCase().replace('/','.'));
-            map.put("__file-path__", path.toLowerCase().replace('/','-'));
+            map.put("__File-path__", path.replace('/', '-'));
+            map.put("__File-Path__", path.replace('/', '-'));
+            map.put("__file-Path__", path.replace('/', '-'));
+            map.put("__FILE-PATH__", path.toUpperCase().replace('/', '.'));
+            map.put("__file-path__", path.toLowerCase().replace('/', '-'));
 
-            map.put("__File.path__", path.replace('/','.'));
-            map.put("__File.Path__", path.replace('/','.'));
-            map.put("__file.Path__", path.replace('/','.'));
-            map.put("__FILE.PATH__", path.toUpperCase().replace('/','.'));
-            map.put("__file.path__", path.toLowerCase().replace('/','.'));
+            map.put("__File.path__", path.replace('/', '.'));
+            map.put("__File.Path__", path.replace('/', '.'));
+            map.put("__file.Path__", path.replace('/', '.'));
+            map.put("__FILE.PATH__", path.toUpperCase().replace('/', '.'));
+            map.put("__file.path__", path.toLowerCase().replace('/', '.'));
 
             return map;
         }
@@ -1769,6 +1800,7 @@ public class EditHelpers {
      * @param editor
      * @param range1
      * @param range2
+     *
      * @return true if neither range is fully contained in the other and changes were made
      */
     public static boolean replaceRangeText(final Editor editor, final Range range1, final Range range2) {
@@ -1801,6 +1833,7 @@ public class EditHelpers {
      * @param document
      * @param range1
      * @param range2
+     *
      * @return Pair first is range1 (non-overlapping) text and second is range2 non-overlapping text
      */
     @Nullable

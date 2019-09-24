@@ -38,6 +38,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
@@ -363,8 +364,8 @@ public class ClipboardCaretContent {
             // save it so it can be re-used by MiaMultiplePaste
             if (caretData == null) {
                 // we make one for a single caret
-
             }
+
             editor.putUserData(LAST_CARET_OFFSET_ADJUSTER, offsetAdjuster);
 
             final TextRange[] ranges = new TextRange[caretCount];
@@ -438,16 +439,12 @@ public class ClipboardCaretContent {
     }
 
     @NotNull
-    public static String getStringRep(String[] texts, @Nullable int[] endOffsets, ClipboardCaretContent caretContent, final int maxLen, final String showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
+    public static String getStringRep(String[] texts, @Nullable BiConsumer<Integer, Integer> rangeConsumer, ClipboardCaretContent caretContent, final int maxLen, final String showEOL, final boolean addCharFinalEOL, final boolean removeFullLineEOL) {
         // convert multi caret text to \n separated ranges
         StringBuilder sb = new StringBuilder();
         if (texts != null) {
             int iMax = caretContent.myCaretCount;
-            if (endOffsets != null) {
-                for (int i = 0; i < iMax; i++) {
-                   endOffsets[i] = -1;
-                }
-            }
+            int endOffset = 0;
 
             for (int i = 0; i < iMax; i++) {
                 if (maxLen > 0 && sb.length() >= maxLen) {
@@ -478,7 +475,10 @@ public class ClipboardCaretContent {
                     }
                 }
 
-                if (endOffsets != null) endOffsets[i] = sb.length() - startOffset - texts[i].length();
+                if (rangeConsumer != null) {
+                    rangeConsumer.accept(i, endOffset);
+                    endOffset += sb.length() - startOffset - texts[i].length();
+                }
             }
 
             final String s = sb.toString();

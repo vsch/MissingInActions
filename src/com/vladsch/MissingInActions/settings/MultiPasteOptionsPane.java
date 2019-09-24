@@ -111,11 +111,11 @@ public class MultiPasteOptionsPane {
 
         final ActionListener userMacroActionListener = e -> {
             updateSettings(OTHER_CHANGED);
-            if (!myUserDefinedMacroClipContent.isSelected()) {
-                MiaCancelableJobScheduler.getInstance().schedule(250, () -> {
-                    myUserDefinedMacroReplace.requestFocus();
-                });
-            }
+//            if (!myUserDefinedMacroClipContent.isSelected()) {
+//                MiaCancelableJobScheduler.getInstance().schedule(250, () -> {
+//                    myUserDefinedMacroReplace.requestFocus();
+//                });
+//            }
         };
 
         myMultiPasteShowEolInViewer.addActionListener(actionListener);
@@ -126,6 +126,7 @@ public class MultiPasteOptionsPane {
         myIncludeUserDefinedMacro.addActionListener(actionListener);
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
         myUserDefinedMacroSmartReplace.addActionListener(userMacroActionListener);
+        myUserDefinedMacroReplaceClipContent.addActionListener(userMacroActionListener);
         myRegexUserDefinedMacro.addActionListener(actionListener);
         myShowMacroResultPreview.addActionListener(actionListener);
 

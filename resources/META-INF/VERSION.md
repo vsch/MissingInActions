@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.6 - Bug Fix Release & Enhancement Release](#176---bug-fix-release--enhancement-release)
+- [1.7.5.1 - Bug Fix Release & Enhancement Release](#1751---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,8 +91,14 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.6 - Bug Fix Release & Enhancement Release
+### 1.7.5.1 - Bug Fix Release & Enhancement Release
 
+* [ ] Add: `To Lines` action in paste from history to convert multiple selection to merged
+      **lines** content without having to paste it. Opposite of `To Carets`
+* Fix: paste from history user variable case sensitive only if not using smart paste options for
+  replacement.
+* Fix: paste from history with replacements from clipboard would duplicate for every caret in
+  replacement content even when nothing matched--confusing. Now ignore clipboard
 * Add: search highlighting in paste from history if replacing macro variables in
   pasted text is enabled.
 * Add: option to show text after replacements in paste from history preview, with replaced
