@@ -145,9 +145,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
         final DelayedRunner delayedRunner = new DelayedRunner();
         final Action[] convertToCaretsAction = new Action[] { null };
+        final Action[] convertToLinesAction = new Action[] { null };
         final AnAction simplePasteAction = ActionManager.getInstance().getAction("EditorPasteSimple"); //IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
         final boolean haveSimplePasteAction = simplePasteAction != null;
         final boolean[] convertToCaretsEnabled = new boolean[] { false };
+        final boolean[] convertToLinesEnabled = new boolean[] { false };
         final boolean[] haveReplacedMacroVariables = new boolean[] { false };
         final Supplier<String[]> getUserReplacementData = () -> {
             String[] userData = null;
@@ -588,19 +590,26 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             protected void updateConvertToCarets(String[] texts) {
                 // on creation this is called before the action is created, enabled state is saved so it could be used when
                 // action is created
-                boolean enabled = false;
+                boolean toCaretsEnabled = false;
+                boolean toLinesEnabled = false;
                 if (texts != null) {
                     for (String text : texts) {
                         if (text.indexOf('\n') != -1) {
-                            enabled = true;
+                            toCaretsEnabled = true;
                             break;
                         }
                     }
+
+                    toLinesEnabled = texts.length > 1 || !toCaretsEnabled;
                 }
 
-                convertToCaretsEnabled[0] = enabled;
+                convertToCaretsEnabled[0] = toCaretsEnabled;
                 if (convertToCaretsAction[0] != null) {
-                    convertToCaretsAction[0].setEnabled(enabled);
+                    convertToCaretsAction[0].setEnabled(toCaretsEnabled);
+                }
+                convertToLinesEnabled[0] = toLinesEnabled;
+                if (convertToLinesAction[0] != null) {
+                    convertToLinesAction[0].setEnabled(toLinesEnabled);
                 }
             }
 
@@ -627,6 +636,36 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                         if (texts != null) {
                             Transferable convertedTransferable = EditHelpers.splitCaretTransferable(texts);
+                            copyPasteManager.setContents(convertedTransferable);
+                        }
+                    }
+                }
+            }
+
+            protected void convertSelectionToLines() {
+                // split current selection to character carets
+                ContentChooser<Transferable> chooser = choosers[0];
+                final int[] selectedIndices = chooser.getSelectedIndices();
+
+                if (selectedIndices.length > 0) {
+                    Transferable content;
+                    final ClipboardCaretContent caretContent;
+
+                    if (selectedIndices.length == 1) {
+                        content = chooser.getAllContents().get(selectedIndices[0]);
+                        caretContent = getCaretContent(content);
+                    } else {
+                        content = EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true);
+                        caretContent = ClipboardCaretContent.studyTransferable(editor, content);
+                    }
+
+                    if (caretContent != null) {
+                        // convert to single block of text
+                        final String[] texts = caretContent.getTexts();
+
+                        if (texts != null) {
+                            final String text = caretContent.getStringRep(-1, "", false, true);
+                            Transferable convertedTransferable = EditHelpers.getTransferable(text);
                             copyPasteManager.setContents(convertedTransferable);
                         }
                     }
@@ -741,7 +780,20 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 convertToCarets.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.convert-to-carets.description"));
                 convertToCarets.setEnabled(convertToCaretsEnabled[0]);
                 convertToCaretsAction[0] = convertToCarets;
-                myLeftSideActions = new Action[] { showOptionsAction, convertToCarets };
+
+                Action convertToLines = new OkAction() {
+                    @SuppressWarnings("SerializableStoresNonSerializable")
+                    @Override
+                    protected void doAction(final ActionEvent e) {
+                        convertSelectionToLines();
+                    }
+                };
+
+                convertToLines.putValue(Action.NAME, Bundle.message("content-chooser.convert-to-lines.label"));
+                convertToLines.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.convert-to-lines.description"));
+                convertToLines.setEnabled(convertToLinesEnabled[0]);
+                convertToLinesAction[0] = convertToLines;
+                myLeftSideActions = new Action[] { showOptionsAction, convertToCarets, convertToLines };
                 return myLeftSideActions;
             }
 

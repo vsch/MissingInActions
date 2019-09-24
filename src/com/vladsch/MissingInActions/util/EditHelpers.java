@@ -68,7 +68,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static java.lang.Character.isJavaIdentifierPart;
@@ -1270,6 +1269,10 @@ public class EditHelpers {
         }
     }
 
+    public static Transferable getTransferable(String text) {
+        return getTransferable(text, 0);
+    }
+
     private static Transferable getTransferable(String text, int lengthOffset) {
         final List<TextBlockTransferableData> transferableData = new ArrayList<>();
         int[] startOffsets = new int[1];
@@ -1533,9 +1536,9 @@ public class EditHelpers {
         List<TextRange> ranges = new ArrayList<>();
         int[] textIndex = { 0 };
         int[] rangeOffset = { 0 };
-        String[] text = {""};
+        String[] text = { "" };
         @Nullable TextOffsetConsumer offsetRangeConsumer = offsetConsumer == null ? null :
-                (dummyIndex, dummyText, dummyOffset, rangeIndex,  foundRange,  replacedRange, foundText) -> offsetConsumer.accept(textIndex[0], text[0], rangeOffset[0], rangeIndex, foundRange, replacedRange, foundText);
+                (dummyIndex, dummyText, dummyOffset, rangeIndex, foundRange, replacedRange, foundText) -> offsetConsumer.accept(textIndex[0], text[0], rangeOffset[0], rangeIndex, foundRange, replacedRange, foundText);
 
         // here we build a single text based on permutations
         int jMax = userData == null ? 1 : userData.length;

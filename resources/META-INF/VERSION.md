@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.1 - Bug Fix Release & Enhancement Release](#1751---bug-fix-release--enhancement-release)
+- [1.7.5.3 - Bug Fix Release & Enhancement Release](#1753---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,35 +91,34 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.1 - Bug Fix Release & Enhancement Release
+### 1.7.5.3 - Bug Fix Release & Enhancement Release
 
-* [ ] Add: `To Lines` action in paste from history to convert multiple selection to merged
-      **lines** content without having to paste it. Opposite of `To Carets`
-* Add: allow paste from history with preview macro replacement results to be selected and copied
-  as new clipboard content.
-* Fix: paste from history user macro variable replacement and macro variable replacement are now
-  two independent options.
-* Fix: paste from history user variable case sensitive only if not using smart paste options for
-  replacement.
-* Fix: paste from history with replacements from clipboard would duplicate for every caret in
-  replacement content even when nothing matched--confusing. Now ignore clipboard
-* Add: search highlighting in paste from history if replacing macro variables in
-  pasted text is enabled.
-* Add: option to show text after replacements in paste from history preview, with replaced
-  regions highlighted.
-* Add: `__Filepath__` variants to replaced variables to replace with file path which will be
-  pasted into.
-  * `__Filepath__` : file path as is.
-  * `__FILEPATH__` : file path all caps.
-  * `__filepath__` : file path lowercase.
-  * `__File-path__` : file path with leading `/` removed and `/` replaced by `-`.
-  * `__FILE-PATH__` : file path as above but in all caps.
-  * `__file-path__` : file path as above but in lowercase.
-  * `__File.path__` : file path with leading `/` removed and `/` replaced by `.`.
-  * `__FILE.PATH__` : file path as above but in all caps.
-  * `__file.path__` : file path as above but in lowercase.
-* Fix: replacement of user macro would not be done if there were not macro variables defined.
-* Fix: user replace macro with clipboard content would fail because of index mismatch.
+* Fix: paste from history
+  * Add: `To Line` action to convert multiple selection to merged **line** content without
+    having to paste it. Opposite of `To Carets`
+  * Add: allow preview macro replacement results to be selected and copied as new clipboard
+    content.
+  * Fix: user macro variable replacement and macro variable replacement are now two independent
+    options.
+  * Fix: user variable case sensitive only if not using smart paste options for replacement.
+  * Fix: replacements from clipboard would duplicate for every caret in replacement content even
+    when nothing matched--confusing. Now ignore clipboard
+  * Add: search highlighting if replacing macro variables or user variable in pasted text is
+    enabled.
+  * Add: option to show text after replacements, with replaced regions highlighted.
+  * Add: `__Filepath__` variants to replaced variables to replace with file path which will be
+    pasted into.
+    * `__Filepath__` : file path as is.
+    * `__FILEPATH__` : file path all caps.
+    * `__filepath__` : file path lowercase.
+    * `__File-path__` : file path with leading `/` removed and `/` replaced by `-`.
+    * `__FILE-PATH__` : file path as above but in all caps.
+    * `__file-path__` : file path as above but in lowercase.
+    * `__File.path__` : file path with leading `/` removed and `/` replaced by `.`.
+    * `__FILE.PATH__` : file path as above but in all caps.
+    * `__file.path__` : file path as above but in lowercase.
+  * Fix: replacement of user macro would not be done if there were not macro variables defined.
+  * Fix: user replace macro with clipboard content would fail because of index mismatch.
 * Fix: non-regex prefix set to followed by uppercase letter had erroneous test. When pasting
   `projectSettings` on to `settingsText` results in `setProjectSettings`
 * Fix: update to latest plugin-utils.
@@ -134,8 +133,8 @@
   * Disable caret adjustments for cut if delete line selection caret adjustments are disabled.
 * Fix: update to latest plugin-util
 * Fix: handle spurious IOException in shared transferable
-* Add: `resources/search/searchableOptions.xml` for full text search across all
-  configuration settings.
+* Add: `resources/search/searchableOptions.xml` for full text search across all configuration
+  settings.
 * Fix: too strict clipboard content comparison during replacement would not replace shared
   content in some circumstances. Replaced with string comparison of clipboard content.
 * Fix: Moved png and svg icons to different sub-directories. IDE versions 2017 generates a gray
@@ -450,21 +449,21 @@
 * Add: Word Highlighting Actions, toolbar buttons and settings:
 
   * Toggle highlight word mode
-    ![Toggle Word Highlights](/resources/icons/png/Toggle_word_highlights%402x.png)
-    \: turns highlighted words on/off. Can be used to turn off highlights without clearing
-    highlight word list.
+    ![Toggle Word Highlights](/resources/icons/png/Toggle_word_highlights%402x.png) : turns
+    highlighted words on/off. Can be used to turn off highlights without clearing highlight word
+    list.
   * Toggle highlight word case sensitive mode
     ![Toggle Case Sensitive Highlights](/resources/icons/png/Toggle_case_sensitive_highlights%402x.png)
     \: toggles highlight word case sensitive matching on/off.
   * Clear highlighted words
-    ![Clear Word Highlights](/resources/icons/png/Clear_word_highlights%402x.png)
-    \: clears all highlighted words.
+    ![Clear Word Highlights](/resources/icons/png/Clear_word_highlights%402x.png) : clears all
+    highlighted words.
   * Add selection to highlighted words
-    ![Add Word Highlight](/resources/icons/png/Add_word_highlight%402x.png)
-    \: adds the current carets' selection to list of highlighted words.
+    ![Add Word Highlight](/resources/icons/png/Add_word_highlight%402x.png) : adds the current
+    carets' selection to list of highlighted words.
   * Remove selection from highlighted words
-    ![Remove Word Highlight](/resources/icons/png/Remove_word_highlight%402x.png)
-    \: adds the current carets' selection to list of highlighted words.
+    ![Remove Word Highlight](/resources/icons/png/Remove_word_highlight%402x.png) : adds the
+    current carets' selection to list of highlighted words.
   * Keep carets whose selections are highlighted words
     ![Keep Word Highlighted Carets](/resources/icons/png/Keep_word_highlighted_carets%402x.png)
     \: removes all carets without selection or whose selection text is not a highlighted word.
@@ -885,7 +884,6 @@
   * only on non-blank lines
   * only on blank lines
 
-[Readme]: https://github.com/vsch/MissingInActions/blob/master/README.md
 [#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
-
+[Readme]: https://github.com/vsch/MissingInActions/blob/master/README.md
 
