@@ -427,13 +427,33 @@ public class InsertedRangeContext {
     public boolean isAlphabeticAtEnd() { return isAlphabetic(charAtEnd()); }
     public boolean isAlphabeticAfter() { return isAlphabetic(charAfter); }
 
-    public boolean isCamelCase() { return studiedWord().isCamelCase(); }
-    public boolean isPascalCase() { return studiedWord().isPascalCase(); }
+    public boolean isAnySnakeCase() { return studiedWord().isAnySnakeCase(); }
+    public boolean isAnyDashCase() { return studiedWord().isAnyDashCase(); }
+    public boolean isAnyDotCase() { return studiedWord().isAnyDotCase(); }
+    public boolean isAnySlashCase() { return studiedWord().isAnySlashCase(); }
+
+    public boolean isMixedSnakeCase() { return studiedWord().isMixedSnakeCase(); }
+    public boolean isMixedDashCase() { return studiedWord().isMixedDashCase(); }
+    public boolean isMixedDotCase() { return studiedWord().isMixedDotCase(); }
+    public boolean isMixedSlashCase() { return studiedWord().isMixedSlashCase(); }
+
+    public boolean isFirstCapSnakeCase() { return studiedWord().isFirstCapSnakeCase(); }
+    public boolean isFirstCapDashCase() { return studiedWord().isFirstCapDashCase(); }
+    public boolean isFirstCapDotCase() { return studiedWord().isFirstCapDotCase(); }
+    public boolean isFirstCapSlashCase() { return studiedWord().isFirstCapSlashCase(); }
+
+    public boolean isScreamingSnakeCase() { return studiedWord().isScreamingSnakeCase(); }
+    public boolean isScreamingDashCase() { return studiedWord().isScreamingDashCase(); }
+    public boolean isScreamingDotCase() { return studiedWord().isScreamingDotCase(); }
+    public boolean isScreamingSlashCase() { return studiedWord().isScreamingSlashCase(); }
+
     public boolean isSnakeCase() { return studiedWord().isSnakeCase(); }
     public boolean isDashCase() { return studiedWord().isDashCase(); }
     public boolean isDotCase() { return studiedWord().isDotCase(); }
     public boolean isSlashCase() { return studiedWord().isSlashCase(); }
-    public boolean isScreamingSnakeCase() { return studiedWord().isScreamingSnakeCase(); }
+    public boolean isCamelCase() { return studiedWord().isCamelCase(); }
+    public boolean isProperCamelCase() { return studiedWord().isProperCamelCase(); }
+    public boolean isPascalCase() { return studiedWord().isPascalCase(); }
 
     public boolean isIsolated() { return expandedPrefix.isEmpty() && expandedSuffix.isEmpty(); }
 
@@ -442,21 +462,54 @@ public class InsertedRangeContext {
     public boolean isExpandedSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isSnakeCase(); }
     public boolean isExpandedScreamingSnakeCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).isScreamingSnakeCase(); }
 
+    public boolean canBeSnakeCase() { return studiedWord().canBeSnakeCase(); }
+    public boolean canBeDashCase() { return studiedWord().canBeDashCase(); }
+    public boolean canBeDotCase() { return studiedWord().canBeDotCase(); }
+    public boolean canBeSlashCase() { return studiedWord().canBeSlashCase(); }
+
+    public boolean canBeScreamingSnakeCase() { return studiedWord().canBeScreamingSnakeCase(); }
+    public boolean canBeScreamingDashCase() { return studiedWord().canBeScreamingDashCase(); }
+    public boolean canBeScreamingDotCase() { return studiedWord().canBeScreamingDotCase(); }
+    public boolean canBeScreamingSlashCase() { return studiedWord().canBeScreamingSlashCase(); }
+
+    public boolean canBeMixedSnakeCase() { return studiedWord().canBeMixedSnakeCase(); }
+    public boolean canBeMixedDashCase() { return studiedWord().canBeMixedDashCase(); }
+    public boolean canBeMixedDotCase() { return studiedWord().canBeMixedDotCase(); }
+    public boolean canBeMixedSlashCase() { return studiedWord().canBeMixedSlashCase(); }
+
+    public boolean canBeFirstCapSnakeCase() { return studiedWord().canBeFirstCapSnakeCase(); }
+    public boolean canBeFirstCapDashCase() { return studiedWord().canBeFirstCapDashCase(); }
+    public boolean canBeFirstCapDotCase() { return studiedWord().canBeFirstCapDotCase(); }
+    public boolean canBeFirstCapSlashCase() { return studiedWord().canBeFirstCapSlashCase(); }
+
     public boolean canBeCamelCase() { return studiedWord().canBeCamelCase(); }
     public boolean canBePascalCase() { return studiedWord().canBePascalCase(); }
-    public boolean canBeSnakeCase() { return studiedWord().canBeSnakeCase(); }
-    public boolean canBeScreamingSnakeCase() { return studiedWord().canBeScreamingSnakeCase(); }
 
     public boolean canBeExpandedCamelCase() { return StudiedWord.of(expandedPrefix + myWord + expandedSuffix, mySeparators).canBeCamelCase(); }
 
-    @NotNull public InsertedRangeContext makeCamelCase() { myWord = studiedWord().makeCamelCase(); return this; }
-    @NotNull public InsertedRangeContext makeProperCamelCase() { myWord = studiedWord().makeProperCamelCase(); return this; }
-    @NotNull public InsertedRangeContext makePascalCase() { myWord = studiedWord().makePascalCase(); return this; }
     @NotNull public InsertedRangeContext makeSnakeCase() { myWord = studiedWord().makeSnakeCase(); fixSnakeCase(); return this; }
     @NotNull public InsertedRangeContext makeDashCase() { myWord = studiedWord().makeDashCase(); fixDashCase(); return this; }
     @NotNull public InsertedRangeContext makeDotCase() { myWord = studiedWord().makeDotCase(); fixDotCase(); return this; }
     @NotNull public InsertedRangeContext makeSlashCase() { myWord = studiedWord().makeSlashCase(); fixSlashCase(); return this; }
+
     @NotNull public InsertedRangeContext makeScreamingSnakeCase() { myWord = studiedWord().makeScreamingSnakeCase(); fixSnakeCase(); return this; }
+    @NotNull public InsertedRangeContext makeScreamingDashCase() { myWord = studiedWord().makeScreamingDashCase(); fixDashCase(); return this; }
+    @NotNull public InsertedRangeContext makeScreamingDotCase() { myWord = studiedWord().makeScreamingDotCase(); fixDotCase(); return this; }
+    @NotNull public InsertedRangeContext makeScreamingSlashCase() { myWord = studiedWord().makeScreamingSlashCase(); fixSlashCase(); return this; }
+
+    @NotNull public InsertedRangeContext makeMixedSnakeCase() { myWord = studiedWord().makeMixedSnakeCase(); fixSnakeCase(); return this; }
+    @NotNull public InsertedRangeContext makeMixedDashCase() { myWord = studiedWord().makeMixedDashCase(); fixDashCase(); return this; }
+    @NotNull public InsertedRangeContext makeMixedDotCase() { myWord = studiedWord().makeMixedDotCase(); fixDotCase(); return this; }
+    @NotNull public InsertedRangeContext makeMixedSlashCase() { myWord = studiedWord().makeMixedSlashCase(); fixSlashCase(); return this; }
+
+    @NotNull public InsertedRangeContext makeFirstCapSnakeCase() { myWord = studiedWord().makeFirstCapSnakeCase(); fixSnakeCase(); return this; }
+    @NotNull public InsertedRangeContext makeFirstCapDashCase() { myWord = studiedWord().makeFirstCapDashCase(); fixDashCase(); return this; }
+    @NotNull public InsertedRangeContext makeFirstCapDotCase() { myWord = studiedWord().makeFirstCapDotCase(); fixDotCase(); return this; }
+    @NotNull public InsertedRangeContext makeFirstCapSlashCase() { myWord = studiedWord().makeFirstCapSlashCase(); fixSlashCase(); return this; }
+
+    @NotNull public InsertedRangeContext makeCamelCase() { myWord = studiedWord().makeCamelCase(); return this; }
+    @NotNull public InsertedRangeContext makeProperCamelCase() { myWord = studiedWord().makeProperCamelCase(); return this; }
+    @NotNull public InsertedRangeContext makePascalCase() { myWord = studiedWord().makePascalCase(); return this; }
 
     public boolean hasUnderscore() { return myWord.indexOf('_') != -1; }
     public boolean hasUpperCase() { return studiedWord().hasUpperCase(); }

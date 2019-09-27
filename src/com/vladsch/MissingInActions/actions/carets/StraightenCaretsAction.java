@@ -72,6 +72,7 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
             // move all carets to column of primary
             int column = caretModel.getPrimaryCaret().getLogicalPosition().column;
             for (Caret caret : caretModel.getAllCarets()) {
+                if (!caret.isValid()) continue;
                 caret.moveToLogicalPosition(new LogicalPosition(doc.getLineNumber(caret.getOffset()), column));
             }
         }

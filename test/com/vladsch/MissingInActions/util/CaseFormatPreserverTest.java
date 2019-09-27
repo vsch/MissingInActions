@@ -266,6 +266,9 @@ public class CaseFormatPreserverTest {
 
         s = preserved("boolean [settingsExtension]|\n", "projectSettingsExtension", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean projectSettingsExtension\n", s);
+
+        s = preserved("Test.[Toggle_case_word]|\n", "ToggleSmartSelect", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.Toggle_smart_select\n", s);
     }
 
     @Test
@@ -335,6 +338,9 @@ public class CaseFormatPreserverTest {
 
         s = preserved("boolean [ourClassMemberName]|\n", "disableGifImages", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("boolean ourDisableGifImages\n", s);
+
+        s = preserved("Test.[Toggle_case_word]|\n", "ToggleSmartSelect", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.Toggle_smart_select\n", s);
 
         s = preserved(
                 "editor.putUserData([LAST_PASTED_CLIPBOARD_CONTEXT]|, clipboardCaretContent)\n",

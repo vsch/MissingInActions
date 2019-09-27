@@ -29,7 +29,7 @@ public class PluginIcons {
     private static Icon load(String path) {
         return Helpers.load(path, PluginIcons.class);
     }
-    
+
     public static final Icon Accept_search = load("/icons/png/Accept_search.png");
     public static final Icon Accept_inverted_search = load("/icons/png/Accept_inverted_search.png");
     public static final Icon Backward_search = load("/icons/png/Backward_search.png");
@@ -89,5 +89,6 @@ public class PluginIcons {
     public static final Icon Copy_batch_replace_regex_disabled = load("/icons/png/Copy_batch_replace_regex_disabled.png");
     public static final Icon Toggle_search_numeric = load("/icons/png/Toggle_search_numeric.png");
     public static final Icon Toggle_search_hex = load("/icons/png/Toggle_search_hex.png");
+    public static final Icon Toggle_search_prefix = load("/icons/png/Toggle_search_prefix.png");
     public static final Icon Generate_exception = load("/icons/svg/Generate_exception.svg");
 }

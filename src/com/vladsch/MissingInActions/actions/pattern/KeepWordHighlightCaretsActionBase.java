@@ -77,6 +77,7 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
                 int removedCaretCount = 0;
 
                 for (Caret caret : caretModel.getAllCarets()) {
+                    if (!caret.isValid()) continue;
                     boolean isHighlighted = false;
                     if (caret.hasSelection()) {
                         isHighlighted = wordHighlightProvider.isRangeHighlighted(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString());

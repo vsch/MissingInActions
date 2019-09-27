@@ -111,6 +111,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private int             mySearchStartMatchedCaretDarkColor = 0xFF4D4D;
     private boolean         mySearchStartMatchedCaretColorEnabled = false;
     private boolean         mySearchCancelOnEscape = true;
+    private boolean         mySpawnSmartPrefixSearch = true;
     private int             mySelectionStashLimit = 5;
     private int             myRecalledSelectionColor = 0xFCBEFF;
     private int             myRecalledSelectionDarkColor = 0x844E8A;
@@ -768,9 +769,9 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
                     throw error;
                 }
             } else {
-                // Can build it from the list, but not now
+                // Can build it from the list
                 StringBuilder sb = new StringBuilder();
-                sb.append("^(?:\\Q");
+                sb.append("(?:\\Q");
                 String sep = "";
                 final String[] prefixList = getPrefixesOnPasteList();
                 assert prefixList != null;
@@ -1054,6 +1055,10 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     public boolean isSearchCancelOnEscape() { return mySearchCancelOnEscape; }
 
     public void setSearchCancelOnEscape(final boolean searchCancelOnEscape) { mySearchCancelOnEscape = searchCancelOnEscape; }
+
+    public boolean isSpawnSmartPrefixSearch() { return mySpawnSmartPrefixSearch;}
+
+    public void setSpawnSmartPrefixSearch(final boolean spawnSmartPrefixSearch) { mySpawnSmartPrefixSearch = spawnSmartPrefixSearch;}
 
     public int getPrimaryCaretColor() { return myPrimaryCaretColor; }
 

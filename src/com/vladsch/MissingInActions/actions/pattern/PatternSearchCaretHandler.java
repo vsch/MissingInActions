@@ -109,7 +109,7 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
                     createCarets.add(caretState);
                 }
 
-                if (isSingleMatch() || match.caretOffset + match.matchLength >= chars.length()) break;
+                if (isSingleMatch()) break;
                 lastMatch = match;
             }
         }

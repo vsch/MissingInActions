@@ -129,6 +129,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             boolean hadNoSelection = false;
 
             for (Caret caret : caretModel.getAllCarets()) {
+                if (!caret.isValid()) continue;
                 if (myOpType == REMOVE_WITH_SELECTION || myOpType == REMOVE_WITHOUT_SELECTION) {
                     if (caret.hasSelection()) {
                         hadSelection = true;
@@ -197,6 +198,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                         opType.removeLineComments && hadLineComment ||
                         opType.removeCodeLines && hadCodeLine) {
                     for (Caret caret : caretModel.getAllCarets()) {
+                        if (!caret.isValid()) continue;
                         if (opType.removeWithSelection || opType.removeWithoutSelection) {
                             if (opType.removeWithSelection && caret.hasSelection() || opType.removeWithoutSelection && !caret.hasSelection()) {
                                 editor.getCaretModel().removeCaret(caret);

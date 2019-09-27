@@ -82,6 +82,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
                 // switch to line mode from top most caret to bottom most caret
                 Range selRange = Range.NULL;
                 for (Caret caret : caretModel.getAllCarets()) {
+                    if (!caret.isValid()) continue;
                     int line = caret.getLogicalPosition().line;
                     selRange = selRange.include(line);
                 }

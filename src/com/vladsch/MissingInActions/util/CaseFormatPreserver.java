@@ -33,7 +33,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.getNextWordEndAtOffset;
 import static com.vladsch.MissingInActions.util.EditHelpers.getPreviousWordStartAtOffset;
-import static com.vladsch.plugin.util.StudiedWord.*;
+import static com.vladsch.plugin.util.StudiedWord.DASH;
+import static com.vladsch.plugin.util.StudiedWord.DIGITS;
+import static com.vladsch.plugin.util.StudiedWord.DOT;
+import static com.vladsch.plugin.util.StudiedWord.EMPTY;
+import static com.vladsch.plugin.util.StudiedWord.LOWER;
+import static com.vladsch.plugin.util.StudiedWord.SLASH;
+import static com.vladsch.plugin.util.StudiedWord.UNDER;
+import static com.vladsch.plugin.util.StudiedWord.UPPER;
 
 @SuppressWarnings("WeakerAccess")
 public class CaseFormatPreserver {
@@ -41,7 +48,9 @@ public class CaseFormatPreserver {
     private boolean startWasUpperCase;
     private boolean startWasOnBound;
     private boolean endWasOnBound;
-    private boolean toScreamingSnakeCase;
+    private boolean toMixedCase;
+    private boolean toFirstCapCase;
+    private boolean toScreamingCase;
     private boolean toSnakeCase;
     private boolean toPascalCase;
     private boolean toCamelCase;
@@ -62,13 +71,18 @@ public class CaseFormatPreserver {
         startWasUpperCase = false;
         startWasOnBound = false;
         endWasOnBound = false;
-        toScreamingSnakeCase = false;
-        toSnakeCase = false;
+
+        toMixedCase = false;           // these check variants
+        toFirstCapCase = false;        // these check variants
+        toScreamingCase = false;       // these check variants
+
+        toSnakeCase = false;           // these check case style
+        toDashCase = false;            // these check case style
+        toDotCase = false;             // these check case style
+        toSlashCase = false;           // these check case style
+
         toPascalCase = false;
         toCamelCase = false;
-        toDashCase = false;
-        toDotCase = false;
-        toSlashCase = false;
         toUpperCase = false;
         hadStartOfWord = false;
         hadWordWithPrefix = "";
@@ -83,6 +97,19 @@ public class CaseFormatPreserver {
     ) {
         final Caret caret = editorCaret.getCaret();
         studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList, separators);
+    }
+
+    private boolean isCaseAndStyle(boolean isAnyCase, boolean isScreamingCase, boolean isMixedCase, boolean isFirstCapCase) {
+        if (isAnyCase) {
+            if (isScreamingCase) {
+                toScreamingCase = true;
+            } else if (isFirstCapCase) {
+                toFirstCapCase = true;
+            } else if (isMixedCase) {
+                toMixedCase = true;
+            }
+        }
+        return isAnyCase;
     }
 
     public void studyFormatBefore(
@@ -111,36 +138,33 @@ public class CaseFormatPreserver {
         InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset, separators);
         InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset, separators);
 
-        toScreamingSnakeCase = e.isScreamingSnakeCase() || e.hasUnderscore() && e.hasNoLowerCase() && e.hasUpperCase();
-        if (!toScreamingSnakeCase) {
-            toSnakeCase = e.isSnakeCase();
-            if (!toSnakeCase) {
-                toDashCase = e.isDashCase();
-                if (!toDashCase) {
-                    toDotCase = e.isDotCase();
-                    if (!toDotCase) {
-                        toSlashCase = e.isSlashCase();
-                        if (!toSlashCase) {
-                            if (e.isPascalCase()) {
-                                toPascalCase = true;
-                            } else if (e.isCamelCase() || e.only(LOWER | DIGITS) && e.first(LOWER)) {
-                                toCamelCase = true;
-                            } else if (e.only(UPPER | DIGITS) && e.first(UPPER)) {
-                                toUpperCase = true;
-                            }
-
-                            // still do the bounds if not fully camel case
-                            // non-alpha|non-alpha : start=do nothing, end=do nothing
-                            // alpha|non-alpha: start=make bound, end=do nothing
-                            // non-alpha|alpha: start=do nothing, end=make bound
-                            // alpha|alpha: start=make bound, end=make bound
-                            boolean identifierStart = w.isIdentifierStartBefore(true);
-                            boolean identifierEnd = w.isIdentifierEndBefore(true);
-                            startWasLowerCase = identifierStart && w.isLowerCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
-                            startWasUpperCase = identifierStart && w.isUpperCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
-                            startWasOnBound = identifierStart || identifierEnd;
-                            endWasOnBound = w.isIdentifierStartAfter(true) || w.isIdentifierEndAfter(true);
+        toSnakeCase = isCaseAndStyle(e.isAnySnakeCase(), e.isScreamingSnakeCase(), e.isMixedSnakeCase(), e.isFirstCapSnakeCase());
+        if (!toSnakeCase) {
+            toDashCase = isCaseAndStyle(e.isAnyDashCase(), e.isScreamingDashCase(), e.isMixedDashCase(), e.isFirstCapDashCase());
+            if (!toDashCase) {
+                toDotCase = isCaseAndStyle(e.isAnyDotCase(), e.isScreamingDotCase(), e.isMixedDotCase(), e.isFirstCapDotCase());
+                if (!toDotCase) {
+                    toSlashCase = isCaseAndStyle(e.isAnySlashCase(), e.isScreamingSlashCase(), e.isMixedSlashCase(), e.isFirstCapSlashCase());
+                    if (!toSlashCase) {
+                        if (e.isPascalCase()) {
+                            toPascalCase = true;
+                        } else if (e.isCamelCase() || e.only(LOWER | DIGITS) && e.first(LOWER)) {
+                            toCamelCase = true;
+                        } else if (e.only(UPPER | DIGITS) && e.first(UPPER)) {
+                            toUpperCase = true;
                         }
+
+                        // still do the bounds if not fully camel case
+                        // non-alpha|non-alpha : start=do nothing, end=do nothing
+                        // alpha|non-alpha: start=make bound, end=do nothing
+                        // non-alpha|alpha: start=do nothing, end=make bound
+                        // alpha|alpha: start=make bound, end=make bound
+                        boolean identifierStart = w.isIdentifierStartBefore(true);
+                        boolean identifierEnd = w.isIdentifierEndBefore(true);
+                        startWasLowerCase = identifierStart && w.isLowerCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
+                        startWasUpperCase = identifierStart && w.isUpperCaseAtStart() && w.studiedWord().only(LOWER | UPPER | UNDER | EMPTY);
+                        startWasOnBound = identifierStart || identifierEnd;
+                        endWasOnBound = w.isIdentifierStartAfter(true) || w.isIdentifierEndAfter(true);
                     }
                 }
             }
@@ -149,7 +173,7 @@ public class CaseFormatPreserver {
         if (!w.isEmpty()) {
             hadStartOfWord = w.isIdentifierStartBefore(false);
             if (hadStartOfWord) {
-                if (toScreamingSnakeCase || toSnakeCase || toDashCase || toDotCase || toSlashCase) {
+                if (toSnakeCase || toDashCase || toDotCase || toSlashCase) {
                     w.makeCamelCase();
                 } else if (w.isPascalCase()) {
                     toPascalCase = true;
@@ -160,7 +184,7 @@ public class CaseFormatPreserver {
                 }
                 hadWordWithPrefix = w.getMatchedPrefix(patternType, prefixList);
             } else {
-                if (w.isScreamingSnakeCase() || w.isSnakeCase() || w.isDashCase() || w.isDotCase() || w.isSlashCase()) {
+                if (w.isSnakeCase() || w.isDashCase() || w.isDotCase() || w.isSlashCase()) {
                     w.makeProperCamelCase();
                 } else if (w.isPascalCase()) {
                     toPascalCase = true;
@@ -308,16 +332,28 @@ public class CaseFormatPreserver {
                         || i.studiedWord().only(DOT | LOWER | DIGITS) && preserveDotCase
                         || i.studiedWord().only(SLASH | LOWER | DIGITS) && preserveSlashCase
                 ) {
-                    if (preserveScreamingSnakeCase && toScreamingSnakeCase) {
+                    if (preserveScreamingSnakeCase && toSnakeCase && toScreamingCase) {
                         i.makeScreamingSnakeCase();
-                    } else if (preserveSnakeCase && toSnakeCase) {
-                        i.makeSnakeCase();
+                    } else if (preserveSnakeCase && toSnakeCase && !toScreamingCase) {
+                        if (toMixedCase) i.makeMixedSnakeCase();
+                        else if (toFirstCapCase) i.makeFirstCapSnakeCase();
+                        else if (toScreamingCase) i.makeScreamingSnakeCase();
+                        else i.makeSnakeCase();
                     } else if (preserveDashCase && toDashCase) {
-                        i.makeDashCase();
+                        if (toMixedCase) i.makeMixedDashCase();
+                        else if (toFirstCapCase) i.makeFirstCapDashCase();
+                        else if (toScreamingCase) i.makeScreamingDashCase();
+                        else i.makeDashCase();
                     } else if (preserveDotCase && toDotCase) {
-                        i.makeDotCase();
+                        if (toMixedCase) i.makeMixedDotCase();
+                        else if (toFirstCapCase) i.makeFirstCapDotCase();
+                        else if (toScreamingCase) i.makeScreamingDotCase();
+                        else i.makeDotCase();
                     } else if (preserveSlashCase && toSlashCase) {
-                        i.makeSlashCase();
+                        if (toMixedCase) i.makeMixedSlashCase();
+                        else if (toFirstCapCase) i.makeFirstCapSlashCase();
+                        else if (toScreamingCase) i.makeScreamingSlashCase();
+                        else i.makeSlashCase();
                     } else if (preserveCamelCase) {
                         if (!(startWasOnBound && (i.studiedWord().first(UNDER) || i.studiedWord().last(UNDER)))) {
                             if (toPascalCase) {

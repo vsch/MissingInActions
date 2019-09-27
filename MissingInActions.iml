@@ -23,6 +23,6 @@
     <orderEntry type="library" name="Kotlin" level="project" />
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="library" scope="TEST" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" name="plugin-util" level="project" />
+    <orderEntry type="module" module-name="plugin-util" />
   </component>
 </module>
