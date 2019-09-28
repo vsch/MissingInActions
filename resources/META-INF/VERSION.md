@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.5 - Bug Fix Release & Enhancement Release](#1755---bug-fix-release--enhancement-release)
+- [1.7.5.7 - Bug Fix Release & Enhancement Release](#1757---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,7 +91,7 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.5 - Bug Fix Release & Enhancement Release
+### 1.7.5.7 - Bug Fix Release & Enhancement Release
 
 * Add: spawn prefix search option to support paste prefix alternates so spawn on `myText` will
   select `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
@@ -102,6 +102,7 @@
   * This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style,
     mixed case style (first letter of each word capitalized), lower case or screaming case.
 * Fix: paste from history
+  * Fix: paste spliced & quoted to work if current editor is a plain Swing editor (text boxes)
   * Add: `To Line` action to convert multiple selection to merged **line** content without
     having to paste it. Opposite of `To Carets`
   * Add: allow preview macro replacement results to be selected and copied as new clipboard

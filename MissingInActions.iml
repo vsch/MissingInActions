@@ -16,7 +16,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="intelliJAPI" scope="PROVIDED" />
-    <orderEntry type="library" name="flexmark-util" level="project" />
     <orderEntry type="library" name="reverse-regex-util" level="project" />
     <orderEntry type="library" name="com.vladsch.boxed-json:boxed-json" level="project" />
     <orderEntry type="library" name="org.glassfish:javax.json:1.1.4" level="project" />
@@ -24,5 +23,6 @@
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="library" scope="TEST" name="hamcrest-core-1.3" level="project" />
     <orderEntry type="module" module-name="plugin-util" />
+    <orderEntry type="library" name="flexmark-util" level="project" />
   </component>
 </module>

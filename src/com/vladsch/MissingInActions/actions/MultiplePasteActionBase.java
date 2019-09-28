@@ -92,10 +92,6 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 
 public abstract class MultiplePasteActionBase extends AnAction implements DumbAware {
     static final Logger LOG = getInstance("com.vladsch.MissingInActions.actions");
-    private static final int PASTE_WITH_CARETS = 1;
-    private static final int PASTE_SPLICED = 2;
-    private static final int PASTE_SIMPLE = 3;
-    private static final int PASTE_SPLICED_AND_QUOTED = 4;
     String myEolText;
 
     public MultiplePasteActionBase() {
@@ -138,14 +134,17 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         final HashMap<Transferable, ClipboardCaretContent> listEntryCarets = new HashMap<>();
         final boolean canCreateMultiCarets = editor != null && editor.getCaretModel().supportsMultipleCarets() && getCreateWithCaretsName(editor.getCaretModel().getCaretCount()) != null;
         final MultiPasteOptionsPane multiPasteOptionsPane = new MultiPasteOptionsPane();
-        //final Shortcut[] moveLineUp = CommonUIShortcuts.getMoveLineUp().getShortcuts();
-        //final Shortcut[] moveLineDown = CommonUIShortcuts.getMoveLineDown().getShortcuts();
         final boolean[] inContentManipulation = new boolean[] { false };
         final int[] alternateAction = new int[] { 0 };
         final HashMap<Transferable, String> stringTooLongSuffix = new HashMap<>();
         final DelayedRunner delayedRunner = new DelayedRunner();
         final Action[] convertToCaretsAction = new Action[] { null };
         final Action[] convertToLinesAction = new Action[] { null };
+        final int[] PASTE_WITH_CARETS = { -1 };
+        final int[] PASTE_SPLICED = { -1 };
+        final int[] PASTE_SIMPLE = { -1 };
+        final int[] PASTE_SPLICED_AND_QUOTED = { -1 };
+
         final AnAction simplePasteAction = ActionManager.getInstance().getAction("EditorPasteSimple"); //IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
         final boolean haveSimplePasteAction = simplePasteAction != null;
         final boolean[] convertToCaretsEnabled = new boolean[] { false };
@@ -189,8 +188,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
         updateClipboardData(editor, copyPasteManager, multiPasteOptionsPane);
 
         choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), true, true) {
-            private int mySplicedQuotedActionIndex;
-            private int mySplicedActionIndex;
             private boolean listenersInitialized = false;
 
             @Nullable
@@ -218,7 +215,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
             private void addActionListeners() {
                 // add action listeners
-                final JButton button1 = getButton(myActions[mySplicedActionIndex]);
+                final JButton button1 = getButton(myActions[PASTE_SPLICED[0]]);
                 if (button1 != null) {
                     button1.addMouseListener(new MouseAdapter() {
                         @Override
@@ -235,7 +232,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     });
                 }
 
-                JButton button2 = getButton(myActions[mySplicedQuotedActionIndex]);
+                JButton button2 = getButton(myActions[PASTE_SPLICED_AND_QUOTED[0]]);
                 if (button2 != null) {
                     button2.addMouseListener(new MouseAdapter() {
                         @Override
@@ -313,19 +310,14 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             }
 
             FocusAdapter updateViewerForSelection(@NotNull final Editor viewer, @NotNull List<Transferable> allContents, @NotNull int[] selectedIndices, boolean fromFocusListener, final boolean inFocus) {
-                if (viewer.getDocument().getTextLength() > 0) {
+                if (viewer.getDocument().getTextLength() > 0 && selectedIndices.length > 0) {
                     // can create highlights in the editor to separate carets
                     final ClipboardCaretContent caretContent;
-                    final Transferable content;
-                    if (selectedIndices.length > 1) {
-                        // combine indices
-                        content = EditHelpers.getMergedTransferable(editor, allContents, selectedIndices, true);
-                        caretContent = ClipboardCaretContent.studyTransferable(editor, content);
-                    } else {
-                        int index = selectedIndices[0];
-                        content = allContents.get(index);
-                        caretContent = getCaretContent(content);
-                    }
+                    final Transferable content = selectedIndices.length > 1
+                            ? EditHelpers.getMergedTransferable(viewer, allContents, selectedIndices, true)
+                            : allContents.get(selectedIndices[0]);
+
+                    caretContent = ClipboardCaretContent.studyTransferable(viewer, content);
 
                     assert caretContent != null;
 
@@ -414,7 +406,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 }
                                 HighlightElement highlight = textHighlights.get(i);
                                 highlight.endOffset += endOffset;
-                            }, editor, textsContent, settings.isMultiPasteShowEolInViewer(), false, true);
+                            }, viewer, textsContent, settings.isMultiPasteShowEolInViewer(), false, true);
 
                             HashMap<String, Integer> orderIndexMap = new HashMap<>();
 
@@ -442,8 +434,8 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             document.setReadOnly(false);
                             BiConsumer<Integer, Integer> endOffsetCollector = (index, endOffset) -> endOffsets.add(endOffset);
                             document.replaceString(0, document.getTextLength(),
-                                    inFocus ? getStringRep(finalTexts, endOffsetCollector, editor, finalTextsContent, false, true, false)
-                                            : getStringRep(finalTexts, endOffsetCollector, editor, finalTextsContent, settings.isMultiPasteShowEolInViewer(), false, false));
+                                    inFocus ? getStringRep(finalTexts, endOffsetCollector, viewer, finalTextsContent, false, true, false)
+                                            : getStringRep(finalTexts, endOffsetCollector, viewer, finalTextsContent, settings.isMultiPasteShowEolInViewer(), false, false));
                             document.setReadOnly(true);
 
                             updateEditorHighlightRegions(viewer, endOffsets, finalTextsCaretContent, settings.isMultiPasteShowEolInViewer());
@@ -679,15 +671,16 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             @Override
             protected Action[] createActions() {
                 Action[] actions = super.createActions();
+                int actionOffset = haveSimplePasteAction ? 1 : 0;
+
+                ArrayList<Action> multiCaretActions = new ArrayList<>(Arrays.asList(actions));
+
                 if (canCreateMultiCarets) {
-                    int actionOffset = haveSimplePasteAction ? 1 : 0;
-                    Action[] multiCaretActions = new Action[actions.length + 3 + actionOffset];
-                    System.arraycopy(actions, 0, multiCaretActions, 0, actions.length);
                     //noinspection SerializableInnerClassWithNonSerializableOuterClass
                     Action createWithMultiCarets = new OkAction() {
                         @Override
                         protected void doAction(final ActionEvent e) {
-                            alternateAction[0] = PASTE_WITH_CARETS;
+                            alternateAction[0] = PASTE_WITH_CARETS[0];
                             super.doAction(e);
                         }
                     };
@@ -695,58 +688,57 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     final String tooltip = name == null ? Bundle.message("content-chooser.add-with-carets.description") : getCreateWithCaretsTooltip(editor.getCaretModel().getCaretCount());
                     createWithMultiCarets.putValue(Action.NAME, name == null ? Bundle.message("content-chooser.add-with-carets.label") : name);
                     if (tooltip != null) createWithMultiCarets.putValue(Action.SHORT_DESCRIPTION, tooltip);
-                    multiCaretActions[actions.length + 2 + actionOffset] = createWithMultiCarets;
-
-                    // create merge comma separate
-                    Action spliced = new OkAction() {
-                        @Override
-                        protected void doAction(final ActionEvent e) {
-                            alternateAction[0] = PASTE_SPLICED;
-                            super.doAction(e);
-                        }
-                    };
-
-                    spliced.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
-                    spliced.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-with-comma.description"));
-                    mySplicedActionIndex = actions.length + actionOffset;
-
-                    multiCaretActions[mySplicedActionIndex] = spliced;
-
-                    // create merge comma separate
-                    Action splicedQuoted = new OkAction() {
-                        @Override
-                        protected void doAction(final ActionEvent e) {
-                            alternateAction[0] = PASTE_SPLICED_AND_QUOTED;
-                            super.doAction(e);
-                        }
-                    };
-
-                    splicedQuoted.putValue(Action.NAME, Bundle.message("content-chooser.splice-and-quote.label"));
-                    splicedQuoted.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-and-quote.description"));
-                    mySplicedQuotedActionIndex = actions.length + 1 + actionOffset;
-                    multiCaretActions[mySplicedQuotedActionIndex] = splicedQuoted;
-
-                    if (haveSimplePasteAction) {
-                        // create simple paste
-                        Action pasteSimple = new OkAction() {
-                            @Override
-                            protected void doAction(final ActionEvent e) {
-                                alternateAction[0] = PASTE_SIMPLE;
-                                super.doAction(e);
-                            }
-                        };
-
-                        //String actionText = ActionsBundle.actionText(IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
-                        pasteSimple.putValue(Action.NAME, Bundle.message("content-chooser.simple-paste.label"));
-                        pasteSimple.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.simple-paste.description"));
-                        multiCaretActions[actions.length] = pasteSimple;
-                    }
-
-                    myActions = multiCaretActions;
-                    return multiCaretActions;
+                    PASTE_WITH_CARETS[0] = multiCaretActions.size();
+                    multiCaretActions.add(createWithMultiCarets);
                 }
-                myActions = actions;
-                return actions;
+
+                // create merge comma separate
+                Action spliced = new OkAction() {
+                    @Override
+                    protected void doAction(final ActionEvent e) {
+                        alternateAction[0] = PASTE_SPLICED[0];
+                        super.doAction(e);
+                    }
+                };
+
+                spliced.putValue(Action.NAME, Bundle.message("content-chooser.splice-with-comma.label"));
+                spliced.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-with-comma.description"));
+                PASTE_SPLICED[0] = multiCaretActions.size();
+                multiCaretActions.add(spliced);
+
+                // create merge comma separate
+                Action splicedQuoted = new OkAction() {
+                    @Override
+                    protected void doAction(final ActionEvent e) {
+                        alternateAction[0] = PASTE_SPLICED_AND_QUOTED[0];
+                        super.doAction(e);
+                    }
+                };
+
+                splicedQuoted.putValue(Action.NAME, Bundle.message("content-chooser.splice-and-quote.label"));
+                splicedQuoted.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.splice-and-quote.description"));
+                PASTE_SPLICED_AND_QUOTED[0] = multiCaretActions.size();
+                multiCaretActions.add(splicedQuoted);
+
+                if (haveSimplePasteAction) {
+                    // create simple paste
+                    Action pasteSimple = new OkAction() {
+                        @Override
+                        protected void doAction(final ActionEvent e) {
+                            alternateAction[0] = PASTE_SIMPLE[0];
+                            super.doAction(e);
+                        }
+                    };
+
+                    //String actionText = ActionsBundle.actionText(IdeActions.ACTION_EDITOR_PASTE_SIMPLE);
+                    pasteSimple.putValue(Action.NAME, Bundle.message("content-chooser.simple-paste.label"));
+                    pasteSimple.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.simple-paste.description"));
+                    PASTE_SIMPLE[0] = multiCaretActions.size();
+                    multiCaretActions.add(pasteSimple);
+                }
+
+                myActions = multiCaretActions.toArray(new Action[0]);
+                return myActions;
             }
 
             @NotNull
@@ -962,6 +954,21 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
             copyPasteManager.removeContentChangedListener(contentChangedListener);
         }
 
+        Runnable prepareClipboard = () -> {
+            final int[] selectedIndices = chooser.getSelectedIndices();
+            if (selectedIndices.length == 1) {
+                copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
+            } else {
+                copyPasteManager.setContents(EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true));
+            }
+
+            if (alternateAction[0] == PASTE_SPLICED[0]) {
+                spliceClipboardCaretContent(editor, settings, copyPasteManager);
+            } else if (alternateAction[0] == PASTE_SPLICED_AND_QUOTED[0]) {
+                spliceQuoteClipboardCaretContent(editor, settings, copyPasteManager);
+            }
+        };
+
         if (chooser.isOK()) {
             // IMPORTANT: move and merge of content has to be done after user macro replacement from clipboard is taken
 
@@ -988,45 +995,10 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 manager.setOnPasteReplacementText(EditHelpers.getOnPasteReplacements(editor));
 
                 // now can merge and move
-                final int[] selectedIndices = chooser.getSelectedIndices();
-                if (selectedIndices.length == 1) {
-                    copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
-                } else {
-                    copyPasteManager.setContents(EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true));
-                }
+                prepareClipboard.run();
 
-                boolean recreateCarets = alternateAction[0] == PASTE_WITH_CARETS;
-                if (alternateAction[0] == PASTE_SPLICED) {
-                    // we handle the splicing and adding this content to the clipboard
-                    final Transferable contents = copyPasteManager.getContents();
-                    if (contents != null) {
-                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
-                        if (clipboardCaretContent != null) {
-                            Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
-                                    , settings.getSpliceDelimiterText()
-                                    , false //settings.isQuoteSplicedItems()
-                                    , settings.getOpenQuoteText()
-                                    , settings.getClosedQuoteText());
-                            copyPasteManager.setContents(mergedTransferable);
-                        }
-                    }
-                } else if (alternateAction[0] == PASTE_SPLICED_AND_QUOTED) {
-                    // we handle the splicing and adding this content to the clipboard
-                    final Transferable contents = copyPasteManager.getContents();
-                    if (contents != null) {
-                        ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
-                        if (clipboardCaretContent != null) {
-                            Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
-                                    , settings.getSpliceDelimiterText()
-                                    , true//settings.isQuoteSplicedItems()
-                                    , settings.getOpenQuoteText()
-                                    , settings.getClosedQuoteText());
-                            copyPasteManager.setContents(mergedTransferable);
-                        }
-                    }
-                }
-
-                final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED || alternateAction[0] == PASTE_SPLICED_AND_QUOTED ? simplePasteAction : getPasteAction(editor, recreateCarets);
+                boolean recreateCarets = alternateAction[0] == PASTE_WITH_CARETS[0];
+                final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED[0] || alternateAction[0] == PASTE_SPLICED_AND_QUOTED[0] ? simplePasteAction : getPasteAction(editor, recreateCarets);
 
                 if (pasteAction != null) {
                     if ((settings.isReplaceMacroVariables() || settings.isReplaceUserDefinedMacro()) && manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
@@ -1051,17 +1023,44 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                     pasteAction.actionPerformed(newEvent);
                 }
             } else {
-                final int[] selectedIndices = chooser.getSelectedIndices();
-                if (selectedIndices.length == 1) {
-                    copyPasteManager.moveContentToStackTop(chooser.getAllContents().get(selectedIndices[0]));
-                } else {
-                    copyPasteManager.setContents(EditHelpers.getMergedTransferable(editor, chooser.getAllContents(), selectedIndices, true));
-                }
+                prepareClipboard.run();
 
                 final Action pasteAction = getPasteAction(focusedComponent);
                 if (pasteAction != null) {
                     pasteAction.actionPerformed(new ActionEvent(focusedComponent, ActionEvent.ACTION_PERFORMED, ""));
                 }
+            }
+        }
+    }
+
+    private static void spliceClipboardCaretContent(Editor editor, final ApplicationSettings settings, final CopyPasteManagerEx copyPasteManager) {
+        // we handle the splicing and adding this content to the clipboard
+        final Transferable contents = copyPasteManager.getContents();
+        if (contents != null) {
+            ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+            if (clipboardCaretContent != null) {
+                Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
+                        , settings.getSpliceDelimiterText()
+                        , false //settings.isQuoteSplicedItems()
+                        , settings.getOpenQuoteText()
+                        , settings.getClosedQuoteText());
+                copyPasteManager.setContents(mergedTransferable);
+            }
+        }
+    }
+
+    private static void spliceQuoteClipboardCaretContent(@Nullable Editor editor, final ApplicationSettings settings, final CopyPasteManagerEx copyPasteManager) {
+        // we handle the splicing and adding this content to the clipboard
+        final Transferable contents = copyPasteManager.getContents();
+        if (contents != null) {
+            ClipboardCaretContent clipboardCaretContent = ClipboardCaretContent.studyTransferable(editor, contents);
+            if (clipboardCaretContent != null) {
+                Transferable mergedTransferable = EditHelpers.getJoinedTransferable(clipboardCaretContent
+                        , settings.getSpliceDelimiterText()
+                        , true//settings.isQuoteSplicedItems()
+                        , settings.getOpenQuoteText()
+                        , settings.getClosedQuoteText());
+                copyPasteManager.setContents(mergedTransferable);
             }
         }
     }
