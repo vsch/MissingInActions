@@ -278,13 +278,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
                     String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
                     if (spawnNumericSearch && text.indexOfAny("0123456789") != -1
-                            && (
-                            (spawnNumericHexSearch
-                                    && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                                    || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                                    || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                                    || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                                    || (text.indexOfAnyNot("0123456789") == -1)
+                            && ((spawnNumericHexSearch
+                            && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                            || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                            || (text.indexOfAnyNot("0123456789") == -1)
                     )) {
                         // hex, octal or decimal, look for numeric sequence
                         if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
@@ -315,7 +314,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                             Matcher matcher = prefixPattern.matcher(textToSearch);
                             if (matcher.find()) {
                                 textToSearch = textToSearch.substring(matcher.group().length());
-                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])","") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
+                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
                                         "(?:" + Pattern.quote(textToSearch.substring(0, 1).toLowerCase() + textToSearch.substring(1)) + ")";
                             } else {
                                 quotedText = Pattern.quote(textToSearch);
@@ -366,8 +365,10 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
                     String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
 
-                    if (text.indexOfAny("0123456789") != -1 && ((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                            || (text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                    if (spawnNumericSearch && text.indexOfAny("0123456789") != -1
+                            && ((spawnNumericHexSearch
+                            && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                            || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
                             || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
                             || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
                             || (text.indexOfAnyNot("0123456789") == -1)
@@ -397,7 +398,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                             Matcher matcher = prefixPattern.matcher(textToSearch);
                             if (matcher.find()) {
                                 textToSearch = textToSearch.substring(matcher.group().length());
-                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])","") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
+                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
                                         "(?:" + Pattern.quote(textToSearch.substring(0, 1).toLowerCase() + textToSearch.substring(1)) + ")";
                             } else {
                                 quotedText = Pattern.quote(textToSearch);

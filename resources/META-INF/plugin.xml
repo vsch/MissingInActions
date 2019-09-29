@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.7.5.7</version>
+    <version>1.7.5.9</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
@@ -565,16 +565,16 @@
 
             <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericSearchAction"
                     id="MissingInActions.ToggleSpawnNumericSearch"
-                    text="Toggle Numeric Match All Numbers"
+                    text="Numeric Match All Decimal Numbers"
                     icon="PluginIcons.Toggle_search_numeric"
-                    description="Toggle numeric match all numbers">
+                    description="Toggle numeric match all decimal numbers">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericHexSearchAction"
                     id="MissingInActions.ToggleSpawnNumericHexSearch"
-                    text="Toggle Numeric Match All Hex Numbers"
+                    text="Numeric Match All Decimal and Hex Numbers"
                     icon="PluginIcons.Toggle_search_hex"
-                    description="Toggle numeric match all hex numbers">
+                    description="Toggle numeric match all decimal and hex numbers">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.ForwardSearchCaretSpawningAction"

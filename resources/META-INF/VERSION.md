@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.7 - Bug Fix Release & Enhancement Release](#1757---bug-fix-release--enhancement-release)
+- [1.7.5.9 - Bug Fix Release & Enhancement Release](#1759---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,8 +91,9 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.7 - Bug Fix Release & Enhancement Release
+### 1.7.5.9 - Bug Fix Release & Enhancement Release
 
+* Fix: backward caret spawning search ignored numeric/hex numeric settings
 * Add: spawn prefix search option to support paste prefix alternates so spawn on `myText` will
   select `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
   `is` are preserved prefixes.
