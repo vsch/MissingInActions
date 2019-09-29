@@ -558,9 +558,9 @@
         <group id="MissingInActions.PatternGroup" text="Pattern Caret">
             <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnSmartPrefixSearchAction"
                     id="MissingInActions.ToggleSpawnSmartPrefixSearch"
-                    text="Toggle Caret Spawn Smart Prefix Search"
+                    text="Match For Preserve Prefixes On Paste"
                     icon="PluginIcons.Toggle_search_prefix"
-                    description="Toggle numeric match all numbers">
+                    description="Toggle text match for preserve on paste prefixes">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericSearchAction"
