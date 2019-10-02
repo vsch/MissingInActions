@@ -37,6 +37,7 @@ import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.Range;
+import org.jetbrains.annotations.NotNull;
 
 abstract public class ToggleCaretsLineSelectionActionBase extends AnAction implements LineSelectionAware {
     final protected boolean myWantBlankLines;
@@ -54,7 +55,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
@@ -67,7 +68,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = getEditor(e);
         final SelectionModel selectionModel = editor.getSelectionModel();
         final CaretModel caretModel = editor.getCaretModel();

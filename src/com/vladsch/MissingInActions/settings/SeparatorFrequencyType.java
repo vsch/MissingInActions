@@ -46,6 +46,7 @@ public enum SeparatorFrequencyType implements ComboBoxAdaptable<SeparatorFrequen
 
     public static Static<SeparatorFrequencyType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EVERY_3));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<SeparatorFrequencyType> getAdapter() {
         return ADAPTER;

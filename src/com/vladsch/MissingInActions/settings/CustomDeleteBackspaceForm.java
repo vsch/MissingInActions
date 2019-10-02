@@ -148,7 +148,7 @@ public class CustomDeleteBackspaceForm {
 
         components = new SettingsComponents<ApplicationSettings>() {
             @Override
-            protected Settable[] createComponents(ApplicationSettings i) {
+            protected Settable[] createComponents(@NotNull ApplicationSettings i) {
                 return new Settable[] {
                         component(myDeleteSpacesRegEx, i::getDeleteSpacesRegEx, i::setDeleteSpacesRegEx),
                         component(myDeleteAlternatingRegEx, i::getDeleteAlternatingRegEx, i::setDeleteAlternatingRegEx),

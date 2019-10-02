@@ -32,6 +32,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,7 +52,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
@@ -64,7 +65,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = getEditor(e);
         final CaretModel caretModel = editor.getCaretModel();
         if (caretModel.getCaretCount() > 1) {

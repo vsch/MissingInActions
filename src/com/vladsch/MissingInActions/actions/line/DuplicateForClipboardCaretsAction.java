@@ -32,6 +32,7 @@ package com.vladsch.MissingInActions.actions.line;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import org.jetbrains.annotations.NotNull;
 
 public class DuplicateForClipboardCaretsAction extends EditorAction {
     public DuplicateForClipboardCaretsAction() {
@@ -43,7 +44,7 @@ public class DuplicateForClipboardCaretsAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }

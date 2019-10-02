@@ -45,7 +45,7 @@ abstract public class AbstractSelectAndMoveToNextOrPrevWordHandler extends Edito
     }
 
     @Override
-    protected void doExecute(Editor editor, @Nullable Caret caret, DataContext dataContext) {
+    protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         assert caret != null;
 
         boolean isNext = isNext();

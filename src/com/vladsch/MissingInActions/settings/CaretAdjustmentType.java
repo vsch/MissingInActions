@@ -45,6 +45,7 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
 
     public static Static<CaretAdjustmentType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NONE));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<CaretAdjustmentType> getAdapter() {
         return ADAPTER;

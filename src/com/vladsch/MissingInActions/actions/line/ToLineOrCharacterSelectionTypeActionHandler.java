@@ -35,6 +35,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
@@ -49,7 +50,7 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
     }
 
     @Override
-    public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
+    public void doExecute(@NotNull final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         manager.guard(() -> {
             if (!editor.getCaretModel().supportsMultipleCarets()) {

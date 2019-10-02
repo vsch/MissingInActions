@@ -34,6 +34,7 @@ import com.vladsch.MissingInActions.actions.DumbAwareEditorAction;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.actions.NumberActionHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import org.jetbrains.annotations.NotNull;
 
 public class NumberAction extends DumbAwareEditorAction implements LineSelectionAware {
     public NumberAction() {
@@ -41,7 +42,7 @@ public class NumberAction extends DumbAwareEditorAction implements LineSelection
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }

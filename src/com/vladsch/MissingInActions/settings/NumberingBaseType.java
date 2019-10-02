@@ -121,6 +121,7 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
 
     public static Static<NumberingBaseType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(BASE_10));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<NumberingBaseType> getAdapter() {
         return ADAPTER;

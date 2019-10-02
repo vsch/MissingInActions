@@ -41,7 +41,7 @@ public class RemoveIsolationLinesAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
@@ -89,7 +89,7 @@ public class RemoveIsolationLinesAction extends EditorAction {
         }
 
         @Override
-        protected void doExecute(final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
+        protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             BitSet bitSet = manager.getIsolatedLines();
 

@@ -42,6 +42,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.util.LineCommentProcessor;
+import org.jetbrains.annotations.NotNull;
 
 import static com.vladsch.MissingInActions.actions.carets.RemoveLineCaretsActionBase.OpType.*;
 
@@ -97,7 +98,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
@@ -110,7 +111,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = getEditor(e);
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();

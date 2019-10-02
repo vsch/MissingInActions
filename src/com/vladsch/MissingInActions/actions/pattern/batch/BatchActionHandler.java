@@ -62,7 +62,7 @@ public class BatchActionHandler extends EditorActionHandler {
     }
 
     @Override
-    protected void doExecute(Editor editor, @Nullable Caret caret, DataContext dataContext) {
+    protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         Project project = dataContext.getData(CommonDataKeys.PROJECT);
         if (editor instanceof EditorEx && project != null) {
             BatchSearchReplaceToolWindow toolWindow = PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow();

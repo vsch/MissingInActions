@@ -221,17 +221,17 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
         ActionManager.getInstance().addAnActionListener(new AnActionListener() {
             @Override
-            public void beforeActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
+            public void beforeActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
                 Plugin.this.beforeActionPerformed(action, dataContext, event);
             }
 
             @Override
-            public void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
+            public void afterActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
                 Plugin.this.afterActionPerformed(action, dataContext, event);
             }
 
             @Override
-            public void beforeEditorTyping(final char c, final DataContext dataContext) {
+            public void beforeEditorTyping(final char c, @NotNull final DataContext dataContext) {
                 Plugin.this.beforeEditorTyping(c, dataContext);
             }
         });

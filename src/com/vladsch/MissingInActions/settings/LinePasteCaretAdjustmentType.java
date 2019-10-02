@@ -62,6 +62,7 @@ public enum LinePasteCaretAdjustmentType implements ComboBoxAdaptable<LinePasteC
 
     public static Static<LinePasteCaretAdjustmentType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NONE));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<LinePasteCaretAdjustmentType> getAdapter() {
         return ADAPTER;

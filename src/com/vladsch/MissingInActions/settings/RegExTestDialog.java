@@ -142,7 +142,7 @@ public class RegExTestDialog extends DialogWrapper {
 
         final DocumentAdapter listener = new DocumentAdapter() {
             @Override
-            protected void textChanged(DocumentEvent e) {
+            protected void textChanged(@NotNull DocumentEvent e) {
                 validateResults(false);
             }
         };
@@ -392,7 +392,7 @@ public class RegExTestDialog extends DialogWrapper {
 
             textField.getDocument().addDocumentListener(new DocumentAdapter() {
                 @Override
-                protected void textChanged(DocumentEvent e) {
+                protected void textChanged(@NotNull DocumentEvent e) {
                     String sample = item.sample;
                     item.sample = textField.getText();
                     checkRegEx(myPattern, item);

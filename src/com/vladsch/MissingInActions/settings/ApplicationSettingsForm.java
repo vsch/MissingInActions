@@ -173,7 +173,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         components = new SettingsComponents<ApplicationSettings>() {
             @Override
-            protected Settable[] createComponents(ApplicationSettings i) {
+            protected Settable[] createComponents(@NotNull ApplicationSettings i) {
                 return new Settable[] {
                         component(AutoLineModeType.ADAPTER, myAutoLineMode, i::getAutoLineMode, i::setAutoLineMode),
                         component(CaretAdjustmentType.ADAPTER, myCaretOnMoveSelectionDown, i::getCaretOnMoveSelectionDown, i::setCaretOnMoveSelectionDown),
@@ -281,14 +281,14 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             boolean darculaUI = UIUtil.isUnderDarcula();
 
             @Override
-            public void lookAndFeelChanged(final LafManager source) {
+            public void lookAndFeelChanged(@NotNull final LafManager source) {
                 boolean underDarcula = UIUtil.isUnderDarcula();
                 if (darculaUI != underDarcula) {
                     darculaUI = underDarcula;
 
                     SettingsComponents<ApplicationSettings> colorComponents = new SettingsComponents<ApplicationSettings>() {
                         @Override
-                        protected Settable[] createComponents(ApplicationSettings i) {
+                        protected Settable[] createComponents(@NotNull ApplicationSettings i) {
                             return new Settable[] {
                                     component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
                                     component(myIsolatedForegroundColor, i::isolatedForegroundColorRGB, i::isolatedForegroundColorRGB),
@@ -335,14 +335,14 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         final DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(final DocumentEvent e) {
+            protected void textChanged(@NotNull final DocumentEvent e) {
                 updateOptions(false);
             }
         };
 
         final DocumentAdapter openQuoteDocumentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(final DocumentEvent e) {
+            protected void textChanged(@NotNull final DocumentEvent e) {
                 myClosedQuoteText.setText(EditHelpers.getCorrespondingQuoteLike(myOpenQuoteText.getText()));
                 updateOptions(false);
             }

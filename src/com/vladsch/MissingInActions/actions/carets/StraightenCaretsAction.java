@@ -38,6 +38,7 @@ import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import org.jetbrains.annotations.NotNull;
 
 public class StraightenCaretsAction extends AnAction implements LineSelectionAware {
     public StraightenCaretsAction() {
@@ -50,7 +51,7 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
@@ -63,7 +64,7 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = getEditor(e);
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();

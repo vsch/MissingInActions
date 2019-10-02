@@ -85,7 +85,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final Editor editor = getEventEditor(e);
 
         Project project = e.getProject();
@@ -105,14 +105,14 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
 
         popup.addListener(new JBPopupListener() {
             @Override
-            public void beforeShown(final LightweightWindowEvent event) {
+            public void beforeShown(@NotNull final LightweightWindowEvent event) {
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 manager.setInSelectionStackPopup(true);
                 popupStart(editor);
             }
 
             @Override
-            public void onClosed(final LightweightWindowEvent event) {
+            public void onClosed(@NotNull final LightweightWindowEvent event) {
                 popupDone(editor);
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 manager.setInSelectionStackPopup(false);
@@ -128,8 +128,9 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         }
     }
 
+    @NotNull
     @Override
-    public JComponent createCustomComponent(Presentation presentation) {
+    public JComponent createCustomComponent(@NotNull Presentation presentation) {
         JPanel panel = new JPanel(new GridBagLayout());
         MiaComboBoxButton button = createComboBoxButton(presentation);
         panel.add(button,
@@ -175,7 +176,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         Editor editor = getEventEditor(e);
         e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, editor);
     }
@@ -390,12 +391,12 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
 
             popup.addListener(new JBPopupListener() {
                 @Override
-                public void beforeShown(final LightweightWindowEvent event) {
+                public void beforeShown(@NotNull final LightweightWindowEvent event) {
                     popupStart(editor);
                 }
 
                 @Override
-                public void onClosed(final LightweightWindowEvent event) {
+                public void onClosed(@NotNull final LightweightWindowEvent event) {
                     popupDone(editor);
                 }
             });

@@ -60,7 +60,7 @@ public class NumberActionHandler extends EditorActionHandler {
     }
 
     @Override
-    public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
+    public void doExecute(@NotNull final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
         if (editor.getCaretModel().supportsMultipleCarets()) {
