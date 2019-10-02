@@ -1375,7 +1375,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
         return this;
     }
 
-    public void loadState(ApplicationSettings applicationSettings) {
+    public void loadState(@NotNull ApplicationSettings applicationSettings) {
         XmlSerializerUtil.copyBean(applicationSettings, this);
         notifySettingsChanged();
     }

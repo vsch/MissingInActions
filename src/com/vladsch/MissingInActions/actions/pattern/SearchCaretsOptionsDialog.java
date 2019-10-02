@@ -142,7 +142,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
 
         final DocumentAdapter listener = new DocumentAdapter() {
             @Override
-            protected void textChanged(DocumentEvent e) {
+            protected void textChanged(@NotNull DocumentEvent e) {
                 if (checkRegEx(myPattern).isEmpty()) {
                     updateViewer();
                 }

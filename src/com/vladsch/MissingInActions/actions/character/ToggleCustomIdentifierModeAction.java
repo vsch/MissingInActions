@@ -25,10 +25,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import org.jetbrains.annotations.NotNull;
 
 public class ToggleCustomIdentifierModeAction extends AnAction {
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         ApplicationSettings settings = ApplicationSettings.getInstance();
         boolean identifierMode = (settings.getCustomizedNextWordBounds() & EditHelpers.MIA_IDENTIFIER) != 0;
 

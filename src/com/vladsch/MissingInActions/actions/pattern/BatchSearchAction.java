@@ -42,7 +42,7 @@ public class BatchSearchAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
@@ -66,7 +66,7 @@ public class BatchSearchAction extends EditorAction {
     public static void showBatchSearchWindow(@NotNull final DataContext dataContext) {
         showBatchSearchWindow(EDITOR.getData(dataContext));
     }
-    
+
     public static void showBatchSearchWindow(@Nullable final Editor editor) {
         if (editor instanceof EditorEx) {
             Project project = editor.getProject();
@@ -79,7 +79,7 @@ public class BatchSearchAction extends EditorAction {
     public static void hideBatchSearchWindow(@NotNull final DataContext dataContext) {
         hideBatchSearchWindow(EDITOR.getData(dataContext));
     }
-    
+
     public static void hideBatchSearchWindow(@Nullable final Editor editor) {
         if (editor instanceof EditorEx) {
             Project project = editor.getProject();

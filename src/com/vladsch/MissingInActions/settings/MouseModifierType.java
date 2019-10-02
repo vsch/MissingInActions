@@ -41,6 +41,7 @@ public enum MouseModifierType implements ComboBoxAdaptable<MouseModifierType> {
 
     public static Static<MouseModifierType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CTRL_CHAR));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<MouseModifierType> getAdapter() {
         return ADAPTER;

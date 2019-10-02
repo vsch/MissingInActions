@@ -63,6 +63,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
         setShowNumbers(true);
     }
 
+    @NotNull
     @Override
     public JComponent createCustomComponent(final Presentation presentation) {
         JPanel panel = new JPanel(new BorderLayout());
@@ -154,7 +155,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
 
                 DumbAwareAction action = new DumbAwareAction("\"" + label.toString() + "\"", actionText, icon) {
                     @Override
-                    public void actionPerformed(final AnActionEvent e) {
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
                         if (!isDisabled) {
                             RangeMarker selectionRangeMarker = manager.getRangeMarker();
                             manager.recallLastSelection(index, removeRangeMarker(e, editor, selectionRangeMarker), false, true);

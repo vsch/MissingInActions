@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
@@ -41,7 +42,7 @@ abstract public class AbstractNextOrPrevWordHandler extends EditorActionHandler 
     }
 
     @Override
-    protected void doExecute(Editor editor, @Nullable Caret caret, DataContext dataContext) {
+    protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         assert caret != null;
 
         boolean withSelection = isWithSelection();

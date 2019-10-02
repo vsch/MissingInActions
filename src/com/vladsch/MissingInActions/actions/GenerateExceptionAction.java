@@ -33,7 +33,7 @@ public class GenerateExceptionAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(ApplicationSettings.getInstance().isShowGenerateException());
     }

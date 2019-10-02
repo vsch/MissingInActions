@@ -31,6 +31,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.plugin.util.ui.Helpers;
 import com.vladsch.plugin.util.ui.TextFieldAction;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 import java.util.regex.Pattern;
@@ -70,7 +71,7 @@ public class PatternAction extends TextFieldAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         boolean enabled = false;

@@ -43,6 +43,7 @@ public enum CaretThicknessType implements ComboBoxAdaptable<CaretThicknessType> 
 
     public static Static<CaretThicknessType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(NORMAL));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<CaretThicknessType> getAdapter() {
         return ADAPTER;

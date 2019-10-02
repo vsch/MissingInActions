@@ -55,6 +55,7 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         EditorEx editor = getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
@@ -83,7 +84,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = getEditor(e);
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();

@@ -78,7 +78,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
     protected abstract void preparePattern(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull BasedSequence chars);
 
     @Override
-    public void doExecute(final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
+    public void doExecute(@NotNull final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
         analyzeContext(editor, caret, manager);

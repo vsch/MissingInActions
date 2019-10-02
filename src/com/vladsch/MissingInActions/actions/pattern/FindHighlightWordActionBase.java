@@ -36,6 +36,7 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 abstract public class FindHighlightWordActionBase extends AnAction implements DumbAware {
@@ -56,7 +57,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         boolean enabled = find(e) != null;
 
         e.getPresentation().setEnabled(enabled);
@@ -65,7 +66,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
-    TextRange findNext(final AnActionEvent e) {
+    public static TextRange findNext(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
@@ -86,7 +87,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
         return null;
     }
 
-    TextRange findPrevious(final AnActionEvent e) {
+    public static TextRange findPrevious(final AnActionEvent e) {
         final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
@@ -108,7 +109,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
     }
 
     @Override
-    public void actionPerformed(final AnActionEvent e) {
+    public void actionPerformed(@NotNull final AnActionEvent e) {
         Integer offset = find(e);
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (editor != null && offset != null) {

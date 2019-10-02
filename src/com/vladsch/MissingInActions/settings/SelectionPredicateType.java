@@ -54,6 +54,7 @@ public enum SelectionPredicateType implements ComboBoxAdaptable<SelectionPredica
 
     public static Static<SelectionPredicateType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(WHEN_HAS_1_PLUS_LINES));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<SelectionPredicateType> getAdapter() {
         return ADAPTER;

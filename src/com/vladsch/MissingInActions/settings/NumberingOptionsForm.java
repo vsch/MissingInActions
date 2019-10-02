@@ -103,7 +103,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
         myComponents = new SettingsComponents<NumberingOptions>() {
             @Override
-            protected Settable[] createComponents(NumberingOptions i) {
+            protected Settable[] createComponents(@NotNull NumberingOptions i) {
                 return new Settable[] {
                         component(myFirst, i::getFirst, i::setFirst),
                         component(myLast, i::getLast, i::setLast),
@@ -127,7 +127,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(DocumentEvent e) {
+            protected void textChanged(@NotNull DocumentEvent e) {
                 myGuard.ifUnguarded(() -> updateOptions());
             }
         };
@@ -210,18 +210,19 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     }
 
     @Override
-    public void reset(NumberingOptions instance) {
+    public void reset(@NotNull NumberingOptions instance) {
         setOptions(instance);
     }
 
+    @NotNull
     @Override
-    public NumberingOptions apply(NumberingOptions instance) {
+    public NumberingOptions apply(@NotNull NumberingOptions instance) {
         myComponents.apply(instance);
         return instance;
     }
 
     @Override
-    public boolean isModified(NumberingOptions instance) {
+    public boolean isModified(@NotNull NumberingOptions instance) {
         return myComponents.isModified(instance);
     }
 

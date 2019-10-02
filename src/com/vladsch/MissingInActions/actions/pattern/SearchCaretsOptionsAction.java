@@ -41,7 +41,7 @@ public class SearchCaretsOptionsAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
@@ -57,7 +57,7 @@ public class SearchCaretsOptionsAction extends EditorAction {
         }
 
         @Override
-        protected void doExecute(final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
+        protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             RangeLimitedCaretSpawningHandler spawningHandler = LineSelectionManager.getInstance(editor).getCaretSpawningHandler();
 
             if (spawningHandler instanceof CaretSpawningSearchHandler) {

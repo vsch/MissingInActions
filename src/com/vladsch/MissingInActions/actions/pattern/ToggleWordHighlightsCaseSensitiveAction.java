@@ -29,12 +29,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class ToggleWordHighlightsCaseSensitiveAction extends ToggleAction implements DumbAware {
     @Override
-    public boolean isSelected(final AnActionEvent e) {
+    public boolean isSelected(@NotNull final AnActionEvent e) {
         return Plugin.getInstance().isHighlightWordsCaseSensitive();
     }
 
     @Override
-    public void setSelected(final AnActionEvent e, final boolean state) {
+    public void setSelected(@NotNull final AnActionEvent e, final boolean state) {
         Plugin.getInstance().setHighlightWordsCaseSensitive(state);
     }
 

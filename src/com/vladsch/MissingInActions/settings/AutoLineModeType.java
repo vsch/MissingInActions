@@ -42,6 +42,7 @@ public enum AutoLineModeType implements ComboBoxAdaptable<AutoLineModeType> {
 
     public static Static<AutoLineModeType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(DISABLED));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<AutoLineModeType> getAdapter() {
         return ADAPTER;

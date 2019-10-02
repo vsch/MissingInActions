@@ -110,6 +110,7 @@ public enum PrefixOnPastePatternType implements ComboBoxAdaptable<PrefixOnPasteP
 
     public static Static<PrefixOnPastePatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(CAMEL));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<PrefixOnPastePatternType> getAdapter() {
         return ADAPTER;

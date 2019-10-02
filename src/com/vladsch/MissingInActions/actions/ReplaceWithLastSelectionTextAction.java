@@ -41,7 +41,7 @@ public class ReplaceWithLastSelectionTextAction extends EditorAction {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
@@ -57,7 +57,7 @@ public class ReplaceWithLastSelectionTextAction extends EditorAction {
         }
 
         @Override
-        protected void doExecute(final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
+        protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             RangeMarker currentSelection = manager.getEditorSelectionRangeMarker();
             manager.recallLastSelection(0, false, false, false);

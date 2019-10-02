@@ -29,13 +29,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class ToggleSpawnNumericSearchAction extends ToggleAction implements DumbAware {
     @Override
-    public boolean isSelected(final AnActionEvent e) {
+    public boolean isSelected(@NotNull final AnActionEvent e) {
         ApplicationSettings instance = ApplicationSettings.getInstance();
         return instance.isSpawnNumericSearch() && !instance.isSpawnNumericHexSearch();
     }
 
     @Override
-    public void setSelected(final AnActionEvent e, final boolean state) {
+    public void setSelected(@NotNull final AnActionEvent e, final boolean state) {
         ApplicationSettings instance = ApplicationSettings.getInstance();
         instance.setSpawnNumericSearch(state);
         if (state) instance.setSpawnNumericHexSearch(false);

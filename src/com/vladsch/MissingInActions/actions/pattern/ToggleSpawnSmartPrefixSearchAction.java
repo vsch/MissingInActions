@@ -25,13 +25,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class ToggleSpawnSmartPrefixSearchAction extends ToggleAction implements DumbAware {
     @Override
-    public boolean isSelected(final AnActionEvent e) {
+    public boolean isSelected(@NotNull final AnActionEvent e) {
         ApplicationSettings instance = ApplicationSettings.getInstance();
         return instance.isSpawnSmartPrefixSearch();
     }
 
     @Override
-    public void setSelected(final AnActionEvent e, final boolean state) {
+    public void setSelected(@NotNull final AnActionEvent e, final boolean state) {
         ApplicationSettings instance = ApplicationSettings.getInstance();
         instance.setSpawnSmartPrefixSearch(state);
     }
