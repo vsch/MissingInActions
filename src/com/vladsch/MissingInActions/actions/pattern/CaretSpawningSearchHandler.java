@@ -255,183 +255,146 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
             boolean spawnNumericSearch = ApplicationSettings.getInstance().isSpawnNumericSearch();
             boolean spawnNumericHexSearch = ApplicationSettings.getInstance().isSpawnNumericHexSearch();
             boolean spawnSmartPrefixSearch = ApplicationSettings.getInstance().isSpawnSmartPrefixSearch();
+            String patternText;
+            int searchFlags = 0;
 
-            if (!myBackwards) {
-                // check what is ahead of caret
-                boolean afterEnd = offset >= chars.length() || caretPos.column >= endOfLineColumn;
-                //char prevC = offset == 0 || offset-1 >= chars.length() || caretPos.column == 0 || caretPos.column-1 >= endOfLineColumn ? ' ' : chars.charAt(offset);
-                char c = afterEnd ? ' ' : chars.charAt(offset);
-                //BasedSequence afterCaret = chars.subSequence(afterEnd ? endOfLineColumn : offset, endOfLineColumn);
+            // check what is ahead of caret
+            char c = myBackwards ? offset == 0 || caretPos.column - 1 >= endOfLineColumn ? ' ' : chars.charAt(offset - 1)
+                    : offset >= chars.length() || caretPos.column >= endOfLineColumn ? ' ' : chars.charAt(offset);
 
-                if (Character.isWhitespace(c)) {
-                    // match next non-whitespace
-                    //myPattern = ForwardPattern.compile("(\\s*)\\S+");
-                    myPattern = ForwardPattern.compile("((?<=\\s)\\s*|^|(?<=\\S)\\S*\\s+)\\S+");
-                    myCaretToEndGroup = true;
-                } else if (EditHelpers.isIdentifierPart(c)) {
-                    // find end of identifier
-                    int end = offset;
-                    while (end < range.getEnd() && EditHelpers.isIdentifierPart(chars.charAt(end)))
-                        end++;
-                    BasedSequence text = chars.subSequence(offset, end);
-                    boolean hexPrefix = spawnNumericHexSearch && text.startsWith("0x", true);
-                    String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
-                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
-                    if (spawnNumericSearch && text.indexOfAny("0123456789") != -1
-                            && ((spawnNumericHexSearch
-                            && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                            || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                            || (text.indexOfAnyNot("0123456789") == -1)
-                    )) {
-                        // hex, octal or decimal, look for numeric sequence
-                        if (offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1))) {
-                            if (hexPrefix) {
-                                myPattern = ForwardPattern.compile("\\b(0[xX][0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else if (spawnNumericHexSearch) {
-                                myPattern = ForwardPattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else {
-                                myPattern = ForwardPattern.compile("\\b([0-9]+|0[0-7]*|-?[0-9]+)\\b");
-                            }
-                        } else {
-                            if (hexPrefix) {
-                                myPattern = ForwardPattern.compile("(0[xX][0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else if (spawnNumericHexSearch) {
-                                myPattern = ForwardPattern.compile("([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else {
-                                myPattern = ForwardPattern.compile("([0-9]+|0[0-7]*|-?[0-9]+)\\b");
-                            }
-                        }
-                    } else {
-                        String quotedText;
-                        String textToSearch = text.toString();
-                        boolean isStart = offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1));
-                        Pattern prefixPattern = spawnSmartPrefixSearch ? ApplicationSettings.getInstance().getPrefixesOnPastePattern() : null;
+            // check what is behind of caret
+            if (Character.isWhitespace(c)) {
+                myCaretToEndGroup = true;
+                // match previous non-whitespace
+                // match next non-whitespace
+                patternText = myBackwards ? "\\S+(\\s*(?=\\s)|$|\\s+(?=\\S+))" : "((?<=\\s)\\s*|^|(?<=\\S)\\S*\\s+)\\S+";
+            } else if (EditHelpers.isIdentifierPart(c)) {
+                // find start of identifier
+                int start = offset;
+                int end = offset;
 
-                        if (prefixPattern != null) {
-                            // add prefixed variations of the text
-                            Matcher matcher = prefixPattern.matcher(textToSearch);
-                            if (matcher.find()) {
-                                textToSearch = textToSearch.substring(matcher.group().length());
-                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
-                                        "(?:" + Pattern.quote(textToSearch.substring(0, 1).toLowerCase() + textToSearch.substring(1)) + ")";
-                            } else {
-                                quotedText = Pattern.quote(textToSearch);
-                            }
-                        } else {
-                            quotedText = Pattern.quote(textToSearch);
-                        }
-
-                        if (isStart) {
-                            // we are at start of identifier even if first char is not a valid java identifier
-                            // check if it is a numeric sequence base 10 or hex starting with 0x
-                            myPattern = ForwardPattern.compile(startBreak + "(" + quotedText + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-                        } else {
-                            myPattern = ForwardPattern.compile("(" + quotedText + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-                        }
-                    }
+                if (myBackwards) {
+                    while (start > range.getStart() && EditHelpers.isIdentifierPart(chars.charAt(start - 1))) start--;
                 } else {
-                    if (mySingleMatch) {
-                        // now just look for a continuous span of characters
-                        String quote = Pattern.quote(String.valueOf(c));
-                        myPattern = ForwardPattern.compile("(" + quote + "+)");
-                    } else {
-                        // neither, just look for the character span of matching characters
-                        int end = offset;
-                        while (end < range.getEnd() && c == chars.charAt(end)) end++;
-                        BasedSequence text = chars.subSequence(offset, end);
-                        String quote = Pattern.quote(text.toString());
-                        myPattern = ForwardPattern.compile("(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")");
-                    }
+                    while (end < range.getEnd() && EditHelpers.isIdentifierPart(chars.charAt(end))) end++;
+                }
+
+                BasedSequence text = chars.subSequence(start, end);
+                boolean hexPrefix = spawnNumericHexSearch && isHexPrefix(text);
+                String endBreak = getEndBreak(text);
+                String startBreak = getStartBreak(text);
+                boolean isNumericSpawnSearch = isNumericSearch(text, hexPrefix, spawnNumericSearch, spawnNumericHexSearch);
+
+                boolean isStart = myBackwards ? offset >= chars.length() || !EditHelpers.isIdentifierPart(chars.charAt(offset))
+                        : offset == 0 || !EditHelpers.isIdentifierPart(chars.charAt(offset - 1));
+
+                if (isNumericSpawnSearch) {
+                    // hex, octal or decimal, look for numeric sequence
+                    patternText = getNumericPatternText(spawnNumericHexSearch, isStart, hexPrefix, startBreak);
+                } else {
+                    // if these are numbers make sure we match start/end word only
+                    boolean isNumericSearch = isNumeric(text, hexPrefix);
+                    String quotedText = getSmartPrefixedText(text.toString(), spawnSmartPrefixSearch);
+
+                    String starPattern = myBackwards || isStart ? startBreak : (isNumericSearch ? "\\B" : "");
+                    String endPattern = !myBackwards || isStart ? endBreak : (isNumericSearch ? "\\B" : "");
+
+                    searchFlags = myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE;
+                    patternText = starPattern + "(" + quotedText + ")" + endPattern;
                 }
             } else {
-                // check what is behind of caret
-                char c = offset == 0 || caretPos.column - 1 >= endOfLineColumn ? ' ' : chars.charAt(offset - 1);
-                if (Character.isWhitespace(c)) {
-                    // match previous non-whitespace
-                    //myPattern = ReversePattern.compile("\\S+(\\s+)");
-                    myPattern = ReversePattern.compile("\\S+(\\s*(?=\\s)|$|\\s+(?=\\S+))");
-                    myCaretToEndGroup = true;
-                } else if (EditHelpers.isIdentifierPart(c)) {
-                    // find start of identifier
-                    int start = offset;
-                    while (start > range.getStart() && EditHelpers.isIdentifierPart(chars.charAt(start - 1)))
-                        start--;
-
-                    BasedSequence text = chars.subSequence(start, offset);
-                    boolean hexPrefix = text.startsWith("0x", true);
-
-                    String endBreak = text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
-                    String startBreak = text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
-
-                    if (spawnNumericSearch && text.indexOfAny("0123456789") != -1
-                            && ((spawnNumericHexSearch
-                            && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                            || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                            || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                            || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                            || (text.indexOfAnyNot("0123456789") == -1)
-                    )) {
-                        // hex, octal or decimal, look for numeric sequence
-                        if (offset >= chars.length() || !EditHelpers.isIdentifierPart(chars.charAt(offset))) {
-                            if (hexPrefix) {
-                                myPattern = ReversePattern.compile("\\b(0[xX][0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            } else {
-                                myPattern = ReversePattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b");
-                            }
-                        } else {
-                            if (hexPrefix) {
-                                myPattern = ReversePattern.compile("\\b(0[xX][0-9a-fA-F]+|0[0-7]*|-?[0-9]+)");
-                            } else {
-                                myPattern = ReversePattern.compile("\\b([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)");
-                            }
-                        }
-                    } else {
-                        String quotedText;
-                        boolean isStart = offset >= chars.length() || !EditHelpers.isIdentifierPart(chars.charAt(offset));
-                        String textToSearch = chars.subSequence(start, offset).toString();
-                        Pattern prefixPattern = spawnSmartPrefixSearch ? ApplicationSettings.getInstance().getPrefixesOnPastePattern() : null;
-
-                        if (prefixPattern != null) {
-                            // add prefixed variations of the text
-                            Matcher matcher = prefixPattern.matcher(textToSearch);
-                            if (matcher.find()) {
-                                textToSearch = textToSearch.substring(matcher.group().length());
-                                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
-                                        "(?:" + Pattern.quote(textToSearch.substring(0, 1).toLowerCase() + textToSearch.substring(1)) + ")";
-                            } else {
-                                quotedText = Pattern.quote(textToSearch);
-                            }
-                        } else {
-                            quotedText = Pattern.quote(textToSearch);
-                        }
-
-                        if (isStart) {
-                            // we are at start of identifier even if first char is not a valid java identifier
-                            myPattern = ReversePattern.compile(startBreak + "(" + quotedText + ")" + endBreak, myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-                        } else {
-                            myPattern = ReversePattern.compile(startBreak + "(" + quotedText + ")", myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
-                        }
-                    }
+                if (mySingleMatch) {
+                    // now just look for a continuous span of characters
+                    patternText = "(" + Pattern.quote(String.valueOf(c)) + "+)";
                 } else {
-                    if (mySingleMatch) {
-                        // now just look for a continuous span of characters
-                        String quote = Pattern.quote(String.valueOf(c));
-                        myPattern = ReversePattern.compile("(" + quote + "+)");
+                    // neither, just look for the character span of matching characters
+                    int start = offset;
+                    int end = offset;
+
+                    if (myBackwards) {
+                        while (start > range.getStart() && c == chars.charAt(start - 1)) start--;
                     } else {
-                        // neither, just look for the character span of matching characters
-                        int start = offset;
-                        while (start > range.getStart() && c == chars.charAt(start - 1))
-                            start--;
-                        BasedSequence text = chars.subSequence(start, offset);
-                        String quote = Pattern.quote(text.toString());
-                        myPattern = ReversePattern.compile("(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")");
+                        while (end < range.getEnd() && c == chars.charAt(end)) end++;
                     }
+
+                    String quote = Pattern.quote(chars.subSequence(start, end).toString());
+                    patternText = "(?<!" + Pattern.quote(String.valueOf(c)) + ")(" + quote + ")(?!" + Pattern.quote(String.valueOf(c)) + ")";
                 }
             }
+
+            myPattern = myBackwards ? ReversePattern.compile(patternText, searchFlags)
+                    : ForwardPattern.compile(patternText, searchFlags);
         }
 
         return myPattern;
+    }
+
+    @NotNull
+    private static String getStartBreak(final BasedSequence text) {
+        return text.charAt(0) == '$' ? "(?<!\\Q$\\E|\\w)" : "\\b";
+    }
+
+    @NotNull
+    private static String getEndBreak(final BasedSequence text) {
+        return text.charAt(text.length() - 1) == '$' ? "(?!\\Q$\\E|\\w)" : "\\b";
+    }
+
+    private static boolean isHexPrefix(final BasedSequence text) {
+        return text.startsWith("0x", true);
+    }
+
+    @NotNull
+    private static String getNumericPatternText(final boolean spawnNumericHexSearch, final boolean isStart, final boolean hexPrefix, final String startBreak) {
+        String patternText;
+        if (hexPrefix) {
+            patternText = (isStart ? startBreak : "") + "(0[xX][0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b";
+        } else if (spawnNumericHexSearch) {
+            patternText = (isStart ? startBreak : "") + "([0-9a-fA-F]+|0[0-7]*|-?[0-9]+)\\b";
+        } else {
+            patternText = (isStart ? startBreak : "") + "([0-9]+|0[0-7]*|-?[0-9]+)\\b";
+        }
+        return patternText;
+    }
+
+    private static boolean isNumericSearch(final BasedSequence text, final boolean hexPrefix, final boolean spawnNumericSearch, final boolean spawnNumericHexSearch) {
+        return spawnNumericSearch && text.indexOfAny("0123456789") != -1
+                && ((spawnNumericHexSearch
+                && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                || (text.indexOfAnyNot("0123456789") == -1))
+                ;
+    }
+
+    private static boolean isNumeric(final BasedSequence text, final boolean hexPrefix) {
+        return text.indexOfAny("0123456789") != -1
+                && (((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
+                || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
+                || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
+                || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
+                || (text.indexOfAnyNot("0123456789") == -1))
+                ;
+    }
+
+    @NotNull
+    private static String getSmartPrefixedText(@NotNull String textToSearch, final boolean spawnSmartPrefixSearch) {
+        Pattern prefixPattern = spawnSmartPrefixSearch ? ApplicationSettings.getInstance().getPrefixesOnPastePattern() : null;
+        String quotedText;
+
+        if (prefixPattern != null) {
+            // add prefixed variations of the text
+            Matcher matcher = prefixPattern.matcher(textToSearch);
+            if (matcher.find()) {
+                textToSearch = textToSearch.substring(matcher.group().length());
+                quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
+                        "(?:" + Pattern.quote(textToSearch.substring(0, 1).toLowerCase() + textToSearch.substring(1)) + ")";
+            } else {
+                quotedText = Pattern.quote(textToSearch);
+            }
+        } else {
+            quotedText = Pattern.quote(textToSearch);
+        }
+        return quotedText;
     }
 }

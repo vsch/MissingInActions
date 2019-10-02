@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.9 - Bug Fix Release & Enhancement Release](#1759---bug-fix-release--enhancement-release)
+- [1.7.5.13 - Bug Fix Release & Enhancement Release](#17513---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,8 +91,25 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.9 - Bug Fix Release & Enhancement Release
+### 1.7.5.13 - Bug Fix Release & Enhancement Release
 
+* Highlighted word actions:
+  * [ ] Add: Select highlighted words in file or current selection to create multi-caret
+        selection from highlighted words
+  * [ ] Add: tandem highlight words to allow to have two sets of highlight iterators to allow to
+        visually compare two separate lists of words that are related by their location. ie.
+        highlight one set of words, switch to second iterator (toggle action), highlight the
+        second set of words. Effectively, highlights will work on the currently selected
+        highlight set (color iterator) but there is only one highlight provider.
+  * [ ] Add: highlight words from Clipboard selected carets (can use history dialog or top
+        entry) so can highlight what is already on the clipboard.
+  * [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
+  * [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
+        highlights which are present in the current file to the clipboard.
+* Fix: search spawn without matching all numeric patterns needs to respect begin/end word
+  constraints of the caret position if it would be a numeric search if spawn numeric was
+  enabled. ie. search forward from `|` in `2.9.0.5|7/2.9.7.57` should result in
+  `2.9.0.5[7]|/2.9.7.5[7]|` not `2.9.0.5[7]|/2.9.[7]|.5[7]|`
 * Fix: backward caret spawning search ignored numeric/hex numeric settings
 * Add: spawn prefix search option to support paste prefix alternates so spawn on `myText` will
   select `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
