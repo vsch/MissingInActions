@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.13 - Bug Fix Release & Enhancement Release](#17513---bug-fix-release--enhancement-release)
+- [1.7.5.15 - Bug Fix Release & Enhancement Release](#17515---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,18 +91,18 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.13 - Bug Fix Release & Enhancement Release
+### 1.7.5.15 - Bug Fix Release & Enhancement Release
 
 * Highlighted word actions:
-  * [ ] Add: Select highlighted words in file or current selection to create multi-caret
-        selection from highlighted words
-  * [ ] Add: tandem highlight words to allow to have two sets of highlight iterators to allow to
-        visually compare two separate lists of words that are related by their location. ie.
-        highlight one set of words, switch to second iterator (toggle action), highlight the
-        second set of words. Effectively, highlights will work on the currently selected
-        highlight set (color iterator) but there is only one highlight provider.
-  * [ ] Add: highlight words from Clipboard selected carets (can use history dialog or top
-        entry) so can highlight what is already on the clipboard.
+  * Add: Select highlighted words in file or current selection to create multi-caret selection
+    from highlighted words. Will use document, single selection or multi-caret selection for
+    limiting search of highlighted words.
+  * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
+    line to the same color. Either when originally highlighted or added to existing highlights
+    when there is a highlight on the same line. Allows to color align related string on the same
+    line for visual validation elsewhere.
+  * [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
+        a button that will use caret data for highlights).
   * [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
   * [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
         highlights which are present in the current file to the clipboard.

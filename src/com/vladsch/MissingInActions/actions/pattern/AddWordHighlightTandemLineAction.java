@@ -24,9 +24,9 @@ package com.vladsch.MissingInActions.actions.pattern;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
-public class AddWordHighlightAction extends WordHighlightActionBase {
-    public AddWordHighlightAction() {
-        super(false, false);
+public class AddWordHighlightTandemLineAction extends WordHighlightActionBase {
+    public AddWordHighlightTandemLineAction() {
+        super(false, true);
     }
 
     @Override

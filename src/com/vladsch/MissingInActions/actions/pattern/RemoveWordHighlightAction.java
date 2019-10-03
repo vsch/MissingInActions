@@ -26,7 +26,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class RemoveWordHighlightAction extends WordHighlightActionBase {
     public RemoveWordHighlightAction() {
-        super(true);
+        super(true, false);
     }
 
     @Override

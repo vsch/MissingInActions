@@ -62,6 +62,7 @@ public class PluginIcons {
     public static final Icon Remove_isolated_lines = load("/icons/png/Remove_isolated_lines.png");
     public static final Icon Clear_word_highlights = load("/icons/png/Clear_word_highlights.png");
     public static final Icon Add_word_highlight = load("/icons/png/Add_word_highlight.png");
+    public static final Icon Add_tandem_word_highlight = load("/icons/png/Add_tandem_word_highlight.png");
     public static final Icon Remove_word_highlight = load("/icons/png/Remove_word_highlight.png");
     public static final Icon Toggle_word_highlights = load("/icons/png/Toggle_word_highlights.png");
     public static final Icon Toggle_case_sensitive_highlights = load("/icons/png/Toggle_case_sensitive_highlights.png");
@@ -90,5 +91,6 @@ public class PluginIcons {
     public static final Icon Toggle_search_numeric = load("/icons/png/Toggle_search_numeric.png");
     public static final Icon Toggle_search_hex = load("/icons/png/Toggle_search_hex.png");
     public static final Icon Toggle_search_prefix = load("/icons/png/Toggle_search_prefix.png");
+    public static final Icon Create_carets_from_highlights = load("/icons/png/Create_carets_from_highlights.png");
     public static final Icon Generate_exception = load("/icons/svg/Generate_exception.svg");
 }

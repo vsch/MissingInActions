@@ -48,10 +48,14 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
 
     @Nullable
     Integer find(final AnActionEvent e) {
-        TextRange range = myBackwardSearch ? findPrevious(e) : findNext(e);
-        if (range != null) {
-            //return myBackwardSearch ? range.getStartOffset() : range.getEndOffset();
-            return range.getStartOffset();
+        EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        if (editor != null) {
+            int offset = editor.getCaretModel().getOffset();
+            TextRange range = myBackwardSearch ? findPrevious(editor, offset) : findNext(editor, offset);
+            if (range != null) {
+                //return myBackwardSearch ? range.getStartOffset() : range.getEndOffset();
+                return range.getStartOffset();
+            }
         }
         return null;
     }
@@ -66,13 +70,11 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }
 
-    public static TextRange findNext(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public static TextRange findNext(EditorEx editor, int offset) {
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
-                int offset = editor.getCaretModel().getOffset();
                 RangeHighlighter rangeHighlighter = highlighter.getNextRangeHighlighter(offset);
                 if (rangeHighlighter != null) {
                     if (offset >= rangeHighlighter.getStartOffset() && offset <= rangeHighlighter.getEndOffset()) {
@@ -87,13 +89,11 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
         return null;
     }
 
-    public static TextRange findPrevious(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public static TextRange findPrevious(EditorEx editor, int offset) {
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) LineSelectionManager.getInstance(editor).getHighlighter();
 
             if (highlighter != null) {
-                int offset = editor.getCaretModel().getOffset();
                 RangeHighlighter rangeHighlighter = highlighter.getPreviousRangeHighlighter(offset);
                 if (rangeHighlighter != null) {
                     if (offset >= rangeHighlighter.getStartOffset() && offset <= rangeHighlighter.getEndOffset()) {

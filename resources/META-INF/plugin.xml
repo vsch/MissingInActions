@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.7.5.13</version>
+    <version>1.7.5.15</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
@@ -723,7 +723,7 @@
 
         <action class="com.vladsch.MissingInActions.actions.line.ToggleIsolationModeAction"
                 id="MissingInActions.ToggleIsolationMode"
-                text="Toggle Line Isolation Mode"
+                text="Line Isolation Mode"
                 icon="PluginIcons.Toggle_isolated_mode"
                 description="Toggle line isolation mode">
         </action>
@@ -751,7 +751,7 @@
 
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsModeAction"
                 id="MissingInActions.ToggleWordHighlightsMode"
-                text="Toggle Word Highlights Mode"
+                text="Word Highlights Mode"
                 icon="PluginIcons.Toggle_word_highlights"
                 description="Toggle word highlights mode">
         </action>
@@ -772,14 +772,14 @@
 
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsCaseSensitiveAction"
                 id="MissingInActions.ToggleWordHighlightsCaseSensitive"
-                text="Toggle Case Sensitive Word Highlights"
+                text="Case Sensitive Word Highlights"
                 icon="PluginIcons.Toggle_case_sensitive_highlights"
                 description="Toggle case sensitive word highlights">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleOnPastePreserveAction"
                 id="MissingInActions.ToggleOnPastePreserve"
-                text="Toggle on Paste Preserve Case Style"
+                text="On Paste Preserve Case Style"
                 icon="PluginIcons.Toggle_onPastePreserve"
                 description="Toggle on paste preserve case style">
         </action>
@@ -798,11 +798,25 @@
                 description="Add selection to word highlights">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.AddWordHighlightTandemLineAction"
+                id="MissingInActions.AddWordHighlightTandemLine"
+                text="Add Selection to Word Highlights in Tandem"
+                icon="PluginIcons.Add_tandem_word_highlight"
+                description="Add selection to word highlights use the same color for highlights on the same line">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.pattern.RemoveWordHighlightAction"
                 id="MissingInActions.RemoveWordHighlight"
                 text="Remove Selection from Word Highlights"
                 icon="PluginIcons.Remove_word_highlight"
                 description="Remove selection from word highlights">
+        </action>
+
+        <action class="com.vladsch.MissingInActions.actions.pattern.CreateCaretsFromHighlightsAction"
+                id="MissingInActions.CreateCaretsFromHighlights"
+                text="Create Carets from Word Highlights"
+                icon="PluginIcons.Create_carets_from_highlights"
+                description="Create carets from word highlights in document or selection">
         </action>
 
         <action class="com.vladsch.MissingInActions.actions.pattern.KeepWordHighlightedCaretAction"
@@ -859,9 +873,11 @@
                 <reference id="MissingInActions.ToggleWordHighlightsMode"/>
                 <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
                 <reference id="MissingInActions.ClearWordHighlights"/>
+                <reference id="MissingInActions.AddWordHighlightTandemLine"/>
                 <reference id="MissingInActions.AddWordHighlight"/>
                 <reference id="MissingInActions.RemoveWordHighlight"/>
                 <separator/>
+                <reference id="MissingInActions.CreateCaretsFromHighlights"/>
                 <reference id="MissingInActions.KeepWordHighlightedCaret"/>
                 <reference id="MissingInActions.RemoveWordHighlightedCaret"/>
                 <separator/>

@@ -28,17 +28,25 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
+import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
 import org.jetbrains.annotations.NotNull;
 
-abstract public class WordHighlightActionBase extends AnAction implements DumbAware {
-    private final boolean myIsRemoveWord;
+import java.util.HashMap;
 
-    public WordHighlightActionBase(final boolean isRemoveWord) {
-        myIsRemoveWord = isRemoveWord;
+abstract public class WordHighlightActionBase extends AnAction implements DumbAware {
+    private final boolean myRemoveWord;
+    private final boolean myTandemLine;
+
+    public WordHighlightActionBase(final boolean isRemoveWord, boolean isTandemLine) {
+        myRemoveWord = isRemoveWord;
+        myTandemLine = isTandemLine;
     }
 
     @Override
@@ -48,7 +56,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         boolean selected = false;
 
         if (editor != null && editor.getSelectionModel().hasSelection()) {
-            enabled = !myIsRemoveWord || Plugin.getInstance().haveHighlights();
+            enabled = !myRemoveWord || Plugin.getInstance().haveHighlights();
         }
         e.getPresentation().setEnabled(enabled || BatchSearchAction.isShowingBatchSearchWindow(editor));
         super.update(e);
@@ -65,18 +73,53 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
             Document document = editor.getDocument();
             CharSequence chars = document.getCharsSequence();
             Plugin plugin = Plugin.getInstance();
+            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+            HashMap<Integer, Integer> lineColorMap = new HashMap<>();
+            WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) manager.getHighlighter();
 
             for (Caret caret : editor.getCaretModel().getAllCarets()) {
                 if (caret.hasSelection()) {
                     boolean startWord = EditHelpers.isWordStart(chars, caret.getSelectionStart(), false);
                     boolean endWord = EditHelpers.isWordEnd(chars, caret.getSelectionEnd(), false);
-                    if (myIsRemoveWord) {
+                    if (myRemoveWord) {
                         plugin.removeHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString());
                     } else {
-                        plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                        EditorCaret editorCaret = manager.getEditorCaret(caret);
+                        if (myTandemLine && editorCaret.getSelectionStart().line == editorCaret.getSelectionEnd().line) {
+                            int tandemIndex = lineColorMap.getOrDefault(editorCaret.getSelectionStart().line, -1);
+
+                            if (tandemIndex == -1 && highlighter != null) {
+                                tandemIndex = getRangeHighlighterIndex(highlighter, editorCaret.getSelectionStart().getOffset(), false);
+                            }
+
+                            if (tandemIndex == -1) {
+                                tandemIndex = plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                                lineColorMap.put(editorCaret.getSelectionStart().line, tandemIndex);
+                            } else {
+                                // on the same line as another highlight, give it the same color
+                                plugin.restartHighlightSet(tandemIndex);
+                                plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                                plugin.endHighlightSet();
+                            }
+                        } else {
+                            plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                        }
                     }
                 }
             }
         }
+    }
+
+    public static int getRangeHighlighterIndex(WordHighlighter<ApplicationSettings> highlighter, int offset, boolean excludeOffset) {
+        RangeHighlighter rangeHighlighter = highlighter.getNextRangeHighlighter(offset);
+        if (rangeHighlighter != null) {
+            if (excludeOffset && offset >= rangeHighlighter.getStartOffset() && offset <= rangeHighlighter.getEndOffset()) {
+                rangeHighlighter = highlighter.getNextRangeHighlighter(rangeHighlighter.getEndOffset());
+            }
+            if (rangeHighlighter != null) {
+                return highlighter.getRangeHighlighterIndex(rangeHighlighter);
+            }
+        }
+        return -1;
     }
 }
