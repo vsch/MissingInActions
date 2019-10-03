@@ -194,71 +194,68 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
 
             if (LOG.isDebugEnabled()) LOG.debug("Entering replaceClipboardIfNeeded update");
 
-            Transferable transferable;
-            try {
-                transferable = CopyPasteManager.getInstance().getContents();
-            } catch (Exception ignored) {
-                transferable = null;
-            }
+            ApplicationManager.getApplication().invokeLater(() -> {
+                try {
+                    Transferable transferable;
+                    transferable = CopyPasteManager.getInstance().getContents();
 
-            SharedClipboardDataBuilderImpl builder = new SharedClipboardDataBuilderImpl();
+                    if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                        SharedClipboardDataBuilderImpl builder = new SharedClipboardDataBuilderImpl();
+                        boolean caretSupported = transferable.isDataFlavorSupported(CaretStateTransferableData.FLAVOR);
+                        boolean sharedCaretSupported = transferable.isDataFlavorSupported(SHARED_FLAVOR);
 
-            if (transferable != null) {
-                if (transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                    boolean caretSupported = transferable.isDataFlavorSupported(CaretStateTransferableData.FLAVOR);
-                    boolean sharedCaretSupported = transferable.isDataFlavorSupported(SHARED_FLAVOR);
-
-                    if (sharingCaretState) {
-                        if (caretSupported && !sharedCaretSupported) {
-                            // need to add shared state
-                            CaretStateTransferableData caretData = (CaretStateTransferableData) ClipboardUtils.getTransferDataOrNull(transferable, CaretStateTransferableData.FLAVOR);
-                            if (caretData != null) {
-                                builder.addSharedClipboardData(new SharedCaretStateTransferableData(caretData), (transferable1, flavor) -> getSharedDataOrNull(transferable1));
-                            }
-                        } else if (!caretSupported && sharedCaretSupported) {
-                            // need to add caret state
-                            SharedCaretStateTransferableData sharedCaretData = getSharedDataOrNull(transferable);
-                            if (sharedCaretData != null) {
-                                builder.addSharedClipboardData(new CaretStateTransferableData(sharedCaretData.startOffsets, sharedCaretData.endOffsets), null);
+                        if (sharingCaretState) {
+                            if (caretSupported && !sharedCaretSupported) {
+                                // need to add shared state
+                                CaretStateTransferableData caretData = (CaretStateTransferableData) ClipboardUtils.getTransferDataOrNull(transferable, CaretStateTransferableData.FLAVOR);
+                                if (caretData != null) {
+                                    builder.addSharedClipboardData(new SharedCaretStateTransferableData(caretData), (transferable1, flavor) -> getSharedDataOrNull(transferable1));
+                                }
+                            } else if (!caretSupported && sharedCaretSupported) {
+                                // need to add caret state
+                                SharedCaretStateTransferableData sharedCaretData = getSharedDataOrNull(transferable);
+                                if (sharedCaretData != null) {
+                                    builder.addSharedClipboardData(new CaretStateTransferableData(sharedCaretData.startOffsets, sharedCaretData.endOffsets), null);
+                                }
                             }
                         }
+
+                        // let EPs contribute
+                        for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
+                            provider.addSharedClipboardData(transferable, builder);
+                        }
+
+                        if (!builder.isEmpty()) {
+                            Transferable newTransferable = AugmentedTextBlockTransferable.create(transferable, builder.augmentedData, sharedDataLoaders);
+                            if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
+
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
+                                CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+
+                                Transferable[] allContents = copyPasteManager.getAllContents();
+                                final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
+
+                                if (Objects.equals(getStringContent(firstTransferable), getStringContent(transferable))) {
+                                    // still here and first
+                                    copyPasteManager.setContents(newTransferable);
+                                    if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
+                                } else {
+                                    if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded transferable was removed or changed, skipping.");
+                                }
+
+                                inReplaceContent = false;
+                            }, ModalityState.any());
+
+                            return;
+                        }
                     }
-
-                    // let EPs contribute
-                    for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
-                        provider.addSharedClipboardData(transferable, builder);
-                    }
-
-                    if (!builder.isEmpty()) {
-                        Transferable newTransferable = AugmentedTextBlockTransferable.create(transferable, builder.augmentedData, sharedDataLoaders);
-                        if (LOG.isDebugEnabled()) LOG.debug("Replacing clipboard content with " + newTransferable);
-
-                        Transferable finalTransferable = transferable;
-                        ApplicationManager.getApplication().invokeLater(() -> {
-                            // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
-                            CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
-
-                            Transferable[] allContents = copyPasteManager.getAllContents();
-                            final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
-
-                            if (Objects.equals(getStringContent(firstTransferable), getStringContent(finalTransferable))) {
-                                // still here and first
-                                copyPasteManager.setContents(newTransferable);
-                                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
-                            } else {
-                                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded transferable was removed or changed, skipping.");
-                            }
-
-                            inReplaceContent = false;
-                        }, ModalityState.any());
-
-                        return;
-                    }
+                } catch (Exception ignored) {
                 }
-            }
 
-            if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update not needed");
-            inReplaceContent = false;
+                if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update not needed");
+                inReplaceContent = false;
+            });
         }
     }
 
