@@ -69,6 +69,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
             BatchSearchAction.hideBatchSearchWindow(editor);
+            if (!myRemoveWord) Plugin.getInstance().setHighlightsMode(true);
 
             Document document = editor.getDocument();
             CharSequence chars = document.getCharsSequence();

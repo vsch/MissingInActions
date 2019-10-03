@@ -94,13 +94,16 @@
 ### 1.7.5.15 - Bug Fix Release & Enhancement Release
 
 * Highlighted word actions:
+  * Fix: automatically turn on words highlight mode when adding a highlighted word
   * Add: Select highlighted words in file or current selection to create multi-caret selection
     from highlighted words. Will use document, single selection or multi-caret selection for
     limiting search of highlighted words.
   * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
     line to the same color. Either when originally highlighted or added to existing highlights
     when there is a highlight on the same line. Allows to color align related string on the same
-    line for visual validation elsewhere.
+    line for visual validation elsewhere. A limitation is that a word pattern can only have one
+    color associated with it, so multiple tandem color of the same word will result it in being
+    the last tandem color assigned.
   * [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
         a button that will use caret data for highlights).
   * [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
