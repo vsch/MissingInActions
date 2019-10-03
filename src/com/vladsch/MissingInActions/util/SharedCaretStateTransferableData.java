@@ -231,20 +231,22 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
 
                             ApplicationManager.getApplication().invokeLater(() -> {
                                 // need to check if the transferable is still available, otherwise we are adding one that was deleted before this call
-                                CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+                                try {
+                                    CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
 
-                                Transferable[] allContents = copyPasteManager.getAllContents();
-                                final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
+                                    Transferable[] allContents = copyPasteManager.getAllContents();
+                                    final Transferable firstTransferable = allContents.length > 0 ? allContents[0] : null;
 
-                                if (Objects.equals(getStringContent(firstTransferable), getStringContent(transferable))) {
-                                    // still here and first
-                                    copyPasteManager.setContents(newTransferable);
-                                    if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
-                                } else {
-                                    if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded transferable was removed or changed, skipping.");
+                                    if (Objects.equals(getStringContent(firstTransferable), getStringContent(transferable))) {
+                                        // still here and first
+                                        copyPasteManager.setContents(newTransferable);
+                                        if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded update done.");
+                                    } else {
+                                        if (LOG.isDebugEnabled()) LOG.debug("Exiting replaceClipboardIfNeeded transferable was removed or changed, skipping.");
+                                    }
+                                } finally {
+                                    inReplaceContent = false;
                                 }
-
-                                inReplaceContent = false;
                             }, ModalityState.any());
 
                             return;
