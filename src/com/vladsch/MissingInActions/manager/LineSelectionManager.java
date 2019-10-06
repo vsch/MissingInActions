@@ -206,7 +206,6 @@ public class LineSelectionManager implements
             caretHighlighter = CaretHighlighter.NULL;
         }
 
-        //noinspection ThisEscapedInObjectConstruction
         myHighlightListener = new HighlightListener() {
             @Override
             public void highlightsChanged() {

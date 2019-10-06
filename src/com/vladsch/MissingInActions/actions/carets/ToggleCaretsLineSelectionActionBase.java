@@ -23,20 +23,9 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.util.text.CharArrayUtil;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.MissingInActions.manager.EditorCaret;
-import com.vladsch.MissingInActions.manager.EditorPosition;
-import com.vladsch.MissingInActions.manager.EditorPositionFactory;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
-import com.vladsch.MissingInActions.util.EditHelpers;
-import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 
 abstract public class ToggleCaretsLineSelectionActionBase extends AnAction implements LineSelectionAware {
@@ -56,7 +45,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        EditorEx editor = getEditor(e);
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(true);
@@ -69,89 +58,7 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final EditorEx editor = getEditor(e);
-        final SelectionModel selectionModel = editor.getSelectionModel();
-        final CaretModel caretModel = editor.getCaretModel();
-        LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-        final EditorPositionFactory f = manager.getPositionFactory();
-
-        Caret primaryCaret = caretModel.getPrimaryCaret();
-        EditorCaret editorCaret = manager.getEditorCaret(primaryCaret);
-
-        manager.guard(() -> {
-            if (caretModel.getCaretCount() > 1) {
-                // switch to line mode from top most caret to bottom most caret
-                Range selRange = Range.NULL;
-                for (Caret caret : caretModel.getAllCarets()) {
-                    if (!caret.isValid()) continue;
-                    int line = caret.getLogicalPosition().line;
-                    selRange = selRange.include(line);
-                }
-                caretModel.removeSecondaryCarets();
-                editor.setColumnMode(false);
-
-                // create a line selection that includes minOffset/maxOffset
-                EditorPosition selStart = f.fromPosition(selRange.getStart(), 0);
-                EditorPosition selEnd = f.fromPosition(selRange.getEnd(), 0).atStartOfNextLine();
-                editorCaret.setSelection(selStart, selEnd)
-                        .trimOrExpandToLineSelection()
-                        .normalizeCaretPosition()
-                        .commit();
-            } else if (selectionModel.hasSelection() && (myWantBlankLines || myWantNonBlankLines)) {
-                // if not line selection then we convert it to line selection, next time to carets
-                final DocumentEx doc = editor.getDocument();
-                EditorPosition pos = editorCaret.getCaretPosition();
-
-                if (editorCaret.isLine()) {
-                    EditorPosition selStart = f.fromOffset(selectionModel.getSelectionStart());
-                    EditorPosition selEnd = f.fromOffset(selectionModel.getSelectionEnd());
-
-                    caretModel.removeSecondaryCarets();
-
-                    selectionModel.removeSelection();
-                    editor.setColumnMode(false);
-
-                    int selectionLineCount = editorCaret.getSelectionLineCount();
-                    if (selectionLineCount == 1) {
-                        // one liner, we restore char selection
-                        editorCaret.toCharSelection()
-                                .commit();
-                    } else {
-                        int endLine = selStart.line + selectionLineCount;
-                        editorCaret.removeSelection();
-
-                        // build the list of carets
-                        boolean first = true;
-                        for (int lineNumber = selStart.line; lineNumber < endLine; lineNumber++) {
-                            // just filter out, blank or non-blank lines
-                            int lineEndOffset = doc.getLineEndOffset(lineNumber);
-                            int lineStartOffset = doc.getLineStartOffset(lineNumber);
-
-                            boolean isBlank = CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset);
-                            if (isBlank && myWantBlankLines || !isBlank && myWantNonBlankLines) {
-                                EditorPosition editorPosition = pos.onLine(lineNumber);
-                                Caret caret = first ? caretModel.getPrimaryCaret() : caretModel.addCaret(editorPosition.toVisualPosition());
-                                if (caret != null) {
-                                    caret.moveToLogicalPosition(editorPosition);
-                                    int offset = editorPosition.getOffset();
-                                    caret.setSelection(offset, offset);
-                                    manager.resetSelectionState(caret);
-                                }
-                                first = false;
-                            }
-                        }
-                        EditHelpers.scrollToCaret(editor);
-                    }
-                } else {
-                    editorCaret.trimOrExpandToLineSelection()
-                            .normalizeCaretPosition()
-                            .commit();
-                }
-            }
-        });
-    }
-
-    private static EditorEx getEditor(AnActionEvent e) {
-        return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        final EditorEx editor = ActionUtils.getEditor(e);
+        ActionUtils.toggleCaretsLineSelection(editor, myWantBlankLines, myWantNonBlankLines, false, true);
     }
 }

@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
@@ -31,10 +30,12 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +48,8 @@ abstract public class KeepWordHighlightCaretsActionBase extends AnAction impleme
     }
 
     @Override
-    public void update(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public void update(@NotNull final AnActionEvent e) {
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean enabled = false;
         boolean selected = false;
 

@@ -55,7 +55,6 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
 
     // user params
     public static class Params<T extends Params> {
-        @SuppressWarnings("unchecked")
         void set(MutableDataHolder holder) { holder.set(PARAMS, this); }
 
         protected Params(CaretSnapshot snapshot) { if (snapshot != null) set(snapshot); }

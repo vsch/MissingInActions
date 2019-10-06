@@ -88,7 +88,6 @@ import com.vladsch.plugin.util.ui.highlight.HighlightListener;
 import com.vladsch.plugin.util.ui.highlight.Highlighter;
 import com.vladsch.plugin.util.ui.highlight.LineHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.LineHighlighter;
-import com.vladsch.plugin.util.ui.highlight.TypedRangeHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.TypedRangeHighlightProviderBase;
 import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
@@ -126,9 +125,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.ERROR_ATTRIBUTES_KEY;
-import static com.vladsch.plugin.util.ui.highlight.WordHighlightProvider.WARNING_ATTRIBUTES_KEY;
 
 public class BatchReplaceForm implements Disposable {
     private static final int DELAY_MILLIS = 250;
@@ -291,7 +287,6 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    @SuppressWarnings("VariableNotUsedInsideIf")
     public void setActiveEditor(@Nullable Editor editor) {
         if (editor != null && editor.isDisposed()) {
             editor = null;
@@ -1024,7 +1019,6 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private void updateOptions(final boolean searchReplaceTextChanged) {
-        //noinspection VariableNotUsedInsideIf
         if (myEditor == null || myEditor.isDisposed()) return;
 
         if (searchReplaceTextChanged) myPendingForcedUpdate = true;

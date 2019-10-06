@@ -31,6 +31,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -50,8 +51,8 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
     }
 
     @Override
-    public void update(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public void update(@NotNull final AnActionEvent e) {
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean enabled = false;
         boolean selected = false;
 

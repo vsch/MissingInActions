@@ -22,11 +22,11 @@
 package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
@@ -42,7 +42,7 @@ public class ForwardSearchCaretSpawningAction extends EditorAction implements To
         boolean selected = false;
 
         if (enabled) {
-            final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+            final EditorEx editor = ActionUtils.getEditor(e);
             if (editor != null) {
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 RangeLimitedCaretSpawningHandler spawningHandler = manager.getCaretSpawningHandler();

@@ -28,6 +28,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.MiaComboBoxAction;
 import com.vladsch.flexmark.util.sequence.Range;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SwapSelectionTextListAction extends SelectionListActionBase {
@@ -67,7 +68,7 @@ public class SwapSelectionTextListAction extends SelectionListActionBase {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
 
         Editor editor = MiaComboBoxAction.getEventEditor(e);

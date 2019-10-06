@@ -31,12 +31,12 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +52,7 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        EditorEx editor = getEditor(e);
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(true);
@@ -65,7 +65,9 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final EditorEx editor = getEditor(e);
+        final EditorEx editor = ActionUtils.getEditor(e);
+        if (editor == null) return;
+
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();
 
@@ -77,9 +79,5 @@ public class StraightenCaretsAction extends AnAction implements LineSelectionAwa
                 caret.moveToLogicalPosition(new LogicalPosition(doc.getLineNumber(caret.getOffset()), column));
             }
         }
-    }
-
-    private static EditorEx getEditor(AnActionEvent e) {
-        return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
     }
 }

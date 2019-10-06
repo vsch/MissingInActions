@@ -22,20 +22,20 @@
 package com.vladsch.MissingInActions.actions.line;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.DumbAware;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 
 public class ToggleIsolationModeAction extends ToggleAction implements DumbAware {
     @Override
-    public boolean isSelected(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public boolean isSelected(@NotNull final AnActionEvent e) {
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean selected = false;
 
         if (editor != null) {
@@ -47,7 +47,7 @@ public class ToggleIsolationModeAction extends ToggleAction implements DumbAware
 
     @Override
     public void update(@NotNull final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean enabled = false;
         boolean selected = false;
 

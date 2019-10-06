@@ -31,7 +31,6 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.ex.DocumentEx;
@@ -40,7 +39,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.text.CharArrayUtil;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
+import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.LineCommentProcessor;
 import org.jetbrains.annotations.NotNull;
 
@@ -99,12 +101,17 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        EditorEx editor = getEditor(e);
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(true);
         } else {
-            e.getPresentation().setEnabled(editor.getCaretModel().getCaretCount() > 1);
+            boolean enabled = editor.getCaretModel().getCaretCount() > 1;
+            if (!enabled) {
+                EditorCaret editorCaret = LineSelectionManager.getInstance(editor).getEditorCaret(editor.getCaretModel().getPrimaryCaret());
+                enabled = editorCaret.hasSelection() && editorCaret.hasLines();
+            }
+            e.getPresentation().setEnabled(enabled);
             e.getPresentation().setVisible(true);
             super.update(e);
         }
@@ -112,11 +119,21 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final EditorEx editor = getEditor(e);
+        final EditorEx editor = ActionUtils.getEditor(e);
+        if (editor == null) return;
+
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();
 
-        if (caretModel.getCaretCount() > 1) {
+        if (!(editor.getCaretModel().getCaretCount() > 1)) {
+            // convert to
+            EditorCaret editorCaret = LineSelectionManager.getInstance(editor).getEditorCaret(editor.getCaretModel().getPrimaryCaret());
+            if (editorCaret.hasSelection() && editorCaret.hasLines()) {
+                ActionUtils.toggleCaretsLineSelection(editor, true, true, true, true);
+            }
+        }
+
+        if (editor.getCaretModel().getCaretCount() > 1) {
             OpType opType = myOpType;
             OpType opType2 = null;
             final Project project = editor.getProject();
@@ -237,9 +254,5 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                 }
             }
         }
-    }
-
-    private static EditorEx getEditor(AnActionEvent e) {
-        return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
     }
 }

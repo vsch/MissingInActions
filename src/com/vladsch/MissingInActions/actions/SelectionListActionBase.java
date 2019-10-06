@@ -29,7 +29,12 @@ import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
-import com.intellij.openapi.editor.markup.*;
+import com.intellij.openapi.editor.markup.EffectType;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.MarkupModel;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.util.Key;
@@ -65,7 +70,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
 
     @NotNull
     @Override
-    public JComponent createCustomComponent(final Presentation presentation) {
+    public JComponent createCustomComponent(@NotNull final Presentation presentation) {
         JPanel panel = new JPanel(new BorderLayout());
         //final JLabel label = new JLabel("Recall Selection");
         //label.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
@@ -87,7 +92,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
         return null;
     }
 
-    @SuppressWarnings("MethodMayBeStatic")
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canIncludeSelectionRange(Document document, Range range, Range exclusionRange) {
         return !(range.doesContain(exclusionRange) || exclusionRange.doesContain(range));
     }
@@ -246,7 +251,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         super.update(e);
 
         Editor editor = getEventEditor(e);

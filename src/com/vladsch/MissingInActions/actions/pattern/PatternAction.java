@@ -22,10 +22,10 @@
 package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.ui.UIUtil;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
@@ -73,7 +73,7 @@ public class PatternAction extends TextFieldAction {
     @Override
     public void update(@NotNull final AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean enabled = false;
 
         if (editor != null) {
@@ -84,6 +84,7 @@ public class PatternAction extends TextFieldAction {
                 presentation.setText(spawningHandler.getPattern());
             }
         }
+
         if (!enabled) {
             presentation.setText("RegEx");
         }
@@ -99,7 +100,7 @@ public class PatternAction extends TextFieldAction {
         Presentation presentation = e.getPresentation();
         String text = presentation.getText();
         if (text != null && !text.isEmpty()) {
-            final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+            final EditorEx editor = ActionUtils.getEditor(e);
             if (editor != null) {
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 final RangeLimitedCaretSpawningHandler spawningHandler = manager.getCaretSpawningHandler();

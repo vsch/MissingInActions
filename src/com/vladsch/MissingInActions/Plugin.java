@@ -64,7 +64,6 @@ import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
 import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
-import com.vladsch.plugin.util.AppRestartRequiredChecker;
 import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
 import com.vladsch.plugin.util.ui.ColorIterable;
@@ -630,7 +629,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         return myParameterHintsAvailable;
     }
 
-    @SuppressWarnings("FieldCanBeLocal")
     private static int license_features = 0;
 
     @NotNull public static final String productVersion = "0.1.0";

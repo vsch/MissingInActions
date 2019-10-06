@@ -761,7 +761,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 showOptionsAction.putValue(Action.SHORT_DESCRIPTION, Bundle.message("content-chooser.show-options.description"));
 
                 Action convertToCarets = new OkAction() {
-                    @SuppressWarnings("SerializableStoresNonSerializable")
                     @Override
                     protected void doAction(final ActionEvent e) {
                         convertSelectionToCarets();
@@ -774,7 +773,6 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                 convertToCaretsAction[0] = convertToCarets;
 
                 Action convertToLines = new OkAction() {
-                    @SuppressWarnings("SerializableStoresNonSerializable")
                     @Override
                     protected void doAction(final ActionEvent e) {
                         convertSelectionToLines();

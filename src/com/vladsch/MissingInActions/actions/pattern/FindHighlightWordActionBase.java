@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -32,6 +31,7 @@ import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditHelpers;
@@ -48,7 +48,7 @@ abstract public class FindHighlightWordActionBase extends AnAction implements Du
 
     @Nullable
     Integer find(final AnActionEvent e) {
-        EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor != null) {
             int offset = editor.getCaretModel().getOffset();
             TextRange range = myBackwardSearch ? findPrevious(editor, offset) : findNext(editor, offset);

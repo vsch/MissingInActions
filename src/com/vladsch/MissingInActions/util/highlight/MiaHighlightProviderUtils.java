@@ -38,7 +38,6 @@ public class MiaHighlightProviderUtils {
     }
 
     public static void subscribeSettingsChanged(HighlightProviderBase<ApplicationSettings> highlightProvider) {
-        //noinspection ThisEscapedInObjectConstruction
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(highlightProvider);
         messageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, settings1 -> highlightProvider.settingsChanged(getColors(settings1), settings1));
         highlightProvider.getDelayedRunner().addRunnable(messageBusConnection::disconnect);

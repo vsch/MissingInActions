@@ -48,7 +48,7 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         manager.guard(() -> {
             if (!editor.getCaretModel().supportsMultipleCarets()) {
-                perform(editor, manager, caret);
+                perform(editor, manager, caret != null ? caret : editor.getCaretModel().getPrimaryCaret());
             } else {
                 if (caret == null) {
                     editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, manager, caret1));
@@ -59,7 +59,7 @@ public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler
         });
     }
 
-    private void perform(Editor editor, LineSelectionManager manager, Caret caret) {
+    private static void perform(Editor editor, LineSelectionManager manager, Caret caret) {
         assert caret != null;
 
         if (caret.hasSelection()) {

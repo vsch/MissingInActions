@@ -23,12 +23,12 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
@@ -53,7 +53,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        EditorEx editor = getEditor(e);
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(true);
@@ -66,7 +66,9 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final EditorEx editor = getEditor(e);
+        final EditorEx editor = ActionUtils.getEditor(e);
+        if (editor == null) return;
+
         final CaretModel caretModel = editor.getCaretModel();
         if (caretModel.getCaretCount() > 1) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
@@ -112,9 +114,5 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                 EditHelpers.scrollToCaret(editor);
             });
         }
-    }
-
-    private static EditorEx getEditor(AnActionEvent e) {
-        return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
     }
 }

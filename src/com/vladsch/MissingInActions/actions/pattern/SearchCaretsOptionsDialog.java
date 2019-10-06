@@ -23,7 +23,13 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretState;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
@@ -43,7 +49,12 @@ import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -321,7 +332,9 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         CaretSpawningSearchHandler handler = new CaretSpawningSearchHandler(myBackwards.isSelected());
 
         LineSelectionManager manager = LineSelectionManager.getInstance(myViewer);
-        handler.copySettings((CaretSpawningSearchHandler) otherManager.getCaretSpawningHandler(), myViewer);
+        if (otherManager.getCaretSpawningHandler() != null) {
+            handler.copySettings((CaretSpawningSearchHandler) otherManager.getCaretSpawningHandler(), myViewer);
+        }
         handler.setCaseSensitive(myCaseSensitive.isSelected());
         handler.setCaretToEndGroup(myCaretToEndGroup.isSelected());
         handler.setPattern(myPattern.getText());

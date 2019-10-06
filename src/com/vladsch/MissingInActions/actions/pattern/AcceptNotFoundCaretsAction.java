@@ -74,7 +74,7 @@ public class AcceptNotFoundCaretsAction extends EditorAction implements CaretSea
                     List<CaretState> keepCarets = new ArrayList<>(caretStates.size() - startMatchedCarets.size());
 
                     for (CaretState caretState : caretStates) {
-                        if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caretState.getCaretPosition()))) continue;
+                        if (excludeList != null && caretState.getCaretPosition() != null && excludeList.contains(CaretEx.getCoordinates(caretState.getCaretPosition()))) continue;
                         keepCarets.add(caretState);
                     }
 

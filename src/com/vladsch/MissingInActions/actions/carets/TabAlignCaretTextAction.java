@@ -33,7 +33,6 @@ import com.intellij.application.options.CodeStyle;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
@@ -48,6 +47,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
@@ -72,7 +72,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        EditorEx editor = getEditor(e);
+        EditorEx editor = ActionUtils.getEditor(e);
         if (editor == null || editor.isOneLineMode()) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(true);
@@ -85,7 +85,9 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        final EditorEx editor = getEditor(e);
+        final EditorEx editor = ActionUtils.getEditor(e);
+        if (editor == null) return;
+
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();
         final BasedSequence chars = BasedSequenceImpl.of(doc.getCharsSequence());
@@ -143,9 +145,5 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                 });
             }
         }
-    }
-
-    private static EditorEx getEditor(AnActionEvent e) {
-        return (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
     }
 }

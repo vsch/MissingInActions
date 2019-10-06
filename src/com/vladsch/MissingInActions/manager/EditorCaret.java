@@ -578,6 +578,7 @@ public class EditorCaret implements EditorCaretSnapshot {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     @NotNull
     public EditorCaret expandToFullLines() {
         if (!myIsLine && hasSelection()) {
@@ -596,7 +597,7 @@ public class EditorCaret implements EditorCaretSnapshot {
      *
      * @return this
      */
-    @SuppressWarnings({ "SameParameterValue", "ConstantConditions" })
+    @SuppressWarnings({ "SameParameterValue" })
     @NotNull
     public EditorCaret normalizeCaretPosition() {
         if (myIsLine) {
@@ -818,14 +819,18 @@ public class EditorCaret implements EditorCaretSnapshot {
     public Document getDocument() { return myFactory.getDocument(); }
 
     @NotNull
-    public Project getProject() { return getEditor().getProject(); }
+    public Project getProject() {
+        Project project = getEditor().getProject();
+        assert project != null;
+        return project;
+    }
 
     @NotNull
-    public EditorPosition adjustIndentRelative(EditorPosition position, int preservedColumn, int preservedIndent) {
+    public static EditorPosition adjustIndentRelative(EditorPosition position, int preservedColumn, int preservedIndent) {
         return adjustIndentRelative(position, position.getIndentColumn(), preservedColumn, preservedIndent);
     }
 
-    public EditorPosition adjustIndentRelative(EditorPosition position, int ourIndent, int preservedColumn, int preservedIndent) {
+    public static EditorPosition adjustIndentRelative(EditorPosition position, int ourIndent, int preservedColumn, int preservedIndent) {
         return position.atColumn(ourIndent + (preservedColumn - preservedIndent));
     }
 

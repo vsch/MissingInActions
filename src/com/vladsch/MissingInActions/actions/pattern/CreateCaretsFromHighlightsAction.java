@@ -23,7 +23,6 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
@@ -34,6 +33,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorCaretState;
@@ -49,8 +49,8 @@ public class CreateCaretsFromHighlightsAction extends AnAction implements LineSe
     }
 
     @Override
-    public void update(final AnActionEvent e) {
-        final EditorEx editor = (EditorEx) CommonDataKeys.EDITOR.getData(e.getDataContext());
+    public void update(@NotNull final AnActionEvent e) {
+        final EditorEx editor = ActionUtils.getEditor(e);
         boolean enabled = false;
         boolean selected = false;
 
