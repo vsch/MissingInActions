@@ -140,6 +140,10 @@ public class EditorCaret implements EditorCaretSnapshot {
         return myCaret;
     }
 
+    public boolean isValid() {
+        return myCaret.isValid();
+    }
+
     /**
      * @param factory editor caret factory
      * @param caret   caret
@@ -149,7 +153,7 @@ public class EditorCaret implements EditorCaretSnapshot {
         myCaret = caret;
 
         // first, get caret's view of the world
-        myCaretPosition = myFactory.fromPosition(caret.getLogicalPosition());
+        myCaretPosition = myFactory.fromPosition(myCaret.getLogicalPosition());
         mySelectionStart = myFactory.fromOffset(myCaret.getSelectionStart());
         mySelectionEnd = myFactory.fromOffset(myCaret.getSelectionEnd());
 
@@ -274,12 +278,12 @@ public class EditorCaret implements EditorCaretSnapshot {
                 normalizeCaretPosition();
 
                 toLineSelection();
-                normalizeCaretPosition();
             } else {
                 setAnchorColumn(getCaretPosition());
                 setIsStartAnchor(isStartAnchor);
-                normalizeCaretPosition();
             }
+
+            normalizeCaretPosition();
         }
         return this;
     }
@@ -312,38 +316,42 @@ public class EditorCaret implements EditorCaretSnapshot {
      */
     @SuppressWarnings("SameParameterValue")
     public void commit(boolean scrollToCaret) {
-        myFactory.getManager().guard(() -> {
-            // validate caret first
-            if (myCaret.isValid()) {
-                if (!myCaretPosition.equals(myCaret.getLogicalPosition())) {
-                    myCaret.moveToLogicalPosition(myCaretPosition);
-                    if (scrollToCaret) scrollToCaret();
-                }
+        if (myCaret.isValid()) {
+            myFactory.getManager().guard(() -> {
+                // validate caret first
+                if (myCaret.isValid()) {
+                    if (!myCaretPosition.equals(myCaret.getLogicalPosition())) {
+                        myCaret.moveToLogicalPosition(myCaretPosition);
+                        if (scrollToCaret) scrollToCaret();
+                    }
 
-                if (myIsLine && (mySelectionStart.column != 0 || mySelectionEnd.column != 0)) {
-                    mySelectionStart = getLineSelectionStart();
-                    mySelectionEnd = getLineSelectionEnd();
-                    normalizeCaretPosition();
-                }
+                    if (myIsLine && (mySelectionStart.column != 0 || mySelectionEnd.column != 0)) {
+                        mySelectionStart = getLineSelectionStart();
+                        mySelectionEnd = getLineSelectionEnd();
+                        normalizeCaretPosition();
+                    }
 
-                int startOffset = mySelectionStart.getOffset();
-                int endOffset = mySelectionEnd.getOffset();
-                if (startOffset != myCaret.getSelectionStart() || endOffset != myCaret.getSelectionEnd()) {
-                    myCaret.setSelection(startOffset, endOffset);
-                }
+                    int startOffset = mySelectionStart.getOffset();
+                    int endOffset = mySelectionEnd.getOffset();
+                    if (startOffset != myCaret.getSelectionStart() || endOffset != myCaret.getSelectionEnd()) {
+                        myCaret.setSelection(startOffset, endOffset);
+                    }
 
-                commitState();
-            }
-        });
+                    commitState();
+                }
+            });
+        }
     }
 
     /**
      * Scroll to caret position if it is the primary caret
      */
     public void scrollToCaret() {
-        Editor editor = myFactory.getEditor();
-        if (myCaret == editor.getCaretModel().getPrimaryCaret()) {
-            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        if (myCaret.isValid()) {
+            Editor editor = myFactory.getEditor();
+            if (myCaret == editor.getCaretModel().getPrimaryCaret()) {
+                editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+            }
         }
     }
 

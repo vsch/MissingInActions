@@ -127,7 +127,7 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     // Helpers
     @NotNull
     public CaretSnapshot restoreColumn() {
-        if (!myCaret.getEditor().getSettings().isUseSoftWraps()) {
+        if (myCaret.isValid() && !myCaret.getEditor().getSettings().isUseSoftWraps()) {
             myCaret.moveToLogicalPosition(new LogicalPosition(myCaret.getLogicalPosition().line, get(COLUMN)));
         }
         return this;
@@ -141,7 +141,9 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     @NotNull
     @Override
     public CaretSnapshot removeSelection() {
-        myCaret.removeSelection();
+        if (myCaret.isValid()) {
+            myCaret.removeSelection();
+        }
         return this;
     }
 }
