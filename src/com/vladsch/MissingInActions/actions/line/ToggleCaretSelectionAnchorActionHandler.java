@@ -31,57 +31,37 @@ package com.vladsch.MissingInActions.actions.line;
 
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.manager.EditorCaretList;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ToggleCaretSelectionAnchorActionHandler extends EditorActionHandler {
     public ToggleCaretSelectionAnchorActionHandler() {
-        super(true);
+        super(false);
     }
 
     @Override
     public void doExecute(@NotNull final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
+        assert caret == null : "Action for specific caret not supported";
         manager.guard(() -> {
-            if (!editor.getCaretModel().supportsMultipleCarets()) {
-                perform(editor, manager, caret != null ? caret : editor.getCaretModel().getPrimaryCaret());
+            CaretModel caretModel = editor.getCaretModel();
+            if (!caretModel.supportsMultipleCarets()) {
+                EditorCaret editorCaret = manager.getEditorCaret(caretModel.getPrimaryCaret());
+                editorCaret.setStartAnchor(!editorCaret.isStartAnchor());
+                editorCaret.commit(true);
             } else {
-                if (caret == null) {
-                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, manager, caret1));
-                } else {
-                    perform(editor, manager, caret);
-                }
+                // make all carets go to same anchor start/end
+                EditorCaretList editorCarets = manager.getEditorCaretList();
+                boolean allStartAnchor = editorCarets.all(editorCaret -> editorCaret.hasSelection() && editorCaret.isStartAnchor());
+                editorCarets.forEach(editorCaret -> editorCaret.setStartAnchor(!allStartAnchor));
+                editorCarets.commit(true, false, true);
             }
         });
-    }
-
-    private static void perform(Editor editor, LineSelectionManager manager, Caret caret) {
-        assert caret != null;
-
-        if (caret.hasSelection()) {
-            EditorCaret editorCaret = manager.getEditorCaret(caret);
-            if (editorCaret.getSelectionLineCount() > 1) {
-                int column = editorCaret.getCaretPosition().column;
-                editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-                if (column != 0 && editorCaret.getCaretPosition().column == 0) {
-                    editorCaret.restoreColumn(column);
-                }
-                editorCaret.commit();
-            } else {
-                // swap start/end
-                int startOffset = caret.getSelectionStart();
-                int endOffset = caret.getSelectionEnd();
-                if (caret.getLeadSelectionOffset() == caret.getSelectionStart()) {
-                    caret.moveToOffset(startOffset);
-                } else {
-                    caret.moveToOffset(endOffset);
-                }
-                caret.setSelection(endOffset, startOffset);
-            }
-        }
     }
 }

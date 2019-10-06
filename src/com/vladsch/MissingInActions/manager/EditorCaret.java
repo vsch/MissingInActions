@@ -58,6 +58,10 @@ public class EditorCaret implements EditorCaretSnapshot {
     // *
     // * EditorCaretSnapshot
     // *
+
+    /**
+     * @return true if caret.getLeadSelectionOffset() == caret.getSelectionStart()
+     */
     @Override
     public boolean isStartAnchor() { return myIsStartAnchor; }
 
@@ -142,6 +146,10 @@ public class EditorCaret implements EditorCaretSnapshot {
 
     public boolean isValid() {
         return myCaret.isValid();
+    }
+
+    public boolean isPrimary() {
+        return myCaret.isValid() && myCaret == myCaret.getEditor().getCaretModel().getPrimaryCaret();
     }
 
     /**
@@ -591,6 +599,34 @@ public class EditorCaret implements EditorCaretSnapshot {
     //*
     //*  Selection Start/End Expanded Handling
     //*
+
+    /**
+     * Set selection anchor to start/end of selection
+     * underlying caret not changed until commit()
+     *
+     * @param isStartAnchor    true if startSelection to be the lead offset, false for endSelection to be lead offset
+     */
+    public EditorCaret setStartAnchor(boolean isStartAnchor) {
+        if (hasSelection()) {
+            if (getSelectionLineCount() > 1) {
+                int column = getCaretPosition().column;
+
+                setIsStartAnchorUpdateAnchorColumn(!isStartAnchor);
+                if (column != 0 && getCaretPosition().column == 0) {
+                    restoreColumn(column);
+                }
+            } else {
+                if (!isStartAnchor && isStartAnchor()) {
+                    setCaretPosition(getSelectionStart());
+                } else if (!isStartAnchor()) {
+                    setCaretPosition(getSelectionEnd());
+                }
+
+                setIsStartAnchor(isStartAnchor);
+            }
+        }
+        return this;
+    }
 
     /**
      * Set the caret position to reflect the current selection and selection extension options if it is a line selection

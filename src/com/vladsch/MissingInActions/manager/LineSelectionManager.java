@@ -682,6 +682,11 @@ public class LineSelectionManager implements
     }
 
     @NotNull
+    public EditorCaretList getEditorCaretList() {
+        return new EditorCaretList(this, myEditor.getCaretModel().getAllCarets());
+    }
+
+    @NotNull
     private StoredLineSelectionState getStoredSelectionState(@NotNull Caret caret) {
         if (caret == caret.getCaretModel().getPrimaryCaret()) {
             return myPrimarySelectionState;
