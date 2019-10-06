@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.17 - Bug Fix Release & Enhancement Release](#17517---bug-fix-release--enhancement-release)
+- [1.7.5.19 - Bug Fix Release & Enhancement Release](#17519---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -91,11 +91,9 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.17 - Bug Fix Release & Enhancement Release
+### 1.7.5.19 - Bug Fix Release & Enhancement Release
 
-* [ ] Fix: keep carets actions should automatically convert selection to carets before their
-      operation. ie. Smart Keep Line carets should convert selection to line selection then to
-      caret and perform its operation.
+* Fix: keep/remove carets actions to convert selection to carets before their operation.
 * Fix: caret invalidation causing caret invalid assertion failure.
 * Highlighted word actions:
   * Fix: automatically turn on words highlight mode when adding a highlighted word
