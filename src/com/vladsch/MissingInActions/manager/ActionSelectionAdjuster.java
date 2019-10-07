@@ -914,16 +914,24 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                             if (value != -1) {
                                 boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
                                         .to(CaretAdjustmentType.TO_START, () -> {
-                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                            if (editorCaret.isLine()) {
+                                                editorCaret.setStartAnchor(false);
+                                            } else {
+                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                            }
                                         })
                                         .to(CaretAdjustmentType.TO_END, () -> {
-                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                            if (editorCaret.isLine()) {
+                                                editorCaret.setStartAnchor(true);
+                                            } else {
+                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                            }
                                         })
-                                        .to(CaretAdjustmentType.TO_ANCHOR, () -> {
-                                        })
-                                        .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
-                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-                                        })
+//                                        .to(CaretAdjustmentType.TO_ANCHOR, () -> {
+//                                        })
+//                                        .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
+//                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
+//                                        })
                                 );
 
                                 editorCaret.commit();

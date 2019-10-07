@@ -2,12 +2,13 @@
 <project version="4">
   <component name="MarkdownEnhProjectSettings">
     <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
+    <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
     <AnnotatorSettings targetHasSpaces="false" linkCaseMismatch="false" wikiCaseMismatch="false" wikiLinkHasDashes="false" notUnderWikiHome="false" targetNotWikiPageExt="false" notUnderSourceWikiHome="false" targetNameHasAnchor="false" targetPathHasAnchor="false" wikiLinkHasSlash="false" wikiLinkHasSubdir="false" wikiLinkHasOnlyAnchor="false" linkTargetsWikiHasExt="false" linkTargetsWikiHasBadExt="false" notUnderSameRepo="false" targetNotUnderVcs="false" linkNeedsExt="false" linkHasBadExt="false" linkTargetNeedsExt="false" linkTargetHasBadExt="false" wikiLinkNotInWiki="false" imageTargetNotInRaw="false" repoRelativeAcrossVcsRoots="false" multipleWikiTargetsMatch="false" unresolvedLinkReference="false" linkIsIgnored="false" anchorIsIgnored="false" anchorIsUnresolved="false" anchorLineReferenceIsUnresolved="false" anchorLineReferenceFormat="false" anchorHasDuplicates="false" abbreviationDuplicates="false" abbreviationNotUsed="false" attributeIdDuplicateDefinition="false" attributeIdNotUsed="false" footnoteDuplicateDefinition="false" footnoteUnresolved="false" footnoteDuplicates="false" footnoteNotUsed="false" macroDuplicateDefinition="false" macroUnresolved="false" macroDuplicates="false" macroNotUsed="false" referenceDuplicateDefinition="false" referenceUnresolved="false" referenceDuplicates="false" referenceNotUsed="false" referenceUnresolvedNumericId="false" enumRefDuplicateDefinition="false" enumRefUnresolved="false" enumRefDuplicates="false" enumRefNotUsed="false" enumRefLinkUnresolved="false" enumRefLinkDuplicates="false" simTocUpdateNeeded="false" simTocTitleSpaceNeeded="false" />
     <HtmlExportSettings updateOnSave="false" parentDir="$ProjectFileDir$" targetDir="$ProjectFileDir$" cssDir="$ProjectFileDir$/css" scriptDir="$ProjectFileDir$/js" plainHtml="false" imageDir="$ProjectFileDir$/img" copyLinkedImages="false" imagePathType="0" targetPathType="2" targetExt="" useTargetExt="false" noCssNoScripts="false" useElementStyleAttribute="false" linkToExportedHtml="true" exportOnSettingsChange="true" regenerateOnProjectOpen="false" linkFormatType="HTTP_ABSOLUTE" />
   </component>
   <component name="MarkdownExportedFiles">
     <htmlFiles>
-      <exportedFile path="$PROJECT_DIR$/assets/docs/plugin-description.html" settingsVersion="CF6B5AAF-0A71658D" />
+      <exportedFile path="$PROJECT_DIR$/assets/docs/plugin-description.html" settingsVersion="CF6B5AAF-C471658D" />
     </htmlFiles>
     <imageFiles />
     <otherFiles />

@@ -31,8 +31,8 @@ public enum CaretAdjustmentType implements ComboBoxAdaptable<CaretAdjustmentType
     NONE(0, Bundle.message("settings.line-selection.caret-adjustment.none")),
     TO_START(1, Bundle.message("settings.line-selection.caret-adjustment.to-start")),
     TO_END(2, Bundle.message("settings.line-selection.caret-adjustment.to-end")),
-    TO_ANCHOR(3, Bundle.message("settings.line-selection.caret-adjustment.to-anchor")),
-    TO_ANTI_ANCHOR(4, Bundle.message("settings.line-selection.caret-adjustment.to-anti-anchor")),
+//    TO_ANCHOR(3, Bundle.message("settings.line-selection.caret-adjustment.to-anchor")),
+//    TO_ANTI_ANCHOR(4, Bundle.message("settings.line-selection.caret-adjustment.to-anti-anchor")),
     ;
 
     public final int intValue;

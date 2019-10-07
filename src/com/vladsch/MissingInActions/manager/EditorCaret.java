@@ -611,8 +611,8 @@ public class EditorCaret implements EditorCaretSnapshot {
             if (getSelectionLineCount() > 1) {
                 int column = getCaretPosition().column;
 
-                setIsStartAnchorUpdateAnchorColumn(!isStartAnchor);
-                if (column != 0 && getCaretPosition().column == 0) {
+                setIsStartAnchorUpdateAnchorColumn(isStartAnchor);
+                if (column != getCaretPosition().column) {
                     restoreColumn(column);
                 }
             } else {

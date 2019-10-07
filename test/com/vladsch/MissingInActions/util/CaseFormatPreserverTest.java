@@ -117,7 +117,9 @@ public class CaseFormatPreserverTest {
     @Test
     public void test_Basic() throws Exception {
         final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.CAMEL;
-        String s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
+        String s;
+
+        s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName\n", s);
 
         s = preserved("   int | abc\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
@@ -269,14 +271,34 @@ public class CaseFormatPreserverTest {
 
         s = preserved("Test.[Toggle_case_word]|\n", "ToggleSmartSelect", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("Test.Toggle_smart_select\n", s);
+
+        s = preserved("Test.[getIsTask]()|\n", "isStart", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.getIsStart()\n", s);
+
+        s = preserved("Test.[isTask]()|\n", "myIsStart", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.isStart()\n", s);
+    }
+
+    @Test
+    public void test_Basic2() throws Exception {
+        final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.CAMEL;
+        String s;
+    }
+
+    @Test
+    public void test_Regex2() throws Exception {
+        final String[] prefixes = regexPrefixes;
+        final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.REGEX;
+        String s;
     }
 
     @Test
     public void test_Regex() throws Exception {
         final String[] prefixes = regexPrefixes;
         final PrefixOnPastePatternType patternType = PrefixOnPastePatternType.REGEX;
+        String s;
 
-        String s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
+        s = preserved("   int |\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
         assertEquals("   int myName\n", s);
 
         s = preserved("   int | abc\n", "myName", true, true, true, true, true, true, true, true, patternType, prefixes);
@@ -416,6 +438,21 @@ public class CaseFormatPreserverTest {
 
         s = preserved("[oldPhpName]|\n", "$newPhpName", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
         assertEquals("newPhpName\n", s);
+
+        s = preserved("[name.with.parts]|", "nameTestParts", true, true, true, true, true, true, true, true, patternType, regexPhpPrefixes);
+        assertEquals("name.test.parts", s);
+
+        s = preserved("boolean [settingsExtension]|\n", "projectSettingsExtension", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("boolean projectSettingsExtension\n", s);
+
+        s = preserved("Test.[Toggle_case_word]|\n", "ToggleSmartSelect", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.Toggle_smart_select\n", s);
+
+        s = preserved("Test.[getIsTask]()|\n", "isStart", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.getIsStart()\n", s);
+
+        s = preserved("Test.[isTask]()|\n", "myIsStart", true, true, true, true, true, true, true, true, patternType, prefixes);
+        assertEquals("Test.isStart()\n", s);
     }
 
     @Test

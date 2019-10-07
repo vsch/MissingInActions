@@ -6,7 +6,7 @@
           <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
         </PanelProvider>
       </PreviewSettings>
-      <ParserSettings gitHubSyntaxChange="false" emojiShortcuts="3" emojiImages="2">
+      <ParserSettings gitHubSyntaxChange="false" emojiShortcuts="3" emojiImages="0">
         <PegdownExtensions>
           <option name="ABBREVIATIONS" value="false" />
           <option name="ANCHORLINKS" value="false" />
@@ -110,6 +110,12 @@ code {
     padding:1px 0 1px 0;
     border: solid 1px #52CC7A;
     background-color: #B5FFCE;
+}
+
+img.emoji {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle /*text-bottom*/;
 }</cssText>
         <cssUriHistory>
           <option name="file://$PROJECT_DIR$/../sites/public/mn-resources/admonition.css" />
@@ -121,7 +127,7 @@ code {
         <textMaps />
       </LinkMapSettings>
       <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
-      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
+      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="-1" />
     </option>
   </profile>
 </component>

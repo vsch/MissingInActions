@@ -30,9 +30,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-import static com.vladsch.MissingInActions.util.EditHelpers.*;
+import static com.vladsch.MissingInActions.util.EditHelpers.WORD_IDENTIFIER;
+import static com.vladsch.MissingInActions.util.EditHelpers.isHumpBoundIdentifier;
+import static com.vladsch.MissingInActions.util.EditHelpers.isIdentifier;
+import static com.vladsch.MissingInActions.util.EditHelpers.isIdentifierEnd;
+import static com.vladsch.MissingInActions.util.EditHelpers.isIdentifierStart;
+import static com.vladsch.MissingInActions.util.EditHelpers.isWordEnd;
+import static com.vladsch.MissingInActions.util.EditHelpers.isWordStart;
 import static com.vladsch.plugin.util.StudiedWord.UPPER;
-import static java.lang.Character.*;
+import static java.lang.Character.isAlphabetic;
+import static java.lang.Character.isLowerCase;
+import static java.lang.Character.isUpperCase;
 
 @SuppressWarnings({ "WeakerAccess", "UnusedReturnValue", "SameParameterValue" })
 public class InsertedRangeContext {
@@ -96,6 +104,15 @@ public class InsertedRangeContext {
         myStudiedWord = StudiedWord.of(myWord, mySeparators);
         myCaretDelta = 0;
         myPrefixRemoved = false;
+    }
+
+    @Override
+    public String toString() {
+        return "InsertedRangeContext{" +
+                "myWord='" + myWord + '\'' +
+                ", myCaretDelta=" + myCaretDelta +
+                ", myPrefixRemoved=" + myPrefixRemoved +
+                '}';
     }
 
     public int getCaretDelta() {
@@ -209,12 +226,22 @@ public class InsertedRangeContext {
         return type.getMatched(myWord, prefixList);
     }
 
-    public boolean addPrefixOrReplaceMismatchedPrefix(final PrefixOnPastePatternType prefixType, final String prefix, final @Nullable String[] prefixList) {
-        if (!prefix.isEmpty()) {
+    public String getSecondMatchedPrefix(final PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList) {
+        PrefixOnPastePatternType type = prefixType == null ? PrefixOnPastePatternType.CAMEL : prefixType;
+        String matched = type.getMatched(myWord.substring(0, 1).toLowerCase() + myWord.substring(1), prefixList);
+        if (!matched.isEmpty()) {
+            // replace the word
+            myWord = matched + myWord.substring(matched.length());
+        }
+        return matched;
+    }
+
+    public boolean addPrefixOrReplaceMismatchedPrefix(final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String prefix, final @Nullable String[] prefixList, @Nullable String secondPrefix) {
+        if (prefix != null && !prefix.isEmpty()) {
             PrefixOnPastePatternType type = prefixType == null ? PrefixOnPastePatternType.CAMEL : prefixType;
             if (!myPrefixRemoved) {
                 String matched = type.getMatched(myWord, prefixList);
-                if (matched.isEmpty()) {
+                if (matched.isEmpty() || (secondPrefix != null && !secondPrefix.isEmpty() && matched.equals(secondPrefix))) {
                     // no prefix, we add
                     prefixWithCamelCase(prefix);
                     return true;

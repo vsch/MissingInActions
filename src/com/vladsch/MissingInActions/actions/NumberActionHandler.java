@@ -149,7 +149,7 @@ public class NumberActionHandler extends EditorActionHandler {
             if (editorCaret.getSelectionLineCount() > 1) {
                 int column = editorCaret.getCaretPosition().column;
                 editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-                if (column != 0 && editorCaret.getCaretPosition().column == 0) {
+                if (column != editorCaret.getCaretPosition().column) {
                     editorCaret.restoreColumn(column);
                 }
                 editorCaret.commit();

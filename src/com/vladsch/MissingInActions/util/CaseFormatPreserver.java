@@ -60,6 +60,7 @@ public class CaseFormatPreserver {
     private boolean toUpperCase;
     private boolean hadStartOfWord;
     private String hadWordWithPrefix;
+    private String hadWordWithSecondPrefix;
     private boolean hadSelection;
 
     public CaseFormatPreserver() {
@@ -86,6 +87,7 @@ public class CaseFormatPreserver {
         toUpperCase = false;
         hadStartOfWord = false;
         hadWordWithPrefix = "";
+        hadWordWithSecondPrefix = "";
         hadSelection = false;
     }
 
@@ -182,7 +184,6 @@ public class CaseFormatPreserver {
                 } else if (w.isCamelCase() || w.only(LOWER | DIGITS) && w.first(LOWER)) {
                     toCamelCase = true;
                 }
-                hadWordWithPrefix = w.getMatchedPrefix(patternType, prefixList);
             } else {
                 if (w.isSnakeCase() || w.isDashCase() || w.isDotCase() || w.isSlashCase()) {
                     w.makeProperCamelCase();
@@ -195,7 +196,12 @@ public class CaseFormatPreserver {
                 } else if (w.only(UPPER | DIGITS) && w.first(UPPER)) {
                     toUpperCase = true;
                 }
-                hadWordWithPrefix = w.getMatchedPrefix(patternType, prefixList);
+            }
+            hadWordWithPrefix = w.getMatchedPrefix(patternType, prefixList);
+            if (!hadWordWithPrefix.isEmpty()) {
+                // see if has second prefix
+                InsertedRangeContext s = new InsertedRangeContext(chars, beforeOffset + hadWordWithPrefix.length(), afterOffset, separators);
+                hadWordWithSecondPrefix = s.getSecondMatchedPrefix(patternType, prefixList);
             }
         } else {
             hadStartOfWord = w.isWordStartAtStart;
@@ -314,7 +320,7 @@ public class CaseFormatPreserver {
 
                 String matchedPrefix = i.getMatchedPrefix(patternType, prefixList);
                 if (!matchedPrefix.isEmpty() && removePrefix) {
-                    if (hadWordWithPrefix.equals(matchedPrefix)) {
+                    if (hadWordWithPrefix.equals(matchedPrefix) || hadWordWithSecondPrefix.equals(matchedPrefix)) {
                         // leave the prefix
                     } else {
                         // won't be replaced by add, we remove it here
@@ -322,6 +328,13 @@ public class CaseFormatPreserver {
                         // but need to remove non-letter prefixes if so requested
                         if (i.studiedWord().only(UPPER | LOWER | DIGITS) || !StudiedWord.of(matchedPrefix, separators).only(UPPER | LOWER | DIGITS | UNDER)) {
                             i.removePrefixesOnce(patternType, prefixList);
+
+                            String secondPrefix = i.getSecondMatchedPrefix(patternType, prefixList);
+                            if (hadWordWithPrefix.equals(secondPrefix) && !hadWordWithSecondPrefix.equals(secondPrefix)) {
+                                // remove the second prefix, it doubles as first
+                                i.setPrefixRemoved(false);
+                                i.removePrefixesOnce(patternType, prefixList);
+                            }
                         }
                     }
                 }
@@ -365,7 +378,7 @@ public class CaseFormatPreserver {
                             }
                         }
 
-                        if (addPrefix && hadStartOfWord && !hadWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(patternType, hadWordWithPrefix, prefixList)) {
+                        if (addPrefix && hadStartOfWord && !hadWordWithPrefix.isEmpty() && i.addPrefixOrReplaceMismatchedPrefix(patternType, hadWordWithPrefix, prefixList, hadWordWithSecondPrefix)) {
                             // prefix replaced
                         } else if (startWasUpperCase && i.isLowerCaseAtStart()) {
                             if (removePrefix) {

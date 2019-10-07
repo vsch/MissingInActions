@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.21 - Bug Fix Release & Enhancement Release](#17521---bug-fix-release--enhancement-release)
+- [1.7.5.25 - Bug Fix Release & Enhancement Release](#17525---bug-fix-release--enhancement-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
 - [1.7.0 - Enhancement Release](#170---enhancement-release)
@@ -54,19 +54,10 @@
 
 * [ ] Add: status bar with information about selection: lines, code, comment and blank line
       count.
-* [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
-      already on code lines then remove those whose code lines contain nothing but brackets,
-      parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
-      require editing without changing the selection to remove carets from lines that contain
-      only context and termination elements.
 * [ ] Add: per language configuration of what constitutes an identifier character set to
       override Java default for custom word actions for languages other than Java (dynamically
       based on file language type)
-* [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
-      indent.
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
-* [ ] Add: option and functionality to change duplicate lines action to only operate on a line
-      once even if there are many carets present on that line.
 
 &nbsp;</details>
 
@@ -78,25 +69,37 @@
       is already on last line or using line mouse selection.
 * [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
-* [ ] Add: save highlight state local settings to restore on IDE startup
-* [ ] Add: save isolation ranges in editor state
-* [ ] Add: export/import a single profile to batch search/replace management as opposed to all
-      profiles. Keeping all profiles per project and importing/exporting a single profile
-      between projects is useful.
-  * [ ] Add: copy profile under a new name and/or to another open project batch search window,
-        with overwrite prompting.
 * [ ] Add: batch search/replace:
+  * [ ] Add: export/import a single profile to batch search/replace management as opposed to all
+        profiles. Keeping all profiles per project and importing/exporting a single profile
+        between projects is useful.
+    * [ ] Add: copy profile under a new name and/or to another open project batch search window,
+          with overwrite prompting.
   * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
         both of these colored with the same colors to allow using color alignment for validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.21 - Bug Fix Release & Enhancement Release
+### 1.7.5.25 - Bug Fix Release & Enhancement Release
 
-* Fix: toggle direction of selection to always set all directions to same orientation.
-* Fix: keep/remove carets actions to convert selection to carets before their operation.
-* Fix: caret invalidation causing caret invalid assertion failure.
+* [ ] Add: save highlight state to local settings to restore on IDE startup
+* [ ] Add: save isolation ranges in editor state
+* [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
+      carets are already on code lines then remove those whose code lines contain nothing but
+      brackets, parentheses, braces, commas and semicolons. This will allow to quickly isolate
+      lines that require editing without changing the selection to remove carets from lines that
+      contain only context and termination elements.
+* [ ] :red_circle: Add: option and functionality to change duplicate lines action to only
+      operate on a line once even if there are many carets present on that line.
+* [ ] :red_circle: Fix: backspace to line indent should backspace to beginning of line if at or
+      before indent.
 * Highlighted word actions:
+  * [ ] :red_circle: Add: highlight words from Clipboard selected carets (should use history
+        dialog with just a button that will use caret data for highlights).
+  * [ ] :red_circle: Add: Sort highlighted word colors (by their content case
+        sensitive/insensitive/
+  * [ ] :red_circle: Add: Copy highlighted words in file/selection, to copy as caret selections
+        all unique highlights which are present in the current file to the clipboard.
   * Fix: automatically turn on words highlight mode when adding a highlighted word
   * Add: Select highlighted words in file or current selection to create multi-caret selection
     from highlighted words. Will use document, single selection or multi-caret selection for
@@ -107,11 +110,20 @@
     line for visual validation elsewhere. A limitation is that a word pattern can only have one
     color associated with it, so multiple tandem color of the same word will result it in being
     the last tandem color assigned.
-  * [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
-        a button that will use caret data for highlights).
-  * [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
-  * [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
-        highlights which are present in the current file to the clipboard.
+* Fix: preserve on paste to properly handle double prefix and not remove:
+  * paste `isStart` on `getIsTask` should result in `getIsStart` not `getStart`
+  * paste `myIsStart` on `isTask` should result in `isStart` not `isIsStart`
+* Fix: move line selection up/down with:
+  * No change: column changes to 0 when caret at start of line (caused by exception in update
+    after move line handler in IDE injected language parsing)
+  * To start/To End: column changes between start/end because it did not distinguish between
+    line/non-line selections.
+  * Remove: anchor/anti-anchor settings, they don't make sense and make the caret toggle with
+    every move.
+* Fix: toggle direction of selection to set all directions to same orientation, if different
+  orientations set all to end.
+* Fix: keep/remove carets actions to convert selection to carets before their operation.
+* Fix: caret invalidation causing caret invalid assertion failure.
 * Fix: search spawn without matching all numeric patterns needs to respect begin/end word
   constraints of the caret position if it would be a numeric search if spawn numeric was
   enabled. ie. search forward from `|` in `2.9.0.5|7/2.9.7.57` should result in
