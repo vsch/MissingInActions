@@ -1,6 +1,6 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="Version" profileName="Version" havePreviewSettings="false" haveParserSettings="true" haveHtmlSettings="false" haveHtmlExportSettings="false" haveLinkMapSettings="false">
+    <option name="myName" value="Version" profileName="Version" havePreviewSettings="false" haveParserSettings="true" haveHtmlSettings="true" haveHtmlExportSettings="false" haveLinkMapSettings="false">
       <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="1" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="false" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
@@ -76,7 +76,7 @@
       </HtmlSettings>
       <CssSettings previewScheme="UI_SCHEME" cssUri="" isCssUriEnabled="false" isCssUriSerial="true" isCssTextEnabled="true" isDynamicPageWidth="true">
         <StylesheetProvider>
-          <provider providerId="com.vladsch.idea.multimarkdown.editor.swing.html.css" providerName="Default Swing Stylesheet" />
+          <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.css" providerName="Default JavaFx Stylesheet" />
         </StylesheetProvider>
         <ScriptProviders>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.hljs.html.script" providerName="HighlightJS Script" />
@@ -110,12 +110,6 @@ code {
     padding:1px 0 1px 0;
     border: solid 1px #52CC7A;
     background-color: #B5FFCE;
-}
-
-img.emoji {
-    width: 1.1em;
-    height: 1.1em;
-    vertical-align: middle /*text-bottom*/;
 }</cssText>
         <cssUriHistory>
           <option name="file://$PROJECT_DIR$/../sites/public/mn-resources/admonition.css" />

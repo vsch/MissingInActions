@@ -82,7 +82,7 @@
 
 ### 1.7.5.25 - Bug Fix Release & Enhancement Release
 
-* [ ] :red_circle: Add: save highlight state to local settings to restore on IDE startup
+* [ ] :red_circle: Add: save highlight state to local settings to restore on IDE startup.
 * [ ] :red_circle: Add: save isolation ranges in editor state
 * [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
       carets are already on code lines then remove those whose code lines contain nothing but

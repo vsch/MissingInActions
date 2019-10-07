@@ -88,7 +88,7 @@
         <textMaps />
       </LinkMapSettings>
       <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
-      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
+      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="-1" />
     </option>
   </profile>
 </component>

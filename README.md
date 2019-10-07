@@ -1,5 +1,5 @@
-<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/Mia_logo@2x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
-================================================================================================================================================================================================
+<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
+====================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].** or
 [Download Latest 1.7.4 from this repo]
@@ -20,8 +20,8 @@
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
-* Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
-  previous selection from a list.
+* [ ] Automatic Selection stack, stores last 5 selections by default. Recall last selection or
+      any previous selection from a list.
 
 * Isolate Lines mode to make a group of lines stand out from the rest. Handy way to isolate a
   copy of existing method for modification and not accidentally modify the original text instead
@@ -79,8 +79,8 @@ Adds missing editor actions for end of word navigation but that is just the begi
   * Disable caret adjustments for cut if delete line selection caret adjustments are disabled.
 * Fix: update to latest plugin-util
 * Fix: handle spurious IOException in shared transferable
-* Add: `resources/search/searchableOptions.xml` for full text search across all
-  configuration settings.
+* Add: `resources/search/searchableOptions.xml` for full text search across all configuration
+  settings.
 * Fix: too strict clipboard content comparison during replacement would not replace shared
   content in some circumstances. Replaced with string comparison of clipboard content.
 * Fix: Moved png and svg icons to different sub-directories. IDE versions 2017 generates a gray
@@ -268,12 +268,11 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
+[#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
 [Download Latest 1.7.4 from this repo]: ../../raw/master/dist/MissingInActions.1.7.4.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
-[Version Notes]: /resources/META-INF/VERSION.md
+[Version Notes]: /VERSION.md
 [Paste From History: A Power User Feature]: https://vladsch.com/blog/20
 
-
-[#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
