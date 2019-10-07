@@ -82,8 +82,8 @@
 
 ### 1.7.5.25 - Bug Fix Release & Enhancement Release
 
-* [ ] Add: save highlight state to local settings to restore on IDE startup
-* [ ] Add: save isolation ranges in editor state
+* [ ] :red_circle: Add: save highlight state to local settings to restore on IDE startup
+* [ ] :red_circle: Add: save isolation ranges in editor state
 * [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
       carets are already on code lines then remove those whose code lines contain nothing but
       brackets, parentheses, braces, commas and semicolons. This will allow to quickly isolate
@@ -132,11 +132,12 @@
 * Add: spawn prefix search option to support paste prefix alternates so spawn on `myText` will
   select `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
   `is` are preserved prefixes.
-* Fix: snake case is not recognized if first letter(s) are capitalized so pasting on:
+* Fix: snake case to recognize capitalized first letter(s), pasting on:
   * `This_item_name` will change pasted text from `ThatTextString` to `That_text_string`
   * `This_Item_Name` will change pasted text from `ThatTextString` to `That_Text_String`
-  * This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style,
-    mixed case style (first letter of each word capitalized), lower case or screaming case.
+  * This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style
+    (first letter capitalized, rest lowercase), mixed case style (first letter of each word
+    capitalized), lower case or screaming case.
 * Fix: paste from history
   * Fix: paste spliced & quoted to work if current editor is a plain Swing editor (text boxes)
   * Add: `To Line` action to convert multiple selection to merged **line** content without
@@ -147,7 +148,7 @@
     options.
   * Fix: user variable case sensitive only if not using smart paste options for replacement.
   * Fix: replacements from clipboard would duplicate for every caret in replacement content even
-    when nothing matched--confusing. Now ignore clipboard
+    when nothing matched---confusing. Now ignore clipboard
   * Add: search highlighting if replacing macro variables or user variable in pasted text is
     enabled.
   * Add: option to show text after replacements, with replaced regions highlighted.
