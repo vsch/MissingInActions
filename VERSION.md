@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.27 - Bug Fix Release & Enhancement Release](#17527-bug-fix-release-enhancement-release)
+- [1.7.5.29 - Bug Fix Release & Enhancement Release](#17529-bug-fix-release-enhancement-release)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -80,9 +80,8 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.27 - Bug Fix Release & Enhancement Release
+### 1.7.5.29 - Bug Fix Release & Enhancement Release
 
-* [ ] :red_circle: Add: save highlight state to local settings to restore on IDE startup.
 * [ ] :red_circle: Add: save isolation ranges in editor state
 * [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
       carets are already on code lines then remove those whose code lines contain nothing but
@@ -113,8 +112,9 @@
     line for visual validation elsewhere. A limitation is that a word pattern can only have one
     color associated with it, so multiple tandem color of the same word will result it in being
     the last tandem color assigned.
-* Fix: merged transferable would erroneously append EOL to multi-line char caret
-  content causing it to turn into a line selection.
+* Add: save highlight state to local settings, restore on IDE startup.
+* Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
+  it to turn into a line selection.
 * Add: `Delete Replaced Content after Paste` paste from history option to delete generated
   content after pasting
 * Add: auto delete after paste macro replaced clipboard content if option enabled

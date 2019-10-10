@@ -35,6 +35,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -62,10 +63,13 @@ import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
 import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
+import com.vladsch.flexmark.util.Pair;
 import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
+import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import org.jetbrains.annotations.NotNull;
@@ -87,6 +91,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
@@ -108,6 +113,8 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private boolean myDisabledShowParameterHints;
     final private boolean myParameterHintsAvailable;
     private boolean myRegisterCaretStateTransferable;
+    private OneTimeRunnable myHighlightSaveTask = OneTimeRunnable.NULL;
+    private boolean disableSaveHighlights = true;
 
 //    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
@@ -121,7 +128,16 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         myPasteOverrideComponent = null;
         myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
 
-        clearHighlights();
+        MiaCancelableJobScheduler.getInstance().schedule(1000, () -> {
+            Map<String, Pair<Integer, Integer>> state = mySettings.getHighlightState();
+            if (state != null) {
+                setHighlightState(state);
+                fireHighlightsChanged();
+            } else {
+                clearHighlights();
+            }
+            disableSaveHighlights = false;
+        });
     }
 
     @NotNull
@@ -140,7 +156,23 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
     @Override
     public void disposeComponent() {
+        disableSaveHighlights = true;
         super.disposeComponent();
+    }
+
+    @Override
+    public void fireHighlightsChanged() {
+        if (!disableSaveHighlights) {
+            // save highlights in application settings
+            myHighlightSaveTask.cancel();
+
+            myHighlightSaveTask = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), "Highlight Saver", 500, ModalityState.NON_MODAL, () -> {
+                HashMap<String, Pair<Integer, Integer>> state = getHighlightState();
+                mySettings.setHighlightState(getHighlightState());
+            });
+        }
+
+        super.fireHighlightsChanged();
     }
 
     @Override

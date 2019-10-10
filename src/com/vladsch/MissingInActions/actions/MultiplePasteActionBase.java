@@ -1011,7 +1011,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                         : EditHelpers.getReplacedTransferable(editor, clipboardCaretContent);
                                 copyPasteManager.setContents(mergedTransferable);
 
-                                if (settings.isMultiPasteDeleteReplacedCaretData() &&
+                                if (settings.isMultiPasteDeleteReplacedCaretData() && userData != null && userData.length > 0 &&
                                         (pasteAction == simplePasteAction || pasteAction instanceof PasteAction || pasteAction instanceof com.intellij.openapi.editor.actions.PasteAction)) {
                                     deleteAfterPaste = mergedTransferable;
                                 }

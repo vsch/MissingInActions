@@ -30,12 +30,19 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
+import com.intellij.util.xmlb.annotations.XCollection;
+import com.intellij.util.xmlb.annotations.XMap;
 import com.vladsch.MissingInActions.util.CaseFormatPreserver;
+import com.vladsch.flexmark.util.Pair;
 import com.vladsch.flexmark.util.html.ui.Color;
 import com.vladsch.plugin.util.ui.ColorIterable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.*;
@@ -180,6 +187,56 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     boolean myDisableParameterInfo = false;      // include hex digits
     boolean myShowGenerateException = false;      // include hex digits
 
+    @XCollection(propertyElementName = "highlightWords", style = XCollection.Style.v1) public ArrayList<String> myHighlightWords = new ArrayList<>();
+    @XCollection(propertyElementName = "highlightFlags", style = XCollection.Style.v1) public ArrayList<Integer> myHighlightFlags = new ArrayList<>();
+    @XCollection(propertyElementName = "highlightIndices", style = XCollection.Style.v1) public ArrayList<Integer> myHighlightIndices = new ArrayList<>();
+
+    @Transient
+    public void setHighlightState(@Nullable Map<String, Pair<Integer, Integer>> state) {
+        if (state == null) {
+            myHighlightWords = new ArrayList<>();
+            myHighlightFlags = new ArrayList<>();
+            myHighlightIndices = new ArrayList<>();
+        } else {
+            ArrayList<String> highlightWords = new ArrayList<>(state.size());
+            ArrayList<Integer> highlightFlags = new ArrayList<>(state.size());
+            ArrayList<Integer> highlightIndices = new ArrayList<>(state.size());
+
+            int i = 0;
+            for (String key : state.keySet()) {
+                Pair<Integer, Integer> pair = state.get(key);
+                int flags = pair.getFirst();
+                int originalIndex = pair.getSecond();
+                highlightWords.add(key);
+                highlightFlags.add(flags);
+                highlightIndices.add(originalIndex);
+                i++;
+            }
+            myHighlightWords = highlightWords;
+            myHighlightFlags = highlightFlags;
+            myHighlightIndices = highlightIndices;
+        }
+    }
+
+    @Transient
+    public @Nullable Map<String, Pair<Integer, Integer>> getHighlightState() {
+        if (myHighlightWords.size() == 0 || myHighlightFlags.size() == 0 || myHighlightIndices.size() == 0
+                || myHighlightFlags.size() != myHighlightWords.size() || myHighlightIndices.size() != myHighlightWords.size()) {
+            return null;
+        } else {
+            HashMap<String, Pair<Integer, Integer>> state = new HashMap<>(myHighlightWords.size());
+            int i = 0;
+            for (String key : myHighlightWords) {
+                int flags = myHighlightFlags.get(i);
+                int originalIndex = myHighlightIndices.get(i);
+                Pair<Integer, Integer> pair = Pair.of(flags, originalIndex);
+                state.put(key, pair);
+                i++;
+            }
+            return state;
+        }
+    }
+
     @NotNull String[] myDeleteBackspaceTests = new String[] {
             "      sample        ",
             "Sample Text with     =    random([]).test ;     ",
@@ -196,6 +253,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
             "|",
             "|",
     };
+
+    @XMap
 
     public boolean isShowMacroResultPreview() {
         return myShowMacroResultPreview;
@@ -646,7 +705,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     public void setGradientBrightnessSteps(int gradientBrightnessSteps) { myGradientBrightnessSteps = gradientBrightnessSteps; }
 
     private NumberingOptions myLastNumberingOptions = new NumberingOptions();
-//    private NumberingBaseOptions myLastNumberingBaseOptions_0 = new NumberingBaseOptions();
+    //    private NumberingBaseOptions myLastNumberingBaseOptions_0 = new NumberingBaseOptions();
 //    private NumberingBaseOptions myLastNumberingBaseOptions_1 = new NumberingBaseOptions();
     private NumberingBaseOptions myLastNumberingBaseOptions_2 = new NumberingBaseOptions();
     private NumberingBaseOptions myLastNumberingBaseOptions_3 = new NumberingBaseOptions();

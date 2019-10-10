@@ -81,13 +81,13 @@
         ]]>
     </description>
 
-    <version>1.7.5.27</version>
+    <version>1.7.5.29</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.5.27 - Bug Fix Release &amp; Enhancement Release</h3>
+            <h3>1.7.5.29 - Bug Fix Release &amp; Enhancement Release</h3>
             <ul>
                 <li>Highlighted word actions:
                     <ul>
@@ -103,6 +103,7 @@
                             the last tandem color assigned.</li>
                     </ul>
                 </li>
+                <li>Add: save highlight state to local settings, restore on IDE startup.</li>
                 <li>Fix: merged replaced transferable would erroneously append EOL to multi-line char caret
                     content causing it to turn into a line selection.</li>
                 <li>Add: auto delete after paste macro replaced clipboard content if option enabled</li>
