@@ -1370,23 +1370,29 @@ public class EditHelpers {
         List<TextRange> ranges = new ArrayList<>();
 
         boolean hadChange = false;
-
+        String nextSep = "";
         for (int i = 0; i < iMax; i++) {
             for (int j = 0; j < repeatCount; j++) {
                 String replaceOnPaste = manager.replaceOnPaste(texts[i]);
                 if (!replaceOnPaste.equals(texts[i])) hadChange = true;
                 if (clipboardCaretContent.isFullLine(i)) {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(replaceOnPaste);
                     int endOffset = sb.length();
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else if (clipboardCaretContent.isCharLine(i)) {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(replaceOnPaste);
                     int endOffset = sb.length();
-                    sb.append(sep);
+                    nextSep = sep;
                     ranges.add(new TextRange(startOffset, endOffset));
                 } else {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(replaceOnPaste);
                     int endOffset = sb.length();
@@ -1414,6 +1420,7 @@ public class EditHelpers {
                 transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
             }
             mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+            //        ClipboardCaretContent mergedClipboard = ClipboardCaretContent.studyTransferable(editor, mergedTransferable);
             return mergedTransferable;
         } else {
             return clipboardCaretContent.getContent();
@@ -1541,6 +1548,7 @@ public class EditHelpers {
                 (dummyIndex, dummyText, dummyOffset, rangeIndex, foundRange, replacedRange, foundText) -> offsetConsumer.accept(textIndex[0], text[0], rangeOffset[0], rangeIndex, foundRange, replacedRange, foundText);
 
         // here we build a single text based on permutations
+        String nextSep = "";
         int jMax = userData == null ? 1 : userData.length;
         for (int i = 0; i < iMax; i++) {
             for (int j = 0; j < jMax; j++) {
@@ -1550,19 +1558,25 @@ public class EditHelpers {
                 text[0] = texts[i];
 
                 if (clipboardCaretContent.isFullLine(i)) {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
                     ranges.add(new TextRange(startOffset, endOffset));
                     rangeOffset[0] += endOffset - startOffset;
                 } else if (clipboardCaretContent.isCharLine(i)) {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
-                    sb.append(sep);
+                    nextSep = sep;
                     ranges.add(new TextRange(startOffset, endOffset));
                     rangeOffset[0] += endOffset - startOffset;
                 } else {
+                    sb.append(nextSep);
+                    nextSep = "";
                     int startOffset = sb.length();
                     sb.append(manager.replaceOnPaste(text[0], offsetRangeConsumer));
                     int endOffset = sb.length();
@@ -1591,6 +1605,7 @@ public class EditHelpers {
         //}
         transferableData.add(new DeleteAfterPasteTransferableData(startOffsets, endOffsets));
         mergedTransferable = new TextBlockTransferable(sb.toString(), transferableData, null);
+//        ClipboardCaretContent mergedClipboard = ClipboardCaretContent.studyTransferable(editor, mergedTransferable);
         return mergedTransferable;
     }
 

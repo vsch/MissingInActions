@@ -4,48 +4,48 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.25 - Bug Fix Release & Enhancement Release](#17525---bug-fix-release--enhancement-release)
-- [1.7.4 - Bug Fix Release](#174---bug-fix-release)
-- [1.7.2 - Bug Fix Release](#172---bug-fix-release)
-- [1.7.0 - Enhancement Release](#170---enhancement-release)
-- [1.6.20 - Bug Fix Release](#1620---bug-fix-release)
-- [1.6.18 - Bug Fix Release](#1618---bug-fix-release)
-- [1.6.16 - Bug Fix Release](#1616---bug-fix-release)
-- [1.6.14 - Bug Fix Release](#1614---bug-fix-release)
-- [1.6.12 - Bug Fix Release](#1612---bug-fix-release)
-- [1.6.10 - Bug Fix Release](#1610---bug-fix-release)
-- [Next 1.6.8 - Bug Fix Release](#next-168---bug-fix-release)
-- [Next 1.6.6 - Bug Fix Release](#next-166---bug-fix-release)
-- [1.6.4 - Bug Fix Release](#164---bug-fix-release)
-- [1.6.2 - Bug Fix Release](#162---bug-fix-release)
-- [1.6.0 - Bug Fix & Enhancement Release](#160---bug-fix--enhancement-release)
-- [1.5.0 - Bug Fix & Enhancement Release](#150---bug-fix--enhancement-release)
-- [1.4.8 - Bug Fix Release](#148---bug-fix-release)
-- [1.4.6 - Bug Fix Release](#146---bug-fix-release)
-- [1.4.4 - Bug Fix Release](#144---bug-fix-release)
-- [1.4.2 - Enhancement Release](#142---enhancement-release)
-- [1.4.0 - Bug Fix Release](#140---bug-fix-release)
-- [1.3.0 - Bug Fix Release](#130---bug-fix-release)
-- [1.2.0 - Enhancement Release](#120---enhancement-release)
-- [1.1.7 - Enhancement Release](#117---enhancement-release)
-- [1.1.6 - Enhancement Release](#116---enhancement-release)
-- [1.1.5 - Enhancement Release](#115---enhancement-release)
-- [1.1.4 - Enhancement Release](#114---enhancement-release)
-- [1.1.3 - Bug Fix & Enhancement Release](#113---bug-fix--enhancement-release)
-- [1.1.2 - Enhancement Release](#112---enhancement-release)
-- [1.1.1 - Enhancement Release](#111---enhancement-release)
-- [1.1.0 - Enhancement Release](#110---enhancement-release)
-- [1.0.0 - Bug Fixes and Enhancements](#100---bug-fixes-and-enhancements)
-- [0.8.3 - Bug Fixes and Enhancements](#083---bug-fixes-and-enhancements)
-- [0.8.2 - Bug Fixes and Enhancements](#082---bug-fixes-and-enhancements)
-- [0.8.0 - Bug Fixes and New Features](#080---bug-fixes-and-new-features)
-- [0.7.2 - Refactoring and Code Cleanup](#072---refactoring-and-code-cleanup)
-- [0.7.0 - Enhancements](#070---enhancements)
-- [0.6.2 - Bug Fix and Features](#062---bug-fix-and-features)
-- [0.6.1 - Bug Fix and Features](#061---bug-fix-and-features)
-- [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
-- [0.5.1 - Bug Fix](#051---bug-fix)
-- [0.5.0 - Initial Release](#050---initial-release)
+- [1.7.5.27 - Bug Fix Release & Enhancement Release](#17527-bug-fix-release-enhancement-release)
+- [1.7.4 - Bug Fix Release](#174-bug-fix-release)
+- [1.7.2 - Bug Fix Release](#172-bug-fix-release)
+- [1.7.0 - Enhancement Release](#170-enhancement-release)
+- [1.6.20 - Bug Fix Release](#1620-bug-fix-release)
+- [1.6.18 - Bug Fix Release](#1618-bug-fix-release)
+- [1.6.16 - Bug Fix Release](#1616-bug-fix-release)
+- [1.6.14 - Bug Fix Release](#1614-bug-fix-release)
+- [1.6.12 - Bug Fix Release](#1612-bug-fix-release)
+- [1.6.10 - Bug Fix Release](#1610-bug-fix-release)
+- [Next 1.6.8 - Bug Fix Release](#next-168-bug-fix-release)
+- [Next 1.6.6 - Bug Fix Release](#next-166-bug-fix-release)
+- [1.6.4 - Bug Fix Release](#164-bug-fix-release)
+- [1.6.2 - Bug Fix Release](#162-bug-fix-release)
+- [1.6.0 - Bug Fix & Enhancement Release](#160-bug-fix-enhancement-release)
+- [1.5.0 - Bug Fix & Enhancement Release](#150-bug-fix-enhancement-release)
+- [1.4.8 - Bug Fix Release](#148-bug-fix-release)
+- [1.4.6 - Bug Fix Release](#146-bug-fix-release)
+- [1.4.4 - Bug Fix Release](#144-bug-fix-release)
+- [1.4.2 - Enhancement Release](#142-enhancement-release)
+- [1.4.0 - Bug Fix Release](#140-bug-fix-release)
+- [1.3.0 - Bug Fix Release](#130-bug-fix-release)
+- [1.2.0 - Enhancement Release](#120-enhancement-release)
+- [1.1.7 - Enhancement Release](#117-enhancement-release)
+- [1.1.6 - Enhancement Release](#116-enhancement-release)
+- [1.1.5 - Enhancement Release](#115-enhancement-release)
+- [1.1.4 - Enhancement Release](#114-enhancement-release)
+- [1.1.3 - Bug Fix & Enhancement Release](#113-bug-fix-enhancement-release)
+- [1.1.2 - Enhancement Release](#112-enhancement-release)
+- [1.1.1 - Enhancement Release](#111-enhancement-release)
+- [1.1.0 - Enhancement Release](#110-enhancement-release)
+- [1.0.0 - Bug Fixes and Enhancements](#100-bug-fixes-and-enhancements)
+- [0.8.3 - Bug Fixes and Enhancements](#083-bug-fixes-and-enhancements)
+- [0.8.2 - Bug Fixes and Enhancements](#082-bug-fixes-and-enhancements)
+- [0.8.0 - Bug Fixes and New Features](#080-bug-fixes-and-new-features)
+- [0.7.2 - Refactoring and Code Cleanup](#072-refactoring-and-code-cleanup)
+- [0.7.0 - Enhancements](#070-enhancements)
+- [0.6.2 - Bug Fix and Features](#062-bug-fix-and-features)
+- [0.6.1 - Bug Fix and Features](#061-bug-fix-and-features)
+- [0.6.0 - Bug Fix and Features](#060-bug-fix-and-features)
+- [0.5.1 - Bug Fix](#051-bug-fix)
+- [0.5.0 - Initial Release](#050-initial-release)
 
 
 &nbsp;<details id="todo"><summary>**To Do List**</summary>
@@ -80,7 +80,7 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
 
-### 1.7.5.25 - Bug Fix Release & Enhancement Release
+### 1.7.5.27 - Bug Fix Release & Enhancement Release
 
 * [ ] :red_circle: Add: save highlight state to local settings to restore on IDE startup.
 * [ ] :red_circle: Add: save isolation ranges in editor state
@@ -93,6 +93,9 @@
       operate on a line once even if there are many carets present on that line.
 * [ ] :red_circle: Fix: backspace to line indent should backspace to beginning of line if at or
       before indent.
+* [ ] :red_circle: Add: option to detect `,`, `;` on previous line when duplicating single line
+      and add to line above automatically and remove from last duped line if original did not
+      have this suffix.
 * Highlighted word actions:
   * [ ] :red_circle: Add: highlight words from Clipboard selected carets (should use history
         dialog with just a button that will use caret data for highlights).
@@ -110,6 +113,11 @@
     line for visual validation elsewhere. A limitation is that a word pattern can only have one
     color associated with it, so multiple tandem color of the same word will result it in being
     the last tandem color assigned.
+* Fix: merged transferable would erroneously append EOL to multi-line char caret
+  content causing it to turn into a line selection.
+* Add: `Delete Replaced Content after Paste` paste from history option to delete generated
+  content after pasting
+* Add: auto delete after paste macro replaced clipboard content if option enabled
 * Fix: preserve on paste to properly handle double prefix and not remove:
   * paste `isStart` on `getIsTask` should result in `getIsStart` not `getStart`
   * paste `myIsStart` on `isTask` should result in `isStart` not `isIsStart`

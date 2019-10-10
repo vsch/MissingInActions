@@ -67,6 +67,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private boolean         myMultiPasteShowOptions = true;
     private boolean         myMultiPastePreserveOriginal = true;
     private boolean         myMultiPasteDeleteRepeatedCaretData = true;
+    private boolean         myMultiPasteDeleteReplacedCaretData = true;
     private boolean         myReplaceMacroVariables = false;
     private boolean         myOverrideStandardPaste = false;
     private boolean         myPreserveCamelCaseOnPaste = false;
@@ -1087,6 +1088,10 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     public boolean isMultiPasteDeleteRepeatedCaretData() { return myMultiPasteDeleteRepeatedCaretData; }
 
     public void setMultiPasteDeleteRepeatedCaretData(boolean multiPasteDeleteRepeatedCaretData) { myMultiPasteDeleteRepeatedCaretData = multiPasteDeleteRepeatedCaretData; }
+
+    public boolean isMultiPasteDeleteReplacedCaretData() { return myMultiPasteDeleteReplacedCaretData;}
+
+    public void setMultiPasteDeleteReplacedCaretData(boolean multiPasteDeleteReplacedCaretData) { myMultiPasteDeleteReplacedCaretData = multiPasteDeleteReplacedCaretData;}
 
     public boolean isReplaceMacroVariables() { return myReplaceMacroVariables; }
 

@@ -56,6 +56,7 @@ public class MultiPasteOptionsPane {
     JBCheckBox myMultiPasteShowEolInList;
     JBCheckBox myMultiPastePreserveOriginal;
     JBCheckBox myMultiPasteDeleteRepeatedCaretData;
+    JBCheckBox myMultiPasteDeleteReplacedCaretData;
     JBCheckBox myReplaceMacroVariables;
     JBCheckBox myReplaceUserDefinedMacro;
     JBCheckBox myRegexUserDefinedMacro;
@@ -91,6 +92,7 @@ public class MultiPasteOptionsPane {
         myMultiPasteShowEolInList.setSelected(mySettings.isMultiPasteShowEolInList());
         myMultiPastePreserveOriginal.setSelected(mySettings.isMultiPastePreserveOriginal());
         myMultiPasteDeleteRepeatedCaretData.setSelected(mySettings.isMultiPasteDeleteRepeatedCaretData());
+        myMultiPasteDeleteReplacedCaretData.setSelected(mySettings.isMultiPasteDeleteReplacedCaretData());
         myReplaceMacroVariables.setSelected(mySettings.isReplaceMacroVariables());
         myReplaceUserDefinedMacro.setSelected(mySettings.isReplaceUserDefinedMacro());
         myRegexUserDefinedMacro.setSelected(mySettings.isRegexUserDefinedMacro());
@@ -120,6 +122,7 @@ public class MultiPasteOptionsPane {
         myMultiPasteShowEolInList.addActionListener(actionListener);
         myMultiPastePreserveOriginal.addActionListener(actionListener);
         myMultiPasteDeleteRepeatedCaretData.addActionListener(actionListener);
+        myMultiPasteDeleteReplacedCaretData.addActionListener(actionListener);
         myReplaceMacroVariables.addActionListener(actionListener);
         myReplaceUserDefinedMacro.addActionListener(actionListener);
         myUserDefinedMacroClipContent.addActionListener(userMacroActionListener);
@@ -174,6 +177,7 @@ public class MultiPasteOptionsPane {
         mySettings.setMultiPasteShowEolInList(myMultiPasteShowEolInList.isSelected());
         mySettings.setMultiPastePreserveOriginal(myMultiPastePreserveOriginal.isSelected());
         mySettings.setMultiPasteDeleteRepeatedCaretData(myMultiPasteDeleteRepeatedCaretData.isSelected());
+        mySettings.setMultiPasteDeleteReplacedCaretData(myMultiPasteDeleteReplacedCaretData.isSelected());
         mySettings.setReplaceMacroVariables(myReplaceMacroVariables.isSelected());
         mySettings.setReplaceUserDefinedMacro(myReplaceUserDefinedMacro.isSelected());
         mySettings.setRegexUserDefinedMacro(myRegexUserDefinedMacro.isSelected());

@@ -81,34 +81,101 @@
         ]]>
     </description>
 
-    <version>1.7.5.25</version>
+    <version>1.7.5.27</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.6 - Bug Fix Release &amp; Enhancement Release</h3>
+            <h3>1.7.5.27 - Bug Fix Release &amp; Enhancement Release</h3>
             <ul>
-                <li>Add: search highlighting in paste from history if replacing macro variables in
-                    pasted text is enabled.</li>
-                <li>Add: option to show text after replacements in paste from history preview, with replaced
-                    regions highlighted.</li>
-                <li>Add: <code>__Filepath__</code> variants to replaced variables to replace with file path which will be
-                    pasted into.
+                <li>Highlighted word actions:
                     <ul>
-                        <li><code>__Filepath__</code> : file path as is.</li>
-                        <li><code>__FILEPATH__</code> : file path all caps.</li>
-                        <li><code>__filepath__</code> : file path lowercase.</li>
-                        <li><code>__File-path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>-</code>.</li>
-                        <li><code>__FILE-PATH__</code> : file path as above but in all caps.</li>
-                        <li><code>__file-path__</code> : file path as above but in lowercase.</li>
-                        <li><code>__File.path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>.</code>.</li>
-                        <li><code>__FILE.PATH__</code> : file path as above but in all caps.</li>
-                        <li><code>__file.path__</code> : file path as above but in lowercase.</li>
+                        <li>Fix: automatically turn on words highlight mode when adding a highlighted word</li>
+                        <li>Add: Select highlighted words in file or current selection to create multi-caret selection
+                            from highlighted words. Will use document, single selection or multi-caret selection for
+                            limiting search of highlighted words.</li>
+                        <li>Add: <code>Add Selection to Word Highlights in Tandem</code> will tandem highlight words on the same
+                            line to the same color. Either when originally highlighted or added to existing highlights
+                            when there is a highlight on the same line. Allows to color align related string on the same
+                            line for visual validation elsewhere. A limitation is that a word pattern can only have one
+                            color associated with it, so multiple tandem color of the same word will result it in being
+                            the last tandem color assigned.</li>
                     </ul>
                 </li>
-                <li>Fix: replacement of user macro would not be done if there were not macro variables defined.</li>
-                <li>Fix: user replace macro with clipboard content would fail because of index mismatch.</li>
+                <li>Fix: merged replaced transferable would erroneously append EOL to multi-line char caret
+                    content causing it to turn into a line selection.</li>
+                <li>Add: auto delete after paste macro replaced clipboard content if option enabled</li>
+                <li>Fix: preserve on paste to properly handle double prefix and not remove:
+                    <ul>
+                        <li>paste <code>isStart</code> on <code>getIsTask</code> should result in <code>getIsStart</code> not <code>getStart</code></li>
+                        <li>paste <code>myIsStart</code> on <code>isTask</code> should result in <code>isStart</code> not <code>isIsStart</code></li>
+                    </ul>
+                </li>
+                <li>Fix: move line selection up/down with:
+                    <ul>
+                        <li>No change: column changes to 0 when caret at start of line (caused by exception in update
+                            after move line handler in IDE injected language parsing)</li>
+                        <li>To start/To End: column changes between start/end because it did not distinguish between
+                            line/non-line selections.</li>
+                        <li>Remove: anchor/anti-anchor settings, they don&rsquo;t make sense and make the caret toggle with
+                            every move.</li>
+                    </ul>
+                </li>
+                <li>Fix: toggle direction of selection to set all directions to same orientation, if different
+                    orientations set all to end.</li>
+                <li>Fix: keep/remove carets actions to convert selection to carets before their operation.</li>
+                <li>Fix: caret invalidation causing caret invalid assertion failure.</li>
+                <li>Fix: search spawn without matching all numeric patterns needs to respect begin/end word
+                    constraints of the caret position if it would be a numeric search if spawn numeric was
+                    enabled. ie. search forward from <code>|</code> in <code>2.9.0.5|7/2.9.7.57</code> should result in
+                    <code>2.9.0.5[7]|/2.9.7.5[7]|</code> not <code>2.9.0.5[7]|/2.9.[7]|.5[7]|</code></li>
+                <li>Fix: backward caret spawning search ignored numeric/hex numeric settings</li>
+                <li>Add: spawn prefix search option to support paste prefix alternates so spawn on <code>myText</code> will
+                    select <code>myText</code>, <code>ourText</code>, <code>getText</code>, <code>isText</code>, <code>setText</code> if <code>my</code>, <code>our</code>, <code>get</code>, <code>set</code> and
+                    <code>is</code> are preserved prefixes.</li>
+                <li>Fix: snake case to recognize capitalized first letter(s), pasting on:
+                    <ul>
+                        <li><code>This_item_name</code> will change pasted text from <code>ThatTextString</code> to <code>That_text_string</code></li>
+                        <li><code>This_Item_Name</code> will change pasted text from <code>ThatTextString</code> to <code>That_Text_String</code></li>
+                        <li>This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style
+                            (first letter capitalized, rest lowercase), mixed case style (first letter of each word
+                            capitalized), lower case or screaming case.</li>
+                    </ul>
+                </li>
+                <li>Fix: paste from history
+                    <ul>
+                        <li>Fix: paste spliced &amp; quoted to work if current editor is a plain Swing editor (text boxes)</li>
+                        <li>Add: <code>To Line</code> action to convert multiple selection to merged <strong>line</strong> content without
+                            having to paste it. Opposite of <code>To Carets</code></li>
+                        <li>Add: allow preview macro replacement results to be selected and copied as new clipboard
+                            content.</li>
+                        <li>Fix: user macro variable replacement and macro variable replacement are now two independent
+                            options.</li>
+                        <li>Fix: user variable case sensitive only if not using smart paste options for replacement.</li>
+                        <li>Fix: replacements from clipboard would duplicate for every caret in replacement content even
+                            when nothing matched&mdash;confusing. Now ignore clipboard</li>
+                        <li>Add: search highlighting if replacing macro variables or user variable in pasted text is
+                            enabled.</li>
+                        <li>Add: option to show text after replacements, with replaced regions highlighted.</li>
+                        <li>Add: <code>__Filepath__</code> variants to replaced variables to replace with file path which will be
+                            pasted into.
+                            <ul>
+                                <li><code>__Filepath__</code> : file path as is.</li>
+                                <li><code>__FILEPATH__</code> : file path all caps.</li>
+                                <li><code>__filepath__</code> : file path lowercase.</li>
+                                <li><code>__File-path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>-</code>.</li>
+                                <li><code>__FILE-PATH__</code> : file path as above but in all caps.</li>
+                                <li><code>__file-path__</code> : file path as above but in lowercase.</li>
+                                <li><code>__File.path__</code> : file path with leading <code>/</code> removed and <code>/</code> replaced by <code>.</code>.</li>
+                                <li><code>__FILE.PATH__</code> : file path as above but in all caps.</li>
+                                <li><code>__file.path__</code> : file path as above but in lowercase.</li>
+                            </ul>
+                        </li>
+                        <li>Fix: replacement of user macro would not be done if there were not macro variables defined.</li>
+                        <li>Fix: user replace macro with clipboard content would fail because of index mismatch.</li>
+                    </ul>
+                </li>
                 <li>Fix: non-regex prefix set to followed by uppercase letter had erroneous test. When pasting
                     <code>projectSettings</code> on to <code>settingsText</code> results in <code>setProjectSettings</code></li>
                 <li>Fix: update to latest plugin-utils.</li>
@@ -159,23 +226,6 @@
                 <li>Fix: incorrect duplicate for carets result if primary caret has selection and is not at
                     the start or end of its selection.
                 </li>
-            </ul>
-            <h3>1.6.20 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: clear out empty stored selections</li>
-                <li>Add: option to turn off IDE parameter info when using multi-caret mode</li>
-                <li>
-                    <p>Fix: handling of <code>beforeActionPerformed</code> without corresponding <code>afterActionPerformed</code>.
-                        Otherwise, the plugin would think all subsequent actions are nested actions and not handle
-                        selection storage/recall or do proper cleanup in afterActionPerformed.</p>
-                    <p>This happens on action exception or premature before call then no actual <code>actionPerformed</code>
-                        call on the action, like <code>com.intellij.openapi.actionSystem.impl.ActionButton.performAction</code>
-                        which fires before action then checks to see if there is a context component and if not
-                        returns without corresponding <code>actionPerformed</code> on the action and <code>afterActionPerformed</code>
-                        callbacks.</p>
-                </li>
-                <li>Fix: update to latest libs</li>
-                <li>Fix: missing toolbar button for <code>Recall selection from list</code></li>
             </ul>
         </div>
         ]]></change-notes>

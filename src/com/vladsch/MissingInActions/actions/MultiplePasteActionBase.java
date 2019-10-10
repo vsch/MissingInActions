@@ -22,6 +22,7 @@ package com.vladsch.MissingInActions.actions;
 
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.DataManager;
+import com.intellij.ide.actions.PasteAction;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -997,6 +998,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
                 boolean recreateCarets = alternateAction[0] == PASTE_WITH_CARETS[0];
                 final AnAction pasteAction = alternateAction[0] == PASTE_SPLICED[0] || alternateAction[0] == PASTE_SPLICED_AND_QUOTED[0] ? simplePasteAction : getPasteAction(editor, recreateCarets);
+                Transferable deleteAfterPaste = null;
 
                 if (pasteAction != null) {
                     if ((settings.isReplaceMacroVariables() || settings.isReplaceUserDefinedMacro()) && manager.haveOnPasteReplacements() && (!isReplaceAware(editor, recreateCarets) || (userData != null && userData.length > 1 && wantDuplicatedUserData()))) {
@@ -1008,6 +1010,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                                 Transferable mergedTransferable = (userData != null && userData.length > 1) ? EditHelpers.getReplacedTransferable(editor, clipboardCaretContent, userData)
                                         : EditHelpers.getReplacedTransferable(editor, clipboardCaretContent);
                                 copyPasteManager.setContents(mergedTransferable);
+
+                                if (settings.isMultiPasteDeleteReplacedCaretData() &&
+                                        (pasteAction == simplePasteAction || pasteAction instanceof PasteAction || pasteAction instanceof com.intellij.openapi.editor.actions.PasteAction)) {
+                                    deleteAfterPaste = mergedTransferable;
+                                }
                             }
                         }
                     }
@@ -1019,6 +1026,11 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                             e.getModifiers());
 
                     pasteAction.actionPerformed(newEvent);
+
+                    // if paste action is normal then we can delete it here
+                    if (deleteAfterPaste != null) {
+                        copyPasteManager.removeContent(deleteAfterPaste);
+                    }
                 }
             } else {
                 prepareClipboard.run();
