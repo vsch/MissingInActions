@@ -94,6 +94,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myMultiPasteShowInstructions;
     JBCheckBox myMultiPastePreserveOriginal;
     JBCheckBox myMultiPasteDeleteRepeatedCaretData;
+    JBCheckBox myMultiPasteDeleteReplacedCaretData;
     JBCheckBox myOverrideStandardPaste;
     JBCheckBox myPreserveCamelCaseOnPaste;
     JBCheckBox myPreserveScreamingSnakeCaseOnPaste;
@@ -233,6 +234,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myRegisterCaretStateTransferable, i::isRegisterCaretStateTransferable, i::setRegisterCaretStateTransferable),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
+                        component(myMultiPasteDeleteReplacedCaretData, i::isMultiPasteDeleteReplacedCaretData, i::setMultiPasteDeleteReplacedCaretData),
                         component(myOverrideStandardPaste, i::isOverrideStandardPaste, i::setOverrideStandardPaste),
                         component(myPreserveCamelCaseOnPaste, i::isPreserveCamelCaseOnPaste, i::setPreserveCamelCaseOnPaste),
                         component(myPreserveScreamingSnakeCaseOnPaste, i::isPreserveScreamingSnakeCaseOnPaste, i::setPreserveScreamingSnakeCaseOnPaste),
@@ -590,6 +592,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySpliceDelimiterTextLabel.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPastePreserveOriginal.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteDeleteRepeatedCaretData.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
+        myMultiPasteDeleteReplacedCaretData.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInViewer.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         myMultiPasteShowEolInList.setEnabled(myOverrideStandardPaste.isEnabled() && myOverrideStandardPaste.isSelected());
         mySpawnNumericHexSearch.setEnabled(mySpawnNumericSearch.isEnabled() && mySpawnNumericSearch.isSelected());

@@ -4,7 +4,7 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.29 - Bug Fix Release & Enhancement Release](#17529-bug-fix-release-enhancement-release)
+- [1.7.5.31 - Bug Fix Release & Enhancement Release](#17531-bug-fix-release-enhancement-release)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -71,16 +71,17 @@
       then don't make any changes to the pasted content.
 * [ ] Add: batch search/replace:
   * [ ] Add: export/import a single profile to batch search/replace management as opposed to all
-        profiles. Keeping all profiles per project and importing/exporting a single profile
-        between projects is useful.
+            profiles. Keeping all profiles per project and importing/exporting a single profile
+            between projects is useful.
     * [ ] Add: copy profile under a new name and/or to another open project batch search window,
-          with overwrite prompting.
+                  with overwrite prompting.
   * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
-        both of these colored with the same colors to allow using color alignment for validation
+            both of these colored with the same colors to allow using color alignment for
+            validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
-        for keywords
+            for keywords
 
-### 1.7.5.29 - Bug Fix Release & Enhancement Release
+### 1.7.5.31 - Bug Fix Release & Enhancement Release
 
 * [ ] :red_circle: Add: save isolation ranges in editor state
 * [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
@@ -97,21 +98,22 @@
       have this suffix.
 * Highlighted word actions:
   * [ ] :red_circle: Add: highlight words from Clipboard selected carets (should use history
-        dialog with just a button that will use caret data for highlights).
+            dialog with just a button that will use caret data for highlights).
   * [ ] :red_circle: Add: Sort highlighted word colors (by their content case
-        sensitive/insensitive/
+            sensitive/insensitive/
   * [ ] :red_circle: Add: Copy highlighted words in file/selection, to copy as caret selections
-        all unique highlights which are present in the current file to the clipboard.
+            all unique highlights which are present in the current file to the clipboard.
   * Fix: automatically turn on words highlight mode when adding a highlighted word
   * Add: Select highlighted words in file or current selection to create multi-caret selection
-    from highlighted words. Will use document, single selection or multi-caret selection for
-    limiting search of highlighted words.
+        from highlighted words. Will use document, single selection or multi-caret selection for
+        limiting search of highlighted words.
   * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
-    line to the same color. Either when originally highlighted or added to existing highlights
-    when there is a highlight on the same line. Allows to color align related string on the same
-    line for visual validation elsewhere. A limitation is that a word pattern can only have one
-    color associated with it, so multiple tandem color of the same word will result it in being
-    the last tandem color assigned.
+        line to the same color. Either when originally highlighted or added to existing
+        highlights when there is a highlight on the same line. Allows to color align related
+        string on the same line for visual validation elsewhere. A limitation is that a word
+        pattern can only have one color associated with it, so multiple tandem color of the same
+        word will result it in being the last tandem color assigned.
+* Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.
 * Add: save highlight state to local settings, restore on IDE startup.
 * Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
   it to turn into a line selection.
@@ -123,11 +125,11 @@
   * paste `myIsStart` on `isTask` should result in `isStart` not `isIsStart`
 * Fix: move line selection up/down with:
   * No change: column changes to 0 when caret at start of line (caused by exception in update
-    after move line handler in IDE injected language parsing)
+        after move line handler in IDE injected language parsing)
   * To start/To End: column changes between start/end because it did not distinguish between
-    line/non-line selections.
+        line/non-line selections.
   * Remove: anchor/anti-anchor settings, they don't make sense and make the caret toggle with
-    every move.
+        every move.
 * Fix: toggle direction of selection to set all directions to same orientation, if different
   orientations set all to end.
 * Fix: keep/remove carets actions to convert selection to carets before their operation.
@@ -144,24 +146,24 @@
   * `This_item_name` will change pasted text from `ThatTextString` to `That_text_string`
   * `This_Item_Name` will change pasted text from `ThatTextString` to `That_Text_String`
   * This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style
-    (first letter capitalized, rest lowercase), mixed case style (first letter of each word
-    capitalized), lower case or screaming case.
+        (first letter capitalized, rest lowercase), mixed case style (first letter of each word
+        capitalized), lower case or screaming case.
 * Fix: paste from history
   * Fix: paste spliced & quoted to work if current editor is a plain Swing editor (text boxes)
   * Add: `To Line` action to convert multiple selection to merged **line** content without
-    having to paste it. Opposite of `To Carets`
+        having to paste it. Opposite of `To Carets`
   * Add: allow preview macro replacement results to be selected and copied as new clipboard
-    content.
+        content.
   * Fix: user macro variable replacement and macro variable replacement are now two independent
-    options.
+        options.
   * Fix: user variable case sensitive only if not using smart paste options for replacement.
   * Fix: replacements from clipboard would duplicate for every caret in replacement content even
-    when nothing matched---confusing. Now ignore clipboard
+        when nothing matched---confusing. Now ignore clipboard
   * Add: search highlighting if replacing macro variables or user variable in pasted text is
-    enabled.
+        enabled.
   * Add: option to show text after replacements, with replaced regions highlighted.
   * Add: `__Filepath__` variants to replaced variables to replace with file path which will be
-    pasted into.
+        pasted into.
     * `__Filepath__` : file path as is.
     * `__FILEPATH__` : file path all caps.
     * `__filepath__` : file path lowercase.
@@ -227,10 +229,10 @@
   selection storage/recall or do proper cleanup in afterActionPerformed.
 
   This happens on action exception or premature before call then no actual `actionPerformed`
-  call on the action, like `com.intellij.openapi.actionSystem.impl.ActionButton.performAction`
-  which fires before action then checks to see if there is a context component and if not
-  returns without corresponding `actionPerformed` on the action and `afterActionPerformed`
-  callbacks.
+      call on the action, like
+      `com.intellij.openapi.actionSystem.impl.ActionButton.performAction` which fires before
+      action then checks to see if there is a context component and if not returns without
+      corresponding `actionPerformed` on the action and `afterActionPerformed` callbacks.
 * Fix: update to latest libs
 * Fix: missing toolbar button for `Recall selection from list`
 
@@ -430,8 +432,9 @@
   Plain string search is not case sensitive.
 
   For example: if pasting `int FormatAbc(int abc) { myAbc = abc; return myAbc; } ` with the user
-  search string set to `Abc`, with clipboard data for the replacement contains 3 carets with
-  `def`, `myHij` and `setKlmnop` then the paste will result in the following being pasted in:
+      search string set to `Abc`, with clipboard data for the replacement contains 3 carets with
+      `def`, `myHij` and `setKlmnop` then the paste will result in the following being pasted
+      in:
 
   ```
   int FormatDef(int def) { myDef = def; return myDef; }
@@ -503,29 +506,30 @@
 * Add: Word Highlighting Actions, toolbar buttons and settings:
 
   * Toggle highlight word mode
-    ![Toggle Word Highlights](/resources/icons/png/Toggle_word_highlights%402x.png) : turns
-    highlighted words on/off. Can be used to turn off highlights without clearing highlight word
-    list.
+        ![Toggle Word Highlights](/resources/icons/png/Toggle_word_highlights%402x.png) : turns
+        highlighted words on/off. Can be used to turn off highlights without clearing highlight
+        word list.
   * Toggle highlight word case sensitive mode
-    ![Toggle Case Sensitive Highlights](/resources/icons/png/Toggle_case_sensitive_highlights%402x.png)
-    \: toggles highlight word case sensitive matching on/off.
+        ![Toggle Case Sensitive Highlights](/resources/icons/png/Toggle_case_sensitive_highlights%402x.png)
+        \: toggles highlight word case sensitive matching on/off.
   * Clear highlighted words
-    ![Clear Word Highlights](/resources/icons/png/Clear_word_highlights%402x.png) : clears all
-    highlighted words.
+        ![Clear Word Highlights](/resources/icons/png/Clear_word_highlights%402x.png) : clears
+        all highlighted words.
   * Add selection to highlighted words
-    ![Add Word Highlight](/resources/icons/png/Add_word_highlight%402x.png) : adds the current
-    carets' selection to list of highlighted words.
+        ![Add Word Highlight](/resources/icons/png/Add_word_highlight%402x.png) : adds the
+        current carets' selection to list of highlighted words.
   * Remove selection from highlighted words
-    ![Remove Word Highlight](/resources/icons/png/Remove_word_highlight%402x.png) : adds the
-    current carets' selection to list of highlighted words.
+        ![Remove Word Highlight](/resources/icons/png/Remove_word_highlight%402x.png) : adds the
+        current carets' selection to list of highlighted words.
   * Keep carets whose selections are highlighted words
-    ![Keep Word Highlighted Carets](/resources/icons/png/Keep_word_highlighted_carets%402x.png)
-    \: removes all carets without selection or whose selection text is not a highlighted word.
+        ![Keep Word Highlighted Carets](/resources/icons/png/Keep_word_highlighted_carets%402x.png)
+        \: removes all carets without selection or whose selection text is not a highlighted
+        word.
   * Remove selection from highlighted words.
-    ![Remove Word Highlighted Carets](/resources/icons/png/Remove_word_highlighted_carets%402x.png)
-    \: removes all carets whose selection text is a highlighted word.
+        ![Remove Word Highlighted Carets](/resources/icons/png/Remove_word_highlighted_carets%402x.png)
+        \: removes all carets whose selection text is a highlighted word.
   * Setting allows to define the background colors to be used for highlighted words based on
-    hue, saturation and brightness boundaries and steps.
+        hue, saturation and brightness boundaries and steps.
 
     ![Assets Tools Settings Extras](/assets/images/ToolsSettings_WordHighlights.png)
 
@@ -613,47 +617,48 @@
   * if a single caret exists then:
 
     * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
-      a non-space. Will select the intervening spaces for each caret
+              a non-space. Will select the intervening spaces for each caret
     * if caret is on identifier start then will spawn a caret for every occurrence of identifier
-      and select the identifier.
+              and select the identifier.
     * if caret is on identifier character, but not start of identifier, then will spawn a caret
-      for every occurrence of identifier that ends in same text as one from caret to end of
-      identifier and select the matched identifier portion
+              for every occurrence of identifier that ends in same text as one from caret to end
+              of identifier and select the matched identifier portion
     * otherwise will spawn a caret on every occurrence of the character at caret, selecting
-      trimmed intervening characters between carets.
+              trimmed intervening characters between carets.
   * if multiple carets exist then spawning of only a single carets is done by using the pattern
-    as determined by the primary caret per above rules with addition of hex (with or without 0x
-    prefix), decimal or octal will search for numeric sequence.
+        as determined by the primary caret per above rules with addition of hex (with or without
+        0x prefix), decimal or octal will search for numeric sequence.
 
     For each caret the pattern search is applied and if found a caret is placed at the location.
-    Original caret position is treated as search start positions and match location is called
-    the found caret position.
+            Original caret position is treated as search start positions and match location is
+            called the found caret position.
 
     Start positions are affected by caret movement actions and the pattern search applied at the
-    new location. This allows the search start to be modified after the pattern is set.
+            new location. This allows the search start to be modified after the pattern is set.
 
     Found positions will be the only carets that remain on any non-caret movement actions or on
-    typing a character.
+            typing a character.
 
     This functionality allows creating a set of carets on all lines and then filtering and
-    changing the location of carets used for editing by matching a pattern at the primary caret
-    location.
+            changing the location of carets used for editing by matching a pattern at the
+            primary caret location.
 
     :information_source: With IDE versions **2017.1 EAP** and newer the plugin allows changing
-    the caret appearance for: primary, start and found carets making it easy to see where the
-    search starts and where the pattern is matched. Plugin configuration settings under settings
-    in Tools > Missing In Actions:
+            the caret appearance for: primary, start and found carets making it easy to see
+            where the search starts and where the pattern is matched. Plugin configuration
+            settings under settings in Tools > Missing In Actions:
 
 * behavior is also affected by number of carets and selection:
 
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
-    lines
+        lines
   * any selection for a caret is used to expand the range for that caret to include the
-    selection and caret offset. For best use, define two shortcuts: one for forward spawning
-    action and one for backward one. I was used to having these on my Ctrl+Tab for forward and
-    Ctrl+Shift+Tab for backward search. Since these are taken on OS X, I assigned `⌥⌘⇥` for
-    forward and `⌥⌘⇧⇥` for backward spawning search instead. A bit awkward but usable.
+        selection and caret offset. For best use, define two shortcuts: one for forward spawning
+        action and one for backward one. I was used to having these on my Ctrl+Tab for forward
+        and Ctrl+Shift+Tab for backward search. Since these are taken on OS X, I assigned
+        `⌥⌘⇥` for forward and `⌥⌘⇧⇥` for backward spawning search instead. A bit awkward
+        but usable.
 
 ### 0.8.3 - Bug Fixes and Enhancements
 
@@ -698,13 +703,14 @@
       * if span == 1, keep all carets
       * if have no selections
         * if same number of carets on each type of line:code, comment, blank, of the block then
-          keep all carets
+                          keep all carets
         * otherwise, assume that the first and last caret were used to mark the span of lines to
-          duplicate, and remove them, duplicating the rest of the carets
+                          duplicate, and remove them, duplicating the rest of the carets
     * clipboard data is duplicated for every caret so that the first block will have first caret
-      content for every caret in the block, second second, etc If there are 3 carets with text1,
-      text2 and text3 on clipboard and 3 carets in the line then after dupe, the clipboard will
-      contain 9 carets: text1,text1,text1,text2,text2,text2,text3,text3,text3
+              content for every caret in the block, second second, etc If there are 3 carets
+              with text1, text2 and text3 on clipboard and 3 carets in the line then after dupe,
+              the clipboard will contain 9 carets:
+              text1,text1,text1,text2,text2,text2,text3,text3,text3
 
 * Add: MultiPaste override for all editor fields to make it consistent across the IDE.
 
@@ -735,7 +741,7 @@
 * Add: MiaMultiplePasteAction now displays extensive information about the clipboard content;
   * Whether an entry is multi-caret or single caret or text
   * For each entry shows the caret lines and whether they are line selections, char selections
-    or multi-line char selections
+        or multi-line char selections
   * Updates when the text in the preview is copied to the clipboard
 * Fix: Mia Paste no longer need for making multi-caret select pasted text nor preserve case
   format, using caret listener instead
@@ -760,7 +766,7 @@
   Clipboard` that is.
 
   If the selection is a character selection within a line, will duplicate the line and carets
-  with this selection. Makes it quick to create variants by:
+      with this selection. Makes it quick to create variants by:
 
   1. copying multi-caret selection
   2. select part of the line to be replaced
@@ -770,14 +776,14 @@
 * Add: smart paste functionality.
 
   * preserve camel/pascal case, screaming snake case and snake case on char paste based on
-    context of where it is pasted and what is pasted.
+        context of where it is pasted and what is pasted.
   * remove prefix on paste if pasting text next to or inside an identifier, with two
-    configurable prefixes by default: `my` and `our` The two combined together allow you to
-    select a member with prefix and paste it anywhere. MIA will adjust the pasted text to match
-    the format at destination: camel case, snake case, screaming snake case. Inserting and
-    deleting underscores as needed, adjusting case after the pasted text if needed. 90% of the
-    time there is no need to edit results after pasting, the other 10% hit undo and get the text
-    as it was before MIA modified it.
+        configurable prefixes by default: `my` and `our` The two combined together allow you to
+        select a member with prefix and paste it anywhere. MIA will adjust the pasted text to
+        match the format at destination: camel case, snake case, screaming snake case. Inserting
+        and deleting underscores as needed, adjusting case after the pasted text if needed. 90%
+        of the time there is no need to edit results after pasting, the other 10% hit undo and
+        get the text as it was before MIA modified it.
 
 * Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
   caret filtering and spawning actions.
@@ -793,20 +799,20 @@
 
   * `MissingInActions.KeepBlankLineCarets`: keep only carets on blank lines
   * `MissingInActions.KeepCodeLineCarets`: keep only carets on lines which are not blank and not
-    line comments
+        line comments
   * `MissingInActions.KeepLineCommentCarets`: keep only carets on line comment lines
   * `MissingInActions.RemoveBlankLineCarets`: remove carets which are not on blank lines
   * `MissingInActions.RemoveCodeLineCarets`: remove carets which are on blank or line comment
-    lines
+        lines
   * `MissingInActions.RemoveLineCommentCarets`: remove carets which are not on line comment
-    lines
+        lines
   * `MissingInActions.SmartKeepLineCarets`: useful for quickly isolating code, or comment lines.
-    If have carets on code lines, remove non-code lines; else if have carets on line comment
-    lines then remove non-comment lines, else nothing.
+        If have carets on code lines, remove non-code lines; else if have carets on line comment
+        lines then remove non-comment lines, else nothing.
   * `MissingInActions.SmartRemoveLineCarets`: opposite of smart keep. Useful for isolating
-    carets so unneeded lines can be deleted. If have carets on code lines, remove code lines;
-    else if have carets on line comment lines then remove comment lines, else nothing. In all
-    cases if the operation would remove all carets then nothing is done.
+        carets so unneeded lines can be deleted. If have carets on code lines, remove code
+        lines; else if have carets on line comment lines then remove comment lines, else
+        nothing. In all cases if the operation would remove all carets then nothing is done.
 
 ### 0.7.2 - Refactoring and Code Cleanup
 
@@ -839,7 +845,7 @@
   * Toggle Case: remove selection after if there was not one before
   * Copy: if no selection before then leave the caret column unchanged
   * Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
-    action, if selection was line selection before then restore caret column position after
+        action, if selection was line selection before then restore caret column position after
 
 * Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
   for bug in IDE action that does not adjust selection start if it is not at the left margin.
@@ -859,7 +865,7 @@
   at the head of the selection (actually if the selection was started from the end).
 
   Allows fast duplication of a block of code up, instead of always down and having to move it up
-  over a copy of itself.
+      over a copy of itself.
 
 * Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
   full lines if the trimming or expansion affects whitespace chars only.

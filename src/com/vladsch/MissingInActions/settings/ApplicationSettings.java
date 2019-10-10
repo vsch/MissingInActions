@@ -176,7 +176,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     @NotNull String myDeleteWordExcludingSpaceRegEx = "(\\s[^\\s]+|\\s{2,}|[^\\s]+)";
     @NotNull String myBackspaceWordExcludingSpaceRegEx = "([^\\s]+\\s|\\s{2,}|[^\\s]+)";
     @NotNull String myDeleteWordRegEx = "((?<=\\s|^|\\W)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)(?:\\s+(?=\\s|$|\\W)|))";
-    @NotNull String myBackspaceWordRegEx = "((?:[\\w]+|[^\\w]+)\\s*|(?<=\\s|^|\\W)\\s*(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)\\s*(?=\\s|$|\\W))";
+    @NotNull String myBackspaceWordRegEx = "((?:[\\w]+|[^\\w]+)\\s*|(?<=\\s|^|\\W)(?:[\\w]+|[^\\w]+)\\s*|\\s*(?:[\\w]+|[^\\w]+)\\s*(?=\\s|$|\\W))";
     boolean myDeleteLineBound = false;
     boolean myDeleteMultiCaretLineBound = true;
     boolean myBackspaceLineBound = false;
@@ -184,12 +184,12 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     boolean myOnlyLatestBlankClipboard = false;
     boolean mySpawnNumericSearch = false;       // match all numeric sequences as opposed to specific string
     boolean mySpawnNumericHexSearch = false;    // include hex digits
-    boolean myDisableParameterInfo = false;      // include hex digits
-    boolean myShowGenerateException = false;      // include hex digits
+    boolean myDisableParameterInfo = false;     // disable parameter hints when multi-caret mode
+    boolean myShowGenerateException = false;    // show generate exception action to test handling of recovery
 
-    @XCollection(propertyElementName = "highlightWords", style = XCollection.Style.v1) public ArrayList<String> myHighlightWords = new ArrayList<>();
-    @XCollection(propertyElementName = "highlightFlags", style = XCollection.Style.v1) public ArrayList<Integer> myHighlightFlags = new ArrayList<>();
-    @XCollection(propertyElementName = "highlightIndices", style = XCollection.Style.v1) public ArrayList<Integer> myHighlightIndices = new ArrayList<>();
+    @XCollection(propertyElementName = "highlightWords") public ArrayList<String> myHighlightWords = new ArrayList<>();
+    @XCollection(propertyElementName = "highlightFlags") public ArrayList<Integer> myHighlightFlags = new ArrayList<>();
+    @XCollection(propertyElementName = "highlightIndices") public ArrayList<Integer> myHighlightIndices = new ArrayList<>();
 
     @Transient
     public void setHighlightState(@Nullable Map<String, Pair<Integer, Integer>> state) {
