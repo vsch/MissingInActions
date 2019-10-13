@@ -107,11 +107,12 @@
 
 ### 1.7.5.33 - Bug Fix Release & Enhancement Release
 
-* Fix: when toggling line/carets try to keep the primary caret position at least on the same
-      line.
+* Fix: when toggling line/carets try to keep the primary caret position closest to offset before
+  action.
   * when creating multi-carets from selection make the primary caret closest to the
         primary caret before the action.
   * when toggling selection keep caret offset at primary caret offset
+  * when accepting found/not-found search carets
 
 #### 1.7.5.31 - Bug Fix Release & Enhancement Release
 
