@@ -89,12 +89,13 @@
         <div xmlns="http://www.w3.org/1999/html">
             <h3>1.7.5.33 - Bug Fix Release &amp; Enhancement Release</h3>
             <ul>
-                <li>Fix: when toggling line/carets try to keep the primary caret position at least on the same
-                    line.
+                <li>Fix: when toggling line/carets try to keep the primary caret position closest to offset before
+                    action.
                     <ul>
                         <li>when creating multi-carets from selection make the primary caret closest to the
                             primary caret before the action.</li>
                         <li>when toggling selection keep caret offset at primary caret offset</li>
+                        <li>when accepting found/not-found search carets</li>
                     </ul>
                 </li>
             </ul>
