@@ -44,6 +44,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.CaretMoveAction;
 import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
 import com.vladsch.MissingInActions.actions.DeleteAfterPasteTransferableData;
@@ -59,7 +60,6 @@ import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.flexmark.util.Pair;
-import java.util.function.Consumer;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +75,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.EDITOR;
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
@@ -273,21 +274,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     // rerun on new caret position after action
                     myRerunCaretHandler = true;
                 } else {
-                    // keep only found position carets
-                    Set<CaretEx> foundCarets = myManager.getFoundCarets();
-                    if (foundCarets != null) {
-                        Set<Long> carets = new HashSet<>(foundCarets.size());
-                        for (CaretEx caretEx : foundCarets) {
-                            carets.add(caretEx.getCoordinates());
-                        }
-
-                        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                            if (!carets.contains(CaretEx.getCoordinates(caret))) {
-                                myEditor.getCaretModel().removeCaret(caret);
-                            }
-                        }
-                    }
-                    myManager.clearSearchFoundCarets();
+                    ActionUtils.acceptSearchCarets(myManager, true, true);
                 }
             } else {
                 myManager.clearSearchFoundCarets();
@@ -913,20 +900,20 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                         if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER, MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
                             if (value != -1) {
                                 boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
-                                        .to(CaretAdjustmentType.TO_START, () -> {
-                                            if (editorCaret.isLine()) {
-                                                editorCaret.setStartAnchor(false);
-                                            } else {
-                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
-                                            }
-                                        })
-                                        .to(CaretAdjustmentType.TO_END, () -> {
-                                            if (editorCaret.isLine()) {
-                                                editorCaret.setStartAnchor(true);
-                                            } else {
-                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
-                                            }
-                                        })
+                                                .to(CaretAdjustmentType.TO_START, () -> {
+                                                    if (editorCaret.isLine()) {
+                                                        editorCaret.setStartAnchor(false);
+                                                    } else {
+                                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                                    }
+                                                })
+                                                .to(CaretAdjustmentType.TO_END, () -> {
+                                                    if (editorCaret.isLine()) {
+                                                        editorCaret.setStartAnchor(true);
+                                                    } else {
+                                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                                    }
+                                                })
 //                                        .to(CaretAdjustmentType.TO_ANCHOR, () -> {
 //                                        })
 //                                        .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {

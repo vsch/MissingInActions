@@ -62,11 +62,12 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
         if (editor == null) return;
 
         final CaretModel caretModel = editor.getCaretModel();
-        if (caretModel.getCaretCount() > 1) {
+        int caretCount = caretModel.getCaretCount();
+        if (caretCount > 1) {
 
             int index = ActionUtils.getPrimaryCaretIndex(editor, true);
-            int newIndex = index + myDelta % caretModel.getCaretCount();
-            if (newIndex < 0) newIndex += caretModel.getCaretCount();
+            int newIndex = (index + myDelta) % caretCount;
+            if (newIndex < 0) newIndex += caretCount;
 
             if (ActionUtils.setPrimaryCaretIndex(editor, newIndex, true)) {
                 EditHelpers.scrollToCaret(editor);

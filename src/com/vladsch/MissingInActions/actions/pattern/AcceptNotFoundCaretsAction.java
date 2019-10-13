@@ -24,20 +24,16 @@ package com.vladsch.MissingInActions.actions.pattern;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
-import com.vladsch.MissingInActions.manager.CaretEx;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class AcceptNotFoundCaretsAction extends EditorAction implements CaretSearchAwareAction {
     public AcceptNotFoundCaretsAction() {
@@ -63,29 +59,8 @@ public class AcceptNotFoundCaretsAction extends EditorAction implements CaretSea
         @Override
         protected void doExecute(@NotNull final Editor editor, @Nullable final Caret caret, final DataContext dataContext) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            List<CaretState> caretStates = manager.getStartCaretStates();
-
-            if (caretStates != null) {
-                Set<CaretEx> startMatchedCarets = manager.getStartMatchedCarets();
-                if (startMatchedCarets != null) {
-                    Set<Long> excludeList = CaretEx.getExcludedCoordinates(null, startMatchedCarets);
-                    Set<CaretEx> foundCarets = manager.getFoundCarets();
-                    excludeList = CaretEx.getExcludedCoordinates(excludeList, foundCarets);
-                    List<CaretState> keepCarets = new ArrayList<>(caretStates.size() - startMatchedCarets.size());
-
-                    for (CaretState caretState : caretStates) {
-                        if (excludeList != null && caretState.getCaretPosition() != null && excludeList.contains(CaretEx.getCoordinates(caretState.getCaretPosition()))) continue;
-                        keepCarets.add(caretState);
-                    }
-
-                    manager.clearSearchFoundCarets();
-                    if (!keepCarets.isEmpty()) {
-                        editor.getCaretModel().setCaretsAndSelections(keepCarets);
-                    }
-                } else {
-                    manager.clearSearchFoundCarets();
-                    editor.getCaretModel().setCaretsAndSelections(caretStates);
-                }
+            if (ActionUtils.acceptSearchCarets(manager, false, true)) {
+                EditHelpers.scrollToCaret(editor);
             }
         }
     }
