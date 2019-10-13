@@ -113,6 +113,11 @@
         string on the same line for visual validation elsewhere. A limitation is that a word
         pattern can only have one color associated with it, so multiple tandem color of the same
         word will result it in being the last tandem color assigned.
+* [ ] Fix: when toggling line/carets try to keep the primary caret position at least on the same
+      line.
+  * [ ] when creating multi-carets from selection make the primary caret closest to the
+        primary caret before the action.
+  * [ ] when toggling line selection keep caret offset at multi-caret primary caret offset
 * Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.
 * Add: save highlight state to local settings, restore on IDE startup.
 * Fix: merged transferable would erroneously append EOL to multi-line char caret content causing

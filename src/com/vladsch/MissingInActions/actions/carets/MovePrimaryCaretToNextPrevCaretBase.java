@@ -95,7 +95,7 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
                     // the data will no change just the position in the list, so we swap the two
                     caretModel.removeSecondaryCarets();
 
-                    ArrayList<CaretState> reOrderedStates = new ArrayList<CaretState>(caretStates);
+                    ArrayList<CaretState> reOrderedStates = new ArrayList<>(caretStates);
 
                     int i = 0;
                     for (CaretState caretState : reOrderedStates) {

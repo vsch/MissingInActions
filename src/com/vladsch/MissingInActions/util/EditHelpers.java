@@ -1013,7 +1013,7 @@ public class EditHelpers {
     @NotNull
     public static ItemTextRange<Language> getLanguageRangeAtOffset(@NotNull PsiFile file, int offset) {
         final PsiElement elt = file.findElementAt(offset);
-        if (elt == null) return new ItemTextRange<Language>(file.getLanguage(), 0, file.getTextLength());
+        if (elt == null) return new ItemTextRange<>(file.getLanguage(), 0, file.getTextLength());
         if (elt instanceof PsiWhiteSpace) {
             TextRange textRange = elt.getTextRange();
             if (!textRange.contains(offset)) {
