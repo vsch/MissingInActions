@@ -129,7 +129,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             // convert to
             EditorCaret editorCaret = LineSelectionManager.getInstance(editor).getEditorCaret(editor.getCaretModel().getPrimaryCaret());
             if (editorCaret.hasSelection() && editorCaret.hasLines()) {
-                ActionUtils.toggleCaretsLineSelection(editor, true, true, true, true);
+                ActionUtils.toggleCaretsLineSelection(editor, true, true, true, true, true);
             }
         }
 

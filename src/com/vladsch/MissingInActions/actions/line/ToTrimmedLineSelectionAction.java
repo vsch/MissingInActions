@@ -34,6 +34,6 @@ import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
 public class ToTrimmedLineSelectionAction extends DumbAwareEditorAction implements LineSelectionAware {
     public ToTrimmedLineSelectionAction() {
-        super(new ToLineOrCharacterSelectionTypeActionHandler(true, true));
+        super(new ToLineOrCharacterSelectionTypeActionHandler(true));
     }
 }

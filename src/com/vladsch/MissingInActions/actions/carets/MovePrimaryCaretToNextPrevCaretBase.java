@@ -23,20 +23,12 @@ package com.vladsch.MissingInActions.actions.carets;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.CaretState;
-import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
-import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction implements LineSelectionAware {
     final protected int myDelta;
@@ -71,48 +63,14 @@ abstract public class MovePrimaryCaretToNextPrevCaretBase extends AnAction imple
 
         final CaretModel caretModel = editor.getCaretModel();
         if (caretModel.getCaretCount() > 1) {
-            LineSelectionManager manager = LineSelectionManager.getInstance(editor);
 
-            manager.guard(() -> {
-                Caret primaryCaret = caretModel.getPrimaryCaret();
-                List<CaretState> caretStates = caretModel.getCaretsAndSelections();
-                caretStates.sort(Comparator.comparing(CaretState::getCaretPosition));
+            int index = ActionUtils.getPrimaryCaretIndex(editor, true);
+            int newIndex = index + myDelta % caretModel.getCaretCount();
+            if (newIndex < 0) newIndex += caretModel.getCaretCount();
 
-                int index = 0;
-                LogicalPosition logicalPosition = primaryCaret.getLogicalPosition();
-                for (CaretState caretState : caretStates) {
-                    if (logicalPosition.equals(caretState.getCaretPosition())) {
-                        break;
-                    }
-                    index++;
-                }
-
-                int newIndex = index + myDelta % caretStates.size();
-                if (newIndex < 0) newIndex += caretStates.size();
-
-                if (newIndex != index) {
-                    // need to move the primary to last position in the list
-                    // the data will no change just the position in the list, so we swap the two
-                    caretModel.removeSecondaryCarets();
-
-                    ArrayList<CaretState> reOrderedStates = new ArrayList<>(caretStates);
-
-                    int i = 0;
-                    for (CaretState caretState : reOrderedStates) {
-                        LogicalPosition position = caretState.getCaretPosition();
-
-                        if (position != null) {
-                            Caret caret = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editor.logicalToVisualPosition(position), i == newIndex);
-                            EditHelpers.restoreState(caret, caretState, true);
-                            i++;
-                        }
-                    }
-
-                    manager.updateCaretHighlights();
-                }
-
+            if (ActionUtils.setPrimaryCaretIndex(editor, newIndex, true)) {
                 EditHelpers.scrollToCaret(editor);
-            });
+            }
         }
     }
 }

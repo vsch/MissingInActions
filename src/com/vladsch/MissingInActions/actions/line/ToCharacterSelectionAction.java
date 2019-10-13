@@ -34,6 +34,6 @@ import com.vladsch.MissingInActions.actions.LineSelectionAware;
 
 public class ToCharacterSelectionAction extends DumbAwareEditorAction implements LineSelectionAware {
     public ToCharacterSelectionAction() {
-        super(new ToLineOrCharacterSelectionTypeActionHandler(false, false));
+        super(new ToLineOrCharacterSelectionTypeActionHandler(false));
     }
 }

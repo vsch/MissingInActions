@@ -18,49 +18,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/*
- * Created by IntelliJ IDEA.
- * User: max
- * Date: May 13, 2002
- * Time: 9:58:23 PM
- * To change template for new class use
- * Code Style | Class Templates options (Tools | IDE Options).
- */
 package com.vladsch.MissingInActions.actions.line;
 
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.vladsch.MissingInActions.manager.EditorCaret;
+import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHandler {
     final private @Nullable Boolean myMakeLine;
-    final private boolean myTrimmedLine;
 
     @SuppressWarnings("WeakerAccess")
-    public ToLineOrCharacterSelectionTypeActionHandler(@Nullable Boolean makeLine, boolean trimmedLine) {
+    public ToLineOrCharacterSelectionTypeActionHandler(@Nullable Boolean makeLine) {
         super(true);
         myMakeLine = makeLine;
-        myTrimmedLine = trimmedLine;
     }
 
     @Override
     public void doExecute(@NotNull final Editor editor, final @Nullable Caret caret, final DataContext dataContext) {
         final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         manager.guard(() -> {
-            if (!editor.getCaretModel().supportsMultipleCarets()) {
-                perform(editor, manager, caret);
+            if (!editor.getCaretModel().supportsMultipleCarets() || caret != null) {
+                ActionUtils.toggleLineCharacterSelection(manager, caret, wantLine(), wantCharacter(), true);
             } else {
-                if (caret == null) {
-                    editor.getCaretModel().runForEachCaret(caret1 -> perform(editor, manager, caret1));
-                } else {
-                    perform(editor, manager, caret);
-                }
+                editor.getCaretModel().runForEachCaret(caret1 -> ActionUtils.toggleLineCharacterSelection(manager, caret1, wantLine(), wantCharacter(), true));
             }
         });
     }
@@ -71,25 +56,5 @@ public class ToLineOrCharacterSelectionTypeActionHandler extends EditorActionHan
 
     private boolean wantCharacter() {
         return myMakeLine == null || !myMakeLine;
-    }
-
-    private void perform(Editor editor, LineSelectionManager manager, Caret caret) {
-        assert caret != null;
-
-        EditorCaret editorCaret = manager.getEditorCaret(caret);
-
-        if (editorCaret.hasSelection()) {
-            if (editorCaret.isLine()) {
-                if (wantCharacter()) {
-                    editorCaret.toCharSelection()
-                            .normalizeCaretPosition()
-                            .commit();
-                }
-            } else if (wantLine()) {
-                editorCaret.toLineSelection()
-                        .normalizeCaretPosition()
-                        .commit();
-            }
-        }
     }
 }

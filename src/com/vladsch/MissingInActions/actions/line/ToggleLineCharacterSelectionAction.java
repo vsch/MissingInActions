@@ -36,7 +36,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 public class ToggleLineCharacterSelectionAction extends DumbAwareEditorAction implements LineSelectionAware {
     public ToggleLineCharacterSelectionAction() {
-        super(new ToLineOrCharacterSelectionTypeActionHandler(null, false));
+        super(new ToLineOrCharacterSelectionTypeActionHandler(null));
     }
 
     @Override

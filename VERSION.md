@@ -4,7 +4,8 @@
 
 ### Version History
 - [ CRITICAL](#critical)
-- [1.7.5.31 - Bug Fix Release & Enhancement Release](#17531-bug-fix-release-enhancement-release)
+- [1.7.5.35 - Bug Fix Release & Enhancement Release](#17535-bug-fix-release-enhancement-release)
+- [1.7.5.33 - Bug Fix Release & Enhancement Release](#17533-bug-fix-release-enhancement-release)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -81,7 +82,7 @@
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
             for keywords
 
-### 1.7.5.31 - Bug Fix Release & Enhancement Release
+### 1.7.5.35 - Bug Fix Release & Enhancement Release
 
 * [ ] :red_circle: Add: save isolation ranges in editor state
 * [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
@@ -103,6 +104,18 @@
             sensitive/insensitive/
   * [ ] :red_circle: Add: Copy highlighted words in file/selection, to copy as caret selections
             all unique highlights which are present in the current file to the clipboard.
+
+### 1.7.5.33 - Bug Fix Release & Enhancement Release
+
+* Fix: when toggling line/carets try to keep the primary caret position at least on the same
+      line.
+  * when creating multi-carets from selection make the primary caret closest to the
+        primary caret before the action.
+  * when toggling selection keep caret offset at primary caret offset
+
+#### 1.7.5.31 - Bug Fix Release & Enhancement Release
+
+* Highlighted word actions:
   * Fix: automatically turn on words highlight mode when adding a highlighted word
   * Add: Select highlighted words in file or current selection to create multi-caret selection
         from highlighted words. Will use document, single selection or multi-caret selection for
@@ -113,11 +126,6 @@
         string on the same line for visual validation elsewhere. A limitation is that a word
         pattern can only have one color associated with it, so multiple tandem color of the same
         word will result it in being the last tandem color assigned.
-* [ ] Fix: when toggling line/carets try to keep the primary caret position at least on the same
-      line.
-  * [ ] when creating multi-carets from selection make the primary caret closest to the
-        primary caret before the action.
-  * [ ] when toggling line selection keep caret offset at multi-caret primary caret offset
 * Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.
 * Add: save highlight state to local settings, restore on IDE startup.
 * Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
