@@ -40,6 +40,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.text.CharArrayUtil;
 import com.vladsch.MissingInActions.actions.ActionUtils;
+import com.vladsch.MissingInActions.actions.CaretOffsetPreserver;
 import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
@@ -139,6 +140,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
             final Project project = editor.getProject();
             final PsiFile psiFile = project == null || editor.getVirtualFile() == null ? null : PsiManager.getInstance(project).findFile(editor.getVirtualFile());
             final LineCommentProcessor lineCommentProcessor = psiFile == null ? null : new LineCommentProcessor(editor, psiFile);
+            final CaretOffsetPreserver preserver = new CaretOffsetPreserver(caretModel.getOffset());
 
             boolean hadCodeLine = false;
             boolean hadLineComment = false;
@@ -220,6 +222,7 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                         if (opType.removeWithSelection || opType.removeWithoutSelection) {
                             if (opType.removeWithSelection && caret.hasSelection() || opType.removeWithoutSelection && !caret.hasSelection()) {
                                 editor.getCaretModel().removeCaret(caret);
+                                continue;
                             }
                         } else {
                             final int lineNumber = doc.getLineNumber(caret.getOffset());
@@ -234,23 +237,30 @@ public class RemoveLineCaretsActionBase extends AnAction implements LineSelectio
                             }
 
                             if (CharArrayUtil.isEmptyOrSpaces(doc.getCharsSequence(), lineStartOffset, lineEndOffset)) {
-
                                 if (opType.removeBlankLines) {
                                     editor.getCaretModel().removeCaret(caret);
+                                    continue;
                                 }
                             } else {
                                 if (lineCommentProcessor != null && lineCommentProcessor.isLineCommented(lineStartOffset, lineEndOffset)) {
                                     if (opType.removeLineComments) {
                                         editor.getCaretModel().removeCaret(caret);
+                                        continue;
                                     }
                                 } else {
                                     if (opType.removeCodeLines) {
                                         editor.getCaretModel().removeCaret(caret);
+                                        continue;
                                     }
                                 }
                             }
                         }
+
+                        preserver.tryCaret(caret);
                     }
+
+                    // restore to closest matched index
+                    ActionUtils.setPrimaryCaretIndex(editor, preserver.getMatchedIndex(), false);
                 }
             }
         }

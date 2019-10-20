@@ -6,7 +6,6 @@
       <element id="directory" name="icons">
         <element id="dir-copy" path="$PROJECT_DIR$/resources/icons" />
       </element>
-      <element id="module-output" name="plugin-util" />
     </root>
   </artifact>
 </component>
