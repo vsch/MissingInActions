@@ -34,27 +34,27 @@ import org.jetbrains.annotations.NotNull;
 public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot {
     // @formatter:off
     final static public DataKey<EditorCaretSnapshot>    CARET                   = new DataKey<>("CARET", EditorCaretSnapshot.NULL);
-    final static public DataKey<Params>                 PARAMS                  = new DataKey<>("PARAMS", value-> new Params(null));
+    final static public DataKey<Params<?>>              PARAMS                  = new DataKey<>("PARAMS",new Params<>(null));
 
-    final static public DataKey<Boolean>                HAS_LINES               = new DataKey<>("HAS_LINES", holder -> CARET.getFrom(holder).hasLines());
-    final static public DataKey<Boolean>                HAS_SELECTION           = new DataKey<>("HAS_SELECTION", holder -> CARET.getFrom(holder).hasSelection());
-    final static public DataKey<Boolean>                IS_LINE                 = new DataKey<>("IS_LINE", holder -> CARET.getFrom(holder).isLine());
-    final static public DataKey<Boolean>                IS_START_ANCHOR         = new DataKey<>("IS_START_ANCHOR", holder -> CARET.getFrom(holder).isStartAnchor());
-    final static public DataKey<EditorPosition>         ANCHOR_POSITION         = new DataKey<>("ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAnchorPosition());
-    final static public DataKey<EditorPosition>         ANTI_ANCHOR_POSITION    = new DataKey<>("ANTI_ANCHOR_POSITION", holder -> CARET.getFrom(holder).getAntiAnchorPosition());
-    final static public DataKey<EditorPosition>         CARET_POSITION          = new DataKey<>("CARET_POSITION", holder -> CARET.getFrom(holder).getCaretPosition());
-    final static public DataKey<EditorPosition>         LINE_SELECTION_END      = new DataKey<>("LINE_SELECTION_END", holder -> CARET.getFrom(holder).getLineSelectionEnd());
-    final static public DataKey<EditorPosition>         LINE_SELECTION_START    = new DataKey<>("LINE_SELECTION_START", holder -> CARET.getFrom(holder).getLineSelectionStart());
-    final static public DataKey<EditorPosition>         SELECTION_END           = new DataKey<>("SELECTION_END", holder -> CARET.getFrom(holder).getSelectionEnd());
-    final static public DataKey<EditorPosition>         SELECTION_START         = new DataKey<>("SELECTION_START", holder -> CARET.getFrom(holder).getSelectionStart());
-    final static public DataKey<Integer>                ANCHOR_COLUMN           = new DataKey<>("ANCHOR_COLUMN", holder -> CARET.getFrom(holder).getAnchorColumn());
-    final static public DataKey<Integer>                COLUMN                  = new DataKey<>("COLUMN", holder -> CARET.getFrom(holder).getColumn());
-    final static public DataKey<Integer>                INDENT                  = new DataKey<>("INDENT", holder -> CARET.getFrom(holder).getIndent());
-    final static public DataKey<Integer>                SELECTION_LINE_COUNT    = new DataKey<>("SELECTION_LINE_COUNT", holder -> CARET.getFrom(holder).getSelectionLineCount());
+    final static public DataKey<Boolean>                HAS_LINES               = new DataKey<>("HAS_LINES", EditorCaretSnapshot.NULL.hasLines(), holder -> CARET.get(holder).hasLines());
+    final static public DataKey<Boolean>                HAS_SELECTION           = new DataKey<>("HAS_SELECTION", EditorCaretSnapshot.NULL.hasSelection(), holder -> CARET.get(holder).hasSelection());
+    final static public DataKey<Boolean>                IS_LINE                 = new DataKey<>("IS_LINE", EditorCaretSnapshot.NULL.isLine(), holder -> CARET.get(holder).isLine());
+    final static public DataKey<Boolean>                IS_START_ANCHOR         = new DataKey<>("IS_START_ANCHOR", EditorCaretSnapshot.NULL.isStartAnchor(), holder -> CARET.get(holder).isStartAnchor());
+    final static public DataKey<EditorPosition>         ANCHOR_POSITION         = new DataKey<>("ANCHOR_POSITION", EditorCaretSnapshot.NULL.getAnchorPosition(), holder -> CARET.get(holder).getAnchorPosition());
+    final static public DataKey<EditorPosition>         ANTI_ANCHOR_POSITION    = new DataKey<>("ANTI_ANCHOR_POSITION", EditorCaretSnapshot.NULL.getAntiAnchorPosition(), holder -> CARET.get(holder).getAntiAnchorPosition());
+    final static public DataKey<EditorPosition>         CARET_POSITION          = new DataKey<>("CARET_POSITION", EditorCaretSnapshot.NULL.getCaretPosition(), holder -> CARET.get(holder).getCaretPosition());
+    final static public DataKey<EditorPosition>         LINE_SELECTION_END      = new DataKey<>("LINE_SELECTION_END", EditorCaretSnapshot.NULL.getLineSelectionEnd(), holder -> CARET.get(holder).getLineSelectionEnd());
+    final static public DataKey<EditorPosition>         LINE_SELECTION_START    = new DataKey<>("LINE_SELECTION_START", EditorCaretSnapshot.NULL.getLineSelectionStart(), holder -> CARET.get(holder).getLineSelectionStart());
+    final static public DataKey<EditorPosition>         SELECTION_END           = new DataKey<>("SELECTION_END", EditorCaretSnapshot.NULL.getSelectionEnd(), holder -> CARET.get(holder).getSelectionEnd());
+    final static public DataKey<EditorPosition>         SELECTION_START         = new DataKey<>("SELECTION_START", EditorCaretSnapshot.NULL.getSelectionStart(), holder -> CARET.get(holder).getSelectionStart());
+    final static public DataKey<Integer>                ANCHOR_COLUMN           = new DataKey<>("ANCHOR_COLUMN", EditorCaretSnapshot.NULL.getAnchorColumn(), holder -> CARET.get(holder).getAnchorColumn());
+    final static public DataKey<Integer>                COLUMN                  = new DataKey<>("COLUMN", EditorCaretSnapshot.NULL.getColumn(), holder -> CARET.get(holder).getColumn());
+    final static public DataKey<Integer>                INDENT                  = new DataKey<>("INDENT", EditorCaretSnapshot.NULL.getIndent(), holder -> CARET.get(holder).getIndent());
+    final static public DataKey<Integer>                SELECTION_LINE_COUNT    = new DataKey<>("SELECTION_LINE_COUNT", EditorCaretSnapshot.NULL.getSelectionLineCount(), holder -> CARET.get(holder).getSelectionLineCount());
     // @formatter:on
 
     // user params
-    public static class Params<T extends Params> {
+    public static class Params<T extends Params<T>> {
         void set(MutableDataHolder holder) { holder.set(PARAMS, this); }
 
         protected Params(CaretSnapshot snapshot) { if (snapshot != null) set(snapshot); }
@@ -82,21 +82,21 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
         set(CARET, editorCaret);
 
         // take a snapshot of the caret data
-        HAS_LINES.getFrom(this);
-        HAS_SELECTION.getFrom(this);
-        IS_LINE.getFrom(this);
-        IS_START_ANCHOR.getFrom(this);
-        ANCHOR_POSITION.getFrom(this);
-        ANTI_ANCHOR_POSITION.getFrom(this);
-        CARET_POSITION.getFrom(this);
-        LINE_SELECTION_END.getFrom(this);
-        LINE_SELECTION_START.getFrom(this);
-        SELECTION_END.getFrom(this);
-        SELECTION_START.getFrom(this);
-        ANCHOR_COLUMN.getFrom(this);
-        COLUMN.getFrom(this);
-        INDENT.getFrom(this);
-        SELECTION_LINE_COUNT.getFrom(this);
+        HAS_LINES.get(this);
+        HAS_SELECTION.get(this);
+        IS_LINE.get(this);
+        IS_START_ANCHOR.get(this);
+        ANCHOR_POSITION.get(this);
+        ANTI_ANCHOR_POSITION.get(this);
+        CARET_POSITION.get(this);
+        LINE_SELECTION_END.get(this);
+        LINE_SELECTION_START.get(this);
+        SELECTION_END.get(this);
+        SELECTION_START.get(this);
+        ANCHOR_COLUMN.get(this);
+        COLUMN.get(this);
+        INDENT.get(this);
+        SELECTION_LINE_COUNT.get(this);
 
         set(CARET, this);
     }
@@ -106,34 +106,35 @@ public class CaretSnapshot extends MutableDataSet implements EditorCaretSnapshot
     // *
 
     // @formatter:off
-    @Override public boolean                        hasLines()                              { return HAS_LINES.getFrom(this); }
-    @Override public boolean                        hasSelection()                          { return HAS_SELECTION.getFrom(this); }
-    @Override public boolean                        isLine()                                { return IS_LINE.getFrom(this); }
-    @Override public boolean                        isStartAnchor()                         { return IS_START_ANCHOR.getFrom(this); }
-    @Override @NotNull public EditorPosition        getAnchorPosition()                     { return ANCHOR_POSITION.getFrom(this); }
-    @Override @NotNull public EditorPosition        getAntiAnchorPosition()                 { return ANTI_ANCHOR_POSITION.getFrom(this); }
-    @Override @NotNull public EditorPosition        getCaretPosition()                      { return CARET_POSITION.getFrom(this); }
-    @Override @NotNull public EditorPosition        getLineSelectionEnd()                   { return LINE_SELECTION_END.getFrom(this); }
-    @Override @NotNull public EditorPosition        getLineSelectionStart()                 { return LINE_SELECTION_START.getFrom(this); }
-    @Override @NotNull public EditorPosition        getSelectionEnd()                       { return SELECTION_END.getFrom(this); }
-    @Override @NotNull public EditorPosition        getSelectionStart()                     { return SELECTION_START.getFrom(this); }
-    @Override public int                            getAnchorColumn()                       { return ANCHOR_COLUMN.getFrom(this); }
-    @Override public int                            getColumn()                             { return COLUMN.getFrom(this); }
-    @Override public int                            getIndent()                             { return INDENT.getFrom(this); }
-    @Override public int                            getSelectionLineCount()                 { return SELECTION_LINE_COUNT.getFrom(this); }
+    @Override public boolean                        hasLines()                              { return HAS_LINES.get(this);}
+    @Override public boolean                        hasSelection()                          { return HAS_SELECTION.get(this);}
+    @Override public boolean                        isLine()                                { return IS_LINE.get(this);}
+    @Override public boolean                        isStartAnchor()                         { return IS_START_ANCHOR.get(this);}
+    @Override @NotNull public EditorPosition        getAnchorPosition()                     { return ANCHOR_POSITION.get(this);}
+    @Override @NotNull public EditorPosition        getAntiAnchorPosition()                 { return ANTI_ANCHOR_POSITION.get(this);}
+    @Override @NotNull public EditorPosition        getCaretPosition()                      { return CARET_POSITION.get(this);}
+    @Override @NotNull public EditorPosition        getLineSelectionEnd()                   { return LINE_SELECTION_END.get(this);}
+    @Override @NotNull public EditorPosition        getLineSelectionStart()                 { return LINE_SELECTION_START.get(this);}
+    @Override @NotNull public EditorPosition        getSelectionEnd()                       { return SELECTION_END.get(this);}
+    @Override @NotNull public EditorPosition        getSelectionStart()                     { return SELECTION_START.get(this);}
+    @Override public int                            getAnchorColumn()                       { return ANCHOR_COLUMN.get(this);}
+    @Override public int                            getColumn()                             { return COLUMN.get(this);}
+    @Override public int                            getIndent()                             { return INDENT.get(this);}
+    @Override public int                            getSelectionLineCount()                 { return SELECTION_LINE_COUNT.get(this);}
     // @formatter:on
 
     // Helpers
+    @SuppressWarnings("UnusedReturnValue")
     @NotNull
     public CaretSnapshot restoreColumn() {
         if (myCaret.isValid() && !myCaret.getEditor().getSettings().isUseSoftWraps()) {
-            myCaret.moveToLogicalPosition(new LogicalPosition(myCaret.getLogicalPosition().line, get(COLUMN)));
+            myCaret.moveToLogicalPosition(new LogicalPosition(myCaret.getLogicalPosition().line, COLUMN.get(this)));
         }
         return this;
     }
 
     public CaretSnapshot restoreColumn(EditorCaret editorCaret) {
-        editorCaret.restoreColumn(get(COLUMN));
+        editorCaret.restoreColumn(COLUMN.get(this));
         return this;
     }
 

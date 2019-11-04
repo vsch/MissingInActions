@@ -70,6 +70,7 @@ public class BatchSearchReplaceToolWindow {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 
         // we need to dispose of all the editors
+        myBatchSearchReplace.disposeEditors();
         Disposer.dispose(myBatchSearchReplace);
 
         toolWindowManager.unregisterToolWindow(TOOL_WINDOW_ID);

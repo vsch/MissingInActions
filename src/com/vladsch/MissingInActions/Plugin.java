@@ -132,6 +132,8 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             Map<String, Pair<Integer, Integer>> state = mySettings.getHighlightState();
             if (state != null) {
                 setHighlightState(state);
+                setHighlightCaseSensitive(mySettings.isHighlightWordsCaseSensitive());
+                setHighlightWordsMatchBoundary(mySettings.isHighlightWordsMatchBoundary());
                 fireHighlightsChanged();
             } else {
                 clearHighlights();
@@ -169,6 +171,8 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             myHighlightSaveTask = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), "Highlight Saver", 500, ModalityState.NON_MODAL, () -> {
                 HashMap<String, Pair<Integer, Integer>> state = getHighlightState();
                 mySettings.setHighlightState(getHighlightState());
+                mySettings.setHighlightWordsCaseSensitive(isHighlightCaseSensitive());
+                mySettings.setHighlightWordsMatchBoundary(isHighlightWordsMatchBoundary());
             });
         }
 

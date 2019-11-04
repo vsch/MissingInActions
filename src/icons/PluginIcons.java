@@ -66,6 +66,7 @@ public class PluginIcons {
     public static final Icon Remove_word_highlight = load("/icons/png/Remove_word_highlight.png");
     public static final Icon Toggle_word_highlights = load("/icons/png/Toggle_word_highlights.png");
     public static final Icon Toggle_case_sensitive_highlights = load("/icons/png/Toggle_case_sensitive_highlights.png");
+    public static final Icon Toggle_match_boundary_highlights = load("/icons/png/Toggle_match_boundary_highlights.png");
     public static final Icon Keep_word_highlighted_carets = load("/icons/png/Keep_word_highlighted_carets.png");
     public static final Icon Remove_word_highlighted_carets = load("/icons/png/Remove_word_highlighted_carets.png");
     public static final Icon Keep_carets_with_selection = load("/icons/png/Keep_carets_with_selection.png");
@@ -91,6 +92,7 @@ public class PluginIcons {
     public static final Icon Toggle_search_numeric = load("/icons/png/Toggle_search_numeric.png");
     public static final Icon Toggle_search_hex = load("/icons/png/Toggle_search_hex.png");
     public static final Icon Toggle_search_prefix = load("/icons/png/Toggle_search_prefix.png");
+    public static final Icon Toggle_search_match_boundary = load("/icons/png/Toggle_search_match_boundary.png");
     public static final Icon Create_carets_from_highlights = load("/icons/png/Create_carets_from_highlights.png");
     public static final Icon Generate_exception = load("/icons/svg/Generate_exception.svg");
 }

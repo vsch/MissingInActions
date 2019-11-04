@@ -25,6 +25,7 @@ import com.intellij.codeInsight.hints.ParameterHintsPassFactory;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -32,6 +33,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -66,8 +68,9 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
 
     @Override
     public void dispose() {
+        disposeComponent();
     }
-    
+
     void propertyChange(PropertyChangeEvent evt) {
         if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
             Editor newEditor = null;
@@ -191,7 +194,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             myPlugin.projectClosed(myProject);
         });
 
-        mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
+        // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
+        if (!ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(myProject)) {
+            mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
+        }
     }
 
     public void showBatchSearchReplace() {
@@ -209,10 +215,6 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     @Override
     public void projectClosed() {
         myDelayedRunner.runAllFor(myProject);
-        if (mySearchReplaceToolWindow != null) {
-            mySearchReplaceToolWindow.unregisterToolWindow();
-            mySearchReplaceToolWindow = null;
-        }
     }
 
     @Override
@@ -223,6 +225,11 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             myPlugin.disposeProjectComponent(myProject);
             myInActiveLookupListeners.clear();
             myActiveLookupListeners.clear();
+
+            if (mySearchReplaceToolWindow != null) {
+                mySearchReplaceToolWindow.unregisterToolWindow();
+                mySearchReplaceToolWindow = null;
+            }
         });
     }
 

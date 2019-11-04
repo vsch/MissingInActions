@@ -27,15 +27,15 @@ import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleWordHighlightsCaseSensitiveAction extends ToggleAction implements DumbAware {
+public class ToggleWordHighlightsMatchBoundaryAction extends ToggleAction implements DumbAware {
     @Override
     public boolean isSelected(@NotNull final AnActionEvent e) {
-        return Plugin.getInstance().isHighlightCaseSensitive();
+        return Plugin.getInstance().isHighlightWordsMatchBoundary();
     }
 
     @Override
     public void setSelected(@NotNull final AnActionEvent e, final boolean state) {
-        Plugin.getInstance().setHighlightCaseSensitive(state);
+        Plugin.getInstance().setHighlightWordsMatchBoundary(state);
     }
 
     @Override

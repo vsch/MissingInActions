@@ -120,6 +120,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private boolean         mySearchStartMatchedCaretColorEnabled = false;
     private boolean         mySearchCancelOnEscape = true;
     private boolean         mySpawnSmartPrefixSearch = true;
+    private boolean         mySpawnMatchBoundarySearch = true;
     private int             mySelectionStashLimit = 5;
     private int             myRecalledSelectionColor = 0xFCBEFF;
     private int             myRecalledSelectionDarkColor = 0x844E8A;
@@ -166,6 +167,8 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     private boolean myBatchTandemEdit = false;
     private boolean myRegisterCaretStateTransferable = true;
     private boolean myShowMacroResultPreview = false;
+    private boolean myHighlightWordsCaseSensitive = true;
+    private boolean myHighlightWordsMatchBoundary = true;
     // @formatter:on
 
     // customizable delete/backspace
@@ -262,6 +265,22 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
 
     public void setShowMacroResultPreview(final boolean showMacroResultPreview) {
         myShowMacroResultPreview = showMacroResultPreview;
+    }
+
+    public boolean isHighlightWordsCaseSensitive() {
+        return myHighlightWordsCaseSensitive;
+    }
+
+    public void setHighlightWordsCaseSensitive(boolean highlightWordsCaseSensitive) {
+        myHighlightWordsCaseSensitive = highlightWordsCaseSensitive;
+    }
+
+    public boolean isHighlightWordsMatchBoundary() {
+        return myHighlightWordsMatchBoundary;
+    }
+
+    public void setHighlightWordsMatchBoundary(boolean highlightWordsMatchBoundary) {
+        myHighlightWordsMatchBoundary = highlightWordsMatchBoundary;
     }
 
     public boolean isRegisterCaretStateTransferable() {
@@ -1047,6 +1066,10 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     public boolean isSpawnSmartPrefixSearch() { return mySpawnSmartPrefixSearch;}
 
     public void setSpawnSmartPrefixSearch(final boolean spawnSmartPrefixSearch) { mySpawnSmartPrefixSearch = spawnSmartPrefixSearch;}
+
+    public boolean isSpawnMatchBoundarySearch() { return mySpawnMatchBoundarySearch;}
+
+    public void setSpawnMatchBoundarySearch(final boolean spawnMatchBoundarySearch) { mySpawnMatchBoundarySearch = spawnMatchBoundarySearch;}
 
     public int getPrimaryCaretColor() { return myPrimaryCaretColor; }
 

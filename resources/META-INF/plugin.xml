@@ -627,6 +627,13 @@
                     description="Toggle text match for preserve on paste prefixes">
             </action>
 
+            <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnMatchBoundarySearchAction"
+                    id="MissingInActions.ToggleSpawnMatchBoundarySearch"
+                    text="Match Word Boundaries"
+                    icon="PluginIcons.Toggle_search_match_boundary"
+                    description="Toggle spawn search text matches word boundaries at caret">
+            </action>
+
             <action class="com.vladsch.MissingInActions.actions.pattern.ToggleSpawnNumericSearchAction"
                     id="MissingInActions.ToggleSpawnNumericSearch"
                     text="Numeric Match All Decimal Numbers"
@@ -841,6 +848,13 @@
                 description="Toggle case sensitive word highlights">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.ToggleWordHighlightsMatchBoundaryAction"
+                id="MissingInActions.ToggleWordHighlightsMatchBoundary"
+                text="Match Boundary Word Highlights"
+                icon="PluginIcons.Toggle_match_boundary_highlights"
+                description="Toggle match boundary word highlights">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleOnPastePreserveAction"
                 id="MissingInActions.ToggleOnPastePreserve"
                 text="On Paste Preserve Case Style"
@@ -936,6 +950,7 @@
             >
                 <reference id="MissingInActions.ToggleWordHighlightsMode"/>
                 <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
+                <reference id="MissingInActions.ToggleWordHighlightsMatchBoundary"/>
                 <reference id="MissingInActions.ClearWordHighlights"/>
                 <reference id="MissingInActions.AddWordHighlightTandemLine"/>
                 <reference id="MissingInActions.AddWordHighlight"/>
@@ -979,6 +994,7 @@
             <!--&gt;-->
             <!--</group>-->
             <reference id="MissingInActions.ToggleSpawnSmartPrefixSearch"/>
+            <reference id="MissingInActions.ToggleSpawnMatchBoundarySearch"/>
             <reference id="MissingInActions.ToggleSpawnNumericSearch"/>
             <reference id="MissingInActions.ToggleSpawnNumericHexSearch"/>
             <reference id="MissingInActions.ForwardSearchCaretSpawning"/>

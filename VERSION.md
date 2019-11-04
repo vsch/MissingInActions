@@ -5,7 +5,8 @@
 ### Version History
 - [ CRITICAL](#critical)
 - [Later](#later)
-- [Next 1.7.5.39 - Bug Fix Release & Enhancement Release](#next-17539-bug-fix-release-enhancement-release)
+- [Next](#next)
+- [1.7.5.39 - Bug Fix Release & Enhancement Release](#17539-bug-fix-release-enhancement-release)
 - [1.7.5.37 - Bug Fix Release & Enhancement Release](#17537-bug-fix-release-enhancement-release)
 - [1.7.5.35 - Bug Fix Release & Enhancement Release](#17535-bug-fix-release-enhancement-release)
 - [1.7.5.33 - Bug Fix Release & Enhancement Release](#17533-bug-fix-release-enhancement-release)
@@ -107,7 +108,7 @@
   * [ ] :red_circle: Add: Copy highlighted words in file/selection, to copy as caret selections
         all unique highlights which are present in the current file to the clipboard.
 
-### Next 1.7.5.39 - Bug Fix Release & Enhancement Release
+### Next
 
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
@@ -119,9 +120,18 @@
 * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
       generate selected case variations.
 
+### 1.7.5.39 - Bug Fix Release & Enhancement Release
+
+* Add: option for spawn search to ignore backward word boundaries. ie. Forward search ignores
+  begin word break, backward search ignores end word break.
+* Fix: option for case insensitive highlights to actually disable case sensitivity for
+  highlights and show words in color of first selected word color.
+* Add: option for word highlighting to not respect word boundary from the selection. When not
+  matching boundary `abc` highlight will match `abc` in `abcd` and `zabc` and `zabcd`.
+
 ### 1.7.5.37 - Bug Fix Release & Enhancement Release
 
-* Fix: preserve caret line to closest availabl after smart remove carets or remove
+* Fix: preserve caret line to closest available after smart remove carets or remove
   blank/non-blank/comment, etc.
 
 ### 1.7.5.35 - Bug Fix Release & Enhancement Release
