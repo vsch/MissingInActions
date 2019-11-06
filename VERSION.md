@@ -6,6 +6,7 @@
 - [ CRITICAL](#critical)
 - [Later](#later)
 - [Next](#next)
+- [1.7.5.41 - Bug Fix Release & Enhancement Release](#17541-bug-fix-release-enhancement-release)
 - [1.7.5.39 - Bug Fix Release & Enhancement Release](#17539-bug-fix-release-enhancement-release)
 - [1.7.5.37 - Bug Fix Release & Enhancement Release](#17537-bug-fix-release-enhancement-release)
 - [1.7.5.35 - Bug Fix Release & Enhancement Release](#17535-bug-fix-release-enhancement-release)
@@ -119,6 +120,10 @@
       selections
 * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
       generate selected case variations.
+
+### 1.7.5.41 - Bug Fix Release & Enhancement Release
+
+* Fix: missing setting for spawn search boundary matching.
 
 ### 1.7.5.39 - Bug Fix Release & Enhancement Release
 
