@@ -6,6 +6,8 @@
 - [ CRITICAL](#critical)
 - [Later](#later)
 - [Next](#next)
+- [Next 1.7.5.45 - Bug Fix Release & Enhancement Release](#next-17545-bug-fix-release-enhancement-release)
+- [1.7.5.43 - Bug Fix Release & Enhancement Release](#17543-bug-fix-release-enhancement-release)
 - [1.7.5.41 - Bug Fix Release & Enhancement Release](#17541-bug-fix-release-enhancement-release)
 - [1.7.5.39 - Bug Fix Release & Enhancement Release](#17539-bug-fix-release-enhancement-release)
 - [1.7.5.37 - Bug Fix Release & Enhancement Release](#17537-bug-fix-release-enhancement-release)
@@ -111,6 +113,8 @@
 
 ### Next
 
+### Next 1.7.5.45 - Bug Fix Release & Enhancement Release
+
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
     the top.
@@ -120,6 +124,15 @@
       selections
 * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
       generate selected case variations.
+* [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
+      starting a search with smart prefix mode and toggling smart prefix mode should result in
+      the same thing as toggling smart prefix mode then doing spawn search.
+  * [ ] Fix: toggle spawn search smart prefix
+  * [ ] Fix: toggle spawn search match boundary
+
+### 1.7.5.43 - Bug Fix Release & Enhancement Release
+
+* Fix: update `flexmark-java-utils` to 0.59.42
 
 ### 1.7.5.41 - Bug Fix Release & Enhancement Release
 

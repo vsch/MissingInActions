@@ -80,7 +80,7 @@ import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.flexmark.util.Utils;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
-import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import com.vladsch.flexmark.util.sequence.RepeatedSequence;
 import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.Helpers;
@@ -1799,7 +1799,7 @@ public class BatchReplaceForm implements Disposable {
             }
 
             int offset = startOfLine ? document.getLineStartOffset(lineNumber) : document.getLineEndOffset(lineNumber);
-            document.insertString(offset, RepeatedCharSequence.of('\n', lineDelta));
+            document.insertString(offset, RepeatedSequence.of('\n', lineDelta));
         } else {
             if (lineCount > 0 && lineNumber <= lineCount) {
                 // have something to delete

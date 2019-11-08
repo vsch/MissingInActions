@@ -54,7 +54,7 @@ import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
-import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import com.vladsch.flexmark.util.sequence.RepeatedSequence;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -139,7 +139,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                         }
 
                         int offset = position.getOffset() + spaces;
-                        doc.insertString(offset, RepeatedCharSequence.of(' ', count));
+                        doc.insertString(offset, RepeatedSequence.of(' ', count));
                         caret.moveToLogicalPosition(position.atColumn(finalColumn));
                     }
                 });

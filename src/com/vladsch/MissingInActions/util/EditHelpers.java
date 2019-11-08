@@ -55,7 +55,7 @@ import com.vladsch.flexmark.util.Utils;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.Range;
-import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
+import com.vladsch.flexmark.util.sequence.RepeatedSequence;
 import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -649,7 +649,7 @@ public class EditHelpers {
     public static void delete(@NotNull Editor editor, @NotNull Caret caret, int start, int end, boolean clearOnly) {
         CopyPasteManager.getInstance().stopKillRings();
         if (clearOnly) {
-            editor.getDocument().replaceString(start, end, RepeatedCharSequence.of(" ", end - start));
+            editor.getDocument().replaceString(start, end, RepeatedSequence.of(" ", end - start));
         } else {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             manager.guard(() -> {
@@ -1074,7 +1074,7 @@ public class EditHelpers {
         if (atOffset.column < position.column) {
             // virtual spaces, add real ones
             final int inserted = position.column - atOffset.column;
-            position.getDocument().insertString(offset, RepeatedCharSequence.of(" ", inserted));
+            position.getDocument().insertString(offset, RepeatedSequence.of(" ", inserted));
             return inserted;
         }
         return 0;
@@ -1764,8 +1764,8 @@ public class EditHelpers {
                 Range effectiveRange2 = range2.exclude(range1);
                 Document document = editor.getDocument();
                 CharSequence chars = document.getCharsSequence();
-                String text1 = effectiveRange1.subSequence(chars).toString();
-                String text2 = effectiveRange2.subSequence(chars).toString();
+                String text1 = chars.subSequence(effectiveRange1.getStart(),effectiveRange1.getEnd()).toString();
+                String text2 = chars.subSequence(effectiveRange2.getStart(),effectiveRange2.getEnd()).toString();
                 int start1;
                 int start2;
 
@@ -1832,7 +1832,7 @@ public class EditHelpers {
                 Range effectiveRange2 = range2.exclude(range1);
                 Document document = editor.getDocument();
                 CharSequence chars = document.getCharsSequence();
-                String text2 = effectiveRange2.subSequence(chars).toString();
+                String text2 = chars.subSequence(effectiveRange2.getStart(), effectiveRange2.getEnd()).toString();
                 int start1 = effectiveRange1.getStart();
 
                 document.replaceString(effectiveRange1.getStart(), effectiveRange1.getEnd(), text2);
@@ -1864,8 +1864,8 @@ public class EditHelpers {
                 Range effectiveRange1 = range1.exclude(range2);
                 Range effectiveRange2 = range2.exclude(range1);
                 CharSequence chars = document.getCharsSequence();
-                String text2 = effectiveRange2.subSequence(chars).toString();
-                String text1 = effectiveRange1.subSequence(chars).toString();
+                String text2 = chars.subSequence(effectiveRange2.getStart(),effectiveRange2.getEnd()).toString();
+                String text1 = chars.subSequence(effectiveRange1.getStart(),effectiveRange1.getEnd()).toString();
                 pair[0] = Pair.create(text1, text2);
             });
 
