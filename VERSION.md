@@ -129,6 +129,7 @@
       the same thing as toggling smart prefix mode then doing spawn search.
   * [ ] Fix: toggle spawn search smart prefix
   * [ ] Fix: toggle spawn search match boundary
+* Fix: word highlighter to sort in reverse order
 
 ### 1.7.5.43 - Bug Fix Release & Enhancement Release
 
