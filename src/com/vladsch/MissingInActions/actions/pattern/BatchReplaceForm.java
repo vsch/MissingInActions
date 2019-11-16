@@ -1042,16 +1042,17 @@ public class BatchReplaceForm implements Disposable {
 
             final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
             final Transferable[] contents = copyPasteManager.getAllContents();
-            boolean clipboardLoadEnabled = false;
-            if (contents.length > 1) {
-                // we take top two
-                try {
-                    final String replaceText = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
-                    final String searchText = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
-                    clipboardLoadEnabled = !replaceText.isEmpty() && !searchText.isEmpty();
-                } catch (UnsupportedFlavorException | IOException ignored) {
-                }
-            }
+            // NOTE: checking has tendency to hang the IDE, no harm in having button enabled
+            boolean clipboardLoadEnabled = true;
+//            if (contents.length > 1) {
+//                // we take top two
+//                try {
+//                    final String replaceText = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
+//                    final String searchText = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
+//                    clipboardLoadEnabled = !replaceText.isEmpty() && !searchText.isEmpty();
+//                } catch (UnsupportedFlavorException | IOException ignored) {
+//                }
+//            }
 
             myGetFromClipboard.setEnabled(clipboardLoadEnabled);
 
