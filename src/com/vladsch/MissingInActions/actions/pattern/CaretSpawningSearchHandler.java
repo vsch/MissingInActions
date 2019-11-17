@@ -34,6 +34,7 @@ import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
 import com.vladsch.ReverseRegEx.util.ReversePattern;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.vladsch.flexmark.util.sequence.CharPredicate;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
+    public static final CharPredicate DECIMAL_DIGITS = CharPredicate.anyOf("0123456789");
+    public static final CharPredicate HEXADECIMAL_DIGITS = CharPredicate.anyOf("01234567890ABCDEFabcdef");
+    public static final CharPredicate OCTAL_DIGITS = CharPredicate.anyOf("01234567");
     private boolean myLineMode;
     private boolean mySingleLine;
     private boolean mySingleMatch;
@@ -358,23 +362,23 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     private static boolean isNumericSearch(final BasedSequence text, final boolean hexPrefix, final boolean spawnNumericSearch, final boolean spawnNumericHexSearch) {
-        return spawnNumericSearch && text.indexOfAny("0123456789") != -1
+        return spawnNumericSearch && text.indexOfAny(DECIMAL_DIGITS) != -1
                 && ((spawnNumericHexSearch
-                && (hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                || (text.indexOfAnyNot("0123456789") == -1))
+                && (hexPrefix && text.indexOfAnyNot(HEXADECIMAL_DIGITS, 2) == -1)
+                || text.indexOfAnyNot(HEXADECIMAL_DIGITS) == -1)
+                || (text.startsWith("0") && text.indexOfAnyNot(OCTAL_DIGITS) == -1)
+                || (text.startsWith("-") && text.indexOfAnyNot(DECIMAL_DIGITS, 1) == -1)
+                || (text.indexOfAnyNot(DECIMAL_DIGITS) == -1))
                 ;
     }
 
     private static boolean isNumeric(final BasedSequence text, final boolean hexPrefix) {
-        return text.indexOfAny("0123456789") != -1
-                && (((hexPrefix && text.indexOfAnyNot("01234567890ABCDEFabcdef", 2) == -1)
-                || text.indexOfAnyNot("01234567890ABCDEFabcdef") == -1)
-                || (text.startsWith("0") && text.indexOfAnyNot("01234567") == -1)
-                || (text.startsWith("-") && text.indexOfAnyNot("0123456789", 1) == -1)
-                || (text.indexOfAnyNot("0123456789") == -1))
+        return text.indexOfAny(DECIMAL_DIGITS) != -1
+                && (((hexPrefix && text.indexOfAnyNot(HEXADECIMAL_DIGITS, 2) == -1)
+                || text.indexOfAnyNot(HEXADECIMAL_DIGITS) == -1)
+                || (text.startsWith("0") && text.indexOfAnyNot(OCTAL_DIGITS) == -1)
+                || (text.startsWith("-") && text.indexOfAnyNot(DECIMAL_DIGITS, 1) == -1)
+                || (text.indexOfAnyNot(DECIMAL_DIGITS) == -1))
                 ;
     }
 

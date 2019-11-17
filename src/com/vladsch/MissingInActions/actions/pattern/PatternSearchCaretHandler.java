@@ -82,7 +82,7 @@ abstract public class PatternSearchCaretHandler<T> extends RangeLimitedCaretSpaw
 
     protected boolean perform(@NotNull LineSelectionManager manager, @NotNull Caret caret, @NotNull Range range, @NotNull ArrayList<CaretState> createCarets) {
         Editor editor = caret.getEditor();
-        final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+        final BasedSequence chars = BasedSequence.of(editor.getDocument().getCharsSequence());
         boolean keepCaret = !isMoveFirstMatch();
 
         T matcher = prepareMatcher(manager, caret, range, chars);

@@ -118,7 +118,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                 if (patternCaret != null) {
                     Range caretRange = caretRanges.get(patternCaret);
                     if (caretRange != null) {
-                        final BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+                        final BasedSequence chars = BasedSequence.of(editor.getDocument().getCharsSequence());
                         preparePattern(manager, patternCaret, caretRange, chars);
                     }
                 }

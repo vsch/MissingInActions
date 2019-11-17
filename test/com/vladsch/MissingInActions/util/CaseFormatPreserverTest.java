@@ -83,7 +83,7 @@ public class CaseFormatPreserverTest {
         }
 
         CaseFormatPreserver preserver = new CaseFormatPreserver();
-        final BasedSequence chars = BasedSequenceImpl.of(template);
+        final BasedSequence chars = BasedSequence.of(template);
         int separators = CaseFormatPreserver.separators(
                 camelCase,
                 snakeCase,
@@ -95,7 +95,7 @@ public class CaseFormatPreserverTest {
         preserver.studyFormatBefore(chars, offset, start, end, patternType, prefixes, separators);
         String edited = template.substring(0, start) + pasted + template.substring(end);
         final TextRange range = new TextRange(start, start + pasted.length());
-        final BasedSequence chars1 = BasedSequenceImpl.of(edited);
+        final BasedSequence chars1 = BasedSequence.of(edited);
         InsertedRangeContext i = preserver.preserveFormatAfter(
                 chars1,
                 range,

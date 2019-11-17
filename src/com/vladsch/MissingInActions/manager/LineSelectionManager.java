@@ -357,7 +357,7 @@ public class LineSelectionManager implements
         final StringBuilder sb = new StringBuilder();
         final ApplicationSettings settings = ApplicationSettings.getInstance();
         final boolean smartReplace = settings.isUserDefinedMacroSmartReplace();
-        final BasedSequence chars = BasedSequenceImpl.of(text);
+        final BasedSequence chars = BasedSequence.of(text);
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         int separators = settings.getPreserveOnPasteSeparators();
         final PrefixOnPastePatternType patternType = settings.getRemovePrefixOnPastePatternType();
@@ -388,7 +388,7 @@ public class LineSelectionManager implements
                     preserver.studyFormatBefore(chars, 0, start, end, patternType, prefixes, separators);
                     String edited = sb.toString() + myOnPasteUserReplacementText + text.substring(end);
                     final TextRange range = new TextRange(startLength, startLength + replaceLength);
-                    final BasedSequence chars1 = BasedSequenceImpl.of(edited);
+                    final BasedSequence chars1 = BasedSequence.of(edited);
 
                     InsertedRangeContext i = preserver.preserveFormatAfter(
                             chars1,

@@ -90,7 +90,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
 
         final CaretModel caretModel = editor.getCaretModel();
         final DocumentEx doc = editor.getDocument();
-        final BasedSequence chars = BasedSequenceImpl.of(doc.getCharsSequence());
+        final BasedSequence chars = BasedSequence.of(doc.getCharsSequence());
         LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         final EditorPositionFactory f = manager.getPositionFactory();
 
@@ -102,7 +102,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
             List<Caret> carets = caretModel.getAllCarets();
             for (Caret caret : carets) {
                 EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
+                int spaces = chars.countLeading(BasedSequence.SPACE_TAB_SET, position.getOffset());
                 if (position.column + spaces >= position.atEndColumn().column) continue;
 
                 if (column < position.column + spaces) {
@@ -130,7 +130,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                 WriteCommandAction.runWriteCommandAction(project, () -> {
                     for (Caret caret : carets) {
                         EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                        int spaces = chars.countLeading(BasedSequence.WHITESPACE_NO_EOL_CHARS, position.getOffset());
+                        int spaces = chars.countLeading(BasedSequence.SPACE_TAB_SET, position.getOffset());
 
                         int count = finalColumn - position.column - spaces;
                         if (count <= 0 || position.column >= position.atEndColumn().column) {

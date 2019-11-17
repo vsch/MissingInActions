@@ -991,11 +991,11 @@ public class EditHelpers {
 */
 
     public static int getStartOfLineOffset(@NotNull CharSequence charSequence, int offset) {
-        return BasedSequenceImpl.of(charSequence).startOfLine(offset);
+        return BasedSequence.of(charSequence).startOfLine(offset);
     }
 
     public static int getEndOfLineOffset(@NotNull CharSequence charSequence, int offset) {
-        return BasedSequenceImpl.of(charSequence).endOfLine(offset);
+        return BasedSequence.of(charSequence).endOfLine(offset);
     }
 
     @NotNull
@@ -1037,11 +1037,11 @@ public class EditHelpers {
                     return new ItemTextRange<>(commenter, 0, file.getTextLength());
                 }
             } else {
-                BasedSequence charSequence = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+                BasedSequence charSequence = BasedSequence.of(editor.getDocument().getCharsSequence());
                 int lineStartOffset = charSequence.startOfLine(startOffset);
                 int lineEndOffset = charSequence.endOfLine(endOffset);
-                lineStartOffset += charSequence.countLeading((String) BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
-                lineEndOffset -= charSequence.countTrailing(BasedSequence.WHITESPACE_NO_EOL_CHARS, lineStartOffset, lineEndOffset);
+                lineStartOffset += charSequence.countLeading(BasedSequence.SPACE_TAB_SET, lineStartOffset, lineEndOffset);
+                lineEndOffset -= charSequence.countTrailing(BasedSequence.SPACE_TAB_SET, lineStartOffset, lineEndOffset);
                 final ItemTextRange<Language> lineStartLanguage = getLanguageRangeAtOffset(file, lineStartOffset);
                 final ItemTextRange<Language> lineEndLanguage = getLanguageRangeAtOffset(file, lineEndOffset);
                 Commenter commenter = CommentByBlockCommentHandler.getCommenter(file, editor, lineStartLanguage.getItem(), lineEndLanguage.getItem());

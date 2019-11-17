@@ -59,7 +59,7 @@ public class NumberSequenceGenerator {
      */
     @Nullable
     public Long extractNumber(@NotNull CharSequence charSequence) {
-        BasedSequence chars = BasedSequenceImpl.of(charSequence);
+        BasedSequence chars = BasedSequence.of(charSequence);
 
         if (!myOptions.getPrefix().isEmpty()) chars = chars.removePrefix(myOptions.getPrefix());
         if (!myOptions.getSuffix().isEmpty()) chars = chars.removeSuffix(myOptions.getSuffix());
@@ -112,7 +112,7 @@ public class NumberSequenceGenerator {
      * @return number or null if unable to extract
      */
     public static long extractNumber(@NotNull CharSequence charSequence, @NotNull NumberingOptions options, int numberBase, @Nullable Ref<Integer> refMaxDigit) {
-        BasedSequence chars = BasedSequenceImpl.of(charSequence).trim();
+        BasedSequence chars = BasedSequence.of(charSequence).trim();
 
         if (!options.getPrefix().trim().isEmpty()) chars = chars.removePrefix(options.getPrefix().trim());
         if (!options.getSuffix().trim().isEmpty()) chars = chars.removeSuffix(options.getSuffix().trim());
@@ -241,7 +241,7 @@ public class NumberSequenceGenerator {
         if (prefix != null && !prefix.isEmpty()) sb.append(prefix);
 
         if (template != null && !template.isEmpty()) {
-            BasedSequence templateSeq = BasedSequenceImpl.of(template);
+            BasedSequence templateSeq = BasedSequence.of(template);
             BasedSequence wholePart = templateSeq;
             BasedSequence fractionPart = BasedSequence.NULL;
 
@@ -287,7 +287,7 @@ public class NumberSequenceGenerator {
 
     private static void insertSeparators(StringBuilder sb, @NotNull CharSequence number, int digitPos, @Nullable String separator, int separatorFrequency) {
         int pos;
-        BasedSequence sequence = BasedSequenceImpl.of(number);
+        BasedSequence sequence = BasedSequence.of(number);
 
         pos = number.length() - digitPos;
         String out = "";

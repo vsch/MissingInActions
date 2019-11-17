@@ -38,7 +38,7 @@ public class LineCommentProcessor {
     public LineCommentProcessor(@NotNull Editor editor, @NotNull final PsiFile psiFile) {
         myEditor = editor;
         myPsiFile = psiFile;
-        myChars = BasedSequenceImpl.of(myEditor.getDocument().getCharsSequence());
+        myChars = BasedSequence.of(myEditor.getDocument().getCharsSequence());
 
         myCommenterRange = null;
     }

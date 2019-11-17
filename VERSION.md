@@ -7,6 +7,7 @@
 - [Later](#later)
 - [Next](#next)
 - [Next 1.7.5.49 - Bug Fix Release & Enhancement Release](#next-17549-bug-fix-release-enhancement-release)
+- [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
 - [1.7.5.47 - Bug Fix Release & Enhancement Release](#17547-bug-fix-release-enhancement-release)
 - [1.7.5.45 - Bug Fix Release & Enhancement Release](#17545-bug-fix-release-enhancement-release)
 - [1.7.5.43 - Bug Fix Release & Enhancement Release](#17543-bug-fix-release-enhancement-release)
@@ -145,10 +146,14 @@
   * [ ] Fix: :red_circle: automatically switch dialog to correct base hex, consider prefix of 0x
         to be universal.
 
+### 1.7.5.49 - Bug Fix Release & Enhancement Release
+
+* Fix: update to flexmark-java utils 0.59.50
+
 ### 1.7.5.47 - Bug Fix Release & Enhancement Release
 
 * Fix: backward search on `\\` generated pattern syntax exception. Reverse regex bug. Did not
-  handle odd backslash `\Q\\E` sequences.
+  handle odd backslash quoted `\Q\\E` sequences.
 * Fix: batch search replace update of paste from clipboard button state would hand the IDE
   trying to get OS X clipboard. Just left the button enabled for now.
 

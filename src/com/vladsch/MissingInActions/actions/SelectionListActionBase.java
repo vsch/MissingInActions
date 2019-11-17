@@ -104,7 +104,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
         if (editor != null) {
             final LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             final RangeMarker[] markers = manager.getSavedSelections();
-            BasedSequence chars = BasedSequenceImpl.of(editor.getDocument().getCharsSequence());
+            BasedSequence chars = BasedSequence.of(editor.getDocument().getCharsSequence());
             final Range exclusionRange = excludeOverlap(editor);
 
             //System.out.println("createPopAction: saved markers" + markers.length);
