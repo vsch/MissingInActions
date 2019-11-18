@@ -28,7 +28,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
@@ -38,10 +37,12 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseEvent;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
@@ -158,16 +159,17 @@ public class LineSelectionManager implements
 
     public void setHighlightProvider(@Nullable HighlightProvider<ApplicationSettings> highlightProvider) {
         HighlightProvider<ApplicationSettings> oldHighlightProvider = myHighlightProvider;
-        myHighlightProvider = highlightProvider == null ? Plugin.getInstance() : highlightProvider;
+        Plugin plugin = Plugin.getInstance();
+        myHighlightProvider = highlightProvider == null ? plugin : highlightProvider;
         if (myHighlightProvider != oldHighlightProvider) {
             removeHighlights();
 
-            if (oldHighlightProvider != Plugin.getInstance()) {
+            if (oldHighlightProvider != plugin) {
                 // remove listener
                 oldHighlightProvider.removeHighlightListener(myHighlightListener);
             }
 
-            if (myHighlightProvider != Plugin.getInstance()) {
+            if (myHighlightProvider != plugin) {
                 // remove listener
                 myHighlightProvider.addHighlightListener(myHighlightListener, this);
             }
@@ -207,6 +209,11 @@ public class LineSelectionManager implements
         }
 
         myHighlightListener = new HighlightListener() {
+            @Override
+            public void highlightsUpdated() {
+                int tmp = 0;
+            }
+
             @Override
             public void highlightsChanged() {
                 updateHighlights();
@@ -265,6 +272,8 @@ public class LineSelectionManager implements
         };
         myIsolationHighlightProvider.addHighlightListener(myIsolatedLinesListener, this);
 
+        LineSelectionManager thizz = this;
+
         DocumentListener documentListener = new DocumentListener() {
             @Override
             public void beforeDocumentChange(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
@@ -288,6 +297,21 @@ public class LineSelectionManager implements
 
         //noinspection ThisEscapedInObjectConstruction
         myEditor.getDocument().addDocumentListener(documentListener, this);
+
+        // need to update highlight provider when editor in tool window or otherwise becomes active
+        myEditor.getContentComponent().addPropertyChangeListener("ancestor", (evt) -> {
+            boolean isActive = evt.getNewValue() != null;
+
+            if (isActive) {
+                Project project = myEditor.getProject();
+                if (project != null) {
+                    if (!PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().shouldNotUpdateHighlighters(myEditor)) {
+                        HighlightProvider<ApplicationSettings> highlightProvider = Plugin.getInstance().getProjectHighlighter(project);
+                        setHighlightProvider(highlightProvider);
+                    }
+                }
+            }
+        });
 
         // update if they exist
         updateHighlights();

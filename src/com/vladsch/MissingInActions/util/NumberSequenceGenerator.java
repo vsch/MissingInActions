@@ -25,7 +25,6 @@ import com.vladsch.MissingInActions.settings.NumberingBaseType;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
 import com.vladsch.flexmark.util.Ref;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.CharSubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +54,7 @@ public class NumberSequenceGenerator {
      * Extract a number from given sequence based on prefix/suffix, base and template
      *
      * @param charSequence character sequence from which to extract a number
+     *
      * @return number or null if unable to extract
      */
     @Nullable
@@ -86,14 +86,32 @@ public class NumberSequenceGenerator {
 
             if (myStep > 0) {
                 if (myOptions.isBitShift()) {
-                    next = next << (int) myStep;
+                    if (next == 0) {
+                        next = 1;
+                    } else {
+                        long rollUpper = (0xffff_ffff_ffff_ffffL << 64 - myStep);
+                        long rollLower = (0x7fff_ffff_ffff_ffffL >> 64 - myStep) | (1 << myStep - 1);
+                        long prevUpper = next & rollUpper;
+                        long prev = next & prevUpper;
+                        long prevLower = (prev >> 64 - myStep) & rollLower;
+                        next = ((next << (int) myStep) & ~rollLower) | prevLower;
+                    }
                 } else {
                     next += myStep;
                 }
                 myNext = myLast == null || next <= myLast ? next : null;
             } else if (myStep < 0) {
                 if (myOptions.isBitShift()) {
-                    next = next >> (int) -myStep;
+                    if (next == 0) {
+                        next = 0x8000_0000_0000_0000L;
+                    } else {
+                        long rollUpper = (0xffff_ffff_ffff_ffffL << 64 + myStep);
+                        long rollLower = (0x7fff_ffff_ffff_ffffL >> 64 + myStep) | (1 << (-myStep) - 1);
+                        long prevLower = next & rollLower;
+                        long prev = next & prevLower;
+                        long prevUpper = (prev << 64 + myStep) & rollUpper;
+                        next = ((next >> -myStep) & ~rollUpper) | prevUpper | ((next & 0x8000_0000_0000_0000L) != 0 ? 0x4000_0000_0000_0000L >> -myStep - 1 : 0);
+                    }
                 } else {
                     next += myStep;
                 }
@@ -109,6 +127,7 @@ public class NumberSequenceGenerator {
      *
      * @param charSequence character sequence from which to extract a number
      * @param numberBase
+     *
      * @return number or null if unable to extract
      */
     public static long extractNumber(@NotNull CharSequence charSequence, @NotNull NumberingOptions options, int numberBase, @Nullable Ref<Integer> refMaxDigit) {
@@ -131,7 +150,7 @@ public class NumberSequenceGenerator {
                 continue;
             }
 
-            int digit = c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'z' ? c - 'a' + 10 : c >= 'A' && c <= 'A' ? c - 'A' + 10 : -1;
+            int digit = c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'z' ? c - 'a' + 10 : c >= 'A' && c <= 'Z' ? c - 'A' + 10 : -1;
             if (maxDigit < digit) maxDigit = digit;
             if (digit < 0 || digit >= numberBase) continue;
             number *= numberBase;
@@ -213,6 +232,7 @@ public class NumberSequenceGenerator {
      * then each part is processed separately
      *
      * @param number number to format
+     *
      * @return string of the number
      */
     @NotNull
@@ -382,6 +402,7 @@ public class NumberSequenceGenerator {
      *
      * @param number               number to convert
      * @param alwaysBaseComplement if true or base != 10 use base complement sequence, otherwise use - prefix for negative numbers
+     *
      * @return character sequence of that number in selected base
      */
     @NotNull

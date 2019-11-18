@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions;
 
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
@@ -34,6 +33,7 @@ import com.intellij.ui.content.ContentManager;
 import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import icons.PluginIcons;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -82,6 +82,14 @@ public class BatchSearchReplaceToolWindow {
 
     public void setActiveEditor(Editor editor) {
         myBatchSearchReplace.setActiveEditor(editor);
+    }
+
+    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
+        return myBatchSearchReplace.shouldNotUpdateHighlighters(editor);
+    }
+
+    public void setUpdateHighlighters() {
+        myBatchSearchReplace.updateHighlighters();
     }
 
     public void activate() {

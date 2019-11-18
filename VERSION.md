@@ -6,7 +6,8 @@
 - [ CRITICAL](#critical)
 - [Later](#later)
 - [Next](#next)
-- [Next 1.7.5.51 - Bug Fix Release & Enhancement Release](#next-17551-bug-fix-release-enhancement-release)
+- [Next 1.7.5.53 - Bug Fix Release & Enhancement Release](#next-17553-bug-fix-release-enhancement-release)
+- [1.7.5.51 - Bug Fix Release & Enhancement Release](#17551-bug-fix-release-enhancement-release)
 - [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
 - [1.7.5.47 - Bug Fix Release & Enhancement Release](#17547-bug-fix-release-enhancement-release)
 - [1.7.5.45 - Bug Fix Release & Enhancement Release](#17545-bug-fix-release-enhancement-release)
@@ -116,7 +117,7 @@
 
 ### Next
 
-### Next 1.7.5.51 - Bug Fix Release & Enhancement Release
+### Next 1.7.5.53 - Bug Fix Release & Enhancement Release
 
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
@@ -135,20 +136,29 @@
 * [ ] Fix: need straighter carets to work with selections so can trim selections to straight
       line.
 * [ ] Fix: :red_circle: keep code carets does not remove carets in Java multi-line comments
-* [ ] Fix: :red_circle: word Highlighter to test first/last char of word being `\w` before
-      respecting provided boundary flags. Otherwise no highlights will be done for the pattern.
-* [ ] Fix: :red_circle: change number generator for shift sequences so that if start is 0, then
-      first number is 0, next number is 1 if step is >=0 and 0x8000_0000 if <0.
-  * [ ] Fix: :red_circle: change number generator to rollover from 1 to 0x8000_0000 when step <0
-        and 0x8000_0000 to 1 when >=0
+* [x] Fix: change number generator for shift sequences so that if start is 0, then first number
+      is 0, next number is 1 if step is >=0 and 0x8000_0000_0000_0000 if <0.
   * [ ] Fix: :red_circle: generate number to use current selection to get starting number if it
         is numeric or hex.
   * [ ] Fix: :red_circle: automatically switch dialog to correct base hex, consider prefix of 0x
         to be universal.
+  * [x] Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step <0
+        and 0x8000_0000_0000_0000 to 1 when >=0
+
+### 1.7.5.51 - Bug Fix Release & Enhancement Release
+
+* Fix: word Highlighter to test first/last char of word being `\w` before respecting provided
+  boundary flags. Otherwise no highlights will be done for the pattern.
+* Fix: change number generator for shift sequences so that if start is 0, then first number is
+  0, next number is 1 if step is >=0 and 0x8000_0000_0000_0000 if <0.
+  * Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step <0 and
+    0x8000_0000_0000_0000 to 1 when >=0
 * Add: option `Preserve primary caret on ESCAPE` to prevent the IDE from loosing primary caret
   information on ESCAPE clearing multi-carets.
 * Fix: on search spawn carets, leave the primary caret where it was an make spawned carets
   secondary. That way ESCAPE will leave the primary where it was.
+* Fix: batch search/replace highlights would not be shown in tool window editors like search,
+  etc.
 
 ### 1.7.5.49 - Bug Fix Release & Enhancement Release
 

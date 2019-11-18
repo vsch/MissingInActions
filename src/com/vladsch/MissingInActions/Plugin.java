@@ -72,6 +72,7 @@ import com.vladsch.plugin.util.HelpersKt;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
+import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,6 +94,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
 
@@ -101,10 +103,13 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
     final public static int FEATURE_ENHANCED = 1;
     final public static int FEATURE_DEVELOPMENT = 2;
+    public static final Editor[] EMPTY_EDITORS = new Editor[0];
+    public static final EditorActionListener[] EMPTY_EDITOR_ACTION_LISTENERS = new EditorActionListener[0];
 
     final private HashMap<Editor, LineSelectionManager> myLineSelectionManagers;
     final private HashMap<AnActionEvent, Editor> myActionEventEditorMap;
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
+    final private HashMap<Project, HighlightProvider<ApplicationSettings>> myProjectHighlightProviders;
     final private HashSet<Editor> myPasteOverrideEditors;
     final private AnAction myMultiPasteAction;
     private @Nullable JComponent myPasteOverrideComponent;
@@ -116,6 +121,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private OneTimeRunnable myHighlightSaveTask = OneTimeRunnable.NULL;
     private boolean disableSaveHighlights = true;
 
+
 //    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
     public Plugin() {
@@ -124,6 +130,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         myPasteOverrideEditors = new HashSet<>();
         myMultiPasteAction = new MiaMultiplePasteAction();
         myActionEventEditorMap = new HashMap<>();
+        myProjectHighlightProviders = new HashMap<>();
         myEditorActionListeners = new HashMap<>();
         myPasteOverrideComponent = null;
         myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
@@ -212,7 +219,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         EditorFactory.getInstance().addEditorFactoryListener(editorFactoryListener, this);
         myDelayedRunner.addRunnable(() -> {
             Set<Editor> editorSet = myLineSelectionManagers.keySet();
-            Editor[] editors = editorSet.toArray(new Editor[0]);
+            Editor[] editors = editorSet.toArray(EMPTY_EDITORS);
             for (Editor editor : editors) {
                 LineSelectionManager manager = myLineSelectionManagers.remove(editor);
                 if (manager != null) {
@@ -324,8 +331,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     public static Editor getEditorEx(final @Nullable FileEditor fileEditor) {
         if (fileEditor != null) {
             if (fileEditor instanceof TextEditor) {
-                Editor editor = ((TextEditor) fileEditor).getEditor();
-                return editor;
+                return ((TextEditor) fileEditor).getEditor();
             }
         }
         return null;
@@ -411,7 +417,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                EditorActionListener[] actionListeners = listeners.toArray(EMPTY_EDITOR_ACTION_LISTENERS);
                 for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.beforeActionPerformed(action, dataContext, event);
@@ -429,7 +435,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                EditorActionListener[] actionListeners = listeners.toArray(EMPTY_EDITOR_ACTION_LISTENERS);
                 for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.afterActionPerformed(action, dataContext, event);
@@ -447,7 +453,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
             if (listeners != null) {
-                EditorActionListener[] actionListeners = listeners.toArray(new EditorActionListener[listeners.size()]);
+                EditorActionListener[] actionListeners = listeners.toArray(EMPTY_EDITOR_ACTION_LISTENERS);
                 for (EditorActionListener listener : actionListeners) {
                     try {
                         listener.beforeEditorTyping(c, dataContext);
@@ -473,7 +479,19 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     }
 
     void projectClosed(@NotNull Project project) {
+         myProjectHighlightProviders.remove(project);
+    }
 
+    public HighlightProvider<ApplicationSettings> getProjectHighlighter(@NotNull Project project) {
+         return myProjectHighlightProviders.get(project);
+    }
+
+    public void setProjectHighlightProvider(@NotNull Project project, HighlightProvider<ApplicationSettings> highlightProvider) {
+        if (highlightProvider == null) {
+            myProjectHighlightProviders.remove(project);
+        } else {
+            myProjectHighlightProviders.put(project, highlightProvider);
+        }
     }
 
     @Override
@@ -484,7 +502,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         if (settings.isOverrideStandardPaste()) {
             // run it for all editors
             Set<Editor> editorSet = myLineSelectionManagers.keySet();
-            Editor[] editors = editorSet.toArray(new Editor[editorSet.size()]);
+            Editor[] editors = editorSet.toArray(EMPTY_EDITORS);
             for (Editor editor : editors) {
                 registerPasteOverrides(editor);
             }
@@ -568,6 +586,12 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         if (mySettings.isOverrideStandardPaste()) {
             registerPasteOverrides(editor);
             myDelayedRunner.addRunnable(editor, () -> unRegisterPasteOverrides(editor));
+        }
+    }
+
+    public void forAllProjectEditors(@NotNull Project project, @NotNull Consumer<LineSelectionManager> consumer) {
+        for (LineSelectionManager manager : myLineSelectionManagers.values()) {
+            consumer.accept(manager);
         }
     }
 

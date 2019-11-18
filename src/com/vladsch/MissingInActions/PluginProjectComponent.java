@@ -21,7 +21,7 @@
 
 package com.vladsch.MissingInActions;
 
-import com.intellij.codeInsight.hints.ParameterHintsPassFactory;
+import com.intellij.codeInsight.daemon.impl.EditorTracker;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
@@ -29,16 +29,16 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.editor.impl.VisibleEditorsTracker;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.vladsch.MissingInActions.settings.ApplicationSettings;
-import com.vladsch.plugin.util.DelayedRunner;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
+import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.plugin.util.DelayedRunner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +46,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 public class PluginProjectComponent implements ProjectComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
@@ -161,33 +162,6 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
                 PluginProjectComponent.this.propertyChange(evt);
             }
         }, myProject);
-
-        myEditorManagerListener = new FileEditorManagerListener() {
-            @Override
-            public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
-            }
-
-            @Override
-            public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
-            }
-
-            @Override
-            public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
-                Editor activeEditor = Plugin.getEditorEx(event.getNewEditor());
-
-                if (mySearchReplaceToolWindow != null) {
-                    mySearchReplaceToolWindow.setActiveEditor(activeEditor);
-                }
-            }
-        };
-
-        myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, myEditorManagerListener);
-
-        //myDelayedRunner.addRunnable(myProject, () -> {
-        //    myProject.getMessageBus().connect(this).disconnect();
-        //});
 
         myPlugin.projectOpened(myProject);
         myDelayedRunner.addRunnable(myProject, () -> {

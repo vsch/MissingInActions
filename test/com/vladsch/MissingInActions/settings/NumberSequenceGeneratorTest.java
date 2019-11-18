@@ -24,19 +24,22 @@ package com.vladsch.MissingInActions.settings;
 import com.vladsch.MissingInActions.util.NumberSequenceGenerator;
 import org.junit.Test;
 
-import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.*;
+import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.convertNumber;
+import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.create;
+import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.templateNumber;
+import static com.vladsch.MissingInActions.util.NumberSequenceGenerator.templatePart;
 import static org.junit.Assert.assertEquals;
 
 public class NumberSequenceGeneratorTest {
     @Test
     public void test_templateNumber() throws Exception {
-        assertEquals("0x00001234", templateNumber("1234", "0x", "00000000", "", "",0,""));
-        assertEquals("00001234H", templateNumber("1234", "", "00000000", "", "",0,"H"));
-        assertEquals("12.34f", templateNumber("1234", "", ".00", ".", "",0,"f"));
-        assertEquals("12.34f", templateNumber("1234", "", "##.00", ".", "",0,"f"));
-        assertEquals("1,234,567,890f", templateNumber("1234567890", "", "", ".", ",",3,"f"));
-        assertEquals("12,345,678.90f", templateNumber("1234567890", "", ".##", ".", ",",3,"f"));
-        assertEquals("0x0000_0012_3456_7890", templateNumber("1234567890", "0x", "0000000000000000", "", "_",4,""));
+        assertEquals("0x00001234", templateNumber("1234", "0x", "00000000", "", "", 0, ""));
+        assertEquals("00001234H", templateNumber("1234", "", "00000000", "", "", 0, "H"));
+        assertEquals("12.34f", templateNumber("1234", "", ".00", ".", "", 0, "f"));
+        assertEquals("12.34f", templateNumber("1234", "", "##.00", ".", "", 0, "f"));
+        assertEquals("1,234,567,890f", templateNumber("1234567890", "", "", ".", ",", 3, "f"));
+        assertEquals("12,345,678.90f", templateNumber("1234567890", "", ".##", ".", ",", 3, "f"));
+        assertEquals("0x0000_0012_3456_7890", templateNumber("1234567890", "0x", "0000000000000000", "", "_", 4, ""));
     }
 
     @Test
@@ -449,6 +452,186 @@ public class NumberSequenceGeneratorTest {
             v *= base;
         }
         return v;
+    }
+
+    @Test
+    public void test_nextShiftRight0() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("0");
+        options.setStep("-1");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("0", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("8000000000000000", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("4000000000000000", next1);
+    }
+
+    @Test
+    public void test_nextShiftRight() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("1");
+        options.setStep("-1");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("1", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("8000000000000000", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("4000000000000000", next1);
+    }
+
+    @Test
+    public void test_nextShiftRight2() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("2");
+        options.setStep("-2");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("2", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("8000000000000000", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("2000000000000000", next1);
+    }
+
+    @Test
+    public void test_nextShiftRight3() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("3");
+        options.setStep("-2");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("3", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("C000000000000000", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("3000000000000000", next1);
+    }
+
+    @Test
+    public void test_nextShiftLeft0() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("0");
+        options.setStep("1");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("0", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("1", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("2", next1);
+    }
+
+    @Test
+    public void test_nextShiftLeft() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("1");
+        options.setStep("1");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("1", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("2", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("4", next1);
+    }
+
+    @Test
+    public void test_nextShiftLeft1() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("8000000000000000");
+        options.setStep("1");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("8000000000000000", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("1", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("2", next1);
+    }
+
+    @Test
+    public void test_nextShiftLeft2() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("4000000000000000");
+        options.setStep("2");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("4000000000000000", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("1", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("4", next1);
+    }
+
+    @Test
+    public void test_nextShiftLeft3() {
+        NumberingOptions options = new NumberingOptions();
+        options.setNumberingBase(16);
+        options.setFirst("C000000000000000");
+        options.setStep("2");
+        options.setBitShift(true);
+
+        NumberSequenceGenerator num = create(options);
+        num.next(1);
+        String first = num.getNumber();
+        assertEquals("C000000000000000", first);
+        num.next(2);
+        String next = num.getNumber();
+        assertEquals("3", next);
+        num.next(3);
+        String next1 = num.getNumber();
+        assertEquals("C", next1);
     }
 
     //@Test

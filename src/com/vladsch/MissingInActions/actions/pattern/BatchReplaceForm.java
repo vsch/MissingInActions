@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
+import com.intellij.codeInsight.daemon.impl.EditorTracker;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
@@ -50,6 +51,9 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
 import com.intellij.openapi.fileChooser.ex.FileSaverDialogImpl;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -67,6 +71,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.TextTransferable;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.BatchSearchReplace;
@@ -123,6 +128,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,6 +199,7 @@ public class BatchReplaceForm implements Disposable {
     private Editor myLastSyncEditor = null;
     private boolean myIsActive = false;
     private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
+    private OneTimeRunnable myEditorHighlightRunner = OneTimeRunnable.NULL;
     private boolean myPendingForcedUpdate = false;
     private boolean myPendingReplace = false;
     private boolean myInTandemEdit = false;
@@ -288,6 +295,8 @@ public class BatchReplaceForm implements Disposable {
     }
 
     public void setActiveEditor(@Nullable Editor editor) {
+        if (shouldNotUpdateHighlighters(editor)) return;
+
         if (editor != null && editor.isDisposed()) {
             editor = null;
         }
@@ -297,7 +306,6 @@ public class BatchReplaceForm implements Disposable {
 
             if (myEditor != null && !myEditor.isDisposed()) {
                 myEditor.getCaretModel().removeCaretListener(myEditorCaretListener);
-                LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
             }
 
             myEditor = editor;
@@ -307,14 +315,30 @@ public class BatchReplaceForm implements Disposable {
                 copyEditorSettings(myReplaceEditor);
                 copyEditorSettings(myOptionsEditor);
                 myEditor.getCaretModel().addCaretListener(myEditorCaretListener);
-
-                if (myIsActive) {
-                    LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
-                }
             }
 
-            updateOptions(true);
+            myHighlightRunner.cancel();
+
+            if (!myInUpdate) {
+                myFoundBackwards = null;
+                myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> updateOptions(true)));
+            }
         }
+    }
+
+    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
+        return editor == null || editor.isDisposed() || editor == mySearchEditor || editor == myReplaceEditor || editor == myOptionsEditor;
+    }
+
+    public void updateHighlighters() {
+        myEditorHighlightRunner.cancel();
+        myEditorHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 500, new AwtRunnable(true, () -> {
+            List<Editor> editors = EditorTracker.getInstance(myProject).getActiveEditors();
+            for (Editor editor : editors) {
+                if (shouldNotUpdateHighlighters(editor)) continue;
+                LineSelectionManager.getInstance(editor).setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
+            }
+        }));
     }
 
     private class MainEditorCaretListener implements CaretListener {
@@ -324,7 +348,6 @@ public class BatchReplaceForm implements Disposable {
 
             if (!myInUpdate) {
                 myFoundBackwards = null;
-
                 myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> updateOptions(false)));
             }
         }
@@ -360,6 +383,28 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
+    void registerFileEditorListener() {
+        FileEditorManagerListener editorManagerListener = new FileEditorManagerListener() {
+            @Override
+            public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+            }
+
+            @Override
+            public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
+
+            }
+
+            @Override
+            public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
+                Editor activeEditor = Plugin.getEditorEx(event.getNewEditor());
+                setActiveEditor(activeEditor);
+            }
+        };
+
+        myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorManagerListener);
+    }
+
     public BatchReplaceForm(@NotNull Project project, @NotNull ApplicationSettings applicationSettings) {
         myInUpdate = true;
         myProject = project;
@@ -376,7 +421,9 @@ public class BatchReplaceForm implements Disposable {
         myHighlightReplaceLines = mySettings.isBatchHighlightReplaceLines();
         myBatchTandemEdit = mySettings.isBatchTandemEdit();
 
-        // TODO: enable adding replace strings to highlights and remove line
+        registerFileEditorListener();
+
+        // FEATURE: enable adding replace strings to highlights and remove line
         myToggleReplaceHighlights.setVisible(false);
 
         mySampleText.setVisible(false);
@@ -730,25 +777,23 @@ public class BatchReplaceForm implements Disposable {
         myManageActions.addActionListener(e -> myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100));
 
         myMainPanel.addPropertyChangeListener(evt -> {
-            if (myEditor != null) {
-                String propertyName = evt.getPropertyName();
-                if (propertyName.equals("ancestor")) {
-                    int tmp = 0;
+            String propertyName = evt.getPropertyName();
+            if (propertyName.equals("ancestor")) {
+                myIsActive = evt.getNewValue() != null;
 
-                    if (evt.getNewValue() != null) {
-                        myIsActive = true;
-                        LineSelectionManager.getInstance(myEditor).setHighlightProvider(myEditorSearchHighlightProvider);
+                if (myEditor != null) {
+                    if (myIsActive) {
                         updateOptions(true);
                     } else {
-                        myIsActive = false;
-                        saveSettings();
-                        LineSelectionManager.getInstance(myEditor).setHighlightProvider(null);
-                    }
-                } else if (propertyName.equals("Frame.active")) {
-                    if (!(boolean) evt.getNewValue()) {
                         saveSettings();
                     }
-                    int tmp = 0;
+                }
+
+                Plugin.getInstance().setProjectHighlightProvider(myProject, myIsActive ? myEditorSearchHighlightProvider : null);
+                updateHighlighters();
+            } else if (propertyName.equals("Frame.active")) {
+                if (!(boolean) evt.getNewValue()) {
+                    saveSettings();
                 }
             }
         });
