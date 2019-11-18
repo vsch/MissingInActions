@@ -6,7 +6,7 @@
 - [ CRITICAL](#critical)
 - [Later](#later)
 - [Next](#next)
-- [Next 1.7.5.49 - Bug Fix Release & Enhancement Release](#next-17549-bug-fix-release-enhancement-release)
+- [Next 1.7.5.51 - Bug Fix Release & Enhancement Release](#next-17551-bug-fix-release-enhancement-release)
 - [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
 - [1.7.5.47 - Bug Fix Release & Enhancement Release](#17547-bug-fix-release-enhancement-release)
 - [1.7.5.45 - Bug Fix Release & Enhancement Release](#17545-bug-fix-release-enhancement-release)
@@ -116,7 +116,7 @@
 
 ### Next
 
-### Next 1.7.5.49 - Bug Fix Release & Enhancement Release
+### Next 1.7.5.51 - Bug Fix Release & Enhancement Release
 
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
@@ -145,6 +145,8 @@
         is numeric or hex.
   * [ ] Fix: :red_circle: automatically switch dialog to correct base hex, consider prefix of 0x
         to be universal.
+* Add: option `Preserve primary caret on ESCAPE` to prevent the IDE from loosing primary caret
+  information on ESCAPE clearing multi-carets.
 
 ### 1.7.5.49 - Bug Fix Release & Enhancement Release
 

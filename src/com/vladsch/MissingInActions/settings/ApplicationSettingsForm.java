@@ -122,6 +122,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox<String> mySelectPastedMultiCaretPredicate;
     JComboBox<String> mySelectPastedPredicate;
     JCheckBox mySearchCancelOnEscape;
+    JCheckBox myPreservePrimaryCaretOnEscape;
     JCheckBox mySpawnSmartPrefixSearch;
     JCheckBox mySpawnMatchBoundarySearch;
     JCheckBox myOnPastePreserve;
@@ -217,6 +218,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myDeleteOperations, i::isDeleteOperations, i::setDeleteOperations),
                         component(myDuplicateAtStartOrEnd, i::isDuplicateAtStartOrEnd, i::setDuplicateAtStartOrEnd),
                         component(mySearchCancelOnEscape, i::isSearchCancelOnEscape, i::setSearchCancelOnEscape),
+                        component(myPreservePrimaryCaretOnEscape, i::isPreservePrimaryCaretOnEscape, i::setPreservePrimaryCaretOnEscape),
                         component(mySpawnSmartPrefixSearch, i::isSpawnSmartPrefixSearch, i::setSpawnSmartPrefixSearch),
                         component(mySpawnMatchBoundarySearch, i::isSpawnMatchBoundarySearch, i::setSpawnMatchBoundarySearch),
                         component(myOnPastePreserve, i::isOnPastePreserve, i::setOnPastePreserve),

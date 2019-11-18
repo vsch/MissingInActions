@@ -54,7 +54,6 @@ import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.MissingInActions.util.TextOffsetConsumer;
 import com.vladsch.MissingInActions.util.highlight.MiaLineRangeHighlightProviderImpl;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.OneTimeRunnable;
@@ -483,7 +482,7 @@ public class LineSelectionManager implements
         myStartMatchedCarets = null;
         myFoundCarets = null;
         myCaretHighlighter.highlightCarets();
-        myDelayedRunner.runAllFor(ESCAPE_SEARCH);
+//        myDelayedRunner.runAllFor(ESCAPE_SEARCH);
     }
 
     @Nullable
@@ -513,10 +512,6 @@ public class LineSelectionManager implements
             @Nullable final Collection<Caret> startMatchedCarets,
             @Nullable final Collection<Caret> foundCarets
     ) {
-        if (myCaretSpawningHandler == null) {
-            addEscapeDispatcher();
-        }
-
         myCaretSpawningHandler = caretSpawningHandler;
         myStartCaretStates = startCaretStates;
         setFoundCarets(foundCarets);
@@ -525,9 +520,6 @@ public class LineSelectionManager implements
     }
 
     public void setSearchFoundCaretSpawningHandler(@Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler) {
-        if (myCaretSpawningHandler == null) {
-            addEscapeDispatcher();
-        }
         myCaretSpawningHandler = caretSpawningHandler;
     }
 
@@ -738,11 +730,12 @@ public class LineSelectionManager implements
     }
 
     private void addEscapeDispatcher() {
-        if (mySettings.isSearchCancelOnEscape()) {
+        if (mySettings.isSearchCancelOnEscape() || mySettings.isPreservePrimaryCaretOnEscape()) {
             final IdeEventQueue.EventDispatcher eventDispatcher = LineSelectionManager.this::dispatchEscape;
 
             IdeEventQueue.getInstance().addDispatcher(eventDispatcher, this);
-            myDelayedRunner.addRunnable(ESCAPE_SEARCH, () -> {
+
+            myDelayedRunner.addRunnable(() -> {
                 IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
             });
         }
@@ -758,12 +751,19 @@ public class LineSelectionManager implements
                 if (owner instanceof JComponent) {
                     // register multi-paste if no already registered and remove when focus is lost
                     if (owner == myEditor.getContentComponent()) {
-                        List<CaretState> caretStates = getStartCaretStates();
-                        if (caretStates != null) {
-                            clearSearchFoundCarets();
-                            myEditor.getCaretModel().setCaretsAndSelections(caretStates);
+                        if (mySettings.isSearchCancelOnEscape()) {
+                            List<CaretState> caretStates = getStartCaretStates();
+                            if (caretStates != null) {
+                                clearSearchFoundCarets();
+                                myEditor.getCaretModel().setCaretsAndSelections(caretStates);
+                                return true;
+                            }
                         }
-                        return true;
+
+                        if (mySettings.isPreservePrimaryCaretOnEscape() && getEditor().getCaretModel().getCaretCount() > 1) {
+                            myEditor.getCaretModel().removeSecondaryCarets();
+                            return true;
+                        }
                     }
                 }
             }
@@ -810,8 +810,6 @@ public class LineSelectionManager implements
 
             excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
             myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
-
-            addEscapeDispatcher();
         }
 
         myActionSelectionAdjuster.setSelectionStashLimit(settings.getSelectionStashLimit());
@@ -826,6 +824,8 @@ public class LineSelectionManager implements
                         .commit();
             }
         }
+
+        addEscapeDispatcher();
     }
 
     private void hookListeners(ApplicationSettings settings) {
