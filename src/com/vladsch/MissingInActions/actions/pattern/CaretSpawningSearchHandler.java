@@ -109,7 +109,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
     }
 
     @Override
-    protected void updateCarets(final Editor editor, final List<Caret> caretList) {
+    protected boolean updateCarets(final Editor editor, final List<Caret> caretList) {
         LineSelectionManager manager = LineSelectionManager.getInstance(editor);
         if (mySingleMatch) {
             List<Caret> startMatchedCarets = new ArrayList<>();
@@ -123,9 +123,11 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
             }
 
             manager.setSearchFoundCaretSpawningHandler(this, myStartCarets, myStartSearchCarets, startMatchedCarets, caretList);
+            return false;
         } else {
             // just regular carets
             manager.clearSearchFoundCarets();
+            return true;
         }
     }
 

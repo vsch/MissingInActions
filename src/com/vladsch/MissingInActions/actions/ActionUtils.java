@@ -220,7 +220,7 @@ public class ActionUtils {
         }
     }
 
-    public static boolean setPrimaryCaretIndex(@Nullable EditorEx editor, int newIndex, boolean positionSorted) {
+    public static boolean setPrimaryCaretIndex(@Nullable Editor editor, int newIndex, boolean positionSorted) {
         if (editor == null) return false;
 
         return setPrimaryCaretIndex(LineSelectionManager.getInstance(editor), newIndex, positionSorted);
@@ -256,8 +256,15 @@ public class ActionUtils {
                 Caret caret = getCaretAtIndex(caretModel, newIndex, positionSorted);
                 if (caret != null) {
                     VisualPosition visualPosition = caret.getVisualPosition();
+                    int selectionStart = caret.getSelectionStart();
+                    int selectionEnd = caret.getSelectionEnd();
                     caretModel.removeCaret(caret);
-                    caretModel.addCaret(visualPosition, true);
+
+                    Caret newCaret = caretModel.addCaret(visualPosition, true);
+                    if (newCaret != null) {
+                        newCaret.setSelection(selectionStart, selectionEnd);
+                    }
+
                     manager.updateCaretHighlights();
                     result[0] = true;
                 }
@@ -292,7 +299,6 @@ public class ActionUtils {
                 result = true;
             }
             manager.clearSearchFoundCarets();
-
         } else {
             List<CaretState> caretStates = manager.getStartCaretStates();
 

@@ -28,6 +28,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
@@ -751,6 +752,7 @@ public class LineSelectionManager implements
                 if (owner instanceof JComponent) {
                     // register multi-paste if no already registered and remove when focus is lost
                     if (owner == myEditor.getContentComponent()) {
+
                         if (mySettings.isSearchCancelOnEscape()) {
                             List<CaretState> caretStates = getStartCaretStates();
                             if (caretStates != null) {
@@ -762,6 +764,7 @@ public class LineSelectionManager implements
 
                         if (mySettings.isPreservePrimaryCaretOnEscape() && getEditor().getCaretModel().getCaretCount() > 1) {
                             myEditor.getCaretModel().removeSecondaryCarets();
+                            myEditor.getSelectionModel().removeSelection();
                             return true;
                         }
                     }

@@ -147,6 +147,8 @@
         to be universal.
 * Add: option `Preserve primary caret on ESCAPE` to prevent the IDE from loosing primary caret
   information on ESCAPE clearing multi-carets.
+* Fix: on search spawn carets, leave the primary caret where it was an make spawned carets
+  secondary. That way ESCAPE will leave the primary where it was.
 
 ### 1.7.5.49 - Bug Fix Release & Enhancement Release
 
