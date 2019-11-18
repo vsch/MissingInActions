@@ -154,7 +154,6 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                     if (range == null) continue;
 
                     if (perform(manager, caret, range, createList)) {
-                        preserver.tryCaret(caret);
                         keptCarets.put(getCoordinates(caret), caret);
                     }
                 }
@@ -165,15 +164,12 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
 
                 if (range != null) {
                     if (perform(manager, useCaret, range, createList)) {
-                        preserver.tryCaret(useCaret);
                         keptCarets.put(getCoordinates(useCaret), useCaret);
                     }
                 }
             }
 
             removePrimary = !keptCarets.containsKey(CaretEx.getCoordinates(primaryCaret));
-            removedPrimary = removePrimary;
-
             List<Caret> createdCarets = new ArrayList<>();
 
             if (keptCarets.isEmpty() && createList.isEmpty()) {
@@ -188,8 +184,6 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                         if (newCaret != null) {
                             EditHelpers.restoreState(newCaret, caretState, false);
                             removePrimary = false;
-
-                            preserver.tryCaret(newCaret);
                             createdCarets.add(newCaret);
                         } else {
                             // caret already exists, we add that one
@@ -217,6 +211,10 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
             }
 
             if (updateCarets(editor, createdCarets)) {
+                for (Caret caret : editor.getCaretModel().getAllCarets()) {
+                    preserver.tryCaret(caret);
+                }
+
                 int matchedIndex = preserver.getMatchedIndex();
                 ActionUtils.setPrimaryCaretIndex(editor, matchedIndex, false);
             }
