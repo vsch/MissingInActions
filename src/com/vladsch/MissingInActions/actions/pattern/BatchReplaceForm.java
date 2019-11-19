@@ -170,8 +170,8 @@ public class BatchReplaceForm implements Disposable {
 
     private final ApplicationSettings mySettings;
 
-    private HashMap<Integer, Integer> myWordIndexToLineMap = null;
-    private HashMap<Integer, SearchData> myLineSearchData = null;
+    private @Nullable HashMap<Integer, Integer> myWordIndexToLineMap = null;
+    private @Nullable HashMap<Integer, SearchData> myLineSearchData = null;
     private int[] myIndexedWordCounts = null;
     private TextRange myFoundRange = null;
     private boolean myHighlightSearchLines = false;
@@ -1255,13 +1255,13 @@ public class BatchReplaceForm implements Disposable {
 
                 LineSelectionManager.getInstance(myEditor).updateHighlights();
             } else {
-                WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+                WordHighlighter<?> highlighter = (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
 
                 if (highlighter != null) {
                     int offset = myEditor.getCaretModel().getOffset();
                     RangeHighlighter rangeHighlighter = highlighter.getRangeHighlighter(offset);
                     myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
-                    myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+                    myFoundIndex = myWordIndexToLineMap == null ? -1 : myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
                 }
             }
         }
@@ -1319,7 +1319,7 @@ public class BatchReplaceForm implements Disposable {
             }
         }
 
-        WordHighlighter highlighter = myEditor == null ? null : (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        WordHighlighter<?> highlighter = myEditor == null ? null : (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
         if (highlighter != null) {
             if (myFoundRange != null) {
                 myFindNext.setEnabled(highlighter.getNextRangeHighlighter(myFoundRange.getEndOffset()) != null);
@@ -1417,14 +1417,14 @@ public class BatchReplaceForm implements Disposable {
     private void findNext() {
         if (myEditor == null) return;
 
-        WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        WordHighlighter<?> highlighter = (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
         myFoundBackwards = false;
 
         if (highlighter != null) {
             int offset = myFoundRange != null ? myFoundRange.getEndOffset() : myEditor.getCaretModel().getOffset();
             RangeHighlighter rangeHighlighter = highlighter.getNextRangeHighlighter(offset);
             myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
-            myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+            myFoundIndex = myWordIndexToLineMap == null ? -1 : myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
         }
 
         if (myFoundRange != null && myEditor != null) {
@@ -1443,14 +1443,14 @@ public class BatchReplaceForm implements Disposable {
     private void findPrevious() {
         if (myEditor == null) return;
 
-        WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+        WordHighlighter<?> highlighter = (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
         myFoundBackwards = true;
 
         if (highlighter != null) {
             int offset = myFoundRange != null ? myFoundRange.getStartOffset() : myEditor.getCaretModel().getOffset();
             RangeHighlighter rangeHighlighter = highlighter.getPreviousRangeHighlighter(offset);
             myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
-            myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+            myFoundIndex = myWordIndexToLineMap == null ? -1 : myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
         }
 
         if (myFoundRange != null && myEditor != null) {
@@ -1478,8 +1478,8 @@ public class BatchReplaceForm implements Disposable {
                 } else if (range.getEndOffset() >= foundRange.getEndOffset()) {
                     // need to adjust end
                     myExcludedRanges.set(i, range.grown(delta));
-                } else {
-                    // nothing to do
+//                } else {
+//                    // nothing to do
                 }
             }
         }
@@ -1490,7 +1490,7 @@ public class BatchReplaceForm implements Disposable {
 
         boolean handled = false;
 
-        if (myFoundRange != null && myFoundIndex != -1 && !isExcludedRange()) {
+        if (myFoundRange != null && myFoundIndex != -1 && !isExcludedRange() && myLineSearchData != null) {
             // Need to double check that the range matches what was found, sometimes the update takes longer and the wrong text can be replaced
             int offset = myEditor.getCaretModel().getOffset();
             if (myFoundRange.getStartOffset() <= offset && offset <= myFoundRange.getEndOffset()) {
@@ -1599,7 +1599,7 @@ public class BatchReplaceForm implements Disposable {
                 //myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
                 //myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
 
-                WordHighlighter highlighter = (WordHighlighter) LineSelectionManager.getInstance(myEditor).getHighlighter();
+                WordHighlighter<?> highlighter = (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
                 myFoundBackwards = true;
 
                 if (highlighter != null) {
@@ -1607,9 +1607,9 @@ public class BatchReplaceForm implements Disposable {
                     while (true) {
                         RangeHighlighter rangeHighlighter = highlighter.getPreviousRangeHighlighter(caretOffset);
                         myFoundRange = rangeHighlighter == null ? null : TextRange.create(rangeHighlighter.getStartOffset(), rangeHighlighter.getEndOffset());
-                        myFoundIndex = myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
+                        myFoundIndex = myWordIndexToLineMap == null ? -1 : myWordIndexToLineMap.getOrDefault(highlighter.getOriginalIndex(rangeHighlighter), -1);
 
-                        if (myFoundRange != null && myFoundIndex != -1) {
+                        if (myFoundRange != null && myFoundIndex != -1 && myLineSearchData != null) {
                             if (isExcludedRange()) {
                                 caretOffset = myFoundRange.getStartOffset();
                                 continue;
@@ -1845,7 +1845,7 @@ public class BatchReplaceForm implements Disposable {
             }
 
             int offset = startOfLine ? document.getLineStartOffset(lineNumber) : document.getLineEndOffset(lineNumber);
-            document.insertString(offset, RepeatedSequence.of('\n', lineDelta));
+            document.insertString(offset, RepeatedSequence.repeatOf('\n', lineDelta));
         } else {
             if (lineCount > 0 && lineNumber <= lineCount) {
                 // have something to delete

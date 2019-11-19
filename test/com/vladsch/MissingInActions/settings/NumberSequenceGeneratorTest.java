@@ -472,6 +472,9 @@ public class NumberSequenceGeneratorTest {
         num.next(3);
         String next1 = num.getNumber();
         assertEquals("4000000000000000", next1);
+        num.next(4);
+        String next2 = num.getNumber();
+        assertEquals("2000000000000000", next2);
     }
 
     @Test
@@ -552,6 +555,9 @@ public class NumberSequenceGeneratorTest {
         num.next(3);
         String next1 = num.getNumber();
         assertEquals("2", next1);
+        num.next(4);
+        String next3 = num.getNumber();
+        assertEquals("4", next3);
     }
 
     @Test

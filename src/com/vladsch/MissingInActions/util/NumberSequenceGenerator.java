@@ -25,7 +25,6 @@ import com.vladsch.MissingInActions.settings.NumberingBaseType;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
 import com.vladsch.flexmark.util.Ref;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.CharSubSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -465,7 +464,7 @@ public class NumberSequenceGenerator {
             }
         }
 
-        return BasedSequence.of(String.valueOf(sb, i, sb.length));
+        return BasedSequence.of(String.valueOf(sb, i, sb.length - i));
     }
 
     public static final int[] MAX_CHARS_BASE = new int[] {

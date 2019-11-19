@@ -151,6 +151,7 @@
 
 ### 1.7.5.51 - Bug Fix Release & Enhancement Release
 
+* Fix: NPE in batch search replace
 * Fix: word Highlighter to test first/last char of word being `\w` before respecting provided
   boundary flags. Otherwise no highlights will be done for the pattern.
 * Fix: change number generator for shift sequences so that if start is 0, then first number is
