@@ -85,7 +85,7 @@ public class EditorPositionFactory {
     }
 
     @NotNull
-    public BasedSequence getDocumentChars() { return SubSequence.of(myEditor.getDocument().getCharsSequence()); }
+    public BasedSequence getDocumentChars() { return BasedSequence.of(myEditor.getDocument().getCharsSequence()); }
 
     @NotNull
     public Document getDocument() { return myEditor.getDocument(); }

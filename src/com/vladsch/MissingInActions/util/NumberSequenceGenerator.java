@@ -465,7 +465,7 @@ public class NumberSequenceGenerator {
             }
         }
 
-        return CharSubSequence.of(sb, i, sb.length);
+        return BasedSequence.of(String.valueOf(sb, i, sb.length));
     }
 
     public static final int[] MAX_CHARS_BASE = new int[] {

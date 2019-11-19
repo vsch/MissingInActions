@@ -144,6 +144,10 @@
         to be universal.
   * [x] Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step <0
         and 0x8000_0000_0000_0000 to 1 when >=0
+* [ ] Fix: :red_circle: search spawn carets, if the preceding chars form a smart prefix the
+      pattern should not include that prefix in the list of matches, otherwise matches at start.
+  * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
+        really a match. Then can also implement case changes for the match.
 
 ### 1.7.5.51 - Bug Fix Release & Enhancement Release
 
@@ -159,6 +163,7 @@
   secondary. That way ESCAPE will leave the primary where it was.
 * Fix: batch search/replace highlights would not be shown in tool window editors like search,
   etc.
+* Fix: update flexmark-java, change deprecated method use.
 
 ### 1.7.5.49 - Bug Fix Release & Enhancement Release
 
