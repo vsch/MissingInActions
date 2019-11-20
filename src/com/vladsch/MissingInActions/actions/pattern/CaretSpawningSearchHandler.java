@@ -33,6 +33,7 @@ import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
 import com.vladsch.ReverseRegEx.util.ReversePattern;
+import com.vladsch.flexmark.util.Pair;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.CharPredicate;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -301,12 +302,12 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 } else {
                     // if these are numbers make sure we match start/end word only
                     boolean isNumericSearch = isNumeric(text, hexPrefix);
-                    String quotedText = getSmartPrefixedText(text.toString(), spawnSmartPrefixSearch);
+                    String quotedText = getSmartPrefixedText(text.toString(), isStart && spawnSmartPrefixSearch);
 
                     String starPattern = spawnMatchBoundarySearch && ( myBackwards || isStart) ? startBreak : (isNumericSearch ? "\\B" : "");
                     String endPattern =  spawnMatchBoundarySearch && (!myBackwards || isStart) ? endBreak : (isNumericSearch ? "\\B" : "");
 
-                    searchFlags = myCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE;
+                    searchFlags = myCaseSensitive && !(spawnSmartPrefixSearch && !isStart) ? 0 : Pattern.CASE_INSENSITIVE;
                     patternText = starPattern + "(" + quotedText + ")" + endPattern;
                 }
             } else {

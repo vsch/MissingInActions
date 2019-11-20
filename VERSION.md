@@ -7,6 +7,7 @@
 - [Later](#later)
 - [Next](#next)
 - [Next 1.7.5.53 - Bug Fix Release & Enhancement Release](#next-17553-bug-fix-release-enhancement-release)
+- [1.7.5.53 - Bug Fix Release & Enhancement Release](#17553-bug-fix-release-enhancement-release)
 - [1.7.5.51 - Bug Fix Release & Enhancement Release](#17551-bug-fix-release-enhancement-release)
 - [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
 - [1.7.5.47 - Bug Fix Release & Enhancement Release](#17547-bug-fix-release-enhancement-release)
@@ -136,18 +137,21 @@
 * [ ] Fix: need straighter carets to work with selections so can trim selections to straight
       line.
 * [ ] Fix: :red_circle: keep code carets does not remove carets in Java multi-line comments
-* [x] Fix: change number generator for shift sequences so that if start is 0, then first number
-      is 0, next number is 1 if step is >=0 and 0x8000_0000_0000_0000 if <0.
+* Fix: number generator
   * [ ] Fix: :red_circle: generate number to use current selection to get starting number if it
         is numeric or hex.
   * [ ] Fix: :red_circle: automatically switch dialog to correct base hex, consider prefix of 0x
         to be universal.
-  * [x] Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step <0
-        and 0x8000_0000_0000_0000 to 1 when >=0
 * [ ] Fix: :red_circle: search spawn carets, if the preceding chars form a smart prefix the
       pattern should not include that prefix in the list of matches, otherwise matches at start.
   * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
         really a match. Then can also implement case changes for the match.
+
+### 1.7.5.53 - Bug Fix Release & Enhancement Release
+
+* Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
+  include that prefix in the list of matches, otherwise matches at start.
+* Fix: index exception when deleting clipboard history in paste from history
 
 ### 1.7.5.51 - Bug Fix Release & Enhancement Release
 
