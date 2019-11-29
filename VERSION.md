@@ -7,6 +7,7 @@
 - [Later](#later)
 - [Next](#next)
 - [Next 1.7.5.53 - Bug Fix Release & Enhancement Release](#next-17553-bug-fix-release-enhancement-release)
+- [1.7.5.55 - Bug Fix Release & Enhancement Release](#17555-bug-fix-release-enhancement-release)
 - [1.7.5.53 - Bug Fix Release & Enhancement Release](#17553-bug-fix-release-enhancement-release)
 - [1.7.5.51 - Bug Fix Release & Enhancement Release](#17551-bug-fix-release-enhancement-release)
 - [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
@@ -146,12 +147,22 @@
       pattern should not include that prefix in the list of matches, otherwise matches at start.
   * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
         really a match. Then can also implement case changes for the match.
+* [ ] Add: :red_circle: option to remove selection after copy with no selection
+* [ ] Fix: :red_circle: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
+
+### 1.7.5.55 - Bug Fix Release & Enhancement Release
+
+* Fix: exception caused by trying to set highlight provider on editor for isDefaultProject()
+  true.
+* Fix: editors double release
+* Fix: search spawn carets numeric only worked if spawn search word boundaries was enabled.
 
 ### 1.7.5.53 - Bug Fix Release & Enhancement Release
 
 * Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
 * Fix: index exception when deleting clipboard history in paste from history
+* Fix: NPE caused by editor in settings open for default project.
 
 ### 1.7.5.51 - Bug Fix Release & Enhancement Release
 

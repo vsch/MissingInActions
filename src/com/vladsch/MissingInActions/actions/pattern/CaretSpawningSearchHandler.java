@@ -304,8 +304,8 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     boolean isNumericSearch = isNumeric(text, hexPrefix);
                     String quotedText = getSmartPrefixedText(text.toString(), isStart && spawnSmartPrefixSearch);
 
-                    String starPattern = spawnMatchBoundarySearch && ( myBackwards || isStart) ? startBreak : (isNumericSearch ? "\\B" : "");
-                    String endPattern =  spawnMatchBoundarySearch && (!myBackwards || isStart) ? endBreak : (isNumericSearch ? "\\B" : "");
+                    String starPattern = (spawnMatchBoundarySearch || isNumericSearch) && (myBackwards || isStart) ? startBreak : (isNumericSearch ? "\\B" : "");
+                    String endPattern =  (spawnMatchBoundarySearch || isNumericSearch) && (!myBackwards || isStart) ? endBreak : (isNumericSearch ? "\\B" : "");
 
                     searchFlags = myCaseSensitive && !(spawnSmartPrefixSearch && !isStart) ? 0 : Pattern.CASE_INSENSITIVE;
                     patternText = starPattern + "(" + quotedText + ")" + endPattern;

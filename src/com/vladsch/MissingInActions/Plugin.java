@@ -573,7 +573,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             Disposer.dispose(manager);
         });
 
-        if (editor.getProject() != null) {
+        if (editor.getProject() != null && !editor.getProject().isDefault()) {
             PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
             if (projectComponent != null) {
                 projectComponent.editorCreated(editor);

@@ -39,6 +39,7 @@ import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.plugin.util.DelayedRunner;
+import com.vladsch.plugin.util.LazyFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -195,7 +196,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     public void initComponent() {
         // register editor factory listener
         myPlugin.initProjectComponent(myProject);
-        myDelayedRunner.addRunnable(() -> {
+        myDelayedRunner.addRunnable(myProject, () -> {
             myPlugin.disposeProjectComponent(myProject);
             myInActiveLookupListeners.clear();
             myActiveLookupListeners.clear();
@@ -218,8 +219,11 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         return this.getClass().getName();
     }
 
+    final static private LazyFunction<Project, PluginProjectComponent> NULL = new LazyFunction<>(PluginProjectComponent::new);
+
     @NotNull
     public static PluginProjectComponent getInstance(@NotNull Project project) {
-        return project.getComponent(PluginProjectComponent.class);
+        if (project.isDefault()) return NULL.getValue(project);
+        else return project.getComponent(PluginProjectComponent.class);
     }
 }

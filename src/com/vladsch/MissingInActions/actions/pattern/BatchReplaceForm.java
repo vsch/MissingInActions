@@ -253,44 +253,53 @@ public class BatchReplaceForm implements Disposable {
     @SuppressWarnings("WeakerAccess")
     public void disposeEditors() {
         if (mySearchEditor != null) {
-            // release the editors
-            setActiveEditor(null);
+            Editor searchEditor;
 
-            mySearchEditor.getDocument().removeDocumentListener(myDocumentListener);
-            myReplaceEditor.getDocument().removeDocumentListener(myDocumentListener);
-            myOptionsEditor.getDocument().removeDocumentListener(myDocumentListener);
+            synchronized (this) {
+                searchEditor = mySearchEditor;
+                mySearchEditor = null;
+            }
 
-            mySearchEditor.getCaretModel().removeCaretListener(myCaretListener);
-            myReplaceEditor.getCaretModel().removeCaretListener(myCaretListener);
-            myOptionsEditor.getCaretModel().removeCaretListener(myCaretListener);
+            if (searchEditor != null) {
+                // release the editors
+                setActiveEditor(null);
 
-            mySearchEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
-            myReplaceEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
-            myOptionsEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
+                searchEditor.getDocument().removeDocumentListener(myDocumentListener);
+                myReplaceEditor.getDocument().removeDocumentListener(myDocumentListener);
+                myOptionsEditor.getDocument().removeDocumentListener(myDocumentListener);
 
-            LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(null);
-            LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(null);
-            LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(null);
+                searchEditor.getCaretModel().removeCaretListener(myCaretListener);
+                myReplaceEditor.getCaretModel().removeCaretListener(myCaretListener);
+                myOptionsEditor.getCaretModel().removeCaretListener(myCaretListener);
 
-            EditorFactory.getInstance().releaseEditor(mySearchEditor);
-            EditorFactory.getInstance().releaseEditor(myReplaceEditor);
-            EditorFactory.getInstance().releaseEditor(myOptionsEditor);
+                searchEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
+                myReplaceEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
+                myOptionsEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
 
-            myEditor = null;
-            mySearchEditor = null;
-            myReplaceEditor = null;
-            myOptionsEditor = null;
+                LineSelectionManager.getInstance(searchEditor).setHighlightProvider(null);
+                LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(null);
+                LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(null);
 
-            myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
-            myEditorSearchHighlightProvider.disposeComponent();
-            mySearchHighlightProvider.disposeComponent();
-            myReplaceHighlightProvider.disposeComponent();
-            myOptionsHighlightProvider.disposeComponent();
+                EditorFactory.getInstance().releaseEditor(searchEditor);
+                EditorFactory.getInstance().releaseEditor(myReplaceEditor);
+                EditorFactory.getInstance().releaseEditor(myOptionsEditor);
 
-            myEditorSearchHighlightProvider = null;
-            mySearchHighlightProvider = null;
-            myReplaceHighlightProvider = null;
-            myOptionsHighlightProvider = null;
+                myEditor = null;
+                searchEditor = null;
+                myReplaceEditor = null;
+                myOptionsEditor = null;
+
+                myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
+                myEditorSearchHighlightProvider.disposeComponent();
+                mySearchHighlightProvider.disposeComponent();
+                myReplaceHighlightProvider.disposeComponent();
+                myOptionsHighlightProvider.disposeComponent();
+
+                myEditorSearchHighlightProvider = null;
+                mySearchHighlightProvider = null;
+                myReplaceHighlightProvider = null;
+                myOptionsHighlightProvider = null;
+            }
         }
     }
 

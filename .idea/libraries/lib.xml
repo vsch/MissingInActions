@@ -45,7 +45,7 @@
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-jira-converter/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-pdf-converter/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-profile-pegdown/src/main/java" />
-      <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-test-specs/src/main/Java" />
+      <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-test-specs/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-test-util/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-tree-iteration/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util/src/main/java" />
