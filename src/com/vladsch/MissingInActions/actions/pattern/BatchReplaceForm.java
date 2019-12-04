@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.codeInsight.daemon.impl.EditorTracker;
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -825,7 +824,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private void updateIconButtons() {
-        myToggleTandemEdit.setIcon(myBatchTandemEdit ? AllIcons.Ide.Readonly : AllIcons.Ide.Readwrite);
+        myToggleTandemEdit.setIcon(myBatchTandemEdit ? PluginIcons.Tandem_locked : PluginIcons.Tandem_unlocked);
         myToggleTandemEdit.setSelected(myBatchTandemEdit);
 
         myToggleSearchHighlights.setIcon(myHighlightSearchLines ? PluginIcons.Toggle_word_highlights : PluginIcons.No_word_highlights);

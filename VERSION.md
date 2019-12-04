@@ -6,7 +6,8 @@
 - [ CRITICAL](#critical)
 - [Later](#later)
 - [Next](#next)
-- [Next 1.7.5.53 - Bug Fix Release & Enhancement Release](#next-17553-bug-fix-release-enhancement-release)
+- [Next 1.7.5.xx - Bug Fix Release & Enhancement Release](#next-175xx-bug-fix-release-enhancement-release)
+- [1.7.5.57 - Bug Fix Release & Enhancement Release](#17557-bug-fix-release-enhancement-release)
 - [1.7.5.55 - Bug Fix Release & Enhancement Release](#17555-bug-fix-release-enhancement-release)
 - [1.7.5.53 - Bug Fix Release & Enhancement Release](#17553-bug-fix-release-enhancement-release)
 - [1.7.5.51 - Bug Fix Release & Enhancement Release](#17551-bug-fix-release-enhancement-release)
@@ -119,7 +120,7 @@
 
 ### Next
 
-### Next 1.7.5.53 - Bug Fix Release & Enhancement Release
+### Next 1.7.5.xx - Bug Fix Release & Enhancement Release
 
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
@@ -149,6 +150,11 @@
         really a match. Then can also implement case changes for the match.
 * [ ] Add: :red_circle: option to remove selection after copy with no selection
 * [ ] Fix: :red_circle: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
+
+### 1.7.5.57 - Bug Fix Release & Enhancement Release
+
+* Fix: remove deprecated icon use
+* Fix: disposed editor accessed on settings change.
 
 ### 1.7.5.55 - Bug Fix Release & Enhancement Release
 

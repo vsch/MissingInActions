@@ -17,10 +17,14 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.HelpTooltip;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -28,7 +32,11 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.*;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.JBPopupListener;
+import com.intellij.openapi.ui.popup.LightweightWindowEvent;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.registry.Registry;
@@ -37,6 +45,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.plugin.util.ui.CustomComponentAction;
+import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,8 +63,6 @@ import java.beans.PropertyChangeListener;
 import java.util.MissingResourceException;
 
 public abstract class MiaComboBoxAction extends ComboBoxAction implements CustomComponentAction {
-    //private static final Icon ARROW_ICON = UIUtil.isUnderDarcula() ? AllIcons.General.ComboArrow : AllIcons.General.ComboBoxButtonArrow;
-    //private static final Icon DISABLED_ARROW_ICON = IconLoader.getDisabledIcon(ARROW_ICON);
     private static final String COMBO_BOX_EDITOR_PROPERTY = "COMBO_BOX_EDITOR_PROPERTY";
     private static Icon myIcon = null;
     private static Icon myDisabledIcon = null;
@@ -73,7 +80,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             }
             return myWin10ComboDropTriangleIcon;
         }
-        Icon icon = UIUtil.isUnderDarcula() ? AllIcons.General.ComboArrow : AllIcons.General.ComboBoxButtonArrow;
+        Icon icon = PluginIcons.Combo_arrow;
         if (myIcon != icon) {
             myIcon = icon;
             myDisabledIcon = IconLoader.getDisabledIcon(myIcon);

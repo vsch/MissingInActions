@@ -167,10 +167,8 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
     private static SharedCaretStateTransferableData getSharedDataOrNull(@NotNull Transferable transferable) {
         try {
             return (SharedCaretStateTransferableData) transferable.getTransferData(SHARED_FLAVOR);
-        } catch (UnsupportedFlavorException e) {
-            LOG.error(e);
-        } catch (IOException e) {
-            LOG.error(e);
+        } catch (UnsupportedFlavorException | IOException e) {
+            LOG.warn(e);
         }
         return null;
     }

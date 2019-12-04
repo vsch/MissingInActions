@@ -188,7 +188,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
 
         updateClipboardData(editor, copyPasteManager, multiPasteOptionsPane);
 
-        choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), true, true) {
+        choosers[0] = new ContentChooser<Transferable>(project, getContentChooserTitle(editor, focusedComponent), PluginIcons.File_text, true, true) {
             private boolean listenersInitialized = false;
 
             @Nullable

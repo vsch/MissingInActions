@@ -95,4 +95,6 @@ public class PluginIcons {
     public static final Icon Toggle_search_match_boundary = load("/icons/png/Toggle_search_match_boundary.png");
     public static final Icon Create_carets_from_highlights = load("/icons/png/Create_carets_from_highlights.png");
     public static final Icon Generate_exception = load("/icons/svg/Generate_exception.svg");
+    public static final Icon Combo_arrow = load("/icons/svg/Combo_arrow.svg");
+    public static final Icon File_text = load("/icons/svg/File_text.svg");
 }

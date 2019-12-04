@@ -801,10 +801,9 @@ public class LineSelectionManager implements
 
     void settingsChanged(@NotNull ApplicationSettings settings) {
         // unhook all the stuff for settings registration
-        mySettings = settings;
+        if (myEditor.isDisposed()) return;
 
-        boolean startExtended = settings.isSelectionStartExtended();
-        boolean endExtended = settings.isSelectionEndExtended();
+        mySettings = settings;
 
         HashMap<Caret, Boolean> lineCarets = new HashMap<>();
         for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
