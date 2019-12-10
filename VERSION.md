@@ -7,6 +7,7 @@
 - [Later](#later)
 - [Next](#next)
 - [Next 1.7.5.xx - Bug Fix Release & Enhancement Release](#next-175xx-bug-fix-release-enhancement-release)
+- [1.7.5.59 - Bug Fix Release & Enhancement Release](#17559-bug-fix-release-enhancement-release)
 - [1.7.5.57 - Bug Fix Release & Enhancement Release](#17557-bug-fix-release-enhancement-release)
 - [1.7.5.55 - Bug Fix Release & Enhancement Release](#17555-bug-fix-release-enhancement-release)
 - [1.7.5.53 - Bug Fix Release & Enhancement Release](#17553-bug-fix-release-enhancement-release)
@@ -150,6 +151,10 @@
         really a match. Then can also implement case changes for the match.
 * [ ] Add: :red_circle: option to remove selection after copy with no selection
 * [ ] Fix: :red_circle: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
+
+### 1.7.5.59 - Bug Fix Release & Enhancement Release
+
+* Fix: add app version based application service/component requesting
 
 ### 1.7.5.57 - Bug Fix Release & Enhancement Release
 
