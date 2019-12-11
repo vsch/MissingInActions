@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.7.5.59</version>
+    <version>1.7.5.61</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="162.*"/>
 
@@ -245,19 +245,14 @@
         ]]></change-notes>
 
     <project-components>
-        <!-- Plugin's project components -->
         <component>
             <implementation-class>com.vladsch.MissingInActions.PluginProjectComponent</implementation-class>
         </component>
     </project-components>
 
     <application-components>
-        <!-- Add your application components here -->
         <component>
             <implementation-class>com.vladsch.MissingInActions.Plugin</implementation-class>
-        </component>
-        <component>
-            <implementation-class>com.vladsch.MissingInActions.settings.ApplicationSettings</implementation-class>
         </component>
     </application-components>
 
@@ -277,6 +272,7 @@
 
         <applicationService serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
         <applicationService serviceImplementation="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler"/>
+        <applicationService serviceImplementation="com.vladsch.MissingInActions.settings.ApplicationSettings"/>
 
         <!-- This is the only way to override standard editor shortcuts that are used by others -->
         <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->

@@ -41,14 +41,14 @@ import java.awt.BorderLayout;
 import java.util.HashMap;
 
 public class BatchSearchReplaceToolWindow {
-    private ToolWindow toolWindow;
+    private final ToolWindow toolWindow;
 
     private static final String TOOL_WINDOW_ID = Bundle.message("plugin.tool-window.id");
     private static final String BATCH_REPLACE_ID = "BATCH_REPLACE_ID";
 
-    private Project project;
-    private BatchReplaceForm myBatchSearchReplace;
-    private HashMap<String, Content> myToolWindowContentMap = new HashMap<>();
+    private final Project project;
+    private final BatchReplaceForm myBatchSearchReplace;
+    private final HashMap<String, Content> myToolWindowContentMap = new HashMap<>();
 
     public BatchSearchReplaceToolWindow(Project project) {
         this.project = project;

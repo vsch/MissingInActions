@@ -7,20 +7,7 @@
 - [Later](#later)
 - [Next](#next)
 - [Next 1.7.5.xx - Bug Fix Release & Enhancement Release](#next-175xx-bug-fix-release-enhancement-release)
-- [1.7.5.59 - Bug Fix Release & Enhancement Release](#17559-bug-fix-release-enhancement-release)
-- [1.7.5.57 - Bug Fix Release & Enhancement Release](#17557-bug-fix-release-enhancement-release)
-- [1.7.5.55 - Bug Fix Release & Enhancement Release](#17555-bug-fix-release-enhancement-release)
-- [1.7.5.53 - Bug Fix Release & Enhancement Release](#17553-bug-fix-release-enhancement-release)
-- [1.7.5.51 - Bug Fix Release & Enhancement Release](#17551-bug-fix-release-enhancement-release)
-- [1.7.5.49 - Bug Fix Release & Enhancement Release](#17549-bug-fix-release-enhancement-release)
-- [1.7.5.47 - Bug Fix Release & Enhancement Release](#17547-bug-fix-release-enhancement-release)
-- [1.7.5.45 - Bug Fix Release & Enhancement Release](#17545-bug-fix-release-enhancement-release)
-- [1.7.5.43 - Bug Fix Release & Enhancement Release](#17543-bug-fix-release-enhancement-release)
-- [1.7.5.41 - Bug Fix Release & Enhancement Release](#17541-bug-fix-release-enhancement-release)
-- [1.7.5.39 - Bug Fix Release & Enhancement Release](#17539-bug-fix-release-enhancement-release)
-- [1.7.5.37 - Bug Fix Release & Enhancement Release](#17537-bug-fix-release-enhancement-release)
-- [1.7.5.35 - Bug Fix Release & Enhancement Release](#17535-bug-fix-release-enhancement-release)
-- [1.7.5.33 - Bug Fix Release & Enhancement Release](#17533-bug-fix-release-enhancement-release)
+- [1.7.5.61 - Dev Build](#17561-dev-build)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -152,30 +139,35 @@
 * [ ] Add: :red_circle: option to remove selection after copy with no selection
 * [ ] Fix: :red_circle: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 
-### 1.7.5.59 - Bug Fix Release & Enhancement Release
+### 1.7.5.61 - Dev Build
+
+* Fix: move components to services
+* Fix: missed dispose disposables
+
+#### 1.7.5.59 - Dev Build
 
 * Fix: add app version based application service/component requesting
 
-### 1.7.5.57 - Bug Fix Release & Enhancement Release
+#### 1.7.5.57 - Dev Build
 
 * Fix: remove deprecated icon use
 * Fix: disposed editor accessed on settings change.
 
-### 1.7.5.55 - Bug Fix Release & Enhancement Release
+#### 1.7.5.55 - Dev Build
 
 * Fix: exception caused by trying to set highlight provider on editor for isDefaultProject()
   true.
 * Fix: editors double release
 * Fix: search spawn carets numeric only worked if spawn search word boundaries was enabled.
 
-### 1.7.5.53 - Bug Fix Release & Enhancement Release
+#### 1.7.5.53 - Dev Build
 
 * Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
 * Fix: index exception when deleting clipboard history in paste from history
 * Fix: NPE caused by editor in settings open for default project.
 
-### 1.7.5.51 - Bug Fix Release & Enhancement Release
+#### 1.7.5.51 - Dev Build
 
 * Fix: NPE in batch search replace
 * Fix: word Highlighter to test first/last char of word being `\w` before respecting provided
@@ -192,30 +184,30 @@
   etc.
 * Fix: update flexmark-java, change deprecated method use.
 
-### 1.7.5.49 - Bug Fix Release & Enhancement Release
+#### 1.7.5.49 - Dev Build
 
 * Fix: update to flexmark-java utils 0.59.50
 
-### 1.7.5.47 - Bug Fix Release & Enhancement Release
+#### 1.7.5.47 - Dev Build
 
-* Fix: backward search on `\\` generated pattern syntax exception. Reverse regex bug. Did not
+* Fix: backward search on `\\` generated pattern syntax exception. Reverse regex Dev Build
   handle odd backslash quoted `\Q\\E` sequences.
 * Fix: batch search replace update of paste from clipboard button state would hand the IDE
   trying to get OS X clipboard. Just left the button enabled for now.
 
-### 1.7.5.45 - Bug Fix Release & Enhancement Release
+#### 1.7.5.45 - Dev Build
 
 * Fix: word highlighter to sort in reverse order
 
-### 1.7.5.43 - Bug Fix Release & Enhancement Release
+#### 1.7.5.43 - Dev Build
 
 * Fix: update `flexmark-java-utils` to 0.59.42
 
-### 1.7.5.41 - Bug Fix Release & Enhancement Release
+#### 1.7.5.41 - Dev Build
 
 * Fix: missing setting for spawn search boundary matching.
 
-### 1.7.5.39 - Bug Fix Release & Enhancement Release
+#### 1.7.5.39 - Dev Build
 
 * Add: option for spawn search to ignore backward word boundaries. ie. Forward search ignores
   begin word break, backward search ignores end word break.
@@ -224,16 +216,16 @@
 * Add: option for word highlighting to not respect word boundary from the selection. When not
   matching boundary `abc` highlight will match `abc` in `abcd` and `zabc` and `zabcd`.
 
-### 1.7.5.37 - Bug Fix Release & Enhancement Release
+#### 1.7.5.37 - Dev Build
 
 * Fix: preserve caret line to closest available after smart remove carets or remove
   blank/non-blank/comment, etc.
 
-### 1.7.5.35 - Bug Fix Release & Enhancement Release
+#### 1.7.5.35 - Dev Build
 
 * Fix: update flexmark-utils
 
-### 1.7.5.33 - Bug Fix Release & Enhancement Release
+#### 1.7.5.33 - Dev Build
 
 * Fix: when toggling line/carets try to keep the primary caret position closest to offset before
   action.
@@ -242,7 +234,7 @@
   * when toggling selection keep caret offset at primary caret offset
   * when accepting found/not-found search carets
 
-#### 1.7.5.31 - Bug Fix Release & Enhancement Release
+#### 1.7.5.31 - Dev Build
 
 * Highlighted word actions:
   * Fix: automatically turn on words highlight mode when adding a highlighted word

@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
@@ -55,7 +54,7 @@ import static com.vladsch.MissingInActions.util.EditHelpers.*;
         }
 )
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettings extends BatchSearchReplaceSettings implements BaseComponent, PersistentStateComponent<ApplicationSettings> {
+public class ApplicationSettings extends BatchSearchReplaceSettings implements PersistentStateComponent<ApplicationSettings> {
     // @formatter:off
     private boolean         myAddPrefixOnPaste = false;
     private boolean         myAutoIndent = false;
@@ -862,6 +861,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements B
     }
 
     public static ApplicationSettings getInstance() {
-        return ApplicationManager.getApplication().getComponent(ApplicationSettings.class);
+        return ApplicationManager.getApplication().getService(ApplicationSettings.class);
     }
 }

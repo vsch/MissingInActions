@@ -21,7 +21,6 @@
 
 package com.vladsch.MissingInActions;
 
-import com.intellij.codeInsight.daemon.impl.EditorTracker;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
@@ -29,14 +28,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.impl.VisibleEditorsTracker;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
-import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.LazyFunction;
@@ -47,7 +42,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 public class PluginProjectComponent implements ProjectComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
@@ -157,6 +151,19 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
 
     @Override
     public void projectOpened() {
+        // register editor factory listener
+        myPlugin.initProjectComponent(myProject);
+        myDelayedRunner.addRunnable(myProject, () -> {
+            myPlugin.disposeProjectComponent(myProject);
+            myInActiveLookupListeners.clear();
+            myActiveLookupListeners.clear();
+
+            if (mySearchReplaceToolWindow != null) {
+                mySearchReplaceToolWindow.unregisterToolWindow();
+                mySearchReplaceToolWindow = null;
+            }
+        });
+
         LookupManager.getInstance(myProject).addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
@@ -176,11 +183,15 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     }
 
     public void showBatchSearchReplace() {
-        mySearchReplaceToolWindow.activate();
+        if (mySearchReplaceToolWindow != null) {
+            mySearchReplaceToolWindow.activate();
+        }
     }
 
     public void hideBatchSearchReplace() {
-        mySearchReplaceToolWindow.hide();
+        if (mySearchReplaceToolWindow != null) {
+            mySearchReplaceToolWindow.hide();
+        }
     }
 
     public BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
@@ -189,27 +200,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
 
     @Override
     public void projectClosed() {
-        myDelayedRunner.runAllFor(myProject);
-    }
-
-    @Override
-    public void initComponent() {
-        // register editor factory listener
-        myPlugin.initProjectComponent(myProject);
-        myDelayedRunner.addRunnable(myProject, () -> {
-            myPlugin.disposeProjectComponent(myProject);
-            myInActiveLookupListeners.clear();
-            myActiveLookupListeners.clear();
-
-            if (mySearchReplaceToolWindow != null) {
-                mySearchReplaceToolWindow.unregisterToolWindow();
-                mySearchReplaceToolWindow = null;
-            }
-        });
-    }
-
-    @Override
-    public void disposeComponent() {
+//        myDelayedRunner.runAllFor(myProject);
         myDelayedRunner.runAll();
     }
 

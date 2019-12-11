@@ -60,6 +60,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -289,10 +290,11 @@ public class BatchReplaceForm implements Disposable {
                 myOptionsEditor = null;
 
                 myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
-                myEditorSearchHighlightProvider.disposeComponent();
-                mySearchHighlightProvider.disposeComponent();
-                myReplaceHighlightProvider.disposeComponent();
-                myOptionsHighlightProvider.disposeComponent();
+
+                Disposer.dispose(myEditorSearchHighlightProvider);
+                Disposer.dispose(mySearchHighlightProvider);
+                Disposer.dispose(myReplaceHighlightProvider);
+                Disposer.dispose(myOptionsHighlightProvider);
 
                 myEditorSearchHighlightProvider = null;
                 mySearchHighlightProvider = null;
@@ -455,6 +457,7 @@ public class BatchReplaceForm implements Disposable {
         mySearchHighlightProvider.initComponent();
         myReplaceHighlightProvider.initComponent();
         myOptionsHighlightProvider.initComponent();
+
 
         LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(mySearchHighlightProvider);
         LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(myReplaceHighlightProvider);
