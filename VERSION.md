@@ -124,6 +124,7 @@
 
 + [ ] Add: option and functionality to change duplicate lines action to only operate on a line
       once even if there are many carets present on that line.
+  * remove duplicate carets on the line before the action and re-create them after the action
 + [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
       indent.
 + [ ] Add: option to detect trailing `,` and `;` on previous lines when duplicating single line
