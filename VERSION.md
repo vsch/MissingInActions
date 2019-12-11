@@ -51,17 +51,6 @@
 
 &nbsp;<details id="todo"><summary>**To Do List**</summary>
 
-##### Next Release To Do
-
-* [ ] Add: status bar with information about selection: lines, code, comment and blank line
-      count.
-* [ ] Add: per language configuration of what constitutes an identifier character set to
-      override Java default for custom word actions for languages other than Java (dynamically
-      based on file language type)
-* [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
-
-&nbsp;</details>
-
 ### Next 1.8.0.xxx - Bug Fix Release & Enhancement Release
 
 + [ ] Fix: batch search/replace:
@@ -75,52 +64,47 @@
         validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
++ [ ] Add: per language configuration of what constitutes an identifier character set to
+      override Java default for custom word actions for languages other than Java (dynamically
+      based on file language type)
+  + [ ] Add: default base prefix/suffix for the language to use when none in per language number
+        format settings
+  + [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
+        then don't make any changes to the pasted content.
++ [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
+      starting a search with smart prefix mode and toggling smart prefix mode should result in
+      the same thing as toggling smart prefix mode then doing spawn search.
+  + [ ] Fix: toggle spawn search smart prefix
+  + [ ] Fix: toggle spawn search match boundary
 + [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
       using line mouse selection.
 + [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
       is already on last line or using line mouse selection.
-+ [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
-      then don't make any changes to the pasted content.
 + [ ] Add: save isolation ranges in editor state
 + [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
       already on code lines then remove those whose code lines contain nothing but brackets,
       parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
       require editing without changing the selection to remove carets from lines that contain
       only context and termination elements.
-+ [ ] Add: option and functionality to change duplicate lines action to only operate on a line
-      once even if there are many carets present on that line.
-+ [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
-      indent.
-+ [ ] Add: option to detect `,`, `;` on previous line when duplicating single line and add to
-      line above automatically and remove from last duped line if original did not have this
-      suffix.
+* [ ] Add: status bar with information about selection: lines, code, comment and blank line
+      count.
+* [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
+* [ ] Add: `add/remove caret above/below` actions which do not try to preserve same range the
+      way IDE actions for these do.
+  * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
+    the top.
+  * Down: if primary is top, remove top and move down, if bottom then extend down, if neither,
+    then move to bottom.
+* [ ] Fix: add/remove highlight word should use current word at caret if no carets have
+      selections
+* [ ] Fix: need straighter carets to work with selections so can trim selections to straight
+      line.
 * Highlighted word actions:
   + [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
         a button that will use caret data for highlights).
   + [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
   + [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
         highlights which are present in the current file to the clipboard.
-
-### Next 1.7.5.xx - Dev Build
-
-+ [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
-      starting a search with smart prefix mode and toggling smart prefix mode should result in
-      the same thing as toggling smart prefix mode then doing spawn search.
-  + [ ] Fix: toggle spawn search smart prefix
-  + [ ] Fix: toggle spawn search match boundary
-+ [ ] Fix: keep code carets does not remove carets in Java multi-line comments
-+ [ ] Add: option to remove selection after copy with no selection
-+ [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
-+ [ ] Add: `add/remove caret above/below` actions which do not try to preserve same range the
-      way IDE actions for these do.
-  * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
-    the top.
-  * Down: if primary is top, remove top and move down, if bottom then extend down, if neither,
-    then move to bottom.
-+ [ ] Fix: add/remove highlight word should use current word at caret if no carets have
-      selections
-+ [ ] Fix: need straighter carets to work with selections so can trim selections to straight
-      line.
 * Fix: number generator
   + [ ] Fix: automatically switch dialog to correct base hex, use current setting's prefix to
         determine base.
@@ -129,10 +113,26 @@
           after stripping prefix/suffix
 * Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
-  + [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
+  * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
         really a match. Then can also implement case changes for the match.
-  + [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
+  * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
         and generate selected case variations.
+
+&nbsp;</details>
+
+### Next 1.7.5.xx - Dev Build
+
++ [ ] Add: option and functionality to change duplicate lines action to only operate on a line
+      once even if there are many carets present on that line.
++ [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
+      indent.
++ [ ] Add: option to detect trailing `,` and `;` on previous lines when duplicating single line
+      and add to line above automatically and remove from last duped line if original did not
+      have this suffix.
++ [ ] Add: option to remove selection after copy when starting with no selection one is created
+      by the action.
++ [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
++ [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 
 ### 1.7.5.61 - Dev Build
 
