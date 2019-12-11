@@ -66,12 +66,6 @@
 
 ### :warning: CRITICAL
 
-* [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
-      using line mouse selection.
-* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
-      is already on last line or using line mouse selection.
-* [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
-      then don't make any changes to the pasted content.
 * [ ] Add: batch search/replace:
   * [ ] Add: export/import a single profile to batch search/replace management as opposed to all
         profiles. Keeping all profiles per project and importing/exporting a single profile
@@ -82,6 +76,15 @@
         both of these colored with the same colors to allow using color alignment for validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
+
+* [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
+      using line mouse selection.
+
+* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
+      is already on last line or using line mouse selection.
+
+* [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
+      then don't make any changes to the pasted content.
 
 ### Later
 
@@ -110,6 +113,14 @@
 
 ### Next 1.7.5.xx - Bug Fix Release & Enhancement Release
 
++ [ ] Fix: keep code carets does not remove carets in Java multi-line comments
++ [ ] Add: option to remove selection after copy with no selection
++ [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
+* [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
+      starting a search with smart prefix mode and toggling smart prefix mode should result in
+      the same thing as toggling smart prefix mode then doing spawn search.
+  * [ ] Fix: toggle spawn search smart prefix
+  * [ ] Fix: toggle spawn search match boundary
 * [ ] Add: add caret above/below which do not try to preserve some range.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
     the top.
@@ -117,27 +128,19 @@
     then move to bottom.
 * [ ] Fix: add/remove highlight word should use current word at caret if no carets have
       selections
-* [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
-      generate selected case variations.
-* [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
-      starting a search with smart prefix mode and toggling smart prefix mode should result in
-      the same thing as toggling smart prefix mode then doing spawn search.
-  * [ ] Fix: toggle spawn search smart prefix
-  * [ ] Fix: toggle spawn search match boundary
 * [ ] Fix: need straighter carets to work with selections so can trim selections to straight
       line.
-* [ ] Fix: :red_circle: keep code carets does not remove carets in Java multi-line comments
-* Fix: number generator
-  * [ ] Fix: :red_circle: generate number to use current selection to get starting number if it
-        is numeric or hex.
-  * [ ] Fix: :red_circle: automatically switch dialog to correct base hex, consider prefix of 0x
-        to be universal.
-* [ ] Fix: :red_circle: search spawn carets, if the preceding chars form a smart prefix the
-      pattern should not include that prefix in the list of matches, otherwise matches at start.
-  * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
++ Fix: number generator
+  + [ ] Fix: generate number to use current selection to get starting number if it is numeric or
+        hex.
+  + [ ] Fix: automatically switch dialog to correct base hex, consider prefix of 0x to be
+        universal.
++ Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
+  include that prefix in the list of matches, otherwise matches at start.
+  + [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
         really a match. Then can also implement case changes for the match.
-* [ ] Add: :red_circle: option to remove selection after copy with no selection
-* [ ] Fix: :red_circle: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
+  + [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
+        generate selected case variations.
 
 ### 1.7.5.61 - Dev Build
 
