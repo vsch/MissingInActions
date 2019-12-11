@@ -3,10 +3,8 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [ CRITICAL](#critical)
-- [Later](#later)
-- [Next](#next)
-- [Next 1.7.5.xx - Bug Fix Release & Enhancement Release](#next-175xx-bug-fix-release-enhancement-release)
+- [Next 1.8.0.xxx - Bug Fix Release & Enhancement Release](#next-180xxx-bug-fix-release-enhancement-release)
+- [Next 1.7.5.xx - Dev Build](#next-175xx-dev-build)
 - [1.7.5.61 - Dev Build](#17561-dev-build)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
@@ -64,83 +62,77 @@
 
 &nbsp;</details>
 
-### :warning: CRITICAL
+### Next 1.8.0.xxx - Bug Fix Release & Enhancement Release
 
-* [ ] Add: batch search/replace:
-  * [ ] Add: export/import a single profile to batch search/replace management as opposed to all
++ [ ] Fix: batch search/replace:
+  + [ ] Add: export/import a single profile to batch search/replace management as opposed to all
         profiles. Keeping all profiles per project and importing/exporting a single profile
         between projects is useful.
-    * [ ] Add: copy profile under a new name and/or to another open project batch search window,
+    + [ ] Add: copy profile under a new name and/or to another open project batch search window,
           with overwrite prompting.
-  * [ ] Add: separate highlight in editor buttons to search and replace editors to allow having
-        both of these colored with the same colors to allow using color alignment for validation
+  + [ ] Add: separate `highlight in editor` buttons to search and replace editors to allow
+        having both of these colored with the same colors to allow using color alignment for
+        validation
   * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
         for keywords
-
-* [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
++ [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
       using line mouse selection.
-
-* [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
++ [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
       is already on last line or using line mouse selection.
-
-* [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
++ [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
       then don't make any changes to the pasted content.
-
-### Later
-
-* [ ] :red_circle: Add: save isolation ranges in editor state
-* [ ] :red_circle: Add: change the SmartKeepLineCarets action to first keep code lines, if all
-      carets are already on code lines then remove those whose code lines contain nothing but
-      brackets, parentheses, braces, commas and semicolons. This will allow to quickly isolate
-      lines that require editing without changing the selection to remove carets from lines that
-      contain only context and termination elements.
-* [ ] :red_circle: Add: option and functionality to change duplicate lines action to only
-      operate on a line once even if there are many carets present on that line.
-* [ ] :red_circle: Fix: backspace to line indent should backspace to beginning of line if at or
-      before indent.
-* [ ] :red_circle: Add: option to detect `,`, `;` on previous line when duplicating single line
-      and add to line above automatically and remove from last duped line if original did not
-      have this suffix.
++ [ ] Add: save isolation ranges in editor state
++ [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
+      already on code lines then remove those whose code lines contain nothing but brackets,
+      parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
+      require editing without changing the selection to remove carets from lines that contain
+      only context and termination elements.
++ [ ] Add: option and functionality to change duplicate lines action to only operate on a line
+      once even if there are many carets present on that line.
++ [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
+      indent.
++ [ ] Add: option to detect `,`, `;` on previous line when duplicating single line and add to
+      line above automatically and remove from last duped line if original did not have this
+      suffix.
 * Highlighted word actions:
-  * [ ] :red_circle: Add: highlight words from Clipboard selected carets (should use history
-        dialog with just a button that will use caret data for highlights).
-  * [ ] :red_circle: Add: Sort highlighted word colors (by their content case
-        sensitive/insensitive/
-  * [ ] :red_circle: Add: Copy highlighted words in file/selection, to copy as caret selections
-        all unique highlights which are present in the current file to the clipboard.
+  + [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
+        a button that will use caret data for highlights).
+  + [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
+  + [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
+        highlights which are present in the current file to the clipboard.
 
-### Next
+### Next 1.7.5.xx - Dev Build
 
-### Next 1.7.5.xx - Bug Fix Release & Enhancement Release
-
++ [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
+      starting a search with smart prefix mode and toggling smart prefix mode should result in
+      the same thing as toggling smart prefix mode then doing spawn search.
+  + [ ] Fix: toggle spawn search smart prefix
+  + [ ] Fix: toggle spawn search match boundary
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Add: option to remove selection after copy with no selection
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
-* [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
-      starting a search with smart prefix mode and toggling smart prefix mode should result in
-      the same thing as toggling smart prefix mode then doing spawn search.
-  * [ ] Fix: toggle spawn search smart prefix
-  * [ ] Fix: toggle spawn search match boundary
-* [ ] Add: add caret above/below which do not try to preserve some range.
++ [ ] Add: `add/remove caret above/below` actions which do not try to preserve same range the
+      way IDE actions for these do.
   * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
     the top.
   * Down: if primary is top, remove top and move down, if bottom then extend down, if neither,
     then move to bottom.
-* [ ] Fix: add/remove highlight word should use current word at caret if no carets have
++ [ ] Fix: add/remove highlight word should use current word at caret if no carets have
       selections
-* [ ] Fix: need straighter carets to work with selections so can trim selections to straight
++ [ ] Fix: need straighter carets to work with selections so can trim selections to straight
       line.
-+ Fix: number generator
-  + [ ] Fix: generate number to use current selection to get starting number if it is numeric or
-        hex.
-  + [ ] Fix: automatically switch dialog to correct base hex, consider prefix of 0x to be
-        universal.
-+ Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
+* Fix: number generator
+  + [ ] Fix: automatically switch dialog to correct base hex, use current setting's prefix to
+        determine base.
+    + [ ] Add: per language base prefix/suffix settings to allow prefix/suffix by language
+    + [ ] Fix: generate number to use current selection to get starting number if it is numeric
+          after stripping prefix/suffix
+* Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
   + [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
         really a match. Then can also implement case changes for the match.
-  + [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix and
-        generate selected case variations.
+  + [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
+        and generate selected case variations.
 
 ### 1.7.5.61 - Dev Build
 
