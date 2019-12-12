@@ -649,7 +649,7 @@ public class EditHelpers {
     public static void delete(@NotNull Editor editor, @NotNull Caret caret, int start, int end, boolean clearOnly) {
         CopyPasteManager.getInstance().stopKillRings();
         if (clearOnly) {
-            editor.getDocument().replaceString(start, end, RepeatedSequence.of(" ", end - start));
+            editor.getDocument().replaceString(start, end, RepeatedSequence.ofSpaces(end - start));
         } else {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
             manager.guard(() -> {
@@ -768,7 +768,7 @@ public class EditHelpers {
         if (start > end) {
             int tmp = 0;
         } else {
-            range = new Range(start, end);
+            range = Range.of(start, end);
         }
         return range;
     }
@@ -1074,7 +1074,7 @@ public class EditHelpers {
         if (atOffset.column < position.column) {
             // virtual spaces, add real ones
             final int inserted = position.column - atOffset.column;
-            position.getDocument().insertString(offset, RepeatedSequence.of(" ", inserted));
+            position.getDocument().insertString(offset, RepeatedSequence.ofSpaces(inserted));
             return inserted;
         }
         return 0;

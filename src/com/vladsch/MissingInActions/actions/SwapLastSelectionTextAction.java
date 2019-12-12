@@ -65,8 +65,8 @@ public class SwapLastSelectionTextAction extends EditorAction {
             boolean handled = false;
 
             if (rangeMarker != null && previousSelection != null) {
-                final Range range1 = new Range(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
-                final Range range2 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
+                final Range range1 = Range.of(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
+                final Range range2 = Range.of(previousSelection.getStartOffset(), previousSelection.getEndOffset());
 
                 handled = EditHelpers.swapRangeText(editor, range1, range2);
             }

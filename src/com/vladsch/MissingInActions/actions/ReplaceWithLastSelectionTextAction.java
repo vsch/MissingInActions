@@ -65,8 +65,8 @@ public class ReplaceWithLastSelectionTextAction extends EditorAction {
             boolean handled = false;
 
             if (previousSelection != null && currentSelection != null) {
-                final Range range1 = new Range(currentSelection.getStartOffset(), currentSelection.getEndOffset());
-                final Range range2 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
+                final Range range1 = Range.of(currentSelection.getStartOffset(), currentSelection.getEndOffset());
+                final Range range2 = Range.of(previousSelection.getStartOffset(), previousSelection.getEndOffset());
 
                 handled = EditHelpers.replaceRangeText(editor, range1, range2);
                 // remove the selection, we don't need it

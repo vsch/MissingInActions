@@ -44,7 +44,7 @@ public class SwapSelectionTextListAction extends SelectionListActionBase {
     @Nullable
     @Override
     protected Range excludeOverlap(Editor editor) {
-        return editor != null && editor.getSelectionModel().hasSelection() ? new Range(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd()) : null;
+        return editor != null && editor.getSelectionModel().hasSelection() ? Range.of(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd()) : null;
     }
 
     @Override
@@ -54,8 +54,8 @@ public class SwapSelectionTextListAction extends SelectionListActionBase {
         boolean handled = false;
 
         if (rangeMarker != null && previousSelection != null) {
-            final Range range1 = new Range(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
-            final Range range2 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
+            final Range range1 = Range.of(rangeMarker.getStartOffset(), rangeMarker.getEndOffset());
+            final Range range2 = Range.of(previousSelection.getStartOffset(), previousSelection.getEndOffset());
 
             handled = EditHelpers.swapRangeText(editor, range1, range2);
         }

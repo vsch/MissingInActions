@@ -116,7 +116,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
                 BasedSequence label = text;
 
                 if (text.length() > 40) {
-                    label = text.subSequence(0, 20).append(PrefixedSubSequence.of("…", text.subSequence(20, 20))).append(text.endSequence(20, 0));
+                    label = text.subSequence(0, 20).append(PrefixedSubSequence.prefixOf("…", text.subSequence(20, 20))).append(text.endSequence(20, 0));
                 }
 
                 label = label.replace("\n", "⏎");
@@ -131,7 +131,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
                 boolean isSameRange = false;
 
                 if (exclusionRange != null) {
-                    Range range = new Range(marker.getStartOffset(), marker.getEndOffset());
+                    Range range = Range.of(marker.getStartOffset(), marker.getEndOffset());
                     disabled = isSameRange = exclusionRange.equals(range);
                     if (!disabled) {
                         disabled = !canIncludeSelectionRange(document, range, exclusionRange);

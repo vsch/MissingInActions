@@ -46,7 +46,7 @@ public class ReplaceWithSelectionTextListAction extends SelectionListActionBase 
     @Nullable
     @Override
     protected Range excludeOverlap(Editor editor) {
-        return editor != null && editor.getSelectionModel().hasSelection() ? new Range(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd()) : null;
+        return editor != null && editor.getSelectionModel().hasSelection() ? Range.of(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd()) : null;
     }
 
     @Override
@@ -65,8 +65,8 @@ public class ReplaceWithSelectionTextListAction extends SelectionListActionBase 
         boolean handled = false;
 
         if (recalledSelection != null && previousSelection != null) {
-            final Range range1 = new Range(previousSelection.getStartOffset(), previousSelection.getEndOffset());
-            final Range range2 = new Range(recalledSelection.getStartOffset(), recalledSelection.getEndOffset());
+            final Range range1 = Range.of(previousSelection.getStartOffset(), previousSelection.getEndOffset());
+            final Range range2 = Range.of(recalledSelection.getStartOffset(), recalledSelection.getEndOffset());
 
             handled = EditHelpers.replaceRangeText(editor, range1, range2);
             // remove the selection, we don't need it
