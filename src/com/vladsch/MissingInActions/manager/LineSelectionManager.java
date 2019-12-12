@@ -38,6 +38,7 @@ import com.intellij.openapi.editor.event.EditorMouseEvent;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
@@ -147,8 +148,8 @@ public class LineSelectionManager implements
         myIsolationHighlightProvider.disposeComponent();
 
         myDelayedRunner.runAll();
-        myActionSelectionAdjuster.dispose();
-        myMessageBusConnection.disconnect();
+        Disposer.dispose(myActionSelectionAdjuster);
+        Disposer.dispose(myMessageBusConnection);
         myCaretSpawningHandler = null;
     }
 

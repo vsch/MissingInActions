@@ -42,6 +42,7 @@ import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.actions.ActionUtils;
@@ -175,7 +176,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     public void dispose() {
         if (myTentativeSelectionMarker != null) myTentativeSelectionMarker.dispose();
         myTentativeSelectionMarker = null;
-        myRangeMarkers.dispose();
+        Disposer.dispose(myRangeMarkers);
     }
 
     final private static Pair<String, String> ACTION_BUTTON_ACTION = new Pair<>("com.intellij.openapi.actionSystem.impl.ActionButton", "performAction");

@@ -69,13 +69,12 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
     public SeparatorFrequencyType getSeparatorFrequencyType() {
         switch (intValue) {
             case 10:
+            case 8:
                 return SeparatorFrequencyType.EVERY_3;
             case 16:
                 return SeparatorFrequencyType.EVERY_4;
             case 2:
                 return SeparatorFrequencyType.EVERY_8;
-            case 8:
-                return SeparatorFrequencyType.EVERY_3;
             default:
                 return SeparatorFrequencyType.NONE;
         }
@@ -86,10 +85,8 @@ public enum NumberingBaseType implements ComboBoxAdaptable<NumberingBaseType> {
             case 10:
                 return ",";
             case 16:
-                return "_";
-            case 2:
-                return "_";
             case 8:
+            case 2:
                 return "_";
             default:
                 return "";

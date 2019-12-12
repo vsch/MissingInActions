@@ -5,7 +5,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Bug Fix Release & Enhancement Release](#next-180xxx-bug-fix-release-enhancement-release)
 - [Next 1.7.5.xx - Dev Build](#next-175xx-dev-build)
-- [1.7.5.61 - Dev Build](#17561-dev-build)
+- [1.7.5.63 - Dev Build](#17563-dev-build)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -123,8 +123,8 @@
 ### Next 1.7.5.xx - Dev Build
 
 + [ ] Add: option and functionality to change duplicate lines action to only operate on a line
-      once even if there are many carets present on that line.
-  * remove duplicate carets on the line before the action and re-create them after the action
+      once even if there are many carets present on that line. ie. Remove duplicate carets on
+      the line before the action and re-create them after the action
 + [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
       indent.
 + [ ] Add: option to detect trailing `,` and `;` on previous lines when duplicating single line
@@ -135,7 +135,11 @@
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 
-### 1.7.5.61 - Dev Build
+### 1.7.5.63 - Dev Build
+
+* Fix: more missed disposables
+
+#### 1.7.5.61 - Dev Build
 
 * Fix: move components to services
 * Fix: missed dispose disposables
