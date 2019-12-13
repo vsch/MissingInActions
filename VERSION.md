@@ -5,6 +5,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Bug Fix Release & Enhancement Release](#next-180xxx-bug-fix-release-enhancement-release)
 - [Next 1.7.5.xx - Dev Build](#next-175xx-dev-build)
+- [1.7.5.65 - Dev Build](#17565-dev-build)
 - [1.7.5.63 - Dev Build](#17563-dev-build)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
@@ -134,6 +135,10 @@
       by the action.
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
+
+### 1.7.5.65 - Dev Build
+
+* Fix: update flexmark-java libs
 
 ### 1.7.5.63 - Dev Build
 
