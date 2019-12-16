@@ -5,6 +5,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Bug Fix Release & Enhancement Release](#next-180xxx-bug-fix-release-enhancement-release)
 - [Next 1.7.5.xx - Dev Build](#next-175xx-dev-build)
+- [1.7.5.67 - Dev Build](#17567-dev-build)
 - [1.7.5.65 - Dev Build](#17565-dev-build)
 - [1.7.5.63 - Dev Build](#17563-dev-build)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
@@ -87,6 +88,18 @@
       parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
       require editing without changing the selection to remove carets from lines that contain
       only context and termination elements.
+* Highlighted word actions:
+  + [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
+        a button that will use caret data for highlights).
+  + [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
+  + [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
+        highlights which are present in the current file to the clipboard.
+* Fix: number generator
+  + [ ] Fix: automatically switch dialog to correct base hex, use current setting's prefix to
+        determine base.
+    + [ ] Add: per language base prefix/suffix settings to allow prefix/suffix by language
+    + [ ] Fix: generate number to use current selection to get starting number if it is numeric
+          after stripping prefix/suffix
 * [ ] Add: status bar with information about selection: lines, code, comment and blank line
       count.
 * [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
@@ -100,18 +113,6 @@
       selections
 * [ ] Fix: need straighter carets to work with selections so can trim selections to straight
       line.
-* Highlighted word actions:
-  + [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
-        a button that will use caret data for highlights).
-  + [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
-  + [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
-        highlights which are present in the current file to the clipboard.
-* Fix: number generator
-  + [ ] Fix: automatically switch dialog to correct base hex, use current setting's prefix to
-        determine base.
-    + [ ] Add: per language base prefix/suffix settings to allow prefix/suffix by language
-    + [ ] Fix: generate number to use current selection to get starting number if it is numeric
-          after stripping prefix/suffix
 * Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
   * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
@@ -135,6 +136,11 @@
       by the action.
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
+
+### 1.7.5.67 - Dev Build
+
+* Fix: update flexmark-java libs
+* Fix: disposing of batch search replace window,form and editors on project close.
 
 ### 1.7.5.65 - Dev Build
 
