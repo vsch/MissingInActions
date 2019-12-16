@@ -254,10 +254,17 @@ public class BatchReplaceForm implements Disposable {
     public void disposeEditors() {
         if (mySearchEditor != null) {
             Editor searchEditor;
+            Editor replaceEditor;
+            Editor optionsEditor;
 
             synchronized (this) {
                 searchEditor = mySearchEditor;
+                replaceEditor = myReplaceEditor;
+                optionsEditor = myOptionsEditor;
+
                 mySearchEditor = null;
+                myReplaceEditor = null;
+                myOptionsEditor = null;
             }
 
             if (searchEditor != null) {
@@ -265,30 +272,22 @@ public class BatchReplaceForm implements Disposable {
                 setActiveEditor(null);
 
                 searchEditor.getDocument().removeDocumentListener(myDocumentListener);
-                myReplaceEditor.getDocument().removeDocumentListener(myDocumentListener);
-                myOptionsEditor.getDocument().removeDocumentListener(myDocumentListener);
+                replaceEditor.getDocument().removeDocumentListener(myDocumentListener);
+                optionsEditor.getDocument().removeDocumentListener(myDocumentListener);
 
                 searchEditor.getCaretModel().removeCaretListener(myCaretListener);
-                myReplaceEditor.getCaretModel().removeCaretListener(myCaretListener);
-                myOptionsEditor.getCaretModel().removeCaretListener(myCaretListener);
+                replaceEditor.getCaretModel().removeCaretListener(myCaretListener);
+                optionsEditor.getCaretModel().removeCaretListener(myCaretListener);
 
                 searchEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
-                myReplaceEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
-                myOptionsEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
+                replaceEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
+                optionsEditor.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
 
                 LineSelectionManager.getInstance(searchEditor).setHighlightProvider(null);
-                LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(null);
-                LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(null);
-
-                EditorFactory.getInstance().releaseEditor(searchEditor);
-                EditorFactory.getInstance().releaseEditor(myReplaceEditor);
-                EditorFactory.getInstance().releaseEditor(myOptionsEditor);
+                LineSelectionManager.getInstance(replaceEditor).setHighlightProvider(null);
+                LineSelectionManager.getInstance(optionsEditor).setHighlightProvider(null);
 
                 myEditor = null;
-                searchEditor = null;
-                myReplaceEditor = null;
-                myOptionsEditor = null;
-
                 myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
 
                 Disposer.dispose(myEditorSearchHighlightProvider);
@@ -300,6 +299,10 @@ public class BatchReplaceForm implements Disposable {
                 mySearchHighlightProvider = null;
                 myReplaceHighlightProvider = null;
                 myOptionsHighlightProvider = null;
+
+                EditorFactory.getInstance().releaseEditor(searchEditor);
+                EditorFactory.getInstance().releaseEditor(replaceEditor);
+                EditorFactory.getInstance().releaseEditor(optionsEditor);
             }
         }
     }

@@ -157,11 +157,6 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             myPlugin.disposeProjectComponent(myProject);
             myInActiveLookupListeners.clear();
             myActiveLookupListeners.clear();
-
-            if (mySearchReplaceToolWindow != null) {
-                mySearchReplaceToolWindow.unregisterToolWindow();
-                mySearchReplaceToolWindow = null;
-            }
         });
 
         LookupManager.getInstance(myProject).addPropertyChangeListener(new PropertyChangeListener() {
@@ -179,7 +174,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
         if (!ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(myProject)) {
             mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
+            Disposer.register(this, mySearchReplaceToolWindow);
         }
+
+        Disposer.register(myProject, this);
     }
 
     public void showBatchSearchReplace() {

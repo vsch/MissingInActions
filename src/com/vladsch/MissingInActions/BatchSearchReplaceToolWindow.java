@@ -21,6 +21,7 @@
 
 package com.vladsch.MissingInActions;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -40,7 +41,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.HashMap;
 
-public class BatchSearchReplaceToolWindow {
+public class BatchSearchReplaceToolWindow implements Disposable {
     private final ToolWindow toolWindow;
 
     private static final String TOOL_WINDOW_ID = Bundle.message("plugin.tool-window.id");
@@ -58,6 +59,8 @@ public class BatchSearchReplaceToolWindow {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
         myBatchSearchReplace = new BatchReplaceForm(project, ApplicationSettings.getInstance());
+        Disposer.register(this, myBatchSearchReplace);
+
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         mainPanel.add(myBatchSearchReplace.getMainPanel());
@@ -66,13 +69,13 @@ public class BatchSearchReplaceToolWindow {
         toolWindow.getContentManager().addContent(content);
     }
 
+    @Override
+    public void dispose() {
+
+    }
+
     public void unregisterToolWindow() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-
-        // we need to dispose of all the editors
-        myBatchSearchReplace.disposeEditors();
-        Disposer.dispose(myBatchSearchReplace);
-
         toolWindowManager.unregisterToolWindow(TOOL_WINDOW_ID);
     }
 
