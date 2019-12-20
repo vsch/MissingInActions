@@ -4,7 +4,8 @@
 
 ### Version History
 - [Next 1.8.0.xxx - Bug Fix Release & Enhancement Release](#next-180xxx-bug-fix-release-enhancement-release)
-- [Next 1.7.5.xx - Dev Build](#next-175xx-dev-build)
+- [Next 1.8.xx - Dev Builds](#next-18xx-dev-builds)
+- [1.8.0 - Release](#180-release)
 - [1.7.5.69 - Dev Build](#17569-dev-build)
 - [1.7.5.67 - Dev Build](#17567-dev-build)
 - [1.7.5.65 - Dev Build](#17565-dev-build)
@@ -123,7 +124,7 @@
 
 &nbsp;</details>
 
-### Next 1.7.5.xx - Dev Build
+### Next 1.8.xx - Dev Builds
 
 + [ ] Add: option and functionality to change duplicate lines action to only operate on a line
       once even if there are many carets present on that line. ie. Remove duplicate carets on
@@ -137,6 +138,10 @@
       by the action.
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
+
+### 1.8.0 - Release
+
+* Fix: change since build to `193`
 
 ### 1.7.5.69 - Dev Build
 
