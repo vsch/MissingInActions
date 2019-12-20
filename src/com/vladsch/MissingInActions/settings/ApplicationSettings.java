@@ -24,14 +24,14 @@ package com.vladsch.MissingInActions.settings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.RoamingType;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
-import com.intellij.util.xmlb.annotations.XCollection;
-import com.intellij.util.xmlb.annotations.XMap;
+import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.vladsch.MissingInActions.util.CaseFormatPreserver;
 import com.vladsch.flexmark.util.Pair;
 import com.vladsch.flexmark.util.html.ui.Color;
@@ -190,9 +190,9 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     boolean myDisableParameterInfo = false;     // disable parameter hints when multi-caret mode
     boolean myShowGenerateException = false;    // show generate exception action to test handling of recovery
 
-    @XCollection(propertyElementName = "highlightWords") public ArrayList<String> myHighlightWords = new ArrayList<>();
-    @XCollection(propertyElementName = "highlightFlags") public ArrayList<Integer> myHighlightFlags = new ArrayList<>();
-    @XCollection(propertyElementName = "highlightIndices") public ArrayList<Integer> myHighlightIndices = new ArrayList<>();
+    @AbstractCollection(elementTag = "highlightWords") public ArrayList<String> myHighlightWords = new ArrayList<>();
+    @AbstractCollection(elementTag = "highlightFlags") public ArrayList<Integer> myHighlightFlags = new ArrayList<>();
+    @AbstractCollection(elementTag = "highlightIndices") public ArrayList<Integer> myHighlightIndices = new ArrayList<>();
 
     @Transient
     public void setHighlightState(@Nullable Map<String, Pair<Integer, Integer>> state) {
@@ -270,7 +270,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
         );
     }
 
-    @XMap
     public boolean isShowMacroResultPreview() {return myShowMacroResultPreview;}
 
     public void setShowMacroResultPreview(final boolean showMacroResultPreview) {myShowMacroResultPreview = showMacroResultPreview;}
@@ -861,6 +860,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     }
 
     public static ApplicationSettings getInstance() {
-        return ApplicationManager.getApplication().getService(ApplicationSettings.class);
+        return ServiceManager.getService(ApplicationSettings.class);
     }
 }

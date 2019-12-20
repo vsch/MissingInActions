@@ -81,26 +81,69 @@
         ]]>
     </description>
 
-    <version>1.7.5.69</version>
+    <version>1.8.0</version>
     <depends>com.intellij.modules.lang</depends>
-    <idea-version since-build="162.*"/>
+    <idea-version since-build="193"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
-            <h3>1.7.5.33 - Bug Fix Release &amp; Enhancement Release</h3>
+            <h3>1.8.0 - Bug Fix &amp; Feature Release</h3>
             <ul>
+                <li>Fix: change since build to <code>193</code></li>
+                <li>Fix: disposing of batch search replace window,form and editors on project close.</li>
+                <li>Fix: more missed disposables</li>
+                <li>Fix: move components to services</li>
+                <li>Fix: missed dispose disposables</li>
+                <li>Fix: add app version based application service/component requesting</li>
+                <li>Fix: remove deprecated icon use</li>
+                <li>Fix: disposed editor accessed on settings change.</li>
+                <li>Fix: exception caused by trying to set highlight provider on editor for <code>isDefaultProject()</code>
+                    true.</li>
+                <li>Fix: editors double release</li>
+                <li>Fix: search spawn carets numeric only worked if spawn search word boundaries was enabled.</li>
+                <li>Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
+                    include that prefix in the list of matches, otherwise matches at start.</li>
+                <li>Fix: index exception when deleting clipboard history in paste from history</li>
+                <li>Fix: NPE caused by editor in settings open for default project.</li>
+                <li>Fix: NPE in batch search replace</li>
+                <li>Fix: word Highlighter to test first/last char of word being <code>\w</code> before respecting provided
+                    boundary flags. Otherwise no highlights will be done for the pattern.</li>
+                <li>Fix: change number generator for shift sequences so that if start is 0, then first number is
+                    0, next number is 1 if step is &gt;=0 and 0x8000_0000_0000_0000 if &lt;0.
+                    <ul>
+                        <li>Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step &lt;0 and
+                            0x8000_0000_0000_0000 to 1 when &gt;=0</li>
+                    </ul>
+                </li>
+                <li>Add: option <code>Preserve primary caret on ESCAPE</code> to prevent the IDE from loosing primary caret
+                    information on ESCAPE clearing multi-carets.</li>
+                <li>Fix: on search spawn carets, leave the primary caret where it was an make spawned carets
+                    secondary. That way ESCAPE will leave the primary where it was.</li>
+                <li>Fix: batch search/replace highlights would not be shown in tool window editors like search,
+                    etc.</li>
+                <li>Fix: backward search on <code>\\</code> generated pattern syntax exception. Reverse regex Dev Build
+                    handle odd backslash quoted <code>\Q\\E</code> sequences.</li>
+                <li>Fix: batch search replace update of paste from clipboard button state would hand the IDE
+                    trying to get OS X clipboard. Just left the button enabled for now.</li>
+                <li>Fix: word highlighter to sort in reverse order</li>
+                <li>Fix: missing setting for spawn search boundary matching.</li>
+                <li>Add: option for spawn search to ignore backward word boundaries. ie. Forward search ignores
+                    begin word break, backward search ignores end word break.</li>
+                <li>Fix: option for case insensitive highlights to actually disable case sensitivity for
+                    highlights and show words in color of first selected word color.</li>
+                <li>Add: option for word highlighting to not respect word boundary from the selection. When not
+                    matching boundary <code>abc</code> highlight will match <code>abc</code> in <code>abcd</code> and <code>zabc</code> and <code>zabcd</code>.</li>
+                <li>Fix: preserve caret line to closest available after smart remove carets or remove
+                    blank/non-blank/comment, etc.</li>
                 <li>Fix: when toggling line/carets try to keep the primary caret position closest to offset before
                     action.
                     <ul>
-                        <li>when creating multi-carets from selection make the primary caret closest to the
-                            primary caret before the action.</li>
+                        <li>when creating multi-carets from selection make the primary caret closest to the primary
+                            caret before the action.</li>
                         <li>when toggling selection keep caret offset at primary caret offset</li>
                         <li>when accepting found/not-found search carets</li>
                     </ul>
                 </li>
-            </ul>
-            <h4>1.7.5.31 - Bug Fix Release &amp; Enhancement Release</h4>
-            <ul>
                 <li>Highlighted word actions:
                     <ul>
                         <li>Fix: automatically turn on words highlight mode when adding a highlighted word</li>
@@ -117,8 +160,10 @@
                 </li>
                 <li>Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.</li>
                 <li>Add: save highlight state to local settings, restore on IDE startup.</li>
-                <li>Fix: merged replaced transferable would erroneously append EOL to multi-line char caret
-                    content causing it to turn into a line selection.</li>
+                <li>Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
+                    it to turn into a line selection.</li>
+                <li>Add: <code>Delete Replaced Content after Paste</code> paste from history option to delete generated
+                    content after pasting</li>
                 <li>Add: auto delete after paste macro replaced clipboard content if option enabled</li>
                 <li>Fix: preserve on paste to properly handle double prefix and not remove:
                     <ul>
@@ -195,51 +240,6 @@
                 <li>Fix: update to latest plugin-utils.</li>
                 <li>Fix: extract highlight code core to plugin-utils.</li>
                 <li>Fix: invalid caret validation after edit causing Caret is invalid state exception</li>
-                <li>Fix: update to flexmark-util 0.50.42</li>
-            </ul>
-            <h3>1.7.4 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: <a href="https://github.com/vsch/MissingInActions/issues/23">#23, Plugin changes built-in IDEA behavior</a>
-                    <ul>
-                        <li>Disable caret adjustments for cut/duplicate line if line adjustments are disabled</li>
-                        <li>Disable caret adjustments for cut if delete line selection caret adjustments are disabled.</li>
-                    </ul>
-                </li>
-                <li>Fix: update to latest plugin-util</li>
-                <li>Fix: handle spurious IOException in shared transferable</li>
-                <li>Add: <code>resources/search/searchableOptions.xml</code> for full text search across all
-                    configuration settings.</li>
-                <li>Fix: too strict clipboard content comparison during replacement would not replace shared
-                    content in some circumstances. Replaced with string comparison of clipboard content.</li>
-                <li>Fix: Moved png and svg icons to different sub-directories. IDE versions 2017 generates a gray
-                    scale icon from svg generated by Illustrator but it will try to load svg icon when png is
-                    requested if both are in the same directory.</li>
-            </ul>
-            <h3>1.7.2 - Bug Fix Release</h3>
-            <ul>
-                <li>Fix: clipboard sharing code prevented duplicated caret content from being automatically
-                    deleted.</li>
-                <li>Fix: When <code>User defined macro</code> is disabled but selected, paste from history does duplication
-                    by whatever clipboard content is selected.</li>
-                <li>Fix: when adding/removing/clearing highlighters using actions, hide batch search/replace
-                    window.</li>
-                <li>Fix: change <code>Without Formatting</code> to <code>No Formatting</code>, shorten to take less space.</li>
-                <li>Add: tooltip text to paste from history buttons.</li>
-                <li>Add: highlights of significant options when mouse hovers over corresponding button.</li>
-            </ul>
-            <h3>1.7.0 - Enhancement Release</h3>
-            <ul>
-                <li>Fix: shorted all clipboard history paste buttons to remove common <code>Paste</code> prefix</li>
-                <li>Add: separate <code>Quoted Spliced</code> button to eliminate sticky quoted flag affecting <code>Spliced</code></li>
-                <li>Add: multiple caret clipboard content is now shared between IDE instances so copying in one
-                    and pasting in another does not loose the clipboard caret information.
-                </li>
-                <li>Fix: incorrect paste location for duplicate for carets and paste if pasting in trailing
-                    blanks. Cannot reproduce.
-                </li>
-                <li>Fix: incorrect duplicate for carets result if primary caret has selection and is not at
-                    the start or end of its selection.
-                </li>
             </ul>
         </div>
         ]]></change-notes>

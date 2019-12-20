@@ -3,13 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
-- [Next 1.8.0.xxx - Dev Builds](#next-180xxx-dev-builds)
-- [Next 1.8.xx - Dev Builds](#next-18xx-dev-builds)
-- [1.8.0 - Release](#180-release)
-- [1.7.5.69 - Dev Build](#17569-dev-build)
-- [1.7.5.67 - Dev Build](#17567-dev-build)
-- [1.7.5.65 - Dev Build](#17565-dev-build)
-- [1.7.5.63 - Dev Build](#17563-dev-build)
+- [1.8.0 - Bug Fix & Feature Release](#180-bug-fix-feature-release)
 - [1.7.4 - Bug Fix Release](#174-bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172-bug-fix-release)
 - [1.7.0 - Enhancement Release](#170-enhancement-release)
@@ -53,143 +47,24 @@
 - [0.5.0 - Initial Release](#050-initial-release)
 
 
-&nbsp;<details id="todo"><summary>**To Do List**</summary>
-
-### Next 1.8.0.xxx - Dev Builds
-
-+ [ ] Fix: batch search/replace:
-  + [ ] Add: export/import a single profile to batch search/replace management as opposed to all
-        profiles. Keeping all profiles per project and importing/exporting a single profile
-        between projects is useful.
-    + [ ] Add: copy profile under a new name and/or to another open project batch search window,
-          with overwrite prompting.
-  + [ ] Add: separate `highlight in editor` buttons to search and replace editors to allow
-        having both of these colored with the same colors to allow using color alignment for
-        validation
-  * [ ] Add: line marker icons to search editor allow toggling `!` error and `-` unused coloring
-        for keywords
-+ [ ] Add: per language configuration of what constitutes an identifier character set to
-      override Java default for custom word actions for languages other than Java (dynamically
-      based on file language type)
-  + [ ] Add: default base prefix/suffix for the language to use when none in per language number
-        format settings
-  + [ ] Add: reserved word list detection for preserve on paste. If pasting over reserved word
-        then don't make any changes to the pasted content.
-+ [ ] Fix: toggle spawn search options should not commit carets but force a change in search. So
-      starting a search with smart prefix mode and toggling smart prefix mode should result in
-      the same thing as toggling smart prefix mode then doing spawn search.
-  + [ ] Fix: toggle spawn search smart prefix
-  + [ ] Fix: toggle spawn search match boundary
-+ [ ] Fix: selecting to top of file should select to start of line if caret is already at top or
-      using line mouse selection.
-+ [ ] Fix: selecting to bottom (when no terminating EOL) should select to end of line if caret
-      is already on last line or using line mouse selection.
-+ [ ] Add: save isolation ranges in editor state
-+ [ ] Add: change the SmartKeepLineCarets action to first keep code lines, if all carets are
-      already on code lines then remove those whose code lines contain nothing but brackets,
-      parentheses, braces, commas and semicolons. This will allow to quickly isolate lines that
-      require editing without changing the selection to remove carets from lines that contain
-      only context and termination elements.
-* Highlighted word actions:
-  + [ ] Add: highlight words from Clipboard selected carets (should use history dialog with just
-        a button that will use caret data for highlights).
-  + [ ] Add: Sort highlighted word colors (by their content case sensitive/insensitive/
-  + [ ] Add: Copy highlighted words in file/selection, to copy as caret selections all unique
-        highlights which are present in the current file to the clipboard.
-* Fix: number generator
-  + [ ] Fix: automatically switch dialog to correct base hex, use current setting's prefix to
-        determine base.
-    + [ ] Add: per language base prefix/suffix settings to allow prefix/suffix by language
-    + [ ] Fix: generate number to use current selection to get starting number if it is numeric
-          after stripping prefix/suffix
-* [ ] Add: status bar with information about selection: lines, code, comment and blank line
-      count.
-* [ ] Add: Readme and Wiki Write up of Paste from History enhancements.
-* [ ] Add: `add/remove caret above/below` actions which do not try to preserve same range the
-      way IDE actions for these do.
-  * Up: if primary is top: add caret above, if bottom remove and move up, if neither move it to
-    the top.
-  * Down: if primary is top, remove top and move down, if bottom then extend down, if neither,
-    then move to bottom.
-* [ ] Fix: add/remove highlight word should use current word at caret if no carets have
-      selections
-* [ ] Fix: need straighter carets to work with selections so can trim selections to straight
-      line.
-* Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
-  include that prefix in the list of matches, otherwise matches at start.
-  * [ ] Fix: really need to handle it like paste and examine each found instance to see if it is
-        really a match. Then can also implement case changes for the match.
-  * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
-        and generate selected case variations.
-
-&nbsp;</details>
-
-### Next 1.8.xx - Dev Builds
-
-+ [ ] Add: option and functionality to change duplicate lines action to only operate on a line
-      once even if there are many carets present on that line. ie. Remove duplicate carets on
-      the line before the action and re-create them after the action
-+ [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
-      indent.
-+ [ ] Add: option to detect trailing `,` and `;` on previous lines when duplicating single line
-      and add to line above automatically and remove from last duped line if original did not
-      have this suffix.
-+ [ ] Add: option to remove selection after copy when starting with no selection one is created
-      by the action.
-+ [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
-+ [ ] Fix: keep code carets does not remove carets in Java multi-line comments
-
-### 1.8.0 - Release
+### 1.8.0 - Bug Fix & Feature Release
 
 * Fix: change since build to `193`
-
-### 1.7.5.69 - Dev Build
-
-* Fix: update flexmark-java libs
-
-### 1.7.5.67 - Dev Build
-
-* Fix: update flexmark-java libs
 * Fix: disposing of batch search replace window,form and editors on project close.
-
-### 1.7.5.65 - Dev Build
-
-* Fix: update flexmark-java libs
-
-### 1.7.5.63 - Dev Build
-
 * Fix: more missed disposables
-
-#### 1.7.5.61 - Dev Build
-
 * Fix: move components to services
 * Fix: missed dispose disposables
-
-#### 1.7.5.59 - Dev Build
-
 * Fix: add app version based application service/component requesting
-
-#### 1.7.5.57 - Dev Build
-
 * Fix: remove deprecated icon use
 * Fix: disposed editor accessed on settings change.
-
-#### 1.7.5.55 - Dev Build
-
-* Fix: exception caused by trying to set highlight provider on editor for isDefaultProject()
+* Fix: exception caused by trying to set highlight provider on editor for `isDefaultProject()`
   true.
 * Fix: editors double release
 * Fix: search spawn carets numeric only worked if spawn search word boundaries was enabled.
-
-#### 1.7.5.53 - Dev Build
-
 * Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
   include that prefix in the list of matches, otherwise matches at start.
 * Fix: index exception when deleting clipboard history in paste from history
 * Fix: NPE caused by editor in settings open for default project.
-
-#### 1.7.5.51 - Dev Build
-
 * Fix: NPE in batch search replace
 * Fix: word Highlighter to test first/last char of word being `\w` before respecting provided
   boundary flags. Otherwise no highlights will be done for the pattern.
@@ -203,60 +78,26 @@
   secondary. That way ESCAPE will leave the primary where it was.
 * Fix: batch search/replace highlights would not be shown in tool window editors like search,
   etc.
-* Fix: update flexmark-java, change deprecated method use.
-
-#### 1.7.5.49 - Dev Build
-
-* Fix: update to flexmark-java utils 0.59.50
-
-#### 1.7.5.47 - Dev Build
-
 * Fix: backward search on `\\` generated pattern syntax exception. Reverse regex Dev Build
   handle odd backslash quoted `\Q\\E` sequences.
 * Fix: batch search replace update of paste from clipboard button state would hand the IDE
   trying to get OS X clipboard. Just left the button enabled for now.
-
-#### 1.7.5.45 - Dev Build
-
 * Fix: word highlighter to sort in reverse order
-
-#### 1.7.5.43 - Dev Build
-
-* Fix: update `flexmark-java-utils` to 0.59.42
-
-#### 1.7.5.41 - Dev Build
-
 * Fix: missing setting for spawn search boundary matching.
-
-#### 1.7.5.39 - Dev Build
-
 * Add: option for spawn search to ignore backward word boundaries. ie. Forward search ignores
   begin word break, backward search ignores end word break.
 * Fix: option for case insensitive highlights to actually disable case sensitivity for
   highlights and show words in color of first selected word color.
 * Add: option for word highlighting to not respect word boundary from the selection. When not
   matching boundary `abc` highlight will match `abc` in `abcd` and `zabc` and `zabcd`.
-
-#### 1.7.5.37 - Dev Build
-
 * Fix: preserve caret line to closest available after smart remove carets or remove
   blank/non-blank/comment, etc.
-
-#### 1.7.5.35 - Dev Build
-
-* Fix: update flexmark-utils
-
-#### 1.7.5.33 - Dev Build
-
 * Fix: when toggling line/carets try to keep the primary caret position closest to offset before
   action.
   * when creating multi-carets from selection make the primary caret closest to the primary
     caret before the action.
   * when toggling selection keep caret offset at primary caret offset
   * when accepting found/not-found search carets
-
-#### 1.7.5.31 - Dev Build
-
 * Highlighted word actions:
   * Fix: automatically turn on words highlight mode when adding a highlighted word
   * Add: Select highlighted words in file or current selection to create multi-caret selection
@@ -335,7 +176,6 @@
 * Fix: update to latest plugin-utils.
 * Fix: extract highlight code core to plugin-utils.
 * Fix: invalid caret validation after edit causing Caret is invalid state exception
-* Fix: update to flexmark-util 0.50.42
 
 ### 1.7.4 - Bug Fix Release
 

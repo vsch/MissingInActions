@@ -1,14 +1,14 @@
 <img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
 ====================================================================================================================================================================================================
 
-**You can download it on the [JetBrains plugin page].** or
-[Download Latest 1.7.4 from this repo]
+**You can download it on the [JetBrains plugin page].**
 
 [![GitQ](https://gitq.com/badge.svg)](https://gitq.com/vsch/MissingInActions)
 
 [TOC]: #
 
 ### Table of Contents
+- [Version 1.8.0 - Bug Fix & Feature Release](#version-180-bug-fix-feature-release)
 - [Version 1.7.4 - Bug Fix Release](#version-174-bug-fix-release)
 - [Version 1.7.2 - Bug Fix Release](#version-172-bug-fix-release)
 - [Version 1.7.0 - Enhancement Release](#version-170-enhancement-release)
@@ -20,8 +20,8 @@
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
-* [ ] Automatic Selection stack, stores last 5 selections by default. Recall last selection or
-      any previous selection from a list.
+* Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
+  previous selection from a list.
 
 * Isolate Lines mode to make a group of lines stand out from the rest. Handy way to isolate a
   copy of existing method for modification and not accidentally modify the original text instead
@@ -68,11 +68,59 @@ Adds missing editor actions for end of word navigation but that is just the begi
   * see caret information stored on the clipboard for each content entry
 
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
-  easy.
+  indispensable.
+
+## Version 1.8.0 - Bug Fix & Feature Release
+
+[Version Notes][]
+
+* Option `Preserve primary caret on ESCAPE` to prevent the IDE from ignoring the primary caret
+  and selecting the first caret as primary when using ESCAPE to clear multiple carets.
+* Option for search spawn carets to ignore word boundaries. ie. Forward search ignores
+  begin word break, backward search ignores end word break.
+* Option for word highlighting to ignore word boundary around selection. When ignoring boundary,
+  highlighting `abc` will highlight `abc` in: `abcd`, `zabc` and `zabcd`.
+* Highlighted word actions:
+  * Turn on words highlight mode when adding a highlighted word
+  * Action to select highlighted words in file or current selection and create multi-caret
+    selection of highlighted words. Will use document, single selection or multi-caret selection
+    for limiting highlighted words.
+  * `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same line to
+    the same color.
+* Save highlight state to local settings, restore on IDE startup.
+* Spawn prefix search option to support paste prefix alternates so spawn on `myText` will select
+  `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
+* Paste from history
+  * `Delete Replaced Content after Paste` paste from history option to delete generated content
+    after pasting
+  * Paste spliced & quoted to work if current editor is a plain Swing editor (text boxes)
+  * `To Line` action to convert multiple selection to merged **line** content without having to
+    paste it. Opposite of `To Carets`
+  * Allow preview macro replacement results to be selected and copied as new clipboard content.
+  * User macro variable replacement and macro variable replacement are now two independent
+    options.
+  * Search matches are highlighted in preview when replacing macro variables or user variable in
+    pasted text are enabled.
+  * Option to show resulting text after replacement, with replaced regions highlighted to help
+    "debug" the template.
+  * `__Filepath__` variants added to replaced variables. Replaced with file path of the file
+    into which test is pasted:
+    * `__Filepath__` : file path as is.
+    * `__FILEPATH__` : file path all caps.
+    * `__filepath__` : file path lowercase.
+    * `__File-path__` : file path with leading `/` removed and `/` replaced by `-`.
+    * `__FILE-PATH__` : file path as above but in all caps.
+    * `__file-path__` : file path as above but in lowercase.
+    * `__File.path__` : file path with leading `/` removed and `/` replaced by `.`.
+    * `__FILE.PATH__` : file path as above but in all caps.
+    * `__file.path__` : file path as above but in lowercase.
+* Change number generator for shift sequences:
+  * to rollover from start of 0, to 1 when step is 0 or positive and to 0x8000_0000_0000_0000 if
+    step is negative. Allows bit shift patterns to start with 0.
+  * to rollover from 1 to 0x8000_0000_0000_0000 when step negative and rollover from
+    0x8000_0000_0000_0000 to 1 when step is 0 or positive.
 
 ## Version 1.7.4 - Bug Fix Release
-
-[Version Notes][] [Download Latest 1.7.4 from this repo][]
 
 * Fix: [#23, Plugin changes built-in IDEA behavior]
   * Disable caret adjustments for cut/duplicate line if line adjustments are disabled
@@ -269,7 +317,6 @@ until after you release the mouse button, otherwise the selection will be change
 selection when the mouse button is released.
 
 [#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
-[Download Latest 1.7.4 from this repo]: ../../raw/master/dist/MissingInActions.1.7.4.zip
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif

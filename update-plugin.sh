@@ -4,8 +4,8 @@ HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PLUGIN_JAR=
 OLD_PLUGIN=
 SANDBOX_NAME=
-IDE_VERSION=
-SANDBOX_IDE="IdeaIC2019.2"
+IDE_VERSION="193"
+SANDBOX_IDE=
 
 cd "${HOME_DIR}" || exit
 
