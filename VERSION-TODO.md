@@ -7,7 +7,8 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx-dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx-dev-builds)
-- [1.8.0.5 - Dev Build](#1805-dev-build)
+- [Next 1.8.0.8 - Dev Build](#next-1808-dev-build)
+- [1.8.0.6 - Dev Build](#1806-dev-build)
 - [1.8.0.4 - Dev Build](#1804-dev-build)
 - [1.8.0 - Release](#180-release)
 - [1.7.5.69 - Dev Build](#17569-dev-build)
@@ -143,10 +144,12 @@
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
 
-### 1.8.0.5 - Dev Build
+### Next 1.8.0.8 - Dev Build
 
-* Fix: Remove highlighted word does not work if the highlighted word was highlighted from saved
-  highlights on IDE exit. Workaround: highlight word again and then remove highlight.
+### 1.8.0.6 - Dev Build
+
+* Fix: Remove highlighted word does not work when from saved highlights on IDE exit. Workaround:
+  highlight word again and then remove highlight.
 
 ### 1.8.0.4 - Dev Build
 
