@@ -31,8 +31,8 @@
         <option name="HARDWRAPS" value="false" />
         <option name="HTML_DEEP_PARSER" value="false" />
         <option name="INSERTED" value="true" />
-        <option name="INTELLIJ_DUMMY_IDENTIFIER" value="false" />
-        <option name="MULTI_LINE_IMAGE_URLS" value="false" />
+        <option name="INTELLIJ_DUMMY_IDENTIFIER" value="true" />
+        <option name="MULTI_LINE_IMAGE_URLS" value="true" />
         <option name="QUOTES" value="true" />
         <option name="RELAXEDHRULES" value="true" />
         <option name="SMARTS" value="true" />
@@ -69,6 +69,7 @@
         <option name="NO_TEXT_ATTRIBUTES" value="false" />
         <option name="PARSE_HTML_ANCHOR_ID" value="true" />
         <option name="PLANTUML_FENCED_CODE" value="true" />
+        <option name="PRODUCTION_SPEC_PARSER" value="false" />
         <option name="PUML_FENCED_CODE" value="true" />
         <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
         <option name="SPACE_IN_LINK_URLS" value="false" />

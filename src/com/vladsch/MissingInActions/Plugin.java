@@ -75,6 +75,7 @@ import com.vladsch.plugin.util.ui.CommonUIShortcuts;
 import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.service.SharedThreadPool;
 
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
@@ -120,7 +121,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private boolean myRegisterCaretStateTransferable;
     private OneTimeRunnable myHighlightSaveTask = OneTimeRunnable.NULL;
     private boolean disableSaveHighlights = true;
-
 
 //    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
@@ -261,30 +261,32 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
         });
 
-        ActionManager.getInstance().addAnActionListener(new AnActionListener() {
-            @Override
-            public void beforeActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
-                Plugin.this.beforeActionPerformed(action, dataContext, event);
-            }
+        ApplicationManager.getApplication().invokeLater(() -> SharedThreadPool.getInstance().executeOnPooledThread(() -> {
+            ActionManager.getInstance().addAnActionListener(new AnActionListener() {
+                @Override
+                public void beforeActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
+                    Plugin.this.beforeActionPerformed(action, dataContext, event);
+                }
 
-            @Override
-            public void afterActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
-                Plugin.this.afterActionPerformed(action, dataContext, event);
-            }
+                @Override
+                public void afterActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
+                    Plugin.this.afterActionPerformed(action, dataContext, event);
+                }
 
-            @Override
-            public void beforeEditorTyping(final char c, @NotNull final DataContext dataContext) {
-                Plugin.this.beforeEditorTyping(c, dataContext);
-            }
-        });
+                @Override
+                public void beforeEditorTyping(final char c, @NotNull final DataContext dataContext) {
+                    Plugin.this.beforeEditorTyping(c, dataContext);
+                }
+            });
 
-        final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
-        final CopyPasteManager.ContentChangedListener contentChangedListener = this::clipboardContentChanged;
+            final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
+            final CopyPasteManager.ContentChangedListener contentChangedListener = this::clipboardContentChanged;
 
-        copyPasteManager.addContentChangedListener(contentChangedListener);
-        myDelayedRunner.addRunnable(() -> {
-            copyPasteManager.removeContentChangedListener(contentChangedListener);
-        });
+            copyPasteManager.addContentChangedListener(contentChangedListener);
+            myDelayedRunner.addRunnable(() -> {
+                copyPasteManager.removeContentChangedListener(contentChangedListener);
+            });
+        }));
     }
 
     public void updateEditorParameterHints(final @Nullable Editor activeEditor, boolean forceUpdate) {
@@ -479,11 +481,11 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     }
 
     void projectClosed(@NotNull Project project) {
-         myProjectHighlightProviders.remove(project);
+        myProjectHighlightProviders.remove(project);
     }
 
     public HighlightProvider<ApplicationSettings> getProjectHighlighter(@NotNull Project project) {
-         return myProjectHighlightProviders.get(project);
+        return myProjectHighlightProviders.get(project);
     }
 
     public void setProjectHighlightProvider(@NotNull Project project, HighlightProvider<ApplicationSettings> highlightProvider) {

@@ -443,7 +443,9 @@ public class ClipboardCaretContent {
         // convert multi caret text to \n separated ranges
         StringBuilder sb = new StringBuilder();
         if (texts != null) {
-            int iMax = caretContent.myCaretCount;
+            int iMax = texts.length;
+            assert caretContent.getCaretCount() >= texts.length;
+
             int endOffset = 0;
 
             for (int i = 0; i < iMax; i++) {

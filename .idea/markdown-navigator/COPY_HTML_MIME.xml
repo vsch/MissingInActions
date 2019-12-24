@@ -1,6 +1,6 @@
 <component name="MarkdownNavigator.ProfileManager">
   <profile>
-    <option name="myName" value="COPY_HTML_MIME" profileName="COPY_HTML_MIME" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveStyleSettings="false" rightMargin="96" haveHtmlExportSettings="true" haveLinkMapSettings="false">
+    <option name="myName" value="COPY_HTML_MIME" profileName="COPY_HTML_MIME" havePreviewSettings="true" haveParserSettings="true" haveHtmlSettings="true" haveCssSettings="true" haveStyleSettings="false" haveRightMargin="false" rightMargin="96" haveHtmlExportSettings="true" haveLinkMapSettings="false">
       <PreviewSettings splitEditorLayout="SPLIT" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="NONE" highlightFadeOut="5" highlightOnTyping="true" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="false" showSelectionInPreview="true" lastLayoutSetsDefault="false">
         <PanelProvider>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />

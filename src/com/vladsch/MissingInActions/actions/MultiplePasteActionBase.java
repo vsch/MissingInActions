@@ -657,7 +657,7 @@ public abstract class MultiplePasteActionBase extends AnAction implements DumbAw
                         final String[] texts = caretContent.getTexts();
 
                         if (texts != null) {
-                            final String text = caretContent.getStringRep(-1, "", false, true);
+                            final String text = caretContent.getStringRep(-1, "", true, true);
                             Transferable convertedTransferable = EditHelpers.getTransferable(text);
                             copyPasteManager.setContents(convertedTransferable);
                         }

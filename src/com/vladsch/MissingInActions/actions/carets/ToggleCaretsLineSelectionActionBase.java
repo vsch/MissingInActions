@@ -59,6 +59,6 @@ abstract public class ToggleCaretsLineSelectionActionBase extends AnAction imple
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         final EditorEx editor = ActionUtils.getEditor(e);
-        ActionUtils.toggleCaretsLineSelection(editor, myWantBlankLines, myWantNonBlankLines, false, true, true);
+        ActionUtils.toggleCaretsLineSelection(editor, myWantBlankLines, myWantNonBlankLines, true, true, true);
     }
 }

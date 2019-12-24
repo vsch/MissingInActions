@@ -1,10 +1,13 @@
 ## Missing In Actions
 
+&nbsp;<details id="todo"><summary>**Table of Contents**</summary>
+
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx-dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx-dev-builds)
+- [1.8.0.4 - Dev Build](#1804-dev-build)
 - [1.8.0 - Release](#180-release)
 - [1.7.5.69 - Dev Build](#17569-dev-build)
 - [1.7.5.67 - Dev Build](#17567-dev-build)
@@ -53,7 +56,7 @@
 - [0.5.0 - Initial Release](#050-initial-release)
 
 
-&nbsp;<details id="todo"><summary>**To Do List**</summary>
+&nbsp;</details>
 
 ### Next 1.8.0.xxx - Dev Builds
 
@@ -122,8 +125,6 @@
   * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
         and generate selected case variations.
 
-&nbsp;</details>
-
 ### Next 1.8.xx - Dev Builds
 
 + [ ] Add: option and functionality to change duplicate lines action to only operate on a line
@@ -138,6 +139,16 @@
       by the action.
 + [ ] Fix: [ToDo_StackTraces.txt](ToDo_StackTraces.txt)
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
++ [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
+      the same as original then paste unmodified from the clipboard.
+
+### 1.8.0.4 - Dev Build
+
+* Fix: index out of bounds on string rep computation
+* Fix: paste from history did not convert single line character content to line content
+* Fix: change line/caret toggle to go from character selection to carets without intervening
+  line selection
+* Fix: 2020.1 compatibility, Should be called at least in the state COMPONENTS_LOADED
 
 ### 1.8.0 - Release
 
