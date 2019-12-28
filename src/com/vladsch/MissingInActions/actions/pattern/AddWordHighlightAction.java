@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import org.jetbrains.annotations.NotNull;
 
 public class AddWordHighlightAction extends WordHighlightActionBase {
     public AddWordHighlightAction() {
@@ -30,7 +31,7 @@ public class AddWordHighlightAction extends WordHighlightActionBase {
     }
 
     @Override
-    public void update(final AnActionEvent e) {
+    public void update(@NotNull final AnActionEvent e) {
         super.update(e);
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
     }

@@ -83,6 +83,7 @@ import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.flexmark.util.Utils;
+import com.vladsch.flexmark.util.collection.BitFieldSet;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 import com.vladsch.flexmark.util.sequence.RepeatedSequence;
@@ -96,7 +97,6 @@ import com.vladsch.plugin.util.ui.highlight.LineHighlighter;
 import com.vladsch.plugin.util.ui.highlight.TypedRangeHighlightProviderBase;
 import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 import com.vladsch.plugin.util.ui.highlight.WordHighlighter;
-import com.vladsch.plugin.util.ui.highlight.WordHighlighterFlags;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -460,7 +460,6 @@ public class BatchReplaceForm implements Disposable {
         mySearchHighlightProvider.initComponent();
         myReplaceHighlightProvider.initComponent();
         myOptionsHighlightProvider.initComponent();
-
 
         LineSelectionManager.getInstance(mySearchEditor).setHighlightProvider(mySearchHighlightProvider);
         LineSelectionManager.getInstance(myReplaceEditor).setHighlightProvider(myReplaceHighlightProvider);
@@ -1217,12 +1216,13 @@ public class BatchReplaceForm implements Disposable {
                             isWarning = true;
                         }
 
-                        SearchData searchData = new SearchData(searchText, replaceText, i, myEditorSearchHighlightProvider.encodeFlags(isBeginWord, isEndWord, isWarning, isError, isCaseSensitive));
+                        int ideHighlight = isError ? WordHighlightProvider.F_IDE_ERROR : isWarning ? WordHighlightProvider.F_IDE_WARNING : 0;
+                        SearchData searchData = new SearchData(searchText, replaceText, i, myEditorSearchHighlightProvider.encodeFlags(isBeginWord, isEndWord, ideHighlight, isCaseSensitive));
 
                         int lMax = lineSearchData.size();
                         for (int l = lMax; l-- > 0; ) {
                             SearchData data = lineSearchData.get(l);
-                            if (!WordHighlighterFlags.haveFlags(data.flags, WordHighlighterFlags.CASE_INSENSITIVE) && !WordHighlighterFlags.haveFlags(data.flags, WordHighlighterFlags.CASE_INSENSITIVE)) {
+                            if (!BitFieldSet.any(data.flags, WordHighlightProvider.F_CASE_SENSITIVITY)) {
                                 // case insensitive, we need to remove all that match
                                 if (data.word.equals(searchData.word)) {
                                     // we need to delete this one
@@ -1511,8 +1511,11 @@ public class BatchReplaceForm implements Disposable {
                 String text = myFoundRange.subSequence(myEditor.getDocument().getCharsSequence()).toString();
                 final SearchData searchData = myLineSearchData.get(myFoundIndex);
                 String found = searchData.word;
-                if (WordHighlighterFlags.haveFlags(searchData.flags, WordHighlighterFlags.CASE_SENSITIVE) && text.equals(found) ||
-                        WordHighlighterFlags.haveFlags(searchData.flags, WordHighlighterFlags.CASE_INSENSITIVE) && text.equalsIgnoreCase(found)) {
+                int caseSensitivity = searchData.flags & WordHighlightProvider.F_CASE_SENSITIVITY;
+
+                if (caseSensitivity == WordHighlightProvider.F_CASE_SENSITIVE && text.equals(found)
+                        || caseSensitivity == WordHighlightProvider.F_CASE_INSENSITIVE && text.equalsIgnoreCase(found)
+                ) {
                     handled = true;
                     WriteCommandAction.runWriteCommandAction(myProject, () -> {
                         String replacement = searchData.replace;

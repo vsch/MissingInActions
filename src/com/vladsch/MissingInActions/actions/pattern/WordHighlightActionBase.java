@@ -95,16 +95,16 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
                             }
 
                             if (tandemIndex == -1) {
-                                tandemIndex = plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                                tandemIndex = plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, 0, null);
                                 lineColorMap.put(editorCaret.getSelectionStart().line, tandemIndex);
                             } else {
                                 // on the same line as another highlight, give it the same color
                                 plugin.restartHighlightSet(tandemIndex);
-                                plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                                plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, 0, null);
                                 plugin.endHighlightSet();
                             }
                         } else {
-                            plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, false, false, null);
+                            plugin.addHighlightRange(chars.subSequence(caret.getSelectionStart(), caret.getSelectionEnd()).toString(), startWord, endWord, 0, null);
                         }
                     }
                 }
