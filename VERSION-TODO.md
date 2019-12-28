@@ -7,7 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
-- [Next 1.8.0.8 - Dev Build](#next-1808---dev-build)
+- [1.8.0.8 - Dev Build](#1808---dev-build)
 - [1.8.0.6 - Dev Build](#1806---dev-build)
 - [1.8.0.4 - Dev Build](#1804---dev-build)
 - [1.8.0 - Release](#180---release)
@@ -144,7 +144,7 @@
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
 
-### Next 1.8.0.8 - Dev Build
+### 1.8.0.8 - Dev Build
 
 * Fix: refactor code to use `BitFieldSet` for `TypedRangeHighlightProvider` flags and make
   `WordHighlightProvider` flags inherit ide highlight flags so as not to conflict with them.
