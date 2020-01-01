@@ -89,6 +89,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
+import static com.vladsch.flexmark.util.Utils.rangeLimit;
 
 /**
  * Adjust a line selection to a normal selection when selection is adjusted by moving the caret
@@ -1068,7 +1069,8 @@ public class LineSelectionManager implements
         myCaretGuard.guard(() -> {
             if (start.line == end.line || alwaysChar) {
                 final EditorPosition pos = myPositionFactory.fromPosition(caret.getLogicalPosition());
-                caret.setSelection(startOffset, endOffset);
+                int textLength = myEditor.getDocument().getTextLength();
+                caret.setSelection(rangeLimit(startOffset, 0, textLength), rangeLimit(endOffset, 0, textLength));
                 caret.moveToLogicalPosition(pos);
 
                 if (finalAdjustment && state != myPrimarySelectionState) {

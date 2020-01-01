@@ -7,9 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
-- [1.8.0.8 - Dev Build](#1808---dev-build)
-- [1.8.0.6 - Dev Build](#1806---dev-build)
-- [1.8.0.4 - Dev Build](#1804---dev-build)
+- [1.8.0.10 - Dev Build](#18010---dev-build)
 - [1.8.0 - Release](#180---release)
 - [1.7.5.69 - Dev Build](#17569---dev-build)
 - [1.7.5.67 - Dev Build](#17567---dev-build)
@@ -144,18 +142,12 @@
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
 
-### 1.8.0.8 - Dev Build
+### 1.8.0.10 - Dev Build
 
 * Fix: refactor code to use `BitFieldSet` for `TypedRangeHighlightProvider` flags and make
   `WordHighlightProvider` flags inherit ide highlight flags so as not to conflict with them.
-
-### 1.8.0.6 - Dev Build
-
 * Fix: Remove highlighted word does not work when from saved highlights on IDE exit. Workaround:
   highlight word again and then remove highlight.
-
-### 1.8.0.4 - Dev Build
-
 * Fix: index out of bounds on string rep computation
 * Fix: paste from history did not convert single line character content to line content
 * Fix: change line/caret toggle to go from character selection to carets without intervening
