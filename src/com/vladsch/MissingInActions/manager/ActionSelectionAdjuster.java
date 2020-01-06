@@ -60,7 +60,7 @@ import com.vladsch.MissingInActions.util.CaseFormatPreserver;
 import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditorActionListener;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
-import com.vladsch.flexmark.util.Pair;
+import com.vladsch.flexmark.util.misc.Pair;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import org.jetbrains.annotations.NotNull;

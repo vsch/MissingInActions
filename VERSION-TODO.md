@@ -7,6 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
+- [Next 1.8.0.12 - Dev Build](#next-18012---dev-build)
 - [1.8.0.10 - Dev Build](#18010---dev-build)
 - [1.8.0 - Release](#180---release)
 - [1.7.5.69 - Dev Build](#17569---dev-build)
@@ -54,7 +55,6 @@
 - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
-
 
 &nbsp;</details>
 
@@ -141,6 +141,10 @@
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
+
+### Next 1.8.0.12 - Dev Build
+
+* Fix: update to latest flexmark-util
 
 ### 1.8.0.10 - Dev Build
 
@@ -403,6 +407,7 @@
   which fires before action then checks to see if there is a context component and if not
   returns without corresponding `actionPerformed` on the action and `afterActionPerformed`
   callbacks.
+
 * Fix: update to latest libs
 * Fix: missing toolbar button for `Recall selection from list`
 
@@ -581,13 +586,10 @@
 * Fix: removed "Swap Text" action which did nothing because it was for internal use. Added "Swap
   Selection Text from List" which was the original intention to show the available list of
   selections to use for swapping currently selected text and one selected from a list.
-
 * Fix: removed "Selections" action which did nothing because it was for internal use. Added
   "Recall Selection from List" which was the original intention to show the available list of
   selections to recall one of them.
-
 * Fix: renamed "Pop Last Selection" to "Recall Last Selection"
-
 * Fix: editor not disposed in renumber dialog
 
 ### 1.4.2 - Enhancement Release
@@ -614,7 +616,6 @@
 * Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
   only file name derivations are supported. When pasting in a file with name
   `multi-line-image-url` the following will be changed as shown:
-
   * `__Filename__` to `multi-line-image-url` (as is)
   * `__FILENAME__` to `MULTILINEIMAGEURL` (uppercase)
   * `__filename__` to `multilineimageurl` (lowercase)
@@ -632,20 +633,15 @@
 ### 1.4.0 - Bug Fix Release
 
 * Fix: NPE when projects are being rapidly opened and closed.
-
 * Fix: #17, Caret don't move across tab-indented lines
-
 * Fix: Remove highlighted word carets would not remove the last selection if all carets
   contained highlighted word selections
-
 * Fix: size of color chip when using HiDPI displays that need scaling.
 
 ### 1.3.0 - Bug Fix Release
 
 * Fix: #16, Hide disabled buttons breaks Recall Selection List and Swap Selection actions
-
 * Fix: #15, Selection continuation with the mouse and Shift modifier is broken
-
 * Add: multi-caret search accept not found carets action to allow excluding carets with matching
   search position.
 
@@ -657,11 +653,8 @@
 
 * Fix: Exclude $ from being considered as part of identifier for purposes of determining word
   start/end boundary for highlighted words.
-
 * Fix: conversion from dash, dot and slash to snake case was not working.
-
 * Add: hide disabled toolbar buttons option to settings
-
 * Add: button versions of recall selection and swap text to eliminate button text to save
   toolbar real-estate
 
@@ -669,11 +662,8 @@
 
 * Change: make `Line Selection Mode`, `Forward Search Caret Spawning` and `Backward Search Caret
   Spawning` actions toggle actions to show when active.
-
 * Fix: line selections not working in editor text fields in settings
-
 * Add: Word Highlighting Actions, toolbar buttons and settings:
-
   * Toggle highlight word mode
     ![Toggle Word Highlights](/resources/icons/png/Toggle_word_highlights%402x.png) : turns
     highlighted words on/off. Can be used to turn off highlights without clearing highlight word
@@ -705,7 +695,6 @@
 
 * Change: Recall selection from list action text from `Recall Selection` to `Selections` to
   shorten the toolbar button.
-
 * Change: split settings into tabbed pane per category
 
 ### 1.1.4 - Enhancement Release
@@ -714,7 +703,6 @@
   lines. Especially useful when duplicating a method or methods for modification. This allows
   isolating the copies which are to be modified so that they are not confused with the
   originals.
-
 * Add: Dark scheme color persistence. Colors in settings reflect the current Dark/Light scheme
   selection.
 
@@ -722,7 +710,6 @@
 
 * Change: allow overlapping selection text swapping by eliminating overlapping part of
   selections from the swap.
-
 * Fix: exception in some cases when swapping text and more than set limit of stored selections
   is already present.
 
@@ -737,53 +724,36 @@
 ### 1.1.0 - Enhancement Release
 
 * Add: Selection Stack to automatically store the last N selections for a file
-
 * Add: Recall/Swap selection actions and toolbar buttons
-
 * Add: Swap Selection Text actions and toolbar buttons to swap currently selected text with text
   from a stored selection.
 
 ### 1.0.0 - Bug Fixes and Enhancements
 
 * Fix: toolbar icons for consistency and bigger direction arrows.
-
 * Add: caret search action detects when caret context is on a hex, decimal or octal number.
-
 * Change: make MIA application settings shared so that they can be imported and exported.
-
 * Add: `Tab Align Text at Carets` to push non-whitespace text after each caret so that all
   carets are aligned and on a tab stop. Quick way to tab align jagged carets and following text.
-
 * Add: MissingInActions toolbar
-
 * Add: edit caret search options with dialog to show preview of caret search by pattern.
-
 * Add: caret visual attributes for start search carets that have a match on the line to
   highlight start locations which have matches.
-
 * Add: `Accept Found Search Carets` action to only leave the found caret locations.
-
 * Add: `Cancel Found Search Carets` action and settings option to `Cancel Caret Search on
   ESCAPE` to cancel caret search and restore carets to only the start search location carets.
-
 * Add: **dash-case**, **dot.case** and **slash/case** to on paste preservation options
-
 * Add: multi-caret filtering with Forward/Backward Spawn Caret Action when invoked with multiple
   carets. Also does color and weight change if 2017 EAP.
-
 * Add: number generating action. For now only for multiple carets.
-
   * Sequences 0-9, A-Z for number bases 2-36
   * Prefix/Suffix options to add to generated number
   * Sequences can be 0 left filled to any width
   * Arithmetic or Shift with Step and Direction
   * Start/Stop number, carets whose number is outside the range insert nothing
-
 * Add: Caret spawning search actions for Forward and Backward whose behavior depends on the text
   at caret and whether there is a selection.
-
   * if a single caret exists then:
-
     * if caret is at ' ' or '\t' then will spawn a caret after every span of spaces that ends on
       a non-space. Will select the intervening spaces for each caret
     * if caret is on identifier start then will spawn a caret for every occurrence of identifier
@@ -817,7 +787,6 @@
     in Tools > Missing In Actions:
 
 * behavior is also affected by number of carets and selection:
-
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
     lines
@@ -831,38 +800,27 @@
 
 * Fix: select up at left edge when line is blank selects the current line instead of just the
   above line (start/end not extended).
-
 * Fix: #12, Previous Word does not move caret if line contains tabs
-
 * Fix: when doing on paste fix ups of snake case don't convert to camelCase if pasted prefix has
   an underscore at the end or pasted suffix has one at the start.
-
 * Fix: nested action tracking would get off count and some triggered actions and cleanup would
   not be performed.
-
 * Add: option, enabled by default, to delete repeated content created for duplicate for
   clipboard carets, after it is pasted. The content has many carets and is useful for a
   particular combination of lines and carets that are duplicated. Keeping it in history is a
   waste of resources and can be confusing when you thought you were pasting the content you
   selected for duplication, but instead are getting the split/repeated content created for
   pasting into duplicated lines.
-
 * Add: select on paste multi-caret enable predicate separate from non-multi-caret
-
 * Fix: remove/add prefix on paste: if pasting over a prefix with a mismatched prefix, would
   remove the original prefix from pasted word but not add the prefix that existed in the word
   being pasted over.
-
 * Fix: regex prefix option was not being used in actual code on paste adjustment and used camel
   prefix instead.
-
 * Change: only one string is used for regex and regular prefixes, regex since it can represent
   all prefixes and regular string is now | separated list of prefixes.
-
 * Fix: `StraightenCarets` action now disabled if there are selections
-
 * Add: Dupe for Clipboard carets will also handle multi-caret input:
-
   * duplicated block spans all carets
     * if have selections
       * then only keep carets with selections
@@ -877,9 +835,7 @@
       content for every caret in the block, second second, etc If there are 3 carets with text1,
       text2 and text3 on clipboard and 3 carets in the line then after dupe, the clipboard will
       contain 9 carets: text1,text1,text1,text2,text2,text2,text3,text3,text3
-
 * Add: MultiPaste override for all editor fields to make it consistent across the IDE.
-
 * Fix: MultiPaste would override even when disabled in settings.
 
 ### 0.8.2 - Bug Fixes and Enhancements
@@ -918,12 +874,9 @@
 ### 0.8.0 - Bug Fixes and New Features
 
 * Add: pictographic of dupe for carets on clipboard to readme
-
 * Add: adding prefixes when pasting over words with prefix to smart paste when pasting over an
   identifier that had a prefix.
-
 * Fix: line selecting up when line from is completely empty just moves up without selecting
-
 * Add: `Duplicate Line or Selection for Carets on Clipboard` action which will duplicate line or
   selection to match number of carets in the clipboard and create a caret on the first line of
   each copied block. No need to count how many duplicates you need for multi-caret text on
@@ -938,9 +891,7 @@
   2. select part of the line to be replaced
   3. dupe for clipboard carets
   4. paste
-
 * Add: smart paste functionality.
-
   * preserve camel/pascal case, screaming snake case and snake case on char paste based on
     context of where it is pasted and what is pasted.
   * remove prefix on paste if pasting text next to or inside an identifier, with two
@@ -950,19 +901,14 @@
     deleting underscores as needed, adjusting case after the pasted text if needed. 90% of the
     time there is no need to edit results after pasting, the other 10% hit undo and get the text
     as it was before MIA modified it.
-
 * Add: caret visual attributes handling when available (coming in 2017.1) in preparation for
   caret filtering and spawning actions.
-
 * Add: select to end of file and select to beginning of file as line selection ops (with an
   option in settings)
-
 * Fix: Copy moves to bottom since the mark is always start anchored
-
 * Add: line comment caret remove/keep actions. Rename the others to fit in the remove/keep
   format. Line Comment is a line that either begins with a line comment prefix, or one that
   begins with a block comment prefix and ends in a block comment prefix.
-
   * `MissingInActions.KeepBlankLineCarets`: keep only carets on blank lines
   * `MissingInActions.KeepCodeLineCarets`: keep only carets on lines which are not blank and not
     line comments
@@ -1012,21 +958,15 @@
   * Copy: if no selection before then leave the caret column unchanged
   * Cut, Duplicate, Duplicate Lines: if no selection before action then remove selection after
     action, if selection was line selection before then restore caret column position after
-
 * Fix: Delayed Auto Indent Lines to do a better job of preserving caret column and added a fix
   for bug in IDE action that does not adjust selection start if it is not at the left margin.
-
 * Add: Select pasted text option to keep the selection so it can be operated on with option to
   only select if pasted text contains at least one line--contains end of line.
-
 * Fix: toggle multi-caret/selection would loose the last line of selection if the caret was at
   the left margin.
-
 * Add: option to remove selection created by toggle case. Will leave selection made before in
   tact.
-
 * Fix: delete to line end not eol was deleting one character less than end of line
-
 * Add: Option to fix duplicate line or selection to duplicate before the selection if caret is
   at the head of the selection (actually if the selection was started from the end).
 
@@ -1035,29 +975,22 @@
 
 * Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
   full lines if the trimming or expansion affects whitespace chars only.
-
 * Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
   remembers if it was turned on from the panel and if line mode is disabled offers a link to
   disable it.
-
 * Add: Identifier Word variations, will only stop on java identifiers, spaces and
   non-identifiers are treated as equal
-
 * Add: Customized Word variations can set if these will stop on:
   * start of line/end of line
   * indent/trailing blanks on a line
   * identifier camel humps or word camel humps rules
   * normal, stay on same line and stay on same line in multi-caret mode
-
 * Add: action to toggle camel humps mode, with option to make mouse setting follow camel humps
   setting.
-
 * Add: action to toggle identifier/word mode for customized word actions, customized next word
   is taken as the value to toggle with the rest following.
-
 * Add: Delete and Backspace white space only, used to pull jagged edge alignment into a straight
   line.
-
 * Add: settings UI for custom next/prev word end/start, start of word and end of word variations
 
 ### 0.6.2 - Bug Fix and Features
@@ -1105,7 +1038,6 @@
 * Add: Switch selection direction to move the caret to the other end of the selection
 * Add: caret straightening and toggle between selection and multiple carets to allow quick
   creation of multiple carets with line filtering:
-
   * on all lines
   * only on non-blank lines
   * only on blank lines

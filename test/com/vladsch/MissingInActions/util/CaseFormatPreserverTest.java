@@ -24,7 +24,6 @@ package com.vladsch.MissingInActions.util;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;

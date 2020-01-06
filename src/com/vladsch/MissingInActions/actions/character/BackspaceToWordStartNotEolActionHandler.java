@@ -31,7 +31,11 @@ package com.vladsch.MissingInActions.actions.character;
 
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -40,7 +44,15 @@ import gnu.trove.TIntHashSet;
 import gnu.trove.TIntIntHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import static com.vladsch.MissingInActions.util.EditHelpers.*;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGION;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_LEADING_BLANKS;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_LINE;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_WORD;
+import static com.vladsch.MissingInActions.util.EditHelpers.MIA_IDENTIFIER;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_FOLDING_REGION;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_LINE;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_TRAILING_BLANKS;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_WORD;
 
 public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHandler {
     /**

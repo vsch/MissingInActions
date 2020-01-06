@@ -18,7 +18,7 @@ package com.intellij.openapi.editor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Used to override caret painting color and, for non-block carets, their width.

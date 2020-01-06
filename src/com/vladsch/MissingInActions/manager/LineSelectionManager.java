@@ -89,7 +89,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static com.intellij.openapi.editor.event.EditorMouseEventArea.EDITING_AREA;
-import static com.vladsch.flexmark.util.Utils.rangeLimit;
+import static com.vladsch.flexmark.util.misc.Utils.rangeLimit;
 
 /**
  * Adjust a line selection to a normal selection when selection is adjusted by moving the caret

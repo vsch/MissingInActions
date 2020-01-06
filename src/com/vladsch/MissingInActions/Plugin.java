@@ -66,7 +66,7 @@ import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
 import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
 import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
-import com.vladsch.flexmark.util.Pair;
+import com.vladsch.flexmark.util.misc.Pair;
 import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.HelpersKt;
 import com.vladsch.plugin.util.OneTimeRunnable;

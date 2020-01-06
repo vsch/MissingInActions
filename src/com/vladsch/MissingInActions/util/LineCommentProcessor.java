@@ -25,7 +25,6 @@ import com.intellij.lang.Commenter;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

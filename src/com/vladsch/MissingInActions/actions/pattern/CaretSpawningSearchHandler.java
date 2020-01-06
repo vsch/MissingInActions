@@ -33,9 +33,8 @@ import com.vladsch.ReverseRegEx.util.ForwardPattern;
 import com.vladsch.ReverseRegEx.util.RegExMatcher;
 import com.vladsch.ReverseRegEx.util.RegExPattern;
 import com.vladsch.ReverseRegEx.util.ReversePattern;
-import com.vladsch.flexmark.util.Pair;
+import com.vladsch.flexmark.util.misc.CharPredicate;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
-import com.vladsch.flexmark.util.sequence.CharPredicate;
 import com.vladsch.flexmark.util.sequence.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -305,7 +304,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                     String quotedText = getSmartPrefixedText(text.toString(), isStart && spawnSmartPrefixSearch);
 
                     String starPattern = (spawnMatchBoundarySearch || isNumericSearch) && (myBackwards || isStart) ? startBreak : (isNumericSearch ? "\\B" : "");
-                    String endPattern =  (spawnMatchBoundarySearch || isNumericSearch) && (!myBackwards || isStart) ? endBreak : (isNumericSearch ? "\\B" : "");
+                    String endPattern = (spawnMatchBoundarySearch || isNumericSearch) && (!myBackwards || isStart) ? endBreak : (isNumericSearch ? "\\B" : "");
 
                     searchFlags = myCaseSensitive && !(spawnSmartPrefixSearch && !isStart) ? 0 : Pattern.CASE_INSENSITIVE;
                     patternText = starPattern + "(" + quotedText + ")" + endPattern;

@@ -23,7 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import com.vladsch.MissingInActions.settings.NumberingBaseType;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
-import com.vladsch.flexmark.util.Ref;
+import com.vladsch.flexmark.util.misc.Ref;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -52,7 +52,7 @@ import com.vladsch.MissingInActions.util.ClipboardCaretContent;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.highlight.MiaHighlightProviderUtils;
 import com.vladsch.MissingInActions.util.highlight.MiaTextRangeHighlightProviderImpl;
-import com.vladsch.flexmark.util.Utils;
+import com.vladsch.flexmark.util.misc.Utils;
 import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.SearchPattern;

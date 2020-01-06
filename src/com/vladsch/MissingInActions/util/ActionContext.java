@@ -23,13 +23,13 @@ package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.editor.Caret;
 import com.vladsch.MissingInActions.manager.EditorCaret;
-import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class ActionContext {
     final private HashMap<Caret, CaretSnapshot> myCaretSnapshots;

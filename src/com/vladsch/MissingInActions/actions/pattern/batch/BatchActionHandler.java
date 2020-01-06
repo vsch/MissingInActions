@@ -32,7 +32,6 @@ import com.vladsch.MissingInActions.BatchSearchReplaceToolWindow;
 import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
-import com.vladsch.plugin.util.CancelableJobScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
