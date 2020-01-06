@@ -63,6 +63,7 @@
         </StylesheetProvider>
         <ScriptProviders>
           <provider providerId="com.vladsch.idea.multimarkdown.editor.hljs.html.script" providerName="HighlightJS Script" />
+          <provider providerId="com.vladsch.idea.multimarkdown.editor.katex.html.script" providerName="Katex Script" />
           <provider providerId="com.vladsch.idea.multimarkdown.editor.mermaid.html.script" providerName="Mermaid Script" />
         </ScriptProviders>
         <cssText />
@@ -74,7 +75,7 @@
         <textMaps />
       </LinkMapSettings>
       <EnhPreviewSettings allowBrowsingInPreview="false" openRemoteLinks="false" replaceUnicodeEmoji="false" showGitHubPageIfSynced="false" />
-      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="0" />
+      <EnhHtmlSettings embedUrlContent="false" embedImages="false" embedHttpImages="false" mathConversion="-1" />
       <FlexmarkHtmlSettings flexmarkSpecExampleRendering="0" flexmarkSpecExampleRenderHtml="false">
         <flexmarkSectionLanguages>
           <option name="1" value="Markdown" />
