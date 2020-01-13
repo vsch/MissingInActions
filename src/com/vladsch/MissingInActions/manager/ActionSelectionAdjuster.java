@@ -37,6 +37,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.CaretStateTransferableData;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.actions.TextEndWithSelectionAction;
@@ -1100,7 +1101,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             return true;
         }, (EditorCaret editorCaret, CaretSnapshot snapshot) -> {
             if (snapshot != null) {
-                Params params = (Params) snapshot.get(CaretSnapshot.PARAMS);
+                Params params = (Params) CaretSnapshot.PARAMS.get(snapshot);
 
                 // if leave selected is enabled
                 if (myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION)) {
@@ -1114,48 +1115,54 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                     CharSequence beforeShift = rawRange.subSequence(documentChars);
                                     TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
                                     CharSequence afterShift = range.subSequence(documentChars);
-                                    editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
-
-                                    if (!editorCaret.hasLines()) {
-                                        if (settings.isOnPastePreserve()) {
-                                            cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
-                                                    , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
-                                                            || (myEditor.getCaretModel().getCaretCount() > 1
-                                                            && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
-                                                    )
-                                                    , settings.isPreserveCamelCaseOnPaste()
-                                                    , settings.isPreserveSnakeCaseOnPaste()
-                                                    , settings.isPreserveScreamingSnakeCaseOnPaste()
-                                                    , settings.isPreserveDashCaseOnPaste()
-                                                    , settings.isPreserveDotCaseOnPaste()
-                                                    , settings.isPreserveSlashCaseOnPaste()
-                                                    , settings.isRemovePrefixOnPaste()
-                                                    , settings.isAddPrefixOnPaste()
-                                                    , settings.getPrefixesOnPasteList()
-                                                    , settings.getRemovePrefixOnPastePatternType()
-                                            );
-                                        }
+                                    if (!caretContent.getContent().isDataFlavorSupported(CaretStateTransferableData.FLAVOR)) {
+                                        // pasted text does not have caret information, so do not restore text
+                                        int tmp = 0;
                                     } else {
-                                        if (caretContent.isFullLine(snapshot.getIndex())) {
-                                            if (editorCaret.hasLines()) {
-                                                editorCaret.trimOrExpandToLineSelection();
+                                        editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
+
+                                        if (!editorCaret.hasLines()) {
+                                            if (settings.isOnPastePreserve()) {
+                                                cumulativeCaretDelta[0] -= params.preserver.preserveFormatAfter(editorCaret, range, !inWriteAction
+                                                        , (myEditor.getCaretModel().getCaretCount() == 1 && settings.getSelectPastedPredicate() == SelectionPredicateType.WHEN_HAS_ANY.getIntValue())
+                                                                || (myEditor.getCaretModel().getCaretCount() > 1
+                                                                && settings.isSelectPastedMultiCaret() && settings.getSelectPastedMultiCaretPredicateType().isEnabled(editorCaret.getSelectionLineCount())
+                                                        )
+                                                        , settings.isPreserveCamelCaseOnPaste()
+                                                        , settings.isPreserveSnakeCaseOnPaste()
+                                                        , settings.isPreserveScreamingSnakeCaseOnPaste()
+                                                        , settings.isPreserveDashCaseOnPaste()
+                                                        , settings.isPreserveDotCaseOnPaste()
+                                                        , settings.isPreserveSlashCaseOnPaste()
+                                                        , settings.isRemovePrefixOnPaste()
+                                                        , settings.isAddPrefixOnPaste()
+                                                        , settings.getPrefixesOnPasteList()
+                                                        , settings.getRemovePrefixOnPastePatternType()
+                                                );
+                                            }
+                                        } else {
+                                            if (caretContent.isFullLine(snapshot.getIndex())) {
+                                                if (editorCaret.hasLines()) {
+                                                    editorCaret.trimOrExpandToLineSelection();
+                                                }
+
+                                                int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
+                                                if (caretColumn != -1) {
+                                                    editorCaret.restoreColumn(caretColumn);
+                                                }
                                             }
 
-                                            int caretColumn = ClipboardCaretContent.getLastPastedCaretColumn(myEditor, snapshot.getIndex());
-                                            if (caretColumn != -1) {
-                                                editorCaret.restoreColumn(caretColumn);
+                                            boolean selectPasted = settings.isSelectPasted()
+                                                    && SelectionPredicateType.isEnabled(settings.getSelectPastedPredicate(), editorCaret.getSelectionLineCount());
+
+                                            if (!selectPasted) {
+                                                editorCaret.removeSelection();
                                             }
+
+                                            editorCaret.normalizeCaretPosition();
+                                            editorCaret.commit();
                                         }
 
-                                        boolean selectPasted = settings.isSelectPasted()
-                                                && SelectionPredicateType.isEnabled(settings.getSelectPastedPredicate(), editorCaret.getSelectionLineCount());
-
-                                        if (!selectPasted) {
-                                            editorCaret.removeSelection();
-                                        }
-
-                                        editorCaret.normalizeCaretPosition();
-                                        editorCaret.commit();
                                     }
                                 } else {
                                     snapshot.restoreColumn();

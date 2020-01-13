@@ -7,7 +7,8 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
-- [Next 1.8.0.12 - Dev Build](#next-18012---dev-build)
+- [1.8.0.14 - Dev Build](#18014---dev-build)
+- [1.8.0.12 - Dev Build](#18012---dev-build)
 - [1.8.0.10 - Dev Build](#18010---dev-build)
 - [1.8.0 - Release](#180---release)
 - [1.7.5.69 - Dev Build](#17569---dev-build)
@@ -142,7 +143,12 @@
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
 
-### Next 1.8.0.12 - Dev Build
+### 1.8.0.14 - Dev Build
+
+* Fix: do not restore last pasted text selection if the clipboard content does not contain any
+  caret information.
+
+### 1.8.0.12 - Dev Build
 
 * Fix: update to latest flexmark-util
 
