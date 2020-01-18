@@ -161,9 +161,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox mySpawnNumericHexSearch;
     JBCheckBox mySpawnNumericSearch;
     CustomDeleteBackspaceForm myCustomDeleteBackspaceForm;
-    private JBCheckBox myDisableParameterInfo;
-    private JBCheckBox myShowGenerateException;
-    private JBCheckBox myRegisterCaretStateTransferable;
+    JBCheckBox myDisableParameterInfo;
+    JBCheckBox myShowGenerateException;
+    JBCheckBox myRegisterCaretStateTransferable;
+    JBCheckBox myHighlightProjectViewNodes;
 
     private @NotNull String myRegexSampleText;
     private final EditingCommitter myEditingCommitter;
@@ -236,6 +237,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myDisableParameterInfo, i::isDisableParameterInfo, i::setDisableParameterInfo),
                         component(myShowGenerateException, i::isShowGenerateException, i::setShowGenerateException),
                         component(myRegisterCaretStateTransferable, i::isRegisterCaretStateTransferable, i::setRegisterCaretStateTransferable),
+                        component(myHighlightProjectViewNodes, i::isHighlightProjectViewNodes, i::setHighlightProjectViewNodes),
                         component(myMultiPastePreserveOriginal, i::isMultiPastePreserveOriginal, i::setMultiPastePreserveOriginal),
                         component(myMultiPasteDeleteRepeatedCaretData, i::isMultiPasteDeleteRepeatedCaretData, i::setMultiPasteDeleteRepeatedCaretData),
                         component(myMultiPasteDeleteReplacedCaretData, i::isMultiPasteDeleteReplacedCaretData, i::setMultiPasteDeleteReplacedCaretData),

@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.8.0.14</version>
+    <version>1.8.0.16</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="193"/>
 
@@ -276,6 +276,7 @@
 
         <!-- This is the only way to override standard editor shortcuts that are used by others -->
         <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->
+        <projectViewNodeDecorator implementation="com.vladsch.MissingInActions.util.highlight.MiaProjectViewNodeDecorator" order="last"/>
     </extensions>
 
     <actions>
@@ -851,6 +852,12 @@
                 description="Toggle match boundary word highlights">
         </action>
 
+        <action class="com.vladsch.MissingInActions.actions.pattern.ToggleHighlightProjectViewAction"
+                id="MissingInActions.ToggleHighlightProjectView"
+                text="Highlight Project View"
+                description="Toggle highlight project view">
+        </action>
+
         <action class="com.vladsch.MissingInActions.actions.pattern.ToggleOnPastePreserveAction"
                 id="MissingInActions.ToggleOnPastePreserve"
                 text="On Paste Preserve Case Style"
@@ -947,6 +954,7 @@
                 <reference id="MissingInActions.ToggleWordHighlightsMode"/>
                 <reference id="MissingInActions.ToggleWordHighlightsCaseSensitive"/>
                 <reference id="MissingInActions.ToggleWordHighlightsMatchBoundary"/>
+                <reference id="MissingInActions.ToggleHighlightProjectView"/>
                 <reference id="MissingInActions.ClearWordHighlights"/>
                 <reference id="MissingInActions.AddWordHighlightTandemLine"/>
                 <reference id="MissingInActions.AddWordHighlight"/>

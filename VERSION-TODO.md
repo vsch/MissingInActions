@@ -7,6 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
+- [1.8.0.16 - Dev Build](#18016---dev-build)
 - [1.8.0.14 - Dev Build](#18014---dev-build)
 - [1.8.0.12 - Dev Build](#18012---dev-build)
 - [1.8.0.10 - Dev Build](#18010---dev-build)
@@ -142,6 +143,13 @@
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
+
+### 1.8.0.16 - Dev Build
+
+* Add: option to use word highlights to highlight Project View nodes. Only full case sensitive
+  match of the selected word is used for the match. No partial matches or case insensitive is
+  supported at the moment. If the node text matches the highlighted word then the node is
+  highlighted.
 
 ### 1.8.0.14 - Dev Build
 

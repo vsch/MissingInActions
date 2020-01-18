@@ -27,6 +27,8 @@ import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -52,6 +54,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -121,6 +124,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private boolean myRegisterCaretStateTransferable;
     private OneTimeRunnable myHighlightSaveTask = OneTimeRunnable.NULL;
     private boolean disableSaveHighlights = true;
+    private boolean highlightProjectViewNodes = true;
 
 //    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
@@ -134,6 +138,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         myEditorActionListeners = new HashMap<>();
         myPasteOverrideComponent = null;
         myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
+        highlightProjectViewNodes = mySettings.isHighlightProjectViewNodes();
 
         MiaCancelableJobScheduler.getInstance().schedule(1000, () -> {
             Map<String, Pair<Integer, Integer>> state = mySettings.getHighlightState();
@@ -174,16 +179,45 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         if (!disableSaveHighlights) {
             // save highlights in application settings
             myHighlightSaveTask.cancel();
-
             myHighlightSaveTask = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), "Highlight Saver", 500, ModalityState.NON_MODAL, () -> {
                 HashMap<String, Pair<Integer, Integer>> state = getHighlightState();
                 mySettings.setHighlightState(getHighlightState());
                 mySettings.setHighlightWordsCaseSensitive(isHighlightCaseSensitive());
                 mySettings.setHighlightWordsMatchBoundary(isHighlightWordsMatchBoundary());
+
+                if (mySettings.isHighlightProjectViewNodes()) {
+                    updateProjectViews();
+                }
+            });
+        } else {
+            myHighlightSaveTask.cancel();
+            myHighlightSaveTask = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), "Highlight Saver", 500, ModalityState.NON_MODAL, () -> {
+                if (mySettings.isHighlightProjectViewNodes()) {
+                    updateProjectViews();
+                }
             });
         }
 
         super.fireHighlightsChanged();
+    }
+
+    static void updateProjectViews() {
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        for (Project project : projects) {
+            ProjectView projectView = ProjectView.getInstance(project);
+            AbstractProjectViewPane projectViewPane = projectView.getCurrentProjectViewPane();
+            projectViewPane.updateFromRoot(true);
+        }
+    }
+
+    public void setHighlightProjectViewNodes(final boolean highlightProjectViewNodes) {
+        if (mySettings.isHighlightProjectViewNodes() != highlightProjectViewNodes) {
+            mySettings.setHighlightProjectViewNodes(highlightProjectViewNodes);
+
+            if (haveHighlights()) {
+                updateProjectViews();
+            }
+        }
     }
 
     @Override
@@ -522,6 +556,13 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
 
         super.settingsChanged(colors, settings);
+
+        if (!mySettings.isHighlightProjectViewNodes() && highlightProjectViewNodes) {
+            // need to update project view to remove highlights
+            updateProjectViews();
+        }
+
+        highlightProjectViewNodes = mySettings.isHighlightProjectViewNodes();
 
 //        myRestartRequiredChecker.informRestartIfNeeded(settings);
     }

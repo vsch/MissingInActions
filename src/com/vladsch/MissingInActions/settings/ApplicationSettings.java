@@ -169,6 +169,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     private boolean myShowMacroResultPreview = false;
     private boolean myHighlightWordsCaseSensitive = true;
     private boolean myHighlightWordsMatchBoundary = true;
+    private boolean myHighlightProjectViewNodes = false;
     // @formatter:on
 
     // customizable delete/backspace
@@ -525,7 +526,10 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
         }
     }
 
-    // @formatter:off
+// @formatter:off
+
+    public boolean isHighlightProjectViewNodes() { return myHighlightProjectViewNodes;}
+    public void setHighlightProjectViewNodes(boolean highlightProjectViewNodes) { myHighlightProjectViewNodes = highlightProjectViewNodes;}
     public boolean isHighlightWordsCaseSensitive() {return myHighlightWordsCaseSensitive;}
     public void setHighlightWordsCaseSensitive(boolean highlightWordsCaseSensitive) {myHighlightWordsCaseSensitive = highlightWordsCaseSensitive;}
     public boolean isHighlightWordsMatchBoundary() {return myHighlightWordsMatchBoundary;}
