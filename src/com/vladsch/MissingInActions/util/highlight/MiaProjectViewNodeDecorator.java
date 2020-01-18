@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
     public static final TextAttributes NULL_ATTRIBUTES = new TextAttributes();
@@ -50,65 +52,69 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
     @Override
     public void decorate(ProjectViewNode node, PresentationData presentation) {
         if (mySettings.isHighlightProjectViewNodes() && myPlugin.isHighlightsMode()) {
-            myPlugin.getHighlightPattern();
-
+            Pattern pattern = myPlugin.getHighlightPattern();
             Map<String, Integer> highlightWordFlags = myPlugin.getHighlightRangeFlags();
-            if (highlightWordFlags != null) {
+
+            if (highlightWordFlags != null && pattern != null) {
                 String text = presentation.getPresentableText();
                 if (StringUtil.isEmpty(text)) text = node.getValue().toString();
                 if (text != null) {
-                    int index = myPlugin.getHighlightRangeIndex(text);
-                    if (index >= 0) {
-                        String range = myPlugin.getAdjustedRange(text);
-                        Integer flags = highlightWordFlags.get(range);
-                        if (flags != null) {
+                    // NOTE: background color in PresentableNodeDescriptor.ColoredFragment is not combined with forcedForegroundColor because SimpleTextAttributes.toTextAttributes() passes null for bgColor instead of myBgColor
+                    Matcher matcher = pattern.matcher(text);
+
+                    if (matcher.find()) {
+                        // clear previous coloring. Use only highlight word colors here
+                        presentation.clearText();
+
+                        Color forcedForeground = presentation.getForcedTextForeground();
+                        presentation.setForcedTextForeground(null);
+
+                        TextAttributes textAttributes;
+                        TextAttributesKey textAttributesKey = presentation.getTextAttributesKey();
+                        presentation.setAttributesKey(null); // remove attributes key
+                        if (textAttributesKey == null) textAttributes = NULL_ATTRIBUTES;
+                        else textAttributes = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getAttributes(textAttributesKey);
+
+                        if (forcedForeground == null) forcedForeground = textAttributes.getForegroundColor();
+
+                        // NOTE: the only way to ensure that custom attribute background is used is to set non-null foreground color
+                        if (forcedForeground == null) forcedForeground = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getDefaultForeground();
+                        SimpleTextAttributes plainTextAttributes = new SimpleTextAttributes(null, forcedForeground, null, 0);
+
+                        int lastOffset = 0;
+                        do {
+                            String group = matcher.group();
+                            int startOffset = matcher.start();
+                            int endOffset = matcher.end();
+
+                            String range = myPlugin.getAdjustedRange(group);
+                            int flags = highlightWordFlags.getOrDefault(range, 0);
+                            int index = myPlugin.getHighlightRangeIndex(range);
+
                             TextAttributes attributes = myPlugin.getHighlightAttributes(index, flags, 0, text.length(), null, null, EffectType.BOLD_DOTTED_LINE, 0);
 
                             if (attributes != null) {
-                                Color backgroundColor = attributes.getBackgroundColor();
-                                if (backgroundColor != null) {
-                                    // NOTE: background color in PresentableNodeDescriptor.ColoredFragment is not combined with forcedForegroundColor because SimpleTextAttributes.toTextAttributes() passes null for bgColor instead of myBgColor
-                                    if (presentation.getColoredText().isEmpty()) {
-                                        // use attribute key and text
-                                        Color forcedForeground = presentation.getForcedTextForeground();
-                                        presentation.setForcedTextForeground(null);
-
-                                        TextAttributes textAttributes;
-                                        TextAttributesKey textAttributesKey = presentation.getTextAttributesKey();
-                                        presentation.setAttributesKey(null); // remove attributes key
-                                        if (textAttributesKey == null) textAttributes = NULL_ATTRIBUTES;
-                                        else textAttributes = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getAttributes(textAttributesKey);
-
-                                        if (forcedForeground == null) forcedForeground = textAttributes.getForegroundColor();
-
-                                        // NOTE: the only way to ensure that custom attribute background is used is to set non-null foreground color
-                                        if (forcedForeground == null) forcedForeground = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getDefaultForeground();
-
-                                        SimpleTextAttributes simpleTextAttributes = new SimpleTextAttributes(backgroundColor, forcedForeground, null, SimpleTextAttributes.STYLE_OPAQUE);
-                                        presentation.addText(text, simpleTextAttributes);
-                                        String location = presentation.getLocationString();
-                                        if (!StringUtil.isEmpty(location)) {
-                                            SimpleTextAttributes simpleAttributes = SimpleTextAttributes.merge(simpleTextAttributes, SimpleTextAttributes.GRAYED_ATTRIBUTES);
-                                            presentation.addText(presentation.getLocationPrefix() + location + presentation.getLocationSuffix(), simpleAttributes);
-                                        }
-                                    } else {
-                                        List<PresentableNodeDescriptor.ColoredFragment> list = new ArrayList<>(presentation.getColoredText());
-                                        presentation.clearText();
-                                        presentation.setAttributesKey(null); // remove attributes key
-                                        presentation.setForcedTextForeground(null); // remove forced foreground it eliminates background
-
-                                        for (PresentableNodeDescriptor.ColoredFragment fragment : list) {
-                                            SimpleTextAttributes textAttributes = fragment.getAttributes();
-                                            if (!backgroundColor.equals(textAttributes.getBgColor())) {
-                                                presentation.addText(new PresentableNodeDescriptor.ColoredFragment(fragment.getText(), fragment.getToolTip()
-                                                        , new SimpleTextAttributes(backgroundColor, textAttributes.getFgColor(), textAttributes.getWaveColor(), textAttributes.getStyle() | SimpleTextAttributes.STYLE_OPAQUE)));
-                                            } else {
-                                                presentation.addText(fragment);
-                                            }
-                                        }
-                                    }
+                                if (lastOffset < startOffset) {
+                                    presentation.addText(text.substring(lastOffset, startOffset), plainTextAttributes);
                                 }
+
+                                Color backgroundColor = attributes.getBackgroundColor();
+                                SimpleTextAttributes simpleTextAttributes = new SimpleTextAttributes(backgroundColor, forcedForeground, null, SimpleTextAttributes.STYLE_OPAQUE);
+                                presentation.addText(group, simpleTextAttributes);
+                            } else {
+                                presentation.addText(text.substring(lastOffset, endOffset), plainTextAttributes);
                             }
+                            lastOffset = endOffset;
+                        } while (matcher.find());
+
+                        if (lastOffset < text.length()) {
+                            presentation.addText(text.substring(lastOffset), plainTextAttributes);
+                        }
+
+                        String location = presentation.getLocationString();
+                        if (!StringUtil.isEmpty(location)) {
+                            SimpleTextAttributes simpleAttributes = SimpleTextAttributes.merge(plainTextAttributes, SimpleTextAttributes.GRAYED_ATTRIBUTES);
+                            presentation.addText(presentation.getLocationPrefix() + location + presentation.getLocationSuffix(), simpleAttributes);
                         }
                     }
                 }

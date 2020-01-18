@@ -7,6 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
+- [1.8.0.18 - Dev Build](#18018---dev-build)
 - [1.8.0.16 - Dev Build](#18016---dev-build)
 - [1.8.0.14 - Dev Build](#18014---dev-build)
 - [1.8.0.12 - Dev Build](#18012---dev-build)
@@ -143,6 +144,10 @@
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
+
+### 1.8.0.18 - Dev Build
+
+* Fix: project view highlighting to match partials, case insensitive and use word boundary.
 
 ### 1.8.0.16 - Dev Build
 
