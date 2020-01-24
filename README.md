@@ -8,14 +8,16 @@
 [TOC]: #
 
 ### Table of Contents
+- [Next Version 1.9.0 - Bug Fix & Feature Release](#next-version-190-bug-fix-feature-release)
 - [Version 1.8.0 - Bug Fix & Feature Release](#version-180-bug-fix-feature-release)
 - [Version 1.7.4 - Bug Fix Release](#version-174-bug-fix-release)
 - [Version 1.7.2 - Bug Fix Release](#version-172-bug-fix-release)
 - [Version 1.7.0 - Enhancement Release](#version-170-enhancement-release)
 - [Why Do I Need Mia?](#why-do-i-need-mia)
-    - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
-    - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
-    - [Auto Line Selections](#auto-line-selections)
+  - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
+  - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
+  - [Auto Line Selections](#auto-line-selections)
+    - [Mouse Selections](#mouse-selections)
 
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
@@ -69,6 +71,13 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   indispensable.
+
+## Next Version 1.9.0 - Bug Fix & Feature Release
+
+* Option to use word highlights to highlight Project View nodes. Useful when you have to isolate
+  files or directories based on a list and want visual queues in the project view.
+
+  ![Screenshot_HighlightProjectView](assets/images/Screenshot_HighlightProjectView.png)
 
 ## Version 1.8.0 - Bug Fix & Feature Release
 

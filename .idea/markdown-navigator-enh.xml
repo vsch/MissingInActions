@@ -17,19 +17,18 @@
     <otherFiles />
   </component>
   <component name="MarkdownNavigatorHistory">
-    <PasteImageHistory checkeredTransparentBackground="false" filename="Screenshot_DisableCutAdjustments" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="2" onPasteReferenceElement="2" cornerRadius="10" borderColor="-3092272" transparentColor="-1250068" borderWidth="1" trimTop="0" trimBottom="0" trimLeft="2" trimRight="0" transparent="false" roundCorners="true" showPreview="true" bordered="true" scaled="true" cropped="true" hideInapplicableOperations="true" preserveLinkFormat="false" scale="40" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="true" showHighlights="true" mouseSelectionAddsHighlight="true" outerFilled="true" outerFillColor="-16777216" outerFillTransparent="true" outerFillAlpha="30">
+    <PasteImageHistory checkeredTransparentBackground="false" filename="Screenshot_HighlightProjectView" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="2" onPasteReferenceElement="2" cornerRadius="10" borderColor="-3092272" transparentColor="-1250068" borderWidth="1" trimTop="1" trimBottom="1" trimLeft="1" trimRight="0" transparent="false" roundCorners="true" showPreview="true" bordered="true" scaled="true" cropped="true" hideInapplicableOperations="true" preserveLinkFormat="false" scale="40" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0" addHighlights="false" showHighlightCoordinates="true" showHighlights="false" mouseSelectionAddsHighlight="true" outerFilled="true" outerFillColor="-16777216" outerFillTransparent="true" outerFillAlpha="30">
       <highlightList>
         <ImageHighlight top="95" left="198" right="472" bottom="138" roundCorners="true" cornerRadius="10" bordered="true" borderColor="-2752436" borderWidth="2" innerFilled="false" innerFillColor="-1" innerFillTransparent="false" innerFillAlpha="0" shape="1" />
         <ImageHighlight top="268" left="198" right="490" bottom="296" roundCorners="true" cornerRadius="10" bordered="true" borderColor="-2752436" borderWidth="2" innerFilled="false" innerFillColor="-1" innerFillTransparent="false" innerFillAlpha="0" shape="1" />
       </highlightList>
       <directories>
-        <option name="$PROJECT_DIR$/resources/icons/svg" />
-        <option name="$PROJECT_DIR$" />
-        <option name="$PROJECT_DIR$/resources/icons/png" />
-        <option name="$PROJECT_DIR$/MissingInActionsAssets/doc/comms/youtrack/copy-paste" />
         <option name="$PROJECT_DIR$/assets/images/noload" />
+        <option name="$PROJECT_DIR$/resources/icons/png" />
         <option name="$PROJECT_DIR$/assets/images" />
+        <option name="$PROJECT_DIR$/MissingInActionsAssets/doc/comms/youtrack/copy-paste" />
         <option name="$PROJECT_DIR$/MissingInActions.wiki/img" />
+        <option name="$PROJECT_DIR$/resources/icons/svg" />
         <option name="$PROJECT_DIR$/resources/META-INF" />
       </directories>
       <filenames />

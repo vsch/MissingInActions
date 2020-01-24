@@ -6,7 +6,8 @@
 
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
-- [Next 1.8.xx - Dev Builds](#next-18xx---dev-builds)
+- [Next 1.9.xx - Dev Builds](#next-19xx---dev-builds)
+- [1.8.0.20 - Dev Build](#18020---dev-build)
 - [1.8.0.18 - Dev Build](#18018---dev-build)
 - [1.8.0.16 - Dev Build](#18016---dev-build)
 - [1.8.0.14 - Dev Build](#18014---dev-build)
@@ -128,7 +129,7 @@
   * [ ] Add: add all smart paste case variations in searching spawn carets. ie. remove prefix
         and generate selected case variations.
 
-### Next 1.8.xx - Dev Builds
+### Next 1.9.xx - Dev Builds
 
 + [ ] Add: option and functionality to change duplicate lines action to only operate on a line
       once even if there are many carets present on that line. ie. Remove duplicate carets on
@@ -144,6 +145,10 @@
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
+
+### 1.8.0.20 - Dev Build
+
+* Fix: update to latest flexmark-util
 
 ### 1.8.0.18 - Dev Build
 
