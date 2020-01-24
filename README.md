@@ -1,4 +1,4 @@
-<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
+<img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo%402x.png" height="32" width="54" border="0" align="absmiddle" style="padding-bottom:5px">Missing In Actions
 ====================================================================================================================================================================================================
 
 **You can download it on the [JetBrains plugin page].**
