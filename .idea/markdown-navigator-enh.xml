@@ -23,12 +23,12 @@
         <ImageHighlight top="268" left="198" right="490" bottom="296" roundCorners="true" cornerRadius="10" bordered="true" borderColor="-2752436" borderWidth="2" innerFilled="false" innerFillColor="-1" innerFillTransparent="false" innerFillAlpha="0" shape="1" />
       </highlightList>
       <directories>
+        <option name="$PROJECT_DIR$/resources/icons/svg" />
         <option name="$PROJECT_DIR$/assets/images/noload" />
         <option name="$PROJECT_DIR$/resources/icons/png" />
-        <option name="$PROJECT_DIR$/assets/images" />
         <option name="$PROJECT_DIR$/MissingInActionsAssets/doc/comms/youtrack/copy-paste" />
+        <option name="$PROJECT_DIR$/assets/images" />
         <option name="$PROJECT_DIR$/MissingInActions.wiki/img" />
-        <option name="$PROJECT_DIR$/resources/icons/svg" />
         <option name="$PROJECT_DIR$/resources/META-INF" />
       </directories>
       <filenames />
@@ -44,7 +44,7 @@
       </directories>
       <filenames />
     </CopyImageHistory>
-    <PasteLinkHistory onPasteImageTargetRef="3" onPasteTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteWikiElement="2" onPasteReferenceElement="2" hideInapplicableOperations="false" preserveLinkFormat="false" useHeadingForLinkText="false" linkFormat="0" saveAsDefaultOnOK="false" />
+    <PasteLinkHistory onPasteImageTargetRef="1" onPasteTargetRef="1" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteWikiElement="2" onPasteReferenceElement="2" hideInapplicableOperations="true" preserveLinkFormat="true" useHeadingForLinkText="false" linkFormat="0" saveAsDefaultOnOK="true" />
     <TableToJsonHistory>
       <entries />
     </TableToJsonHistory>

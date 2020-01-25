@@ -52,6 +52,7 @@ import com.vladsch.MissingInActions.actions.LineSelectionAware;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
+import com.vladsch.flexmark.util.misc.CharPredicate;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.RepeatedSequence;
 import org.jetbrains.annotations.NotNull;
@@ -101,7 +102,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
             List<Caret> carets = caretModel.getAllCarets();
             for (Caret caret : carets) {
                 EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                int spaces = chars.countLeading(BasedSequence.SPACE_TAB_SET, position.getOffset());
+                int spaces = chars.countLeading(CharPredicate.SPACE_TAB, position.getOffset());
                 if (position.column + spaces >= position.atEndColumn().column) continue;
 
                 if (column < position.column + spaces) {
@@ -129,7 +130,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                 WriteCommandAction.runWriteCommandAction(project, () -> {
                     for (Caret caret : carets) {
                         EditorPosition position = f.fromPosition(caret.getLogicalPosition());
-                        int spaces = chars.countLeading(BasedSequence.SPACE_TAB_SET, position.getOffset());
+                        int spaces = chars.countLeading(CharPredicate.SPACE_TAB, position.getOffset());
 
                         int count = finalColumn - position.column - spaces;
                         if (count <= 0 || position.column >= position.atEndColumn().column) {

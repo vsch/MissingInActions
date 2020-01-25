@@ -51,6 +51,7 @@ import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.flexmark.util.misc.CharPredicate;
 import com.vladsch.flexmark.util.misc.Utils;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.Range;
@@ -1039,8 +1040,8 @@ public class EditHelpers {
                 BasedSequence charSequence = BasedSequence.of(editor.getDocument().getCharsSequence());
                 int lineStartOffset = charSequence.startOfLine(startOffset);
                 int lineEndOffset = charSequence.endOfLine(endOffset);
-                lineStartOffset += charSequence.countLeading(BasedSequence.SPACE_TAB_SET, lineStartOffset, lineEndOffset);
-                lineEndOffset -= charSequence.countTrailing(BasedSequence.SPACE_TAB_SET, lineStartOffset, lineEndOffset);
+                lineStartOffset += charSequence.countLeading(CharPredicate.SPACE_TAB, lineStartOffset, lineEndOffset);
+                lineEndOffset -= charSequence.countTrailing(CharPredicate.SPACE_TAB, lineStartOffset, lineEndOffset);
                 final ItemTextRange<Language> lineStartLanguage = getLanguageRangeAtOffset(file, lineStartOffset);
                 final ItemTextRange<Language> lineEndLanguage = getLanguageRangeAtOffset(file, lineEndOffset);
                 Commenter commenter = CommentByBlockCommentHandler.getCommenter(file, editor, lineStartLanguage.getItem(), lineEndLanguage.getItem());
