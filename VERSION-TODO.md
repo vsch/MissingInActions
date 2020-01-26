@@ -7,6 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.9.xx - Dev Builds](#next-19xx---dev-builds)
+- [1.8.0.24 - Dev Build](#18024---dev-build)
 - [1.8.0.22 - Dev Build](#18022---dev-build)
 - [1.8.0.20 - Dev Build](#18020---dev-build)
 - [1.8.0.18 - Dev Build](#18018---dev-build)
@@ -146,6 +147,10 @@
 + [ ] Fix: keep code carets does not remove carets in Java multi-line comments
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
+
+### 1.8.0.24 - Dev Build
+
+* Fix: update to split flexmark-util
 
 ### 1.8.0.22 - Dev Build
 
@@ -436,7 +441,6 @@
   which fires before action then checks to see if there is a context component and if not
   returns without corresponding `actionPerformed` on the action and `afterActionPerformed`
   callbacks.
-
 * Fix: update to latest libs
 * Fix: missing toolbar button for `Recall selection from list`
 
@@ -628,7 +632,6 @@
   variable).
 
   Can add RegEx search or plain string. Plain string search is case sensitive.
-
 * Add: replace user string on paste and duplicate for every character caret of another content.
   Plain string search is not case sensitive.
 
@@ -641,7 +644,6 @@
   int FormatHij(int hij) { myHij = hij; return myHij; }
   int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
   ```
-
 * Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
   only file name derivations are supported. When pasting in a file with name
   `multi-line-image-url` the following will be changed as shown:
@@ -814,7 +816,6 @@
     the caret appearance for: primary, start and found carets making it easy to see where the
     search starts and where the pattern is matched. Plugin configuration settings under settings
     in Tools > Missing In Actions:
-
 * behavior is also affected by number of carets and selection:
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
@@ -1001,7 +1002,6 @@
 
   Allows fast duplication of a block of code up, instead of always down and having to move it up
   over a copy of itself.
-
 * Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
   full lines if the trimming or expansion affects whitespace chars only.
 * Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
