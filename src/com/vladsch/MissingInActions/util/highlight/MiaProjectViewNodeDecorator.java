@@ -20,6 +20,8 @@ package com.vladsch.MissingInActions.util.highlight;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
+import com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode;
+import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -63,7 +65,7 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
                     Matcher matcher = pattern.matcher(text);
 
                     if (matcher.find()) {
-                        // clear previous coloring. Use only highlight word colors here
+                        // clear previous coloring. Use only highlight word colors.
                         presentation.clearText();
 
                         Color forcedForeground = presentation.getForcedTextForeground();
@@ -79,7 +81,9 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
 
                         // NOTE: the only way to ensure that custom attribute background is used is to set non-null foreground color
                         if (forcedForeground == null) forcedForeground = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getDefaultForeground();
+                        int style = SimpleTextAttributes.STYLE_BOLD; //node instanceof PsiDirectoryNode ? SimpleTextAttributes.STYLE_BOLD : 0;
                         SimpleTextAttributes plainTextAttributes = new SimpleTextAttributes(null, forcedForeground, null, 0);
+                        System.out.println("Node: " + node.getClass().getSimpleName());
 
                         int lastOffset = 0;
                         do {
@@ -99,7 +103,7 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
                                 }
 
                                 Color backgroundColor = attributes.getBackgroundColor();
-                                SimpleTextAttributes simpleTextAttributes = new SimpleTextAttributes(backgroundColor, forcedForeground, null, SimpleTextAttributes.STYLE_OPAQUE);
+                                SimpleTextAttributes simpleTextAttributes = new SimpleTextAttributes(backgroundColor, forcedForeground, null, SimpleTextAttributes.STYLE_OPAQUE | style);
                                 presentation.addText(group, simpleTextAttributes);
                             } else {
                                 presentation.addText(text.substring(lastOffset, endOffset), plainTextAttributes);
