@@ -3,6 +3,8 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.8.193.2 - Bug Fix & Feature Release](#181932---bug-fix--feature-release)
+- [1.8.0.10 - Dev Build](#18010---dev-build)
 - [1.8.0 - Bug Fix & Feature Release](#180---bug-fix--feature-release)
 - [1.7.4 - Bug Fix Release](#174---bug-fix-release)
 - [1.7.2 - Bug Fix Release](#172---bug-fix-release)
@@ -45,6 +47,27 @@
 - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.193.2 - Bug Fix & Feature Release
+
+* Add: option to use word highlights to highlight Project View nodes.
+* Fix: project view node highlight to use bold style for matched text
+* Fix: update to split flexmark-util
+* Fix: project view highlighting to match partials, case insensitive and use word boundary.
+* Fix: do not restore last pasted text selection if the clipboard content does not contain any
+  caret information.
+
+### 1.8.0.10 - Dev Build
+
+* Fix: refactor code to use `BitFieldSet` for `TypedRangeHighlightProvider` flags and make
+  `WordHighlightProvider` flags inherit ide highlight flags so as not to conflict with them.
+* Fix: Remove highlighted word does not work when from saved highlights on IDE exit. Workaround:
+  highlight word again and then remove highlight.
+* Fix: index out of bounds on string rep computation
+* Fix: paste from history did not convert single line character content to line content
+* Fix: change line/caret toggle to go from character selection to carets without intervening
+  line selection
+* Fix: 2020.1 compatibility, Should be called at least in the state COMPONENTS_LOADED
 
 ### 1.8.0 - Bug Fix & Feature Release
 

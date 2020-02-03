@@ -12,10 +12,10 @@
   <component name="MarkdownProjectSettings">
     <PreviewSettings splitEditorLayout="FIRST" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" synchronizePreviewPosition="true" highlightPreviewType="LINE" highlightFadeOut="5" highlightOnTyping="false" synchronizeSourcePosition="true" verticallyAlignSourceAndPreviewSyncPosition="true" showSearchHighlightsInPreview="true" showSelectionInPreview="true" lastLayoutSetsDefault="false">
       <PanelProvider>
-        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.panel" providerName="JavaFX WebView" />
+        <provider providerId="com.vladsch.md.nav.editor.javafx.html.panel" providerName="JavaFX WebView" />
       </PanelProvider>
     </PreviewSettings>
-    <ParserSettings gitHubSyntaxChange="false" correctedInvalidSettings="false" emojiShortcuts="0" emojiImages="0">
+    <ParserSettings gitHubSyntaxChange="false" correctedInvalidSettings="false" emojiShortcuts="1" emojiImages="0">
       <PegdownExtensions>
         <option name="ABBREVIATIONS" value="true" />
         <option name="ASIDE" value="true" />
@@ -45,7 +45,6 @@
         <option name="ENUMERATED_REFERENCES_EXT" value="true" />
         <option name="FLEXMARK_FRONT_MATTER" value="true" />
         <option name="GITHUB_WIKI_LINKS" value="true" />
-        <option name="HEADER_ID_NO_DUPED_DASHES" value="true" />
         <option name="JEKYLL_FRONT_MATTER" value="true" />
         <option name="MACROS_EXT" value="true" />
         <option name="PARSE_HTML_ANCHOR_ID" value="true" />
@@ -57,7 +56,7 @@
     </ParserSettings>
     <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" addPageHeader="true" imageUriSerials="true" addDocTypeHtml="true" noParaTags="false" plantUmlConversion="0">
       <GeneratorProvider>
-        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.generator" providerName="JavaFx HTML Generator" />
+        <provider providerId="com.vladsch.md.nav.editor.javafx.html.generator" providerName="JavaFx HTML Generator" />
       </GeneratorProvider>
       <headerTop />
       <headerBottom />
@@ -66,10 +65,10 @@
     </HtmlSettings>
     <CssSettings previewScheme="UI_SCHEME" cssUri="" isCssUriEnabled="false" isCssUriSerial="true" isCssTextEnabled="true" isDynamicPageWidth="true">
       <StylesheetProvider>
-        <provider providerId="com.vladsch.idea.multimarkdown.editor.javafx.html.css" providerName="Default JavaFx Stylesheet" />
+        <provider providerId="com.vladsch.md.nav.editor.javafx.html.css" providerName="Default JavaFx Stylesheet" />
       </StylesheetProvider>
       <ScriptProviders>
-        <provider providerId="com.vladsch.idea.multimarkdown.editor.hljs.html.script" providerName="HighlightJS Script" />
+        <provider providerId="com.vladsch.md.nav.editor.hljs.html.script" providerName="HighlightJS Script" />
       </ScriptProviders>
       <cssText>code { background-color: rgba(255, 0, 102, 0.06); color: #b00042; padding-top: 4px; padding-bottom: 4px; } .search-highlight { border: solid 1px #000; padding: 1px; background-color: #ffff00; color: #000; } .selection-highlight { color:#000; padding:1px 0 1px 0; border: solid 1px #52CC7A; background-color: #B5FFCE; }</cssText>
       <cssUriHistory />

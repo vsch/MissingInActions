@@ -7,7 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.9.xx - Dev Builds](#next-19xx---dev-builds)
-- [Next 1.8.0.26 - Dev Build](#next-18026---dev-build)
+- [1.8.193.2 - Release](#181932---release)
 - [1.8.0.24 - Dev Build](#18024---dev-build)
 - [1.8.0.22 - Dev Build](#18022---dev-build)
 - [1.8.0.20 - Dev Build](#18020---dev-build)
@@ -149,7 +149,7 @@
 + [ ] Fix: if pasting adjustment after removing/adding prefixes results in the pasted text to be
       the same as original then paste unmodified from the clipboard.
 
-### Next 1.8.0.26 - Dev Build
+### 1.8.193.2 - Release
 
 * Fix: project view node highlight to use bold style for matched text
 

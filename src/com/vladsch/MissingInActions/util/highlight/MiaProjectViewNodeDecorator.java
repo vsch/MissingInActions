@@ -20,9 +20,6 @@ package com.vladsch.MissingInActions.util.highlight;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
-import com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode;
-import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
-import com.intellij.ide.util.treeView.PresentableNodeDescriptor;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.EffectType;
@@ -35,8 +32,6 @@ import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,7 +78,6 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
                         if (forcedForeground == null) forcedForeground = EditorColorsManager.getInstance().getSchemeForCurrentUITheme().getDefaultForeground();
                         int style = SimpleTextAttributes.STYLE_BOLD; //node instanceof PsiDirectoryNode ? SimpleTextAttributes.STYLE_BOLD : 0;
                         SimpleTextAttributes plainTextAttributes = new SimpleTextAttributes(null, forcedForeground, null, 0);
-                        System.out.println("Node: " + node.getClass().getSimpleName());
 
                         int lastOffset = 0;
                         do {

@@ -81,12 +81,21 @@
         ]]>
     </description>
 
-    <version>1.8.0.25</version>
+    <version>1.8.193.2</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="193"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.8.193.2 - Bug Fix &amp; Feature Release</h3>
+            <ul>
+                <li>Add: option to use word highlights to highlight Project View nodes.</li>
+                <li>Fix: project view node highlight to use bold style for matched text</li>
+                <li>Fix: update to split flexmark-util</li>
+                <li>Fix: project view highlighting to match partials, case insensitive and use word boundary.</li>
+                <li>Fix: do not restore last pasted text selection if the clipboard content does not contain any
+                    caret information.</li>
+            </ul>
             <h3>1.8.0 - Bug Fix &amp; Feature Release</h3>
             <ul>
                 <li>Fix: change since build to <code>193</code></li>
