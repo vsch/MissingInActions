@@ -3,6 +3,7 @@
 [TOC levels=3,6]: # "Version History"
 
 ### Version History
+- [1.8.193.4 - Release](#181934---release)
 - [1.8.193.2 - Bug Fix & Feature Release](#181932---bug-fix--feature-release)
 - [1.8.0.10 - Dev Build](#18010---dev-build)
 - [1.8.0 - Bug Fix & Feature Release](#180---bug-fix--feature-release)
@@ -47,6 +48,10 @@
 - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.193.4 - Release
+
+* Fix: compatibility with 2017.3 to allow use in older IDEs.
 
 ### 1.8.193.2 - Bug Fix & Feature Release
 

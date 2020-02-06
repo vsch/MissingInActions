@@ -81,12 +81,16 @@
         ]]>
     </description>
 
-    <version>1.8.193.2</version>
+    <version>1.8.193.4</version>
     <depends>com.intellij.modules.lang</depends>
-    <idea-version since-build="193"/>
+    <idea-version since-build="162"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.8.193.4 - Release</h3>
+            <ul>
+                <li>Fix: compatibility with 2017.3 to allow use in older IDEs.</li>
+            </ul>
             <h3>1.8.193.2 - Bug Fix &amp; Feature Release</h3>
             <ul>
                 <li>Add: option to use word highlights to highlight Project View nodes.</li>

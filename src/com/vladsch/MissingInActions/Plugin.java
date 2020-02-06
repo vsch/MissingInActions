@@ -303,7 +303,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
                 }
 
                 @Override
-                public void afterActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
+                public void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
                     Plugin.this.afterActionPerformed(action, dataContext, event);
                 }
 
@@ -466,7 +466,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
+    void afterActionPerformed(AnAction action, final DataContext dataContext, AnActionEvent event) {
         Editor editor = myActionEventEditorMap.remove(event);
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);

@@ -346,7 +346,8 @@ public class BatchReplaceForm implements Disposable {
     public void updateHighlighters() {
         myEditorHighlightRunner.cancel();
         myEditorHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 500, new AwtRunnable(true, () -> {
-            List<Editor> editors = EditorTracker.getInstance(myProject).getActiveEditors();
+//            List<Editor> editors = EditorTracker.getInstance(myProject).getActiveEditors();
+            Editor[] editors = EditorFactory.getInstance().getAllEditors();
             for (Editor editor : editors) {
                 if (shouldNotUpdateHighlighters(editor)) continue;
                 LineSelectionManager.getInstance(editor).setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
