@@ -30,9 +30,9 @@ import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.AnActionResult;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
@@ -60,7 +60,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.ui.ComponentUtil;
 import com.vladsch.MissingInActions.actions.character.MiaMultiplePasteAction;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -102,7 +102,7 @@ import java.util.function.Consumer;
 
 import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
 
-public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponent {
+public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponent, Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
     final public static int FEATURE_ENHANCED = 1;
@@ -228,10 +228,11 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         myDelayedRunner.addRunnable(SharedCaretStateTransferableData::dispose);
 
         if (myParameterHintsAvailable) {
-            mySavedShowParameterHints = EditorSettingsExternalizable.getInstance().isShowParameterNameHints();
+            mySavedShowParameterHints = EditorSettingsExternalizable.getInstance().getOptions().SHOW_PARAMETER_NAME_HINTS;
+
             // restore setting on exit, just in case editor change listener didn't
             myDelayedRunner.addRunnable(() -> {
-                EditorSettingsExternalizable.getInstance().setShowParameterNameHints(mySavedShowParameterHints);
+                EditorSettingsExternalizable.getInstance().getOptions().SHOW_PARAMETER_NAME_HINTS = mySavedShowParameterHints;
             });
         }
 
@@ -295,16 +296,16 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
         });
 
-        ApplicationManager.getApplication().invokeLater(() -> SharedThreadPool.getInstance().executeOnPooledThread(() -> {
-            ActionManager.getInstance().addAnActionListener(new AnActionListener() {
+        ApplicationManager.getApplication().invokeLater(() -> SharedThreadPool.getInstance().submit(() -> {
+            ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(AnActionListener.TOPIC, new AnActionListener() {
                 @Override
-                public void beforeActionPerformed(@NotNull final AnAction action, @NotNull final DataContext dataContext, @NotNull final AnActionEvent event) {
-                    Plugin.this.beforeActionPerformed(action, dataContext, event);
+                public void beforeActionPerformed(@NotNull final AnAction action, @NotNull final AnActionEvent event) {
+                    Plugin.this.beforeActionPerformed(action, event.getDataContext(), event);
                 }
 
                 @Override
-                public void afterActionPerformed(final AnAction action, final DataContext dataContext, final AnActionEvent event) {
-                    Plugin.this.afterActionPerformed(action, dataContext, event);
+                public void afterActionPerformed(@NotNull final AnAction action, @NotNull final AnActionEvent event, @NotNull AnActionResult result) {
+                    Plugin.this.afterActionPerformed(action, event.getDataContext(), event, result);
                 }
 
                 @Override
@@ -326,7 +327,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     public void updateEditorParameterHints(final @Nullable Editor activeEditor, boolean forceUpdate) {
         if (myParameterHintsAvailable) {
             EditorSettingsExternalizable editorSettings = EditorSettingsExternalizable.getInstance();
-            boolean wasShowParameterHints = editorSettings.isShowParameterNameHints();
+            boolean wasShowParameterHints = editorSettings.getOptions().SHOW_PARAMETER_NAME_HINTS;
             boolean wasDisabledShowParameterHints = myDisabledShowParameterHints;
 
             // now manage parameter hints
@@ -334,12 +335,12 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
             if (!(myDisabledShowParameterHints || wasDisabledShowParameterHints)) {
                 // can update our saved setting here
-                mySavedShowParameterHints = editorSettings.isShowParameterNameHints();
+                mySavedShowParameterHints = editorSettings.getOptions().SHOW_PARAMETER_NAME_HINTS;
             } else {
                 boolean showParameterHints = mySavedShowParameterHints && !myDisabledShowParameterHints;
 
                 if (wasShowParameterHints != showParameterHints) {
-                    editorSettings.setShowParameterNameHints(showParameterHints);
+                    editorSettings.getOptions().SHOW_PARAMETER_NAME_HINTS = showParameterHints;
 
                     if (activeEditor != null) {
                         if (isParameterHintsForceUpdateAvailable()) {
@@ -466,7 +467,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    void afterActionPerformed(AnAction action, final DataContext dataContext, AnActionEvent event) {
+    void afterActionPerformed(AnAction action, final DataContext dataContext, AnActionEvent event, @NotNull AnActionResult result) {
         Editor editor = myActionEventEditorMap.remove(event);
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
@@ -644,46 +645,13 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     }
 
     // IdeEventQueue.EventDispatcher
-    ///**
-    // * This is needed to override paste actions only if there are multiple carets
-    // * <p>
-    // * Otherwise, formatting after paste will not work right in single caret mode and
-    // * without the override multi-caret select after paste and all the smart paste
-    // * adjustments don't work because the IDE does not provide data for last pasted
-    // * ranges.
-    // */
-    //private class PasteOverrider implements IdeEventQueue.EventDispatcher {
-    //    @Override
-    //    public boolean dispatch(@NotNull AWTEvent e) {
-    //        if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-    //            Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
-    //                return component == myEditor.getComponent();
-    //            });
-    //
-    //            if (owner == myEditor.getComponent()) {
-    //                boolean registerPasteOverrides = mySettings.isOverrideStandardPaste() && myEditor.getCaretModel().getCaretCount() > 1;
-    //                if (registerPasteOverrides == (myMultiPasteAction == null)) {
-    //                    if (!registerPasteOverrides) {
-    //                        // unregister them
-    //                        unRegisterPasteOverrides();
-    //                    } else {
-    //                        // we register our own pastes to handle multi-caret
-    //                        registerPasteOverrides();
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        return false;
-    //    }
-    //}
-
     private boolean dispatch(@NotNull final AWTEvent e) {
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-            final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
+            final Component owner = ComponentUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
                 return component instanceof JTextComponent;
             });
 
-            if (owner != null && owner instanceof JComponent) {
+            if (owner instanceof JComponent) {
                 // register multi-paste if no already registered and remove when focus is lost
                 for (Editor editor : myPasteOverrideEditors) {
                     if (owner == editor.getContentComponent()) {

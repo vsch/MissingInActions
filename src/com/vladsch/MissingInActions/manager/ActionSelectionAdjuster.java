@@ -543,15 +543,11 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         return new AnActionEvent(null, dataContext(context, true), ActionPlaces.UNKNOWN, presentation, ActionManager.getInstance(), 0);
     }
 
-    private static DataKey<Boolean> AUTO_TRIGGERED_ACTION = DataKey.create("MissingInActions.AUTO_TRIGGERED_ACTION");
+    private static final DataKey<Boolean> AUTO_TRIGGERED_ACTION = DataKey.create("MissingInActions.AUTO_TRIGGERED_ACTION");
 
     @SuppressWarnings("SameParameterValue")
     private static DataContext dataContext(@Nullable DataContext parent, boolean autoTriggered) {
-        HashMap<String, Object> dataMap = new HashMap<>();
-        //dataMap.put(CommonDataKeys.PROJECT.getName(), project);
-        //if (editor != null) dataMap.put(CommonDataKeys.EDITOR.getName(), editor);
-        dataMap.put(AUTO_TRIGGERED_ACTION.getName(), autoTriggered);
-        return SimpleDataContext.getSimpleContext(dataMap, parent);
+        return SimpleDataContext.getSimpleContext(AUTO_TRIGGERED_ACTION, autoTriggered, parent);
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -559,7 +555,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         AnActionEvent event = createAnEvent(action, autoTriggered);
         Editor editor = EDITOR.getData(event.getDataContext());
         if (editor == myEditor) {
-            ActionUtil.performActionDumbAwareWithCallbacks(action, event, event.getDataContext());
+            ActionUtil.performActionDumbAwareWithCallbacks(action, event);
         }
     }
 
@@ -568,7 +564,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
      *
      * @param action class of action that just completed
      */
-    private void addTriggeredAction(Class action) {
+    private void addTriggeredAction(Class<?> action) {
         TriggeredAction triggeredAction = myAdjustmentsMap.getTriggeredAction(action);
         if (triggeredAction != null && triggeredAction.isEnabled()) {
             OneTimeRunnable runnable = new OneTimeRunnable(true, () -> runAction(triggeredAction.getAction(), true));
@@ -1162,7 +1158,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                             editorCaret.normalizeCaretPosition();
                                             editorCaret.commit();
                                         }
-
                                     }
                                 } else {
                                     snapshot.restoreColumn();

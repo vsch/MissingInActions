@@ -7,6 +7,7 @@
 ### Version History
 - [Next 1.8.0.xxx - Dev Builds](#next-180xxx---dev-builds)
 - [Next 1.9.xx - Dev Builds](#next-19xx---dev-builds)
+- [1.8.193.5 - Release](#181935---release)
 - [1.8.193.4 - Release](#181934---release)
 - [1.8.193.2 - Release](#181932---release)
 - [1.8.0.24 - Dev Build](#18024---dev-build)
@@ -139,7 +140,7 @@
       once even if there are many carets present on that line. ie. Remove duplicate carets on
       the line before the action and re-create them after the action
 + [ ] Fix: backspace to line indent should backspace to beginning of line if at or before
-      indent.
+      an indent.
 + [ ] Add: option to detect trailing `,` and `;` on previous lines when duplicating single line
       and add to line above automatically and remove from last duped line if original did not
       have this suffix.

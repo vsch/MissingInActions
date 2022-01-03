@@ -25,10 +25,12 @@ import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.LafManager;
 import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
+import com.intellij.ui.ComponentUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
@@ -323,7 +325,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             }
         };
 
-        LafManager.getInstance().addLafManagerListener(myLafManagerListener);
+        ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(LafManagerListener.TOPIC, myLafManagerListener);
 
         myVersion.setText(Bundle.message("settings.version.label") + " " + Plugin.fullProductVersion());
 
@@ -547,7 +549,6 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     @Override
     public void dispose() {
         IdeEventQueue.getInstance().removeDispatcher(myEditingCommitter);
-        LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -704,7 +705,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         public boolean dispatch(@NotNull AWTEvent e) {
             if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_ENTER) {
                 if ((((KeyEvent) e).getModifiersEx() & ~(InputEvent.CTRL_DOWN_MASK)) == 0) {
-                    Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTable);
+                    Component owner = ComponentUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTable);
 
                     if (owner instanceof JTable && ((JTable) owner).isEditing()) {
                         ((JTable) owner).editingStopped(null);

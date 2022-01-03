@@ -59,7 +59,7 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
     private static boolean inReplaceContent = false;
     private static boolean sharingCaretState = false;
     private static boolean initialized = false;
-    private static HashMap<String, BiFunction<Transferable, DataFlavor, Object>> sharedDataLoaders = new HashMap<>();
+    private static final HashMap<String, BiFunction<Transferable, DataFlavor, Object>> sharedDataLoaders = new HashMap<>();
 
     private int[] startOffsets;
     private int[] endOffsets;
@@ -308,7 +308,7 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
                 }
             }
 
-            CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener);
+            CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener, ApplicationManager.getApplication());
             ApplicationManager.getApplication().invokeLater(SharedCaretStateTransferableData::replaceClipboardIfNeeded);
         }
     }

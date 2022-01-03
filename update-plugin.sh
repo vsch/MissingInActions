@@ -10,6 +10,7 @@ SANDBOX_IDE=
 cd "${HOME_DIR}" || exit
 
 echo updating "/Volumes/Pegasus/Data" for latest "${PLUGIN}"
-cp out/artifacts/"${PLUGIN}.jar" "/Volumes/Pegasus/Data"
+#cp out/artifacts/"${PLUGIN}.jar" "/Volumes/Pegasus/Data"
+cp "${PLUGIN}.zip" "/Volumes/Pegasus/Data"
 
 ../update-plugin.sh "${HOME_DIR}" "${PLUGIN}" "${PLUGIN_JAR}" "${OLD_PLUGIN}" "${IDE_VERSION}" "${SANDBOX_NAME}" "${SANDBOX_IDE}"

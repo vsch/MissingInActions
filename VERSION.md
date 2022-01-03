@@ -49,6 +49,10 @@
 - [0.5.1 - Bug Fix](#051---bug-fix)
 - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.212.2 - Release
+
+* Fix: compatibility with 2021.2.
+
 ### 1.8.193.4 - Release
 
 * Fix: compatibility with 2017.3 to allow use in older IDEs.
@@ -58,7 +62,7 @@
 * Add: option to use word highlights to highlight Project View nodes.
 * Fix: project view node highlight to use bold style for matched text
 * Fix: update to split flexmark-util
-* Fix: project view highlighting to match partials, case insensitive and use word boundary.
+* Fix: project view highlighting to match partials, case-insensitive and use word boundary.
 * Fix: do not restore last pasted text selection if the clipboard content does not contain any
   caret information.
 
@@ -132,7 +136,7 @@
     limiting search of highlighted words.
   * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
     line to the same color. Either when originally highlighted or added to existing highlights
-    when there is a highlight on the same line. Allows to color align related string on the same
+    when there is a highlight on the same line. Allows color alignment of related string on the same
     line for visual validation elsewhere. A limitation is that a word pattern can only have one
     color associated with it, so multiple tandem color of the same word will result it in being
     the last tandem color assigned.

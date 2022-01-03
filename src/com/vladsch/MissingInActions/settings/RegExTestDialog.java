@@ -39,6 +39,7 @@ import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
 import com.vladsch.flexmark.util.misc.DelimitedBuilder;
+import com.vladsch.plugin.util.AppUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,6 +83,10 @@ public class RegExTestDialog extends DialogWrapper {
     private int myTableRowPadding = 0;
     private boolean myIsBadRegex;
 
+    public BackgroundColor getSelectedTextFieldBackground() {
+        return BackgroundColor.of(mySampleText.getSelectionColor());
+    }
+
     static class RegExSampleSet {
         @NotNull String sample;
         @NotNull String resultHtml;
@@ -101,30 +106,6 @@ public class RegExTestDialog extends DialogWrapper {
     }
 
     private final RegExSettingsHolder mySettingsHolder;
-
-    private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(errorColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(warningColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getValidTextFieldBackground() {
-        return BackgroundColor.of(UIUtil.getTextFieldBackground());
-    }
-
-    private BackgroundColor getSelectedTextFieldBackground() {
-        return BackgroundColor.of(mySampleText.getSelectionColor());
-    }
-
-    private BackgroundColor getInvalidTableBackground(boolean isSelected) {
-        return BackgroundColor.of(errorColor(UIUtil.getTableBackground(isSelected)));
-    }
-
-    BackgroundColor getTableBackground(boolean isSelected) {
-        return BackgroundColor.of(UIUtil.getTableBackground(isSelected));
-    }
 
     public boolean saveSettings(boolean onlySamples) {
         // save settings return false if regex is not valid
@@ -253,10 +234,10 @@ public class RegExTestDialog extends DialogWrapper {
 
     private String checkRegEx(final JTextField pattern, RegExSampleSet sampleSet) {
         final String patternText = pattern.getText().trim();
-        Color validBackground = getValidTextFieldBackground();
+        Color validBackground = AppUtils.getValidTextFieldBackground();
         Color selectedBackground = getSelectedTextFieldBackground();
-        Color invalidBackground = getInvalidTextFieldBackground();
-        Color warningBackground = getWarningTextFieldBackground();
+        Color invalidBackground = AppUtils.getInvalidTextFieldBackground();
+        Color warningBackground = AppUtils.getWarningTextFieldBackground();
         String error = "";
         String warning = "";
 
@@ -293,7 +274,7 @@ public class RegExTestDialog extends DialogWrapper {
         if (error.isEmpty() && matcher != null) {
             // have match
             HtmlBuilder html = new HtmlBuilder();
-            html.tag("html").style("margin:2px").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
+            html.tag("html").style("margin:2px").attr(AppUtils.getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
             html.attr(warning.isEmpty() ? selectedBackground : warningBackground).span(text.substring(0, matcher.end()));
             html.span(text.substring(matcher.end()));
             html.closeTag("body");
@@ -305,7 +286,7 @@ public class RegExTestDialog extends DialogWrapper {
             sampleSet.toolTipText = warning;
         } else if (!myIsBadRegEx) {
             HtmlBuilder html = new HtmlBuilder();
-            html.tag("html").style("margin:2px;vertical-align:middle;").attr(getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
+            html.tag("html").style("margin:2px;vertical-align:middle;").attr(AppUtils.getValidTextFieldBackground(), mySampleText.getFont()).tag("body");
             if (matcher == null || error.equals("not matched")) {
                 html.attr(error.equals("not matched") ? invalidBackground : warningBackground).span(text);
             } else {
@@ -322,7 +303,7 @@ public class RegExTestDialog extends DialogWrapper {
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
             myViewPanel.setVisible(false);
-            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), AppUtils.getValidTextFieldBackground(), AppUtils.getWarningTextFieldBackground());
         }
         return error;
     }
@@ -445,16 +426,13 @@ public class RegExTestDialog extends DialogWrapper {
         @Override
         public TableCellRenderer getRenderer(final RegExSampleSet item) {
             TextPaneTableCellRenderer cellRenderer = new TextPaneTableCellRenderer("text/html") {
-                private Color myInvalidBackground = getInvalidTableBackground(false);
-                private Color myInvalidSelectedBackground = getInvalidTableBackground(true);
-
                 public TextPaneTableCellRenderer getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                     final TextPaneTableCellRenderer rendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                     tooltipText = item.toolTipText;
                     String resultHtml = item.resultHtml;
                     if (myTableRowPadding > 0) {
-                        resultHtml = resultHtml.replace("margin:2px", "margin:" + String.valueOf(myTableRowPadding / 2) + "px 2px 0 2px");
+                        resultHtml = resultHtml.replace("margin:2px", "margin:" + (myTableRowPadding / 2) + "px 2px 0 2px");
                     }
                     rendererComponent.setText(resultHtml);
                     return rendererComponent;
@@ -491,7 +469,7 @@ public class RegExTestDialog extends DialogWrapper {
         }
     }
 
-    private abstract class MyColumnInfo<T> extends ColumnInfo<RegExSampleSet, T> {
+    private abstract static class MyColumnInfo<T> extends ColumnInfo<RegExSampleSet, T> {
         MyColumnInfo(final String name) {
             super(name);
         }

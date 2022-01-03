@@ -69,12 +69,9 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
 
     @NotNull
     @Override
-    public JComponent createCustomComponent(@NotNull final Presentation presentation) {
+    public JComponent createCustomComponent(@NotNull final Presentation presentation,  @NotNull String place) {
         JPanel panel = new JPanel(new BorderLayout());
-        //final JLabel label = new JLabel("Recall Selection");
-        //label.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-        //panel.add(label, BorderLayout.WEST);
-        panel.add(super.createCustomComponent(presentation), BorderLayout.CENTER);
+        panel.add(super.createCustomComponent(presentation, place), BorderLayout.CENTER);
         return panel;
     }
 
@@ -157,7 +154,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
                 final String actionText = String.format("line %d \"%s\"", startLine, text);
                 final boolean isDisabled = disabled;
 
-                DumbAwareAction action = new DumbAwareAction("\"" + label.toString() + "\"", actionText, icon) {
+                DumbAwareAction action = new DumbAwareAction("\"" + label + "\"", actionText, icon) {
                     @Override
                     public void actionPerformed(@NotNull final AnActionEvent e) {
                         if (!isDisabled) {
@@ -171,12 +168,14 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
                 group.add(action);
             }
         } else {
+            //noinspection unused
             int tmp = 0;
         }
 
         return group;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void actionSelected(@Nullable final Editor editor, final ListSelectionEvent e) {
         if (editor != null) {

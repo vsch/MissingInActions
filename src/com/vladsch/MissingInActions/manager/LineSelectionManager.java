@@ -40,6 +40,7 @@ import com.intellij.openapi.editor.event.EditorMouseMotionListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.ui.ComponentUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
@@ -238,10 +239,8 @@ public class LineSelectionManager implements
             }
         };
 
-        LafManager.getInstance().addLafManagerListener(myLafManagerListener);
-        myDelayedRunner.addRunnable(() -> {
-            LafManager.getInstance().removeLafManagerListener(myLafManagerListener);
-        });
+        MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
+        settingsConnection.subscribe(LafManagerListener.TOPIC, myLafManagerListener);
 
         myCaretHighlighter = caretHighlighter;
         //noinspection ThisEscapedInObjectConstruction
@@ -773,7 +772,7 @@ public class LineSelectionManager implements
 
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_ESCAPE)) {
-                final Component owner = UIUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
+                final Component owner = ComponentUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> component instanceof JTextComponent);
 
                 if (owner instanceof JComponent) {
                     // register multi-paste if no already registered and remove when focus is lost

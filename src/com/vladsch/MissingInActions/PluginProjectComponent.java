@@ -21,7 +21,8 @@
 
 package com.vladsch.MissingInActions;
 
-import com.intellij.codeInsight.lookup.LookupManager;
+import com.intellij.codeInsight.lookup.Lookup;
+import com.intellij.codeInsight.lookup.LookupManagerListener;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -38,8 +39,6 @@ import com.vladsch.plugin.util.LazyFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 
@@ -67,46 +66,43 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         disposeComponent();
     }
 
-    void propertyChange(PropertyChangeEvent evt) {
-        if (LookupManager.PROP_ACTIVE_LOOKUP.equals(evt.getPropertyName())) {
-            Editor newEditor = null;
-            Editor oldEditor = null;
-            if (evt.getNewValue() instanceof LookupImpl) {
-                LookupImpl lookup = (LookupImpl) evt.getNewValue();
-                newEditor = lookup.getEditor();
-            }
-            if (evt.getOldValue() instanceof LookupImpl) {
-                LookupImpl lookup = (LookupImpl) evt.getOldValue();
-                oldEditor = lookup.getEditor();
-            }
+    void propertyChange(Lookup oldValue, Lookup newValue) {
+        Editor newEditor = null;
+        Editor oldEditor = null;
 
-            if (oldEditor != newEditor) {
-                if (oldEditor != null) {
-                    final LinkedHashSet<EditorActiveLookupListener> listeners = myInActiveLookupListeners.remove(oldEditor);
-                    if (listeners != null) {
-                        for (EditorActiveLookupListener listener : listeners) {
-                            try {
-                                listener.exitActiveLookup();
-                            } catch (Throwable e) {
-                                LOG.error("EditorActiveLookupListener error on exitActiveLookup", e);
-                                removeEditorActiveLookupListener(oldEditor, listener);
-                            }
+        if (newValue instanceof LookupImpl) {
+            newEditor = newValue.getEditor();
+        }
+        if (oldValue instanceof LookupImpl) {
+            oldEditor = oldValue.getEditor();
+        }
+
+        if (oldEditor != newEditor) {
+            if (oldEditor != null) {
+                final LinkedHashSet<EditorActiveLookupListener> listeners = myInActiveLookupListeners.remove(oldEditor);
+                if (listeners != null) {
+                    for (EditorActiveLookupListener listener : listeners) {
+                        try {
+                            listener.exitActiveLookup();
+                        } catch (Throwable e) {
+                            LOG.error("EditorActiveLookupListener error on exitActiveLookup", e);
+                            removeEditorActiveLookupListener(oldEditor, listener);
                         }
-                        myInActiveLookupListeners.remove(oldEditor);
                     }
+                    myInActiveLookupListeners.remove(oldEditor);
                 }
-                if (newEditor != null) {
-                    final LinkedHashSet<EditorActiveLookupListener> listeners = myActiveLookupListeners.get(newEditor);
-                    if (listeners != null) {
-                        final LinkedHashSet<EditorActiveLookupListener> inActiveLookup = myInActiveLookupListeners.computeIfAbsent(newEditor, editor1 -> new LinkedHashSet<>());
-                        for (EditorActiveLookupListener listener : listeners) {
-                            inActiveLookup.add(listener);
-                            try {
-                                listener.enterActiveLookup();
-                            } catch (Throwable e) {
-                                LOG.error("EditorActiveLookupListener error on enterActiveLookup", e);
-                                removeEditorActiveLookupListener(newEditor, listener);
-                            }
+            }
+            if (newEditor != null) {
+                final LinkedHashSet<EditorActiveLookupListener> listeners = myActiveLookupListeners.get(newEditor);
+                if (listeners != null) {
+                    final LinkedHashSet<EditorActiveLookupListener> inActiveLookup = myInActiveLookupListeners.computeIfAbsent(newEditor, editor1 -> new LinkedHashSet<>());
+                    for (EditorActiveLookupListener listener : listeners) {
+                        inActiveLookup.add(listener);
+                        try {
+                            listener.enterActiveLookup();
+                        } catch (Throwable e) {
+                            LOG.error("EditorActiveLookupListener error on enterActiveLookup", e);
+                            removeEditorActiveLookupListener(newEditor, listener);
                         }
                     }
                 }
@@ -159,12 +155,12 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
             myActiveLookupListeners.clear();
         });
 
-        LookupManager.getInstance(myProject).addPropertyChangeListener(new PropertyChangeListener() {
+        myProject.getMessageBus().connect(this).subscribe(LookupManagerListener.TOPIC, new LookupManagerListener() {
             @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                PluginProjectComponent.this.propertyChange(evt);
+            public void activeLookupChanged(@Nullable Lookup oldLookup, @Nullable Lookup newLookup) {
+                PluginProjectComponent.this.propertyChange(oldLookup, newLookup);
             }
-        }, myProject);
+        });
 
         myPlugin.projectOpened(myProject);
         myDelayedRunner.addRunnable(myProject, () -> {
