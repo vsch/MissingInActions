@@ -25,7 +25,6 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretVisualAttributes;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretThicknessType;
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +41,9 @@ class CaretHighlighterImpl implements CaretHighlighter {
     @Nullable private CaretVisualAttributes myStartAttributes = null;
     @Nullable private CaretVisualAttributes myFoundAttributes = null;
 
-    CaretHighlighterImpl(@NotNull LineSelectionManager manager) throws NotImplementedError {
+    CaretHighlighterImpl(@NotNull LineSelectionManager manager) {
+        assert HAVE_VISUAL_ATTRIBUTES : "CaretVisualAttributes are not implemented, only in version 2017.1 or later";
         myManager = manager;
-
-        // will fail if no method implemented
-        if (!HAVE_VISUAL_ATTRIBUTES) {
-            throw new NotImplementedError("CaretVisualAttributes are not implemented, only in version 2017.1 or later");
-        }
     }
 
     private static CaretVisualAttributes.Weight getCaretWeight(CaretThicknessType thicknessType) {
