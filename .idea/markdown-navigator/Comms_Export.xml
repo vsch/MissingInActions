@@ -48,7 +48,7 @@
           <option name="SIM_TOC_BLANK_LINE_SPACER" value="true" />
         </ParserOptions>
       </ParserSettings>
-      <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" addPageHeader="false" imageUriSerials="true" addDocTypeHtml="false" noParaTags="false" migratedPlantUml="true" plantUmlConversion="2">
+      <HtmlSettings headerTopEnabled="false" headerBottomEnabled="false" bodyTopEnabled="false" bodyBottomEnabled="false" addPageHeader="false" addAnchorLinks="false" anchorLinksWrapText="false" imageUriSerials="true" addDocTypeHtml="false" noParaTags="false" defaultUrlTitle="false" migratedPlantUml="true" migratedAnchorLinks="true" plantUmlConversion="2">
         <GeneratorProvider>
           <provider providerId="com.vladsch.md.nav.editor.javafx.html.generator" providerName="JavaFx HTML Generator" />
         </GeneratorProvider>
