@@ -81,12 +81,16 @@
         ]]>
     </description>
 
-    <version>1.8.212.4</version>
+    <version>1.8.212.6</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="212.4037.9"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.8.212.6 - Release</h3>
+            <ul>
+                <li>Fix: Update flexmark-java-utils to 0.62.6</li>
+            </ul>
             <h3>1.8.212.4 - Release</h3>
             <ul>
                 <li>Fix: exception in settings.</li>
