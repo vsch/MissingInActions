@@ -4,6 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
+  - [1.8.214.2 - Release](#182142---release)
   - [1.8.212.6 - Release](#182126---release)
   - [1.8.212.4 - Release](#182124---release)
   - [1.8.212.1 - Release](#182121---release)
@@ -52,6 +53,10 @@
   - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.214.2 - Release
+
+* Fix: Compatibility with 2022.1
 
 ### 1.8.212.6 - Release
 

@@ -306,7 +306,10 @@ public class LineSelectionManager implements
             if (isActive) {
                 Project project = myEditor.getProject();
                 if (project != null) {
-                    if (project.isDefault() || !PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().shouldNotUpdateHighlighters(myEditor)) {
+                    if (project.isDefault() 
+                            || (PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow() != null 
+                            && !PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().shouldNotUpdateHighlighters(myEditor))
+                    ) {
                         HighlightProvider<ApplicationSettings> highlightProvider = Plugin.getInstance().getProjectHighlighter(project);
                         setHighlightProvider(highlightProvider);
                     }

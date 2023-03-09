@@ -33,6 +33,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.LazyFunction;
@@ -169,8 +170,10 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
 
         // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
         if (!ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(myProject)) {
-            mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
-            Disposer.register(this, mySearchReplaceToolWindow);
+            ToolWindowManager.getInstance(myProject).invokeLater(() -> {
+                mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
+                Disposer.register(this, mySearchReplaceToolWindow);
+            });
         }
 
         Disposer.register(myProject, this);
@@ -188,7 +191,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         }
     }
 
-    public BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
+    public @Nullable BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
         return mySearchReplaceToolWindow;
     }
 
