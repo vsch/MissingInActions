@@ -63,10 +63,10 @@ public class PatternAction extends TextFieldAction {
     protected void updateOnTextChange(final String text, final Presentation presentation) {
         try {
             Pattern pattern = Pattern.compile(text);
-            presentation.putClientProperty(TEXT_FIELD_BACKGROUND, null);
+            presentation.putClientProperty(TEXT_FIELD_BACKGROUND_KEY, null);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             presentation.setDescription(e.getMessage());
-            presentation.putClientProperty(TEXT_FIELD_BACKGROUND, BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground())));
+            presentation.putClientProperty(TEXT_FIELD_BACKGROUND_KEY, BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground())));
         }
     }
 

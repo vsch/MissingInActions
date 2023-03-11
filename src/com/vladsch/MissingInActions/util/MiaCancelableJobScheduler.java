@@ -17,11 +17,11 @@
 
 package com.vladsch.MissingInActions.util;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.vladsch.plugin.util.CancelableJobScheduler;
 
 public class MiaCancelableJobScheduler extends CancelableJobScheduler {
     public static MiaCancelableJobScheduler getInstance() {
-        return ServiceManager.getService(MiaCancelableJobScheduler.class);
+        return ApplicationManager.getApplication().getService(MiaCancelableJobScheduler.class);
     }
 }

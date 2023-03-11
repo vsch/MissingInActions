@@ -39,6 +39,8 @@ import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.SystemInfoRt;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ui.JBUI;
@@ -53,17 +55,18 @@ import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.MissingResourceException;
 
 public abstract class MiaComboBoxAction extends ComboBoxAction implements CustomComponentAction {
-    private static final String COMBO_BOX_EDITOR_PROPERTY = "COMBO_BOX_EDITOR_PROPERTY";
+    private static final Key<Object> COMBO_BOX_EDITOR_PROPERTY_KEY = new Key<>("COMBO_BOX_EDITOR_PROPERTY");
+
     private static Icon myIcon = null;
     private static Icon myDisabledIcon = null;
     private static Icon myWin10ComboDropTriangleIcon = null;
@@ -73,10 +76,12 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     private boolean myShowNumbers;
     protected static boolean myPopupShowing = false;
 
+    @SuppressWarnings("unused")
+    @NotNull
     public static Icon getArrowIcon(boolean enabled) {
         if (UIUtil.isUnderWin10LookAndFeel()) {
             if (myWin10ComboDropTriangleIcon == null) {
-                myWin10ComboDropTriangleIcon = IconLoader.getIcon("/com/intellij/ide/ui/laf/icons/win10/comboDropTriangle.png");
+                myWin10ComboDropTriangleIcon = IconLoader.getIcon("/com/intellij/ide/ui/laf/icons/win10/comboDropTriangle.png", MiaComboBoxAction.class);
             }
             return myWin10ComboDropTriangleIcon;
         }
@@ -98,7 +103,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         Project project = e.getProject();
         if (editor == null || project == null) return;
 
-        final JComponent button = (JComponent) e.getPresentation().getClientProperty(CUSTOM_COMPONENT_PROPERTY);
+        final JComponent button = e.getPresentation().getClientProperty(CUSTOM_COMPONENT_PROPERTY_KEY);
         final DataContext context = e.getDataContext();
         final DefaultActionGroup group = createPopupActionGroup(button, editor);
         final ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
@@ -106,9 +111,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
 
         popup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
 
-        popup.addListSelectionListener(ev -> {
-            actionSelected(editor, ev);
-        });
+        popup.addListSelectionListener(ev -> actionSelected(editor, ev));
 
         popup.addListener(new JBPopupListener() {
             @Override
@@ -123,7 +126,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
                 popupDone(editor);
                 LineSelectionManager manager = LineSelectionManager.getInstance(editor);
                 manager.setInSelectionStackPopup(false);
-                e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, null);
+                e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY, null);
             }
         });
 
@@ -137,7 +140,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
 
     @NotNull
     @Override
-    public JComponent createCustomComponent(@NotNull Presentation presentation) {
+    public JComponent createCustomComponent(@NotNull Presentation presentation,  @NotNull String place) {
         JPanel panel = new JPanel(new GridBagLayout());
         MiaComboBoxButton button = createComboBoxButton(presentation);
         panel.add(button,
@@ -145,7 +148,8 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         return panel;
     }
 
-    protected MiaComboBoxButton createComboBoxButton(Presentation presentation) {
+    @NotNull
+    protected MiaComboBoxButton createComboBoxButton(@NotNull Presentation presentation) {
         return new MiaComboBoxButton(presentation);
     }
 
@@ -157,7 +161,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         mySmallVariant = smallVariant;
     }
 
-    public void setPopupTitle(String popupTitle) {
+    public void setPopupTitle(@NotNull String popupTitle) {
         myPopupTitle = popupTitle;
     }
 
@@ -165,11 +169,11 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     protected static Editor getEventEditor(AnActionEvent e) {
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (editor == null) {
-            Object clientProperty = e.getPresentation().getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
+            Object clientProperty = e.getPresentation().getClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY);
             if (clientProperty instanceof Editor) {
                 editor = (Editor) clientProperty;
                 if (editor.isDisposed()) {
-                    e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, null);
+                    e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY, null);
                 }
             } else {
                 Project project = e.getProject();
@@ -185,10 +189,11 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     @Override
     public void update(@NotNull AnActionEvent e) {
         Editor editor = getEventEditor(e);
-        e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY, editor);
+        e.getPresentation().putClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY, editor);
     }
 
-    public boolean isPopupShowing() {
+    @SuppressWarnings("unused")
+    public static boolean isPopupShowing() {
         return myPopupShowing;
     }
 
@@ -199,7 +204,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
     @NotNull
     @Override
     protected DefaultActionGroup createPopupActionGroup(final JComponent button) {
-        Editor editor = (Editor) ((MiaComboBoxButton) button).myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
+        Editor editor = (Editor) ((MiaComboBoxButton) button).myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY);
         return createPopupActionGroup(button, editor);
     }
 
@@ -234,9 +239,10 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         final Presentation myPresentation;
         private boolean myForcePressed = false;
         private PropertyChangeListener myButtonSynchronizer;
-        private boolean myMouseInside = false;
-        private JBPopup myPopup;
-        //private boolean myForceTransparent = false;
+
+        private boolean isUnderGTKLookAndFeel() {
+            return SystemInfoRt.isXWindow && UIManager.getLookAndFeel().getName().contains("GTK");
+        }
 
         public MiaComboBoxButton(Presentation presentation) {
             super(presentation);
@@ -248,99 +254,19 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             setHorizontalAlignment(LEFT);
             setFocusable(false);
             setOpaque(true);
-            //setForceTransparent(false);
             if (isSmallVariant()) {
                 putClientProperty("styleCombo", MiaComboBoxAction.this);
             }
-            Insets margins = getMargin();
             setMargin(JBUI.insets(0, 5, 0, 2));
-            //setMargin(JBUI.insets(margins.top, 2, margins.bottom, 2));
             if (isSmallVariant()) {
                 setBorder(JBUI.Borders.empty(0, 2));
-                if (!UIUtil.isUnderGTKLookAndFeel()) {
+                if (!isUnderGTKLookAndFeel()) {
                     setFont(JBUI.Fonts.label(11));
                 }
             }
-
-            //addActionListener(
-            //        new ActionListener() {
-            //            @Override
-            //            public void actionPerformed(ActionEvent e) {
-            //                if (!myForcePressed) {
-            //                    IdeFocusManager.getGlobalInstance().doWhenFocusSettlesDown(() -> showPopup());
-            //                }
-            //            }
-            //        }
-            //);
-            //
-            ////noinspection HardCodedStringLiteral
-            //addMouseListener(new MouseAdapter() {
-            //    @Override
-            //    public void mouseEntered(MouseEvent e) {
-            //        myMouseInside = true;
-            //        repaint();
-            //    }
-            //
-            //    @Override
-            //    public void mouseExited(MouseEvent e) {
-            //        myMouseInside = false;
-            //        repaint();
-            //    }
-            //
-            //    @Override
-            //    public void mousePressed(final MouseEvent e) {
-            //        if (SwingUtilities.isLeftMouseButton(e)) {
-            //            e.consume();
-            //            doClick();
-            //        }
-            //    }
-            //
-            //    @Override
-            //    public void mouseReleased(MouseEvent e) {
-            //        dispatchEventToPopup(e);
-            //    }
-            //});
-            //addMouseMotionListener(new MouseMotionListener() {
-            //    @Override
-            //    public void mouseDragged(MouseEvent e) {
-            //        mouseMoved(MouseEventAdapter.convert(e, e.getComponent(),
-            //                MouseEvent.MOUSE_MOVED,
-            //                e.getWhen(),
-            //                e.getModifiers() | e.getModifiersEx(),
-            //                e.getX(),
-            //                e.getY()));
-            //    }
-            //
-            //    @Override
-            //    public void mouseMoved(MouseEvent e) {
-            //        dispatchEventToPopup(e);
-            //    }
-            //});
         }
 
-        //// Event forwarding. We need it if user does press-and-drag gesture for opening popup and choosing item there.
-        //// It works in JComboBox, here we provide the same behavior
-        //private void dispatchEventToPopup(MouseEvent e) {
-        //    if (myPopup != null && myPopup.isVisible()) {
-        //        JComponent content = myPopup.getContent();
-        //        Rectangle rectangle = content.getBounds();
-        //        Point location = rectangle.getLocation();
-        //        SwingUtilities.convertPointToScreen(location, content);
-        //        Point eventPoint = e.getLocationOnScreen();
-        //        rectangle.setLocation(location);
-        //        if (rectangle.contains(eventPoint)) {
-        //            MouseEvent event = SwingUtilities.convertMouseEvent(e.getComponent(), e, myPopup.getContent());
-        //            Component component = SwingUtilities.getDeepestComponentAt(content, event.getX(), event.getY());
-        //            if (component != null)
-        //                component.dispatchEvent(event);
-        //        }
-        //    }
-        //}
-
-        //public void setForceTransparent(boolean transparent) {
-        //    myForceTransparent = transparent;
-        //}
-
+        @SuppressWarnings("unused")
         @NotNull
         private Runnable setForcePressed() {
             myForcePressed = true;
@@ -350,7 +276,6 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
                 // give the button a chance to handle action listener
                 ApplicationManager.getApplication().invokeLater(() -> {
                     myForcePressed = false;
-                    myPopup = null;
                     repaint();
                 }, ModalityState.any());
                 repaint();
@@ -358,24 +283,9 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             };
         }
 
-        //@Nullable
-        //@Override
-        //public String getToolTipText() {
-        //    return myForcePressed ? null : super.getToolTipText();
-        //}
-        //
-        //public void showPopup() {
-        //    JBPopup popup = createPopup(setForcePressed());
-        //    if (Registry.is("ide.helptooltip.enabled")) {
-        //        HelpTooltip.setMasterPopup(this, popup);
-        //    }
-        //
-        //    popup.showUnderneathOf(this);
-        //}
-        //
         @NotNull
         private ListPopup createActionPopup(@NotNull DataContext context, @NotNull JComponent component, @Nullable Runnable disposeCallback) {
-            Editor editor = (Editor) myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
+            Editor editor = (Editor) myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY);
             DefaultActionGroup group = createPopupActionGroup(component, editor);
             ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
                     myPopupTitle, group, context, false, shouldShowDisabledActions(), false, disposeCallback, getMaxRows(), getPreselectCondition());
@@ -383,18 +293,12 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             return popup;
         }
 
+        @NotNull
         protected JBPopup createPopup(Runnable onDispose) {
-            DataContext context = getDataContext();
-            Editor editor = (Editor) myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY);
-            //DefaultActionGroup group = createPopupActionGroup(this, editor);
-            //ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-            //        myPopupTitle, group, context, myShowNumbers, shouldShowDisabledActions(), false, onDispose, getMaxRows(), getPreselectCondition());
-            //popup.setMinimumSize(new Dimension(getMinWidth(), getMinHeight()));
+            Editor editor = (Editor) myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY);
             ListPopup popup = createActionPopup(getDataContext(), this, onDispose);
 
-            popup.addListSelectionListener(e -> {
-                actionSelected(editor, e);
-            });
+            popup.addListSelectionListener(e -> actionSelected(editor, e));
 
             popup.addListener(new JBPopupListener() {
                 @Override
@@ -410,10 +314,7 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             return popup;
         }
 
-        private MiaComboBoxAction getMyAction() {
-            return MiaComboBoxAction.this;
-        }
-
+        @NotNull
         protected DataContext getDataContext() {
             return DataManager.getInstance().getDataContext(this);
         }
@@ -441,7 +342,6 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             setIcon(myPresentation.getIcon());
             setText(myPresentation.getText());
             updateTooltipText(myPresentation.getDescription());
-            updateButtonSize();
         }
 
         private void updateTooltipText(String description) {
@@ -458,20 +358,10 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             }
         }
 
-        //@Override
-        //public void updateUI() {
-        //    super.updateUI();
-        //    //if (!UIUtil.isUnderGTKLookAndFeel()) {
-        //    //  setBorder(UIUtil.getButtonBorder());
-        //    //}
-        //    //((JComponent)getParent().getParent()).revalidate();
-        //}
-
         @Override
         public void updateUI() {
             super.updateUI();
             setMargin(JBUI.insets(0, 5, 0, 2));
-            updateButtonSize();
         }
 
         protected class MyButtonModel extends DefaultButtonModel {
@@ -492,185 +382,23 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
                 String propertyName = evt.getPropertyName();
                 if (Presentation.PROP_TEXT.equals(propertyName)) {
                     setText((String) evt.getNewValue());
-                    updateButtonSize();
                 } else if (Presentation.PROP_DESCRIPTION.equals(propertyName)) {
                     updateTooltipText((String) evt.getNewValue());
                 } else if (Presentation.PROP_ICON.equals(propertyName)) {
                     setIcon((Icon) evt.getNewValue());
-                    updateButtonSize();
                 } else if (Presentation.PROP_ENABLED.equals(propertyName)) {
-                    setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+                    setEnabled((Boolean) evt.getNewValue());
                 }
             }
         }
-
-        //@Override
-        //public Insets getInsets() {
-        //    final Insets insets = super.getInsets();
-        //    insets.right += getArrowIcon(isEnabled()).getIconWidth();
-        //    return insets;
-        //}
-        //
-        //@Override
-        //public Insets getInsets(Insets insets) {
-        //    final Insets result = super.getInsets(insets);
-        //    result.right += getArrowIcon(isEnabled()).getIconWidth();
-        //    return result;
-        //}
-        //
-        //@Override
-        //public boolean isOpaque() {
-        //    return !isSmallVariant();
-        //}
-
-        //protected Icon getArrowIcon() {
-        //    if (UIUtil.isUnderWin10LookAndFeel()) {
-        //        return IconLoader.getIcon("/com/intellij/ide/ui/laf/icons/win10/comboDropTriangle.png");
-        //    }
-        //    return isEnabled() ? ARROW_ICON : DISABLED_ARROW_ICON;
-        //}
-
-        //@Override
-        //public Dimension getPreferredSize() {
-        //    Dimension prefSize = super.getPreferredSize();
-        //    int width = prefSize.width + getArrowIcon(isEnabled()).getIconWidth()
-        //            + (StringUtil.isNotEmpty(getText()) ? getIconTextGap() : 0)
-        //            + (UIUtil.isUnderWin10LookAndFeel() ? JBUI.scale(6) : 0);
-        //
-        //    Dimension size = new Dimension(width, isSmallVariant() ? JBUI.scale(24) : Math.max(JBUI.scale(24), prefSize.height));
-        //    JBInsets.addTo(size, getMargin());
-        //    return size;
-        //}
-        //
-        //@Override
-        //public Dimension getMinimumSize() {
-        //    return new Dimension(super.getMinimumSize().width, getPreferredSize().height);
-        //}
-        //
-        //@Override
-        //public Font getFont() {
-        //    return SystemInfo.isMac && isSmallVariant() ? UIUtil.getLabelFont(UIUtil.FontSize.SMALL) : UIUtil.getLabelFont();
-        //}
-        //
-        //
-        //@Override
-        //protected Graphics getComponentGraphics(Graphics graphics) {
-        //    return JBSwingUtilities.runGlobalCGTransform(this, super.getComponentGraphics(graphics));
-        //}
-
-        //@Override
-        //public void paint(Graphics g) {
-        //        super.paint(g);
-        //final boolean isEmpty = getIcon() == null && StringUtil.isEmpty(getText());
-        //final Dimension size = getSize();
-        //
-        //if (SystemInfo.isMac && UIUtil.isUnderIntelliJLaF()) {
-        //    super.paint(g);
-        //} else {
-        //    UISettings.setupAntialiasing(g);
-        //
-        //    final Color textColor = isEnabled()
-        //            ? UIManager.getColor("Panel.foreground")
-        //            : UIUtil.getInactiveTextColor();
-        //    if (myForceTransparent) {
-        //        final Icon icon = getIcon();
-        //        int x = 7;
-        //        if (icon != null) {
-        //            icon.paintIcon(this, g, x, (size.height - icon.getIconHeight()) / 2);
-        //            x += icon.getIconWidth() + 3;
-        //        }
-        //        if (!StringUtil.isEmpty(getText())) {
-        //            final Font font = getFont();
-        //            g.setFont(font);
-        //            g.setColor(textColor);
-        //            UIUtil.drawCenteredString((Graphics2D) g, new Rectangle(x, 0, Integer.MAX_VALUE, size.height), getText(), false, true);
-        //        }
-        //    } else {
-        //
-        //        if (isSmallVariant()) {
-        //            final Graphics2D g2 = (Graphics2D) g;
-        //            g2.setColor(UIUtil.getControlColor());
-        //            final int w = getWidth();
-        //            final int h = getHeight();
-        //            if (getModel().isArmed() && getModel().isPressed()) {
-        //                g2.setPaint(UIUtil.getGradientPaint(0, 0, UIUtil.getControlColor(), 0, h, ColorUtil.shift(UIUtil.getControlColor(), 0.8)));
-        //            } else {
-        //                if (UIUtil.isUnderDarcula()) {
-        //                    g2.setPaint(UIUtil.getGradientPaint(0, 0, ColorUtil.shift(UIUtil.getControlColor(), 1.1), 0, h,
-        //                            ColorUtil.shift(UIUtil.getControlColor(), 0.9)));
-        //                } else {
-        //                    g2.setPaint(UIUtil.getGradientPaint(0, 0, new JBColor(SystemInfo.isMac ? Gray._226 : Gray._245, Gray._131), 0, h,
-        //                            new JBColor(SystemInfo.isMac ? Gray._198 : Gray._208, Gray._128)));
-        //                }
-        //            }
-        //            if (UIUtil.isUnderWin10LookAndFeel()) {
-        //                g2.setColor(getBackground());
-        //                g2.fillRect(2, 0, w - 2, h);
-        //            } else {
-        //                g2.fillRoundRect(2, 0, w - 2, h, 5, 5);
-        //            }
-        //
-        //            Color borderColor = myMouseInside ? new JBColor(Gray._111, Gray._118) : new JBColor(Gray._151, Gray._95);
-        //            g2.setPaint(borderColor);
-        //            if (UIUtil.isUnderWin10LookAndFeel()) {
-        //                g2.setColor(myMouseInside ? Gray.x96 : Gray.xAD);
-        //                g2.drawRect(2, 0, w - 3, h - 1);
-        //            } else {
-        //                g2.drawRoundRect(2, 0, w - 3, h - 1, 5, 5);
-        //            }
-        //
-        //            final Icon icon = getIcon();
-        //            int x = 7;
-        //            if (icon != null) {
-        //                icon.paintIcon(this, g, x, (size.height - icon.getIconHeight()) / 2);
-        //                x += icon.getIconWidth() + 3;
-        //            }
-        //            if (!StringUtil.isEmpty(getText())) {
-        //                final Font font = getFont();
-        //                g2.setFont(font);
-        //                g2.setColor(textColor);
-        //                UIUtil.drawCenteredString(g2, new Rectangle(x, 0, Integer.MAX_VALUE, size.height), getText(), false, true);
-        //            }
-        //        } else {
-        //            super.paint(g);
-        //        }
-        //    }
-        //}
-        //final Insets insets = super.getInsets();
-        //final Icon icon = getArrowIcon(isEnabled());
-        //int x;
-        //if (isEmpty) {
-        //    x = (size.width - icon.getIconWidth()) / 2;
-        //} else {
-        //    if (isSmallVariant()) {
-        //        x = size.width - icon.getIconWidth() - insets.right + 1;
-        //        if (SystemInfo.isMac && UIUtil.isUnderIntelliJLaF()) {
-        //            x -= 3;
-        //        } else if (UIUtil.isUnderWin10LookAndFeel()) {
-        //            x -= JBUI.scale(3);
-        //        }
-        //    } else {
-        //        x = size.width - icon.getIconWidth() - insets.right + (UIUtil.isUnderNimbusLookAndFeel() ? -3 : 2);
-        //    }
-        //}
-        //
-        //icon.paintIcon(null, g, x, (size.height - icon.getIconHeight()) / 2);
-        //g.setPaintMode();
-        //}
-        //
-        //protected void updateButtonSize() {
-        //    invalidate();
-        //    repaint();
-        //    setSize(getPreferredSize());
-        //    repaint();
-        //}
     }
 
+    @SuppressWarnings("unused")
     protected boolean getShowNumbers() {
         return myShowNumbers;
     }
 
-    protected void setShowNumbers(final boolean showNumbers) {
+    protected void setShowNumbers(@SuppressWarnings("SameParameterValue") final boolean showNumbers) {
         myShowNumbers = showNumbers;
     }
 

@@ -4,7 +4,8 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
-  - [1.8.193.6 - Release](#181936---release)
+  - [1.8.212.4 - Release](#182124---release)
+  - [1.8.212.1 - Release](#182121---release)
   - [1.8.193.4 - Release](#181934---release)
   - [1.8.193.2 - Bug Fix & Feature Release](#181932---bug-fix--feature-release)
   - [1.8.0.10 - Dev Build](#18010---dev-build)
@@ -51,9 +52,17 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
-### 1.8.193.6 - Release
+### 1.8.216.8 - Release
 
-* Fix: number dialog stop updating preview.
+* Fix: Fix renumbering dialog stop updating preview.
+
+### 1.8.212.4 - Release
+
+* Fix: Fix: exception in settings.
+
+### 1.8.212.1 - Release
+
+* Fix: compatibility with 2021.2.
 
 ### 1.8.193.4 - Release
 
@@ -64,7 +73,7 @@
 * Add: option to use word highlights to highlight Project View nodes.
 * Fix: project view node highlight to use bold style for matched text
 * Fix: update to split flexmark-util
-* Fix: project view highlighting to match partials, case insensitive and use word boundary.
+* Fix: project view highlighting to match partials, case-insensitive and use word boundary.
 * Fix: do not restore last pasted text selection if the clipboard content does not contain any
   caret information.
 
@@ -138,7 +147,7 @@
     limiting search of highlighted words.
   * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
     line to the same color. Either when originally highlighted or added to existing highlights
-    when there is a highlight on the same line. Allows to color align related string on the same
+    when there is a highlight on the same line. Allows color alignment of related string on the same
     line for visual validation elsewhere. A limitation is that a word pattern can only have one
     color associated with it, so multiple tandem color of the same word will result it in being
     the last tandem color assigned.

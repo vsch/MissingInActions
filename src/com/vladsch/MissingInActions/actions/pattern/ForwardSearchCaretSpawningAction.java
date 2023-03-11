@@ -30,6 +30,7 @@ import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 
+@SuppressWarnings("ComponentNotRegistered")
 public class ForwardSearchCaretSpawningAction extends EditorAction implements Toggleable {
     public ForwardSearchCaretSpawningAction() {
         super(new CaretSpawningSearchHandler(false));
@@ -52,7 +53,7 @@ public class ForwardSearchCaretSpawningAction extends EditorAction implements To
             }
         }
 
-        presentation.putClientProperty(Toggleable.SELECTED_PROPERTY, selected);
+        Toggleable.setSelected(presentation, selected);
 
         e.getPresentation().setVisible(!ApplicationSettings.getInstance().isHideDisabledButtons() || e.getPresentation().isEnabled());
         super.update(e);

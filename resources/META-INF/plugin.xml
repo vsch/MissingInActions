@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2016-2018 Vladimir Schneider <vladimir.schneider@gmail.com>
+  ~ Copyright (c) 2016-2022 Vladimir Schneider <vladimir.schneider@gmail.com>
   ~
   ~ Licensed to the Apache Software Foundation (ASF) under one
   ~ or more contributor license agreements.  See the NOTICE file
@@ -81,12 +81,20 @@
         ]]>
     </description>
 
-    <version>1.8.193.5</version>
+    <version>1.8.216.7</version>
     <depends>com.intellij.modules.lang</depends>
-    <idea-version since-build="191" until-build="211.*"/>
+    <idea-version since-build="212"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.8.212.4 - Release</h3>
+            <ul>
+                <li>Fix: exception in settings.</li>
+            </ul>
+            <h3>1.8.212.1 - Release</h3>
+            <ul>
+                <li>Fix: compatibility with 2021.2.</li>
+            </ul>
             <h3>1.8.193.4 - Release</h3>
             <ul>
                 <li>Fix: compatibility with 2017.3 to allow use in older IDEs.</li>
@@ -96,7 +104,7 @@
                 <li>Add: option to use word highlights to highlight Project View nodes.</li>
                 <li>Fix: project view node highlight to use bold style for matched text</li>
                 <li>Fix: update to split flexmark-util</li>
-                <li>Fix: project view highlighting to match partials, case insensitive and use word boundary.</li>
+                <li>Fix: project view highlighting to match partials, case-insensitive and use word boundary.</li>
                 <li>Fix: do not restore last pasted text selection if the clipboard content does not contain any
                     caret information.</li>
             </ul>
