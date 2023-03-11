@@ -4,7 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
-  - [1.8.193.6 - Release](#181936---release)
+  - [1.8.193.7 - Release](#181937---release)
   - [1.8.193.4 - Release](#181934---release)
   - [1.8.193.2 - Bug Fix & Feature Release](#181932---bug-fix--feature-release)
   - [1.8.0.10 - Dev Build](#18010---dev-build)
@@ -51,7 +51,7 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
-### 1.8.193.6 - Release
+### 1.8.193.7 - Release
 
 * Fix: number dialog stop updating preview.
 
