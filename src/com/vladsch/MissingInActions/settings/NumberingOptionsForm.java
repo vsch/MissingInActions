@@ -133,7 +133,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                myGuard.ifUnguarded(() -> updateOptions());
+                myGuard.ifUnguarded(() -> unguarded_UpdateOptions());
             }
         };
 

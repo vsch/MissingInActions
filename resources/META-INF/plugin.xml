@@ -81,9 +81,9 @@
         ]]>
     </description>
 
-    <version>1.8.193.4</version>
+    <version>1.8.193.5</version>
     <depends>com.intellij.modules.lang</depends>
-    <idea-version since-build="173"/>
+    <idea-version since-build="191" until-build="211.*"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
