@@ -555,7 +555,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         AnActionEvent event = createAnEvent(action, autoTriggered);
         Editor editor = EDITOR.getData(event.getDataContext());
         if (editor == myEditor) {
-            ActionUtil.performActionDumbAwareWithCallbacks(action, event);
+            // DEPRECATED: replacement available since 212.4746.92
+//            ActionUtil.performActionDumbAwareWithCallbacks(action, event);
+            ActionUtil.performActionDumbAwareWithCallbacks(action, event, event.getDataContext());
         }
     }
 

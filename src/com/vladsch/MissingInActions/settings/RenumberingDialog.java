@@ -47,7 +47,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RenumberingDialog extends DialogWrapper {
+public class RenumberingDialog extends DialogWrapper implements NumberingOptionsForm.ChangeListener, NumberingOptionsForm.BaseChangeListener {
     private JPanel myMainPanel;
     private NumberingOptionsForm myNumberingOptionsForm;
     private JPanel myViewPanel;
@@ -67,21 +67,27 @@ public class RenumberingDialog extends DialogWrapper {
         myViewer = createIdeaEditor("");
         myViewPanel.add(myViewer.getComponent(), BorderLayout.CENTER);
 
-        myNumberingOptionsForm.addBaseChangeListener((oldOptions, newOptions) -> {
-            // save the old base numbering options
+        copyEditorSettings();
+        updateResults();
+
+        init();
+    }
+
+    @Override
+    public void optionsChanged(NumberingOptions options) {
+        updateResults();
+    }
+
+    @Override
+    public void baseChanged(NumberingOptions oldOptions, NumberingOptions newOptions) {
+        // save the old base numbering options
+        if (myNumberingOptionsForm != null) {
             mySettings.setLastNumberingOptions(oldOptions);
 
             NumberingOptions newBaseOptions = new NumberingOptions(mySettings.getNumberingBaseOptions(newOptions.getNumberingBase()), newOptions);
             mySettings.setLastNumberingOptions(newBaseOptions);
             myNumberingOptionsForm.setOptions(newBaseOptions);
-        });
-
-        myNumberingOptionsForm.addChangeListener(options -> updateResults());
-
-        copyEditorSettings();
-        updateResults();
-
-        init();
+        }
     }
 
     private void saveSettings() {
@@ -90,105 +96,106 @@ public class RenumberingDialog extends DialogWrapper {
     }
 
     private String updateResults() {
-        NumberingOptions options = myNumberingOptionsForm.getOptions();
-        List<CaretOffsets> carets = new ArrayList<>(myEditor.getCaretModel().getCaretCount());
-        StringBuilder sb = new StringBuilder();
+        if (myNumberingOptionsForm != null) {
+            NumberingOptions options = myNumberingOptionsForm.getOptions();
+            List<CaretOffsets> carets = new ArrayList<>(myEditor.getCaretModel().getCaretCount());
+            StringBuilder sb = new StringBuilder();
 
-        // copy caret lines to new editor and re-create the carets by replacing selections if they exist
-        // or inserting number at carets if no selection is present
-        ApplicationManager.getApplication().runReadAction(() -> {
-            NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
-            int line = -1;
-            int offset = -1;
-            CharSequence chars = myEditor.getDocument().getCharsSequence();
-            EditorPositionFactory f = LineSelectionManager.getInstance(myViewer).getPositionFactory();
-            int lastVirtual = -1;
+            // copy caret lines to new editor and re-create the carets by replacing selections if they exist
+            // or inserting number at carets if no selection is present
+            ApplicationManager.getApplication().runReadAction(() -> {
+                NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
+                int line = -1;
+                int offset = -1;
+                CharSequence chars = myEditor.getDocument().getCharsSequence();
+                EditorPositionFactory f = LineSelectionManager.getInstance(myViewer).getPositionFactory();
+                int lastVirtual = -1;
 
-            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                final int caretLine = caret.getLogicalPosition().line;
-                generator.next(caretLine);
-                String number = generator.getNumber();
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    final int caretLine = caret.getLogicalPosition().line;
+                    generator.next(caretLine);
+                    String number = generator.getNumber();
 
-                if (line == -1 || line != caretLine) {
-                    // if prev line did not complete, add trailing chars here
-                    if (offset >= 0 && line >= 0) {
-                        final int endOffset = myEditor.getDocument().getLineEndOffset(line);
-                        if (offset < endOffset + 1) {
-                            sb.append(chars.subSequence(offset, endOffset + 1));
-                            offset = endOffset + 1;
+                    if (line == -1 || line != caretLine) {
+                        // if prev line did not complete, add trailing chars here
+                        if (offset >= 0 && line >= 0) {
+                            final int endOffset = myEditor.getDocument().getLineEndOffset(line);
+                            if (offset < endOffset + 1) {
+                                sb.append(chars.subSequence(offset, endOffset + 1));
+                                offset = endOffset + 1;
+                            }
                         }
+
+                        line = caretLine;
+                        offset = myEditor.getDocument().getLineStartOffset(line);
+                        lastVirtual = -1;
                     }
 
-                    line = caretLine;
-                    offset = myEditor.getDocument().getLineStartOffset(line);
-                    lastVirtual = -1;
-                }
-
-                if (caret.hasSelection()) {
-                    // replace selection by number
-                    sb.append(chars.subSequence(offset, caret.getSelectionStart()));
-                    int pos = sb.length();
-                    sb.append(number);
-                    int end = sb.length();
-                    offset = caret.getSelectionEnd();
-                    CaretOffsets offsets = new CaretOffsets(pos, pos, end);
-                    carets.add(offsets);
-                } else {
-                    // add number at caret but may need to add virtual spaces
-                    sb.append(chars.subSequence(offset, caret.getOffset()));
-
-                    int virtualSpaces = caret.getVisualPosition().column - (myEditor.getDocument().getLineEndOffset(caretLine) - myEditor.getDocument().getLineStartOffset(caretLine));
-                    if (lastVirtual > 0) {
-                        virtualSpaces -= lastVirtual;
-                        lastVirtual += virtualSpaces;
+                    if (caret.hasSelection()) {
+                        // replace selection by number
+                        sb.append(chars.subSequence(offset, caret.getSelectionStart()));
+                        int pos = sb.length();
+                        sb.append(number);
+                        int end = sb.length();
+                        offset = caret.getSelectionEnd();
+                        CaretOffsets offsets = new CaretOffsets(pos, pos, end);
+                        carets.add(offsets);
                     } else {
-                        lastVirtual = virtualSpaces;
+                        // add number at caret but may need to add virtual spaces
+                        sb.append(chars.subSequence(offset, caret.getOffset()));
+
+                        int virtualSpaces = caret.getVisualPosition().column - (myEditor.getDocument().getLineEndOffset(caretLine) - myEditor.getDocument().getLineStartOffset(caretLine));
+                        if (lastVirtual > 0) {
+                            virtualSpaces -= lastVirtual;
+                            lastVirtual += virtualSpaces;
+                        } else {
+                            lastVirtual = virtualSpaces;
+                        }
+
+                        while (virtualSpaces-- > 0) sb.append(' ');
+
+                        int pos = sb.length();
+                        sb.append(number);
+                        int end = sb.length();
+                        offset = caret.getOffset();
+                        CaretOffsets offsets = new CaretOffsets(pos, pos, end);
+                        carets.add(offsets);
                     }
-
-                    while (virtualSpaces-- > 0) sb.append(' ');
-
-                    int pos = sb.length();
-                    sb.append(number);
-                    int end = sb.length();
-                    offset = caret.getOffset();
-                    CaretOffsets offsets = new CaretOffsets(pos, pos, end);
-                    carets.add(offsets);
                 }
-            }
 
-            if (offset >= 0 && line >= 0) {
-                final int endOffset = myEditor.getDocument().getLineEndOffset(line);
-                if (offset < endOffset) {
-                    sb.append(chars.subSequence(offset, endOffset));
+                if (offset >= 0 && line >= 0) {
+                    final int endOffset = myEditor.getDocument().getLineEndOffset(line);
+                    if (offset < endOffset) {
+                        sb.append(chars.subSequence(offset, endOffset));
+                    }
+                    sb.append('\n');
                 }
-                sb.append('\n');
-            }
-        });
+            });
 
-        // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
-        WriteCommandAction.runWriteCommandAction(myViewer.getProject(), () -> {
-            final Document document = myViewer.getDocument();
-            document.setReadOnly(false);
-            //document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
-            document.replaceString(0, document.getTextLength(), sb);
-            document.setReadOnly(true);
-        });
+            // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
+            WriteCommandAction.runWriteCommandAction(myViewer.getProject(), () -> {
+                final Document document = myViewer.getDocument();
+                document.setReadOnly(false);
+                //document.replaceString(0, document.getTextLength(), getStringRep(editor, content, false, true, false));
+                document.replaceString(0, document.getTextLength(), sb);
+                document.setReadOnly(true);
+            });
 
-        // create carets in the viewer
-        boolean first = true;
-        myViewer.getCaretModel().removeSecondaryCarets();
+            // create carets in the viewer
+            boolean first = true;
+            myViewer.getCaretModel().removeSecondaryCarets();
 
-        for (CaretOffsets offsets : carets) {
-            Caret caret = first ? myViewer.getCaretModel().getPrimaryCaret() : myViewer.getCaretModel().addCaret(myViewer.offsetToVisualPosition(offsets.pos));
-            first = false;
+            for (CaretOffsets offsets : carets) {
+                Caret caret = first ? myViewer.getCaretModel().getPrimaryCaret() : myViewer.getCaretModel().addCaret(myViewer.offsetToVisualPosition(offsets.pos));
+                first = false;
 
-            if (caret != null) {
-                // move to logical position and set selection
-                caret.moveToOffset(offsets.pos);
-                caret.setSelection(offsets.start, offsets.end);
+                if (caret != null) {
+                    // move to logical position and set selection
+                    caret.moveToOffset(offsets.pos);
+                    caret.setSelection(offsets.start, offsets.end);
+                }
             }
         }
-
         return "";
     }
 
@@ -253,7 +260,7 @@ public class RenumberingDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        myNumberingOptionsForm = new NumberingOptionsForm(ApplicationSettings.getInstance().getLastNumberingOptions());
+        myNumberingOptionsForm = new NumberingOptionsForm(ApplicationSettings.getInstance().getLastNumberingOptions(), this, this);
     }
 
     private static void ignoreErrors(Runnable runnable) {

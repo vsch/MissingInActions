@@ -240,10 +240,6 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         private boolean myForcePressed = false;
         private PropertyChangeListener myButtonSynchronizer;
 
-        private boolean isUnderGTKLookAndFeel() {
-            return SystemInfoRt.isXWindow && UIManager.getLookAndFeel().getName().contains("GTK");
-        }
-
         public MiaComboBoxButton(Presentation presentation) {
             super(presentation);
 
@@ -254,15 +250,15 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
             setHorizontalAlignment(LEFT);
             setFocusable(false);
             setOpaque(true);
-            if (isSmallVariant()) {
+            boolean isVariant = isSmallVariant();
+            
+            if (isVariant) {
                 putClientProperty("styleCombo", MiaComboBoxAction.this);
             }
             setMargin(JBUI.insets(0, 5, 0, 2));
-            if (isSmallVariant()) {
+            
+            if (isVariant) {
                 setBorder(JBUI.Borders.empty(0, 2));
-                if (!isUnderGTKLookAndFeel()) {
-                    setFont(JBUI.Fonts.label(11));
-                }
             }
         }
 

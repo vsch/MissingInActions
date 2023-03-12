@@ -81,9 +81,9 @@
         ]]>
     </description>
 
-    <version>1.8.214.2</version>
+    <version>1.8.218.1</version>
     <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
-    <idea-version since-build="221.5080.210"/>
+    <idea-version since-build="221"/>
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">

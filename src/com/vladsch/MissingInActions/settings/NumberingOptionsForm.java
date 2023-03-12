@@ -132,9 +132,7 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                myGuard.ifUnguarded(() -> updateOptions());
-            }
+            protected void textChanged(@NotNull DocumentEvent e) { myGuard.ifUnguarded(() -> { unguarded_UpdateOptions(); }); }
         };
 
         myNumberingBase.addActionListener((event) -> {
@@ -157,7 +155,6 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         mySuffix.getDocument().addDocumentListener(documentAdapter);
 
         reset();
-        updateOptions();
     }
 
     private void unguarded_BaseChanged() {

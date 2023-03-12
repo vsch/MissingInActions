@@ -3,6 +3,7 @@
     <module name="MissingInActions" />
     <option name="VM_PARAMETERS" value="-Xmx3000m -Xms1024m -ea -Didea.is.internal=true -Didea.platform.prefix=Idea -Djava.system.class.loader=com.intellij.util.lang.PathClassLoader" />
     <option name="PROGRAM_PARAMETERS" value="" />
+    <alternative-path path="IntelliJ IDEA Community Edition IC-223.8836.41" alternative-path-enabled="false" />
     <log_file checked="false" alias="ide log" path="$USER_HOME$/Library/Caches/IdeaIC2017-1/plugins-sandbox/system/log/idea.log" skipped="false" />
     <predefined_log_file enabled="true" id="idea.log" />
     <method v="2">

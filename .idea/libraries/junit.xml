@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="junit">
     <CLASSES>
-      <root url="jar://$APPLICATION_HOME_DIR$/lib/junit4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-4.13.2.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

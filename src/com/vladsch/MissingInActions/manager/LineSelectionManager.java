@@ -251,7 +251,7 @@ public class LineSelectionManager implements
 
         //noinspection ThisEscapedInObjectConstruction
         myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, this::settingsChanged);
+        myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, (ApplicationSettingsListener) this::settingsChanged);
         myCaretSpawningHandler = null;
         myStartCarets = null;
         myStartMatchedCarets = null;
