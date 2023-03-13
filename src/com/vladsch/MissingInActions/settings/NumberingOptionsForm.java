@@ -155,7 +155,6 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         mySuffix.getDocument().addDocumentListener(documentAdapter);
 
         reset();
-//        updateOptions();
     }
 
     private void unguarded_BaseChanged() {

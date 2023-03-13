@@ -396,7 +396,7 @@ public class CaretSpawningSearchHandler extends RegExCaretSearchHandler {
                 // remove prefix
                 textToSearch = textToSearch.substring(matcher.group().length());
             }
-            quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
+            quotedText = "(?:" + prefixPattern.pattern().replace("(?=[A-Z])", "") + Pattern.quote(textToSearch.length() == 0 ? "" : textToSearch.substring(0, 1).toUpperCase() + textToSearch.substring(1)) + ")|" +
                     "(?i:" + Pattern.quote(textToSearch) + ")";
         } else {
             quotedText = Pattern.quote(textToSearch);
