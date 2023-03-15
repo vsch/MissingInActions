@@ -14,5 +14,6 @@
       <entry name="?*.txt" />
       <entry name="*.svg" />
     </wildcardResourcePatterns>
+    <bytecodeTargetLevel target="11" />
   </component>
 </project>

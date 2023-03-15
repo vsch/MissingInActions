@@ -1,10 +1,12 @@
 ## Missing In Actions
 
-[TOC levels=3,6]: # "Version History"
+[TOC levels=6]: # "Version History"
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
-  - [1.8.216.2 - Release](#182162---release)
+  - [1.8.218.11 - Dev](#1821811---dev)
+  - [1.8.218.3 - Dev](#182183---dev)
+  - [1.8.218.1 - Dev](#182181---dev)
   - [1.8.214.2 - Release](#182142---release)
   - [1.8.212.6 - Release](#182126---release)
   - [1.8.212.4 - Release](#182124---release)
@@ -55,7 +57,17 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
-### 1.8.216.2 - Release
+### 1.8.218.11 - Dev
+
+* Add: Add/Remove Highlight word will now select word under caret if no selection. In multi
+  caret mode only if no carets have selections.
+
+### 1.8.218.3 - Dev
+
+* Migrated to Kotlin language level 1.8 and Java bytecode 11. Dev on 2022.3 with 2022.2 used for
+  debugging. 2022.3 as target environment fails to launch.
+
+### 1.8.218.1 - Dev
 
 * Fix: Numbering dialog would stop updating preview if options were changed
 
@@ -158,10 +170,10 @@
     limiting search of highlighted words.
   * Add: `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same
     line to the same color. Either when originally highlighted or added to existing highlights
-    when there is a highlight on the same line. Allows color alignment of related string on the same
-    line for visual validation elsewhere. A limitation is that a word pattern can only have one
-    color associated with it, so multiple tandem color of the same word will result it in being
-    the last tandem color assigned.
+    when there is a highlight on the same line. Allows color alignment of related string on the
+    same line for visual validation elsewhere. A limitation is that a word pattern can only have
+    one color associated with it, so multiple tandem color of the same word will result it in
+    being the last tandem color assigned.
 * Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.
 * Add: save highlight state to local settings, restore on IDE startup.
 * Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
@@ -281,7 +293,6 @@
   which fires before action then checks to see if there is a context component and if not
   returns without corresponding `actionPerformed` on the action and `afterActionPerformed`
   callbacks.
-
 * Fix: update to latest libs
 * Fix: missing toolbar button for `Recall selection from list`
 
@@ -473,7 +484,6 @@
   variable).
 
   Can add RegEx search or plain string. Plain string search is case sensitive.
-
 * Add: replace user string on paste and duplicate for every character caret of another content.
   Plain string search is not case sensitive.
 
@@ -486,7 +496,6 @@
   int FormatHij(int hij) { myHij = hij; return myHij; }
   int FormatKlmnop(int klmnop) { myKlmnop = klmnop; return myKlmnop; }
   ```
-
 * Add: Replace Macro Variables on Enhanced paste and on duplicate for carets paste. Currently
   only file name derivations are supported. When pasting in a file with name
   `multi-line-image-url` the following will be changed as shown:
@@ -659,7 +668,6 @@
     the caret appearance for: primary, start and found carets making it easy to see where the
     search starts and where the pattern is matched. Plugin configuration settings under settings
     in Tools > Missing In Actions:
-
 * behavior is also affected by number of carets and selection:
   * if no selections that spans lines then action is limited to a single line of the caret
   * if no two carets are on the same line then affected range for each caret is expanded to full
@@ -846,7 +854,6 @@
 
   Allows fast duplication of a block of code up, instead of always down and having to move it up
   over a copy of itself.
-
 * Fix: paste will now convert to line selection if it can trim/expand the pasted selection to
   full lines if the trimming or expansion affects whitespace chars only.
 * Add: hyperlink in settings to enable/disable virtual space from MIA options panel. Also
