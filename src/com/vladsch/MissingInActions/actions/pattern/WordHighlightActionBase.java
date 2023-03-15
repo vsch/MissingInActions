@@ -89,7 +89,7 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
 
     public static boolean canSelectWord(@NotNull Editor editor, @NotNull Caret caret) {
         int offset = caret.getOffset();
-        return EditHelpers.isIdentifier(editor.getDocument().getImmutableCharSequence(), offset) || offset > 0 && EditHelpers.isIdentifier(editor.getDocument().getImmutableCharSequence(), offset - 1);
+        return EditHelpers.isIdentifier(editor.getDocument().getImmutableCharSequence(), offset) || isWordEnd(editor, offset, editor.getSettings().isCamelWords());
     }
 
     @Override
@@ -120,17 +120,21 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
                 } else {
                     // see if we can select a word
                     if (EditHelpers.isIdentifier(chars, caretOffset)) {
+                        selectionStart = caretOffset;
                         if (!isWordStart(editor, caretOffset, editor.getSettings().isCamelWords())) {
                             // go to previous word stat
-                            selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, editor.getSettings().isCamelWords(), EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.MULTI_CARET_SINGLE_LINE, caretOffset, true);
+                            selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
+                                    , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.END_OF_LEADING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
                         }
 
-                        selectionEnd = EditHelpers.getNextWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords(), EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
+                        selectionEnd = EditHelpers.getNextWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
+                                , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.START_OF_TRAILING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
                     } else {
                         if (caretOffset > 0 && isWordEnd(editor, caretOffset, editor.getSettings().isCamelWords())) {
                             // go to previous word stat
                             selectionEnd = caretOffset;
-                            selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, editor.getSettings().isCamelWords(), EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.MULTI_CARET_SINGLE_LINE, caretOffset, true);
+                            selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
+                                    , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.END_OF_LEADING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
                         }
                     }
                 }

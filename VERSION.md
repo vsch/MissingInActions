@@ -53,6 +53,10 @@
     - [0.5.1 - Bug Fix](#051---bug-fix)
     - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.216.13 - Dev
+
+* Fix: add/remove highlightword if caret on start of identifier would select to start of file.
+
 ### 1.8.216.11 - Dev
 
 * Add: Add/Remove Highlight word will now select word under caret if no selection. In multi
