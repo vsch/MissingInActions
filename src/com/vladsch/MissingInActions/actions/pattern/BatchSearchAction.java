@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.actionSystem.EditorAction;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
+import com.vladsch.MissingInActions.BatchSearchReplaceToolWindow;
 import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +98,8 @@ public class BatchSearchAction extends EditorAction {
         if (editor instanceof EditorEx) {
             Project project = editor.getProject();
             if (project != null) {
-                return PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().isShowing();
+                BatchSearchReplaceToolWindow toolWindow = PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow();
+                return toolWindow != null && toolWindow.isShowing();
             }
         }
         return false;

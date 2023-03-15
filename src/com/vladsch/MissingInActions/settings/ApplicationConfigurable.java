@@ -20,6 +20,7 @@
  */
 package com.vladsch.MissingInActions.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.util.Disposer;
@@ -35,8 +36,8 @@ public class ApplicationConfigurable implements SearchableConfigurable {
     @Nullable private ApplicationSettingsForm myForm = null;
     @NotNull final private ApplicationSettings myApplicationSettings;
 
-    public ApplicationConfigurable(@NotNull ApplicationSettings applicationSettings) {
-        myApplicationSettings = applicationSettings;
+    public ApplicationConfigurable() {
+        myApplicationSettings = ApplicationSettings.getInstance();
     }
 
     @NotNull

@@ -44,21 +44,18 @@ public class Bundle {
     }
 
     public static String getString(String key, Object... params) {
-        return CommonBundle.message(BUNDLE, key, params);
+        String message = CommonBundle.messageOrNull(BUNDLE, key, params);
+        return message == null ? key : message;
     }
 
     public static String message(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
-        return CommonBundle.message(BUNDLE, key, params);
+        String message = CommonBundle.messageOrNull(BUNDLE, key, params);
+        return message == null ? key : message;
     }
 
     @Nullable
-    public static String messageOrNull(
-            @NotNull ResourceBundle bundle, @NotNull String key,
-            @NotNull Object... params
-    ) {
-        final String value = CommonBundle.messageOrDefault(bundle, key, key, params);
-        if (key.equals(value)) return null;
-        return value;
+    public static String messageOrNull(@NotNull ResourceBundle bundle, @NotNull String key, @NotNull Object... params) {
+        return CommonBundle.messageOrNull(bundle, key, params);
     }
 
     public static String indexedMessage(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
@@ -78,6 +75,7 @@ public class Bundle {
     }
 
     public static String messageOrBlank(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
-        return CommonBundle.messageOrDefault(BUNDLE, key, "", params);
+        String message = CommonBundle.messageOrNull(BUNDLE, key, params);
+        return message == null ? "" : message;
     }
 }

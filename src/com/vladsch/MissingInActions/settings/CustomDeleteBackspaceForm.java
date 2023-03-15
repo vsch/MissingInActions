@@ -41,6 +41,7 @@ import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.Color;
 import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.html.ui.HtmlHelpers;
+import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.ui.Helpers;
 import com.vladsch.plugin.util.ui.Settable;
 import com.vladsch.plugin.util.ui.SettingsComponents;
@@ -272,33 +273,9 @@ public class CustomDeleteBackspaceForm {
         }
     }
 
-    private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getValidTextFieldBackground() {
-        return BackgroundColor.of(UIUtil.getTextFieldBackground());
-    }
-
     private BackgroundColor getSelectedTextFieldBackground() {
         return BackgroundColor.of(mySampleText.getSelectionColor());
     }
-
-    BackgroundColor getInvalidTableBackground(boolean isSelected) {
-        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTableBackground(isSelected)));
-    }
-
-    BackgroundColor getTableBackground(boolean isSelected) {
-        return BackgroundColor.of(UIUtil.getTableBackground(isSelected));
-    }
-
-    //public JComponent getComponent() {
-    //    return myMainPanel;
-    //}
 
     public interface OnElementTypeChange {
         void onElementTypeChange(CustomDeleteBackspaceForm entryGroupConfigurable);
@@ -319,8 +296,8 @@ public class CustomDeleteBackspaceForm {
         int caretPos = isReversed ? sample.lastIndexOf(entry.getCaretMarker()) : sample.indexOf(entry.getCaretMarker());
 
         HtmlBuilder html = new HtmlBuilder();
-        BackgroundColor validTextFieldBackground = getValidTextFieldBackground();
-        BackgroundColor warningTextFieldBackground = getWarningTextFieldBackground();
+        BackgroundColor validTextFieldBackground = AppUtils.getValidTextFieldBackground();
+        BackgroundColor warningTextFieldBackground = AppUtils.getWarningTextFieldBackground();
         BackgroundColor selectedTextFieldBackground = getSelectedTextFieldBackground();
 
         html.tag("html").style("margin:2px;vertical-align:top").attr(validTextFieldBackground, mySampleText.getFont()).tag("body");
@@ -400,8 +377,8 @@ public class CustomDeleteBackspaceForm {
 
     // validate regex fields and for focused one show potential errors, if valid show sample results
     void updateResult() {
-        Color validBackground = Color.of(getValidTextFieldBackground());
-        Color warningBackground = Color.of(getWarningTextFieldBackground());
+        Color validBackground = Color.of(AppUtils.getValidTextFieldBackground());
+        Color warningBackground = Color.of(AppUtils.getWarningTextFieldBackground());
 
         boolean errorPaneVisible = false;
         for (JBTextField regExField : myRegExFields) {
@@ -410,7 +387,7 @@ public class CustomDeleteBackspaceForm {
                 if (myFocusedRegEx == regExField) {
                     // can display full error
                     errorPaneVisible = true;
-                    HtmlHelpers.setRegExError(regExError, myErrorTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+                    HtmlHelpers.setRegExError(regExError, myErrorTextPane, mySampleText.getFont(), AppUtils.getValidTextFieldBackground(), AppUtils.getWarningTextFieldBackground());
                 }
 
                 regExField.setBackground(warningBackground);
@@ -457,9 +434,7 @@ public class CustomDeleteBackspaceForm {
         ToolbarDecorator linkTextDecorator = ToolbarDecorator.createDecorator(myTextTable, producer);
         myViewPanel.add(linkTextDecorator.createPanel(), constraints);
 
-        myTextModel.addTableModelListener(e -> {
-            updateResult();
-        });
+        myTextModel.addTableModelListener(e -> updateResult());
     }
 
     private static class TextMapEntryElementProducer implements ElementProducer<TextMapEntry> {

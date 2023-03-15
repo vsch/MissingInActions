@@ -139,7 +139,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                         }
 
                         int offset = position.getOffset() + spaces;
-                        doc.insertString(offset, RepeatedSequence.of(' ', count));
+                        doc.insertString(offset, RepeatedSequence.ofSpaces(count));
                         caret.moveToLogicalPosition(position.atColumn(finalColumn));
                     }
                 });
