@@ -19,6 +19,7 @@
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util-collection/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util-builder/src/main/java" />
       <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util-ast/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../flexmark-java/flexmark-util/src/test/java" />
     </SOURCES>
   </library>
 </component>

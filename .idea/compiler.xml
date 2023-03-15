@@ -14,5 +14,67 @@
       <entry name="?*.txt" />
       <entry name="*.svg" />
     </wildcardResourcePatterns>
+    <bytecodeTargetLevel>
+      <module name="flexmark" target="1.5" />
+      <module name="flexmark-all" target="1.5" />
+      <module name="flexmark-core-test" target="1.5" />
+      <module name="flexmark-docx-converter" target="1.5" />
+      <module name="flexmark-ext-abbreviation" target="1.5" />
+      <module name="flexmark-ext-admonition" target="1.5" />
+      <module name="flexmark-ext-anchorlink" target="1.5" />
+      <module name="flexmark-ext-aside" target="1.5" />
+      <module name="flexmark-ext-attributes" target="1.5" />
+      <module name="flexmark-ext-autolink" target="1.5" />
+      <module name="flexmark-ext-definition" target="1.5" />
+      <module name="flexmark-ext-emoji" target="1.5" />
+      <module name="flexmark-ext-enumerated-reference" target="1.5" />
+      <module name="flexmark-ext-escaped-character" target="1.5" />
+      <module name="flexmark-ext-footnotes" target="1.5" />
+      <module name="flexmark-ext-gfm-issues" target="1.5" />
+      <module name="flexmark-ext-gfm-strikethrough" target="1.5" />
+      <module name="flexmark-ext-gfm-tasklist" target="1.5" />
+      <module name="flexmark-ext-gfm-users" target="1.5" />
+      <module name="flexmark-ext-gitlab" target="1.5" />
+      <module name="flexmark-ext-ins" target="1.5" />
+      <module name="flexmark-ext-jekyll-front-matter" target="1.5" />
+      <module name="flexmark-ext-jekyll-tag" target="1.5" />
+      <module name="flexmark-ext-macros" target="1.5" />
+      <module name="flexmark-ext-media-tags" target="1.5" />
+      <module name="flexmark-ext-resizable-image" target="1.5" />
+      <module name="flexmark-ext-spec-example" target="1.5" />
+      <module name="flexmark-ext-superscript" target="1.5" />
+      <module name="flexmark-ext-tables" target="1.5" />
+      <module name="flexmark-ext-toc" target="1.5" />
+      <module name="flexmark-ext-typographic" target="1.5" />
+      <module name="flexmark-ext-wikilink" target="1.5" />
+      <module name="flexmark-ext-xwiki-macros" target="1.5" />
+      <module name="flexmark-ext-yaml-front-matter" target="1.5" />
+      <module name="flexmark-ext-youtube-embedded" target="1.5" />
+      <module name="flexmark-ext-zzzzzz" target="1.5" />
+      <module name="flexmark-html2md-converter" target="1.5" />
+      <module name="flexmark-integration-test" target="1.5" />
+      <module name="flexmark-java" target="11" />
+      <module name="flexmark-jira-converter" target="1.5" />
+      <module name="flexmark-osgi" target="11" />
+      <module name="flexmark-pdf-converter" target="1.5" />
+      <module name="flexmark-profile-pegdown" target="1.5" />
+      <module name="flexmark-test-specs" target="1.5" />
+      <module name="flexmark-test-util" target="1.5" />
+      <module name="flexmark-tree-iteration" target="1.5" />
+      <module name="flexmark-util" target="1.5" />
+      <module name="flexmark-util-ast" target="1.5" />
+      <module name="flexmark-util-builder" target="1.5" />
+      <module name="flexmark-util-collection" target="1.5" />
+      <module name="flexmark-util-data" target="1.5" />
+      <module name="flexmark-util-dependency" target="1.5" />
+      <module name="flexmark-util-experimental" target="1.5" />
+      <module name="flexmark-util-format" target="1.5" />
+      <module name="flexmark-util-html" target="1.5" />
+      <module name="flexmark-util-misc" target="1.5" />
+      <module name="flexmark-util-options" target="1.5" />
+      <module name="flexmark-util-sequence" target="1.5" />
+      <module name="flexmark-util-visitor" target="1.5" />
+      <module name="flexmark-youtrack-converter" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>

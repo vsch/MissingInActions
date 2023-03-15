@@ -1,11 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/../flexmark-java/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-all/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-core-test/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-docx-converter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-abbreviation/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-admonition/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-anchorlink/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-aside/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-attributes/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-autolink/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-definition/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-emoji/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-enumerated-reference/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-escaped-character/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-footnotes/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-gfm-issues/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-gfm-strikethrough/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-gfm-tasklist/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-gfm-users/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-gitlab/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-ins/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-jekyll-front-matter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-jekyll-tag/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-macros/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-media-tags/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-resizable-image/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-spec-example/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-superscript/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-tables/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-toc/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-typographic/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-wikilink/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-xwiki-macros/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-yaml-front-matter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-youtube-embedded/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-ext-zzzzzz/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-html2md-converter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-integration-test/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-jira-converter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-osgi/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-pdf-converter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-profile-pegdown/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-test-specs/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-test-util/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-tree-iteration/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-ast/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-builder/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-collection/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-data/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-dependency/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-experimental/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-format/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-html/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-misc/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-options/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-sequence/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util-visitor/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-util/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark-youtrack-converter/pom.xml" />
+        <option value="$PROJECT_DIR$/../flexmark-java/flexmark/pom.xml" />
+      </set>
+    </option>
+  </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
     <option name="myDefaultNotNull" value="org.jetbrains.annotations.NotNull" />
     <option name="myNullables">
       <value>
-        <list size="11">
+        <list size="12">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
           <item index="2" class="java.lang.String" itemvalue="javax.annotation.CheckForNull" />
@@ -17,12 +87,13 @@
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableType" />
           <item index="9" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNullable" />
           <item index="10" class="java.lang.String" itemvalue="com.android.annotations.Nullable" />
+          <item index="11" class="java.lang.String" itemvalue="org.eclipse.jdt.annotation.Nullable" />
         </list>
       </value>
     </option>
     <option name="myNotNulls">
       <value>
-        <list size="11">
+        <list size="13">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
           <item index="2" class="java.lang.String" itemvalue="javax.validation.constraints.NotNull" />
@@ -34,11 +105,13 @@
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullType" />
           <item index="9" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNonNull" />
           <item index="10" class="java.lang.String" itemvalue="com.android.annotations.NonNull" />
+          <item index="11" class="java.lang.String" itemvalue="lombok.NonNull" />
+          <item index="12" class="java.lang.String" itemvalue="org.eclipse.jdt.annotation.NonNull" />
         </list>
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="IDEA Plugin jdk Mia" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="IDEA Plugin jdk Mia" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
