@@ -204,7 +204,7 @@ public class EditHelpers {
         }
     }
 
-    public static int getPreviousWordStartOrEndOffset(@NotNull Editor editor, boolean camel, int flags, int offset, boolean haveMultiCarets) {
+    public static int getPreviousWordStartOrEndOffset(@NotNull Editor editor, int offset, boolean camel, int flags, boolean haveMultiCarets) {
         if (!isSet(flags, BOUNDARY_FLAGS)) return offset;
 
         CaretModel caretModel = editor.getCaretModel();
@@ -300,7 +300,7 @@ public class EditHelpers {
         CaretModel caretModel = editor.getCaretModel();
         int offset = caretModel.getOffset();
 
-        int newOffset = getPreviousWordStartOrEndOffset(editor, camel, flags, caretModel.getOffset(), caretModel.getCaretCount() > 1);
+        int newOffset = getPreviousWordStartOrEndOffset(editor, caretModel.getOffset(), camel, flags, caretModel.getCaretCount() > 1);
 
         if (newOffset != offset) {
             SelectionModel selectionModel = editor.getSelectionModel();
