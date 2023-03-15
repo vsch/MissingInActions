@@ -5,6 +5,7 @@
 ### Version History
 - [Missing In Actions](#missing-in-actions)
   - [1.8.218.11 - Dev](#1821811---dev)
+  - [1.8.218.11 - Dev](#1821811---dev-1)
   - [1.8.218.3 - Dev](#182183---dev)
   - [1.8.218.1 - Dev](#182181---dev)
   - [1.8.214.2 - Release](#182142---release)
@@ -56,6 +57,10 @@
   - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.218.11 - Dev
+
+* Fix: add/remove highlightword if caret on start of identifier would select to start of file.
 
 ### 1.8.218.11 - Dev
 
