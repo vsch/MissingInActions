@@ -140,10 +140,12 @@ public class LineSelectionManager implements
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
     private final LafManagerListener myLafManagerListener;
+    private boolean myIsDisposed = false;
 
     @Override
     public void dispose() {
         //println("LineSelectionAdjuster disposed");
+        myIsDisposed = true;
         clearIsolatedLines();
 
         myIsolationHighlightProvider.removeHighlightListener(myIsolatedLinesListener);
@@ -153,6 +155,10 @@ public class LineSelectionManager implements
         Disposer.dispose(myActionSelectionAdjuster);
         Disposer.dispose(myMessageBusConnection);
         myCaretSpawningHandler = null;
+    }
+    
+    public boolean isDisposed() {
+        return myIsDisposed;
     }
 
     @NotNull
@@ -172,7 +178,7 @@ public class LineSelectionManager implements
                 oldHighlightProvider.removeHighlightListener(myHighlightListener);
             }
 
-            if (myHighlightProvider != plugin) {
+            if (myHighlightProvider != plugin && !isDisposed()) {
                 // remove listener
                 myHighlightProvider.addHighlightListener(myHighlightListener, this);
             }
@@ -222,7 +228,8 @@ public class LineSelectionManager implements
                 updateHighlights();
             }
         };
-        Plugin.getInstance().addHighlightListener(myHighlightListener, this);
+        Plugin plugin = Plugin.getInstance();
+        plugin.addHighlightListener(myHighlightListener, this);
 
         myLafManagerListener = new LafManagerListener() {
             UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
@@ -306,11 +313,9 @@ public class LineSelectionManager implements
             if (isActive) {
                 Project project = myEditor.getProject();
                 if (project != null) {
-                    if (project.isDefault() 
-                            || (PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow() != null 
-                            && !PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow().shouldNotUpdateHighlighters(myEditor))
-                    ) {
-                        HighlightProvider<ApplicationSettings> highlightProvider = Plugin.getInstance().getProjectHighlighter(project);
+                    // all project mia tool windows should be checked 
+                    if (project.isDefault() || !plugin.shouldNotUpdateHighlighters(myEditor)) {
+                        HighlightProvider<ApplicationSettings> highlightProvider = plugin.getProjectHighlighter(project);
                         setHighlightProvider(highlightProvider);
                     }
                 }
