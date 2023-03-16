@@ -53,6 +53,10 @@
     - [0.5.1 - Bug Fix](#051---bug-fix)
     - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.216.15 - Dev
+
+* Fix: stack overflow due to recursion on highlight update
+
 ### 1.8.216.13 - Dev
 
 * Fix: add/remove highlightword if caret on start of identifier would select to start of file.

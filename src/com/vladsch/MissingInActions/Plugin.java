@@ -58,6 +58,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ComponentUtil;
@@ -85,6 +86,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -758,6 +760,45 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     public static String fullProductVersion() {
         IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
         return pluginDescriptor.getVersion();
+    }
+
+    public static @Nullable
+    Project getActiveProject() {
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        Project activeProject = null;
+        for (Project project : projects) {
+            Window window = WindowManager.getInstance().suggestParentWindow(project);
+            if (window != null && window.isActive()) {
+                activeProject = project;
+            }
+        }
+        return activeProject;
+    }
+
+    public static @Nullable
+    void activatingBatchSearchReplaceToolWindow(@NotNull Project activeProject) {
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        for (Project project : projects) {
+            if (project != activeProject) {
+                PluginProjectComponent pluginProjectComponent = PluginProjectComponent.getInstance(project);
+                BatchSearchReplaceToolWindow searchReplaceToolWindow = pluginProjectComponent.getSearchReplaceToolWindow();
+                if (searchReplaceToolWindow != null && searchReplaceToolWindow.isActive()) {
+                    searchReplaceToolWindow.hide();
+                }
+            }
+        }
+    }
+
+    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        for (Project project : projects) {
+            PluginProjectComponent pluginProjectComponent = PluginProjectComponent.getInstance(project);
+            BatchSearchReplaceToolWindow searchReplaceToolWindow = pluginProjectComponent.getSearchReplaceToolWindow();
+            if (searchReplaceToolWindow != null && searchReplaceToolWindow.shouldNotUpdateHighlighters(editor)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nullable
