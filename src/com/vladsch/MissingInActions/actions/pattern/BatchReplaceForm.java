@@ -21,7 +21,6 @@
 
 package com.vladsch.MissingInActions.actions.pattern;
 
-import com.intellij.codeInsight.daemon.impl.EditorTracker;
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -116,6 +115,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
@@ -128,7 +128,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -346,11 +345,14 @@ public class BatchReplaceForm implements Disposable {
     public void updateHighlighters() {
         myEditorHighlightRunner.cancel();
         myEditorHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 500, new AwtRunnable(true, () -> {
-//            List<Editor> editors = EditorTracker.getInstance(myProject).getActiveEditors();
             Editor[] editors = EditorFactory.getInstance().getAllEditors();
+            Plugin plugin = Plugin.getInstance();
+
             for (Editor editor : editors) {
-                if (shouldNotUpdateHighlighters(editor)) continue;
-                LineSelectionManager.getInstance(editor).setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
+                if (plugin.shouldNotUpdateHighlighters(editor)) continue;
+
+                LineSelectionManager selectionManager = LineSelectionManager.getInstance(editor);
+                selectionManager.setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
             }
         }));
     }
@@ -790,32 +792,40 @@ public class BatchReplaceForm implements Disposable {
 
         myManageActions.addActionListener(e -> myPopupMenuActions.show(myManageActions, myManageActions.getWidth() / 10, myManageActions.getHeight() * 85 / 100));
 
-        myMainPanel.addPropertyChangeListener(evt -> {
-            String propertyName = evt.getPropertyName();
-            if (propertyName.equals("ancestor")) {
-                myIsActive = evt.getNewValue() != null;
-
-                if (myEditor != null) {
-                    if (myIsActive) {
-                        updateOptions(true);
-                    } else {
-                        saveSettings();
-                    }
-                }
-
-                Plugin.getInstance().setProjectHighlightProvider(myProject, myIsActive ? myEditorSearchHighlightProvider : null);
-                updateHighlighters();
-            } else if (propertyName.equals("Frame.active")) {
-                if (!(boolean) evt.getNewValue()) {
-                    saveSettings();
-                }
-            }
-        });
+        myMainPanel.addPropertyChangeListener(this::propertyChanged);
 
         fillPresets();
         updateOptions(true);
 
         myInUpdate = false;
+    }
+
+    private void propertyChanged(PropertyChangeEvent evt) {
+        String propertyName = evt.getPropertyName();
+        if (propertyName.equals("ancestor")) {
+            myIsActive = evt.getNewValue() != null;
+
+            if (myEditor != null) {
+                if (myIsActive) {
+                    // need to close all other projects' Mia tool windows or they conflict
+                    Plugin.activatingBatchSearchReplaceToolWindow(myProject);
+                    updateOptions(true);
+                } else {
+                    saveSettings();
+                }
+
+                Plugin.getInstance().setProjectHighlightProvider(myProject, myIsActive ? myEditorSearchHighlightProvider : null);
+                updateHighlighters();
+            }
+        } else if (propertyName.equals("Frame.active")) {
+            if (!(boolean) evt.getNewValue()) {
+                saveSettings();
+            }
+        }
+    }
+
+    public boolean isActive() {
+        return myIsActive;
     }
 
     @SuppressWarnings("SameParameterValue")

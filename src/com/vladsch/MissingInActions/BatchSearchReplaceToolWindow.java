@@ -108,6 +108,10 @@ public class BatchSearchReplaceToolWindow implements Disposable {
         }
     }
 
+    public boolean isActive() {
+        return myBatchSearchReplace.isActive();
+    }
+
     public boolean isShowing() {
         if (toolWindow != null) {
             return toolWindow.isVisible();
