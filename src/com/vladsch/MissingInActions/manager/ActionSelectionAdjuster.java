@@ -1162,7 +1162,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                             editorCaret.normalizeCaretPosition();
                                             editorCaret.commit();
                                         }
-
                                     }
                                 } else {
                                     snapshot.restoreColumn();

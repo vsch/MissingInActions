@@ -349,7 +349,7 @@ public class BatchReplaceForm implements Disposable {
             Plugin plugin = Plugin.getInstance();
 
             for (Editor editor : editors) {
-                if (plugin.shouldNotUpdateHighlighters(editor)) continue;
+                if (shouldNotUpdateHighlighters(editor) || plugin.shouldNotUpdateHighlighters(editor)) continue;
 
                 LineSelectionManager selectionManager = LineSelectionManager.getInstance(editor);
                 selectionManager.setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
