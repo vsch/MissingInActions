@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.8.201.15</version>
+    <version>1.8.201.17</version>
     <depends>com.intellij.modules.lang</depends>
     <idea-version since-build="201.6668.113" until-build="211.*"/>
 

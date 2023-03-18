@@ -43,6 +43,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_LEADING_BLANKS;
+import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_WORD;
+import static com.vladsch.MissingInActions.util.EditHelpers.MULTI_CARET_SINGLE_LINE;
+import static com.vladsch.MissingInActions.util.EditHelpers.START_OF_TRAILING_BLANKS;
 import static com.vladsch.MissingInActions.util.EditHelpers.isWordEnd;
 import static com.vladsch.MissingInActions.util.EditHelpers.isWordStart;
 
@@ -110,7 +114,6 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
             for (Caret caret : editor.getCaretModel().getAllCarets()) {
                 int selectionStart = 0;
                 int selectionEnd = 0;
-                int caretOffset = caret.getOffset();
 
                 if (haveSelection) {
                     if (caret.hasSelection()) {
@@ -118,23 +121,25 @@ abstract public class WordHighlightActionBase extends AnAction implements DumbAw
                         selectionEnd = caret.getSelectionEnd();
                     }
                 } else {
+                    int caretOffset = caret.getOffset();
+                    
                     // see if we can select a word
                     if (EditHelpers.isIdentifier(chars, caretOffset)) {
                         selectionStart = caretOffset;
                         if (!isWordStart(editor, caretOffset, editor.getSettings().isCamelWords())) {
                             // go to previous word stat
                             selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
-                                    , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.END_OF_LEADING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
+                                    , EditHelpers.START_OF_WORD | END_OF_WORD | END_OF_LEADING_BLANKS | MULTI_CARET_SINGLE_LINE, true);
                         }
 
                         selectionEnd = EditHelpers.getNextWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
-                                , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.START_OF_TRAILING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
+                                , EditHelpers.START_OF_WORD | END_OF_WORD | START_OF_TRAILING_BLANKS | MULTI_CARET_SINGLE_LINE, true);
                     } else {
                         if (caretOffset > 0 && isWordEnd(editor, caretOffset, editor.getSettings().isCamelWords())) {
                             // go to previous word stat
                             selectionEnd = caretOffset;
                             selectionStart = EditHelpers.getPreviousWordStartOrEndOffset(editor, caretOffset, editor.getSettings().isCamelWords()
-                                    , EditHelpers.START_OF_WORD | EditHelpers.END_OF_WORD | EditHelpers.END_OF_LEADING_BLANKS | EditHelpers.MULTI_CARET_SINGLE_LINE, true);
+                                    , EditHelpers.START_OF_WORD | END_OF_WORD | END_OF_LEADING_BLANKS | MULTI_CARET_SINGLE_LINE, true);
                         }
                     }
                 }
