@@ -4,6 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
+  - [1.8.218.17 - Dev](#1821817---dev)
   - [1.8.218.15 - Dev](#1821815---dev)
   - [1.8.218.13 - Dev](#1821813---dev)
   - [1.8.218.11 - Dev](#1821811---dev)
@@ -58,6 +59,11 @@
   - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.218.17 - Dev
+
+* Fix: word highlight would not correctly highlight word if not at start of word and no
+  selection in multi caret mode.
 
 ### 1.8.218.15 - Dev
 
