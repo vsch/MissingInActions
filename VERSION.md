@@ -53,6 +53,11 @@
     - [0.5.1 - Bug Fix](#051---bug-fix)
     - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.216.17 - Dev
+
+* Fix: word highlight would not correctly highlight word if not at start of word and no
+  selection in multi caret mode.
+
 ### 1.8.216.15 - Dev
 
 * Fix: stack overflow due to recursion on highlight update

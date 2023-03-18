@@ -101,11 +101,10 @@ public class EditHelpers {
         return (options & flag) != 0;
     }
 
-    public static int getNextWordStartOrEndOffset(@NotNull Editor editor, int offset, boolean camel, int flags, boolean haveMultiCarets) {
+    public static int getNextWordStartOrEndOffset(final @NotNull Editor editor, final int offset, final boolean camel, final int flags, final boolean haveMultiCarets) {
         if (!isSet(flags, BOUNDARY_FLAGS)) return offset;
 
         Document document = editor.getDocument();
-        CaretModel caretModel = editor.getCaretModel();
 
         boolean stopAtTrailingBlanks = isSet(flags, START_OF_TRAILING_BLANKS);
 //        boolean stopAtLeadingBlanks = isSet(flags, END_OF_LEADING_BLANKS);
@@ -120,7 +119,7 @@ public class EditHelpers {
 
         if (offset == document.getTextLength()) return offset;
 
-        int lineNumber = caretModel.getLogicalPosition().line;
+        int lineNumber = editor.offsetToLogicalPosition(offset).line;
         if (lineNumber >= document.getLineCount()) return offset;
 
         int stopAtLastNonBlank = 0;
@@ -131,9 +130,9 @@ public class EditHelpers {
         if (stopAtTrailingBlanks || stopAtEndOfLine) {
             int lineEndOffset = document.getLineEndOffset(lineNumber);
             int trailingBlanks = countWhiteSpaceReversed(document.getCharsSequence(), lineStartOffset, lineEndOffset);
-            if (stopAtTrailingBlanks && caretModel.getOffset() < lineEndOffset - trailingBlanks) {
+            if (stopAtTrailingBlanks && offset < lineEndOffset - trailingBlanks) {
                 stopAtLastNonBlank = lineEndOffset - trailingBlanks;
-            } else if (stopAtEndOfLine && (caretModel.getOffset() < lineEndOffset || singleLine)) {
+            } else if (stopAtEndOfLine && (offset < lineEndOffset || singleLine)) {
                 stopAtLastNonBlank = lineEndOffset;
             }
         }
@@ -204,10 +203,8 @@ public class EditHelpers {
         }
     }
 
-    public static int getPreviousWordStartOrEndOffset(@NotNull Editor editor, int offset, boolean camel, int flags, boolean haveMultiCarets) {
+    public static int getPreviousWordStartOrEndOffset(final @NotNull Editor editor, final int offset, final boolean camel, final int flags, final boolean haveMultiCarets) {
         if (!isSet(flags, BOUNDARY_FLAGS)) return offset;
-
-        CaretModel caretModel = editor.getCaretModel();
 
         if (offset == 0) return offset;
 
@@ -224,7 +221,7 @@ public class EditHelpers {
 //        boolean strictIdentifier = isSet(flags, MIA_IDENTIFIER);
         boolean singleLine = isSet(flags, SINGLE_LINE) || isSet(flags, MULTI_CARET_SINGLE_LINE) && haveMultiCarets;
 
-        LogicalPosition logicalPosition = caretModel.getLogicalPosition();
+        LogicalPosition logicalPosition = editor.offsetToLogicalPosition(offset);
         int lineNumber = logicalPosition.line;
         int stopAtIndent = 0;
 
