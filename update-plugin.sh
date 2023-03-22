@@ -3,7 +3,8 @@ PLUGIN="MissingInActions"
 HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PLUGIN_JAR=
 OLD_PLUGIN=
-SANDBOX_NAME=
+SANDBOX_NAME="plugins-sandbox-mn"
+SANDBOX_IDE=
 IDE_VERSION=
 
 IDE_VERSIONS=(
@@ -16,9 +17,10 @@ IDE_VERSIONS=(
 #  203
 #  211
 
+# 1.8.223.19
 # 1.8.212.4
-#  212
-#  213
+ 212
+ 213
 
 # 1.8.214.6+
   221
@@ -28,7 +30,6 @@ IDE_VERSIONS=(
   232
   233
 )
-SANDBOX_IDE=
 
 cd "${HOME_DIR}" || exit
 

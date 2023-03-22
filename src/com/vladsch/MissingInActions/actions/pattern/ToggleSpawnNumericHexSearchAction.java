@@ -20,10 +20,11 @@ package com.vladsch.MissingInActions.actions.pattern;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
+import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleSpawnNumericHexSearchAction extends ToggleAction implements DumbAware {
+public class ToggleSpawnNumericHexSearchAction extends ToggleAction implements DumbAware, CaretSearchAwareAction {
     @Override
     public boolean isSelected(@NotNull final AnActionEvent e) {
         ApplicationSettings instance = ApplicationSettings.getInstance();

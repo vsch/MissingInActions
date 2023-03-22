@@ -25,9 +25,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.vladsch.MissingInActions.Plugin;
+import com.vladsch.MissingInActions.actions.CaretSearchAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleWordHighlightsMatchBoundaryAction extends ToggleAction implements DumbAware {
+public class ToggleWordHighlightsMatchBoundaryAction extends ToggleAction implements DumbAware, CaretSearchAwareAction {
     @Override
     public boolean isSelected(@NotNull final AnActionEvent e) {
         return Plugin.getInstance().isHighlightWordsMatchBoundary();

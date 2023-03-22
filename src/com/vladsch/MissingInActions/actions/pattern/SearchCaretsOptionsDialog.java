@@ -134,13 +134,18 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         myViewPanel.add(myViewer.getComponent(), BorderLayout.CENTER);
 
         myFocusViewer.addActionListener(e -> {
+            if (checkRegEx(myPattern).isEmpty()) {
+                updateViewer();
+            }
             myViewer.getContentComponent().requestFocus();
         });
 
         final ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                updateViewer();
+                if (checkRegEx(myPattern).isEmpty()) {
+                    updateViewer();
+                }
                 ApplicationManager.getApplication().invokeLater(() -> {
                     myViewer.getContentComponent().requestFocus();
                 });
@@ -163,11 +168,21 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         myPattern.getDocument().addDocumentListener(listener);
 
         copyEditorSettings();
-        updateViewer();
 
-        checkRegEx(myPattern);
+        if (checkRegEx(myPattern).isEmpty()) {
+            updateViewer();
+        }
 
         init();
+    }
+
+    @Override
+    public void disposeIfNeeded() {
+        super.disposeIfNeeded();
+
+        if (!myViewer.isDisposed()) {
+            EditorFactory.getInstance().releaseEditor(myViewer);
+        }
     }
 
     protected EditorEx createIdeaEditor(CharSequence charSequence) {

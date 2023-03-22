@@ -3,11 +3,12 @@
     <module name="MissingInActions" />
     <option name="VM_PARAMETERS" value="-Xmx3000m -Xms1024m -ea -Didea.is.internal=true -Didea.platform.prefix=Idea -Djava.system.class.loader=com.intellij.util.lang.PathClassLoader" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <alternative-path path="IDEA Plugin jdk Mia" alternative-path-enabled="true" />
+    <alternative-path path="IntelliJ IDEA Community Edition IC-212.5712.43" alternative-path-enabled="false" />
     <log_file checked="false" alias="ide log" path="$USER_HOME$/Library/Caches/IdeaIC2017-1/plugins-sandbox/system/log/idea.log" skipped="false" />
     <predefined_log_file enabled="true" id="idea.log" />
     <method v="2">
       <option name="Make" enabled="true" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Update Sandboxes" />
     </method>
   </configuration>
 </component>

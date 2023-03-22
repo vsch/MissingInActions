@@ -35,6 +35,7 @@ import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
+import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.LazyFunction;
 import org.jetbrains.annotations.NotNull;

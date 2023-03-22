@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -73,6 +74,15 @@ public class RenumberingDialog extends DialogWrapper implements NumberingOptions
         init();
     }
 
+    @Override
+    public void disposeIfNeeded() {
+        super.disposeIfNeeded();
+
+        if (!myViewer.isDisposed()) {
+            EditorFactory.getInstance().releaseEditor(myViewer);
+        }
+    }
+    
     @Override
     public void optionsChanged(NumberingOptions options) {
         updateResults();
