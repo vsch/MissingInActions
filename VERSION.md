@@ -4,6 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
+  - [1.8.223.21 - Dev](#1822321---dev)
   - [1.8.223.19 - Dev](#1822319---dev)
   - [1.8.218.17 - Dev](#1821817---dev)
   - [1.8.218.15 - Dev](#1821815---dev)
@@ -61,6 +62,11 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.223.21 - Dev
+
+* Add: Ignore Suffix on Paste option to allow ignoring certain suffixes when determining case
+  style of paste destination.
+  
 ### 1.8.223.19 - Dev
 
 * Fix: caret spawning search when test part is numeric but not at start/end then use `\D` to

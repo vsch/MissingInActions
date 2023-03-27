@@ -42,14 +42,13 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.ui.ComponentUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Plugin;
-import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.actions.pattern.RangeLimitedCaretSpawningHandler;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.ApplicationSettingsListener;
 import com.vladsch.MissingInActions.settings.MouseModifierType;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
+import com.vladsch.MissingInActions.settings.SuffixOnPastePatternType;
 import com.vladsch.MissingInActions.util.CaseFormatPreserver;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
@@ -393,8 +392,10 @@ public class LineSelectionManager implements
         final BasedSequence chars = BasedSequence.of(text);
         CaseFormatPreserver preserver = new CaseFormatPreserver();
         int separators = settings.getPreserveOnPasteSeparators();
-        final PrefixOnPastePatternType patternType = settings.getRemovePrefixOnPastePatternType();
+        final PrefixOnPastePatternType prefixPatternType = settings.getRemovePrefixOnPastePatternType();
         final String[] prefixes = settings.getPrefixesOnPasteList();
+        final SuffixOnPastePatternType suffixPatternType = settings.getIgnoreSuffixOnPastePatternType();
+        final String[] suffixes = settings.getSuffixesOnPasteList();
         int rangeIndex = 0;
 
         while (matcher.find()) {
@@ -418,7 +419,7 @@ public class LineSelectionManager implements
                 replaceLength = myOnPasteUserReplacementText.length();
 
                 if (smartReplace) {
-                    preserver.studyFormatBefore(chars, 0, start, end, patternType, prefixes, separators);
+                    preserver.studyFormatBefore(chars, 0, start, end, prefixPatternType, prefixes, suffixPatternType, suffixes, separators);
                     String edited = sb.toString() + myOnPasteUserReplacementText + text.substring(end);
                     final TextRange range = new TextRange(startLength, startLength + replaceLength);
                     final BasedSequence chars1 = BasedSequence.of(edited);
@@ -432,10 +433,12 @@ public class LineSelectionManager implements
                             , settings.isPreserveDashCaseOnPaste()
                             , settings.isPreserveDotCaseOnPaste()
                             , settings.isPreserveSlashCaseOnPaste()
-                            , settings.isRemovePrefixOnPaste()
+                            , settings.isRemovePrefixesOnPaste()
                             , settings.isAddPrefixOnPaste()
                             , settings.getRemovePrefixOnPastePatternType()
                             , settings.getPrefixesOnPasteList()
+                            , settings.getIgnoreSuffixOnPastePatternType()
+                            , settings.getSuffixesOnPasteList()
                     );
 
                     if (i == null) {

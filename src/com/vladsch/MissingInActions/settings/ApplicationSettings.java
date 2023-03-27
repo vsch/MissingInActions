@@ -78,6 +78,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     private boolean         myPreserveDotCaseOnPaste = false;
     private boolean         myPreserveSlashCaseOnPaste = false;
     private boolean         myRemovePrefixOnPaste = false;
+    private boolean         myIgnoreSuffixesOnPaste = false;
     private boolean         mySelectPasted = false;
     private boolean         mySelectPastedMultiCaret = false;
     private boolean         myStartEndAsLineSelection = false;
@@ -94,6 +95,7 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     private int             myLinePasteCaretAdjustment = LinePasteCaretAdjustmentType.NONE.intValue;
     private int             myMouseModifier = MouseModifierType.ADAPTER.getDefault().getIntValue();
     private int             myPrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.getDefault().intValue;
+    private int             mySuffixOnPastePattern = SuffixOnPastePatternType.ADAPTER.getDefault().intValue;
     private int             mySelectPastedMultiCaretPredicate = SelectionPredicateType.WHEN_HAS_1_PLUS_LINES.intValue;
     private int             mySelectPastedPredicate = SelectionPredicateType.WHEN_HAS_2_PLUS_LINES.intValue;
     private int             myPrimaryCaretThickness = CaretThicknessType.NORMAL.intValue;
@@ -126,8 +128,10 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     private boolean         myIsolatedBackgroundColorEnabled = true;
     private int             myIsolatedBackgroundColor = 0xF0F0F0;
     private int             myIsolatedBackgroundDarkColor = 0x4D4D4D;
-    private @NotNull String myRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
+    private @NotNull String myPrefixRegexSampleText = "myCamelCaseMember|ourCamelCaseMember|isCamelCaseMember()|getCamelCaseMember()|setCamelCaseMember()";
+    private @NotNull String mySuffixRegexSampleText = "myCamelCaseMember_P|ourCamelCaseMember_P|isCamelCaseMember_P()|getCamelCaseMember_P()|setCamelCaseMember()";
     private @NotNull String myPrefixesOnPasteText = "my|our|is|get|set";
+    private @NotNull String mySuffixesOnPasteText = "_P";
     private int             myGradientHueMin = ColorIterable.GRADIENT_HUE_MIN;
     private int             myGradientHueMax = ColorIterable.GRADIENT_HUE_MAX;
     private int             myGradientHueSteps = ColorIterable.GRADIENT_HUE_STEPS;
@@ -315,11 +319,15 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     // cached values
     private @Nullable Pattern myPrefixesOnPastePattern = null;
     private @Nullable String[] myPrefixesOnPasteList = null;
+
+    private @Nullable Pattern mySuffixesOnPastePattern = null;
+    private @Nullable String[] mySuffixesOnPasteList = null;
     private @Nullable String[] myRegexSampleList = null;
 
     // get/set enums directly
     // @formatter:off
     public PrefixOnPastePatternType         getRemovePrefixOnPastePatternType()             { return PrefixOnPastePatternType.ADAPTER.get(myPrefixOnPastePattern); }
+    public SuffixOnPastePatternType         getIgnoreSuffixOnPastePatternType()             { return SuffixOnPastePatternType.ADAPTER.get(mySuffixOnPastePattern); }
     public CaretAdjustmentType              getCaretOnMoveSelectionDownType()               { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionDown); }
     public CaretAdjustmentType              getCaretOnMoveSelectionUpType()                 { return CaretAdjustmentType.ADAPTER.get(myCaretOnMoveSelectionUp); }
     public SelectionPredicateType           getDuplicateAtStartOrEndPredicateType()         { return SelectionPredicateType.ADAPTER.get(myDuplicateAtStartOrEndPredicate); }
@@ -377,14 +385,6 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     }
 
     @Nullable
-    public String[] getRegexSampleList() {
-        if (myRegexSampleList == null && !myRegexSampleText.isEmpty()) {
-            myRegexSampleList = myRegexSampleText.split(PREFIX_SPLIT_REGEX);
-        }
-        return myPrefixesOnPasteList;
-    }
-
-    @Nullable
     public Pattern getPrefixesOnPastePattern() {
         if (myPrefixesOnPastePattern == null && !myPrefixesOnPasteText.isEmpty()) {
             if (myPrefixOnPastePattern == PrefixOnPastePatternType.REGEX.getIntValue()) {
@@ -423,6 +423,55 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
             }
         }
         return myPrefixesOnPastePattern;
+    }
+
+    @Nullable
+    public String[] getSuffixesOnPasteList() {
+        if (mySuffixesOnPasteList == null && !mySuffixesOnPasteText.isEmpty()) {
+            if (mySuffixOnPastePattern != SuffixOnPastePatternType.REGEX.getIntValue()) {
+                mySuffixesOnPasteList = mySuffixesOnPasteText.split(PREFIX_SPLIT_REGEX);
+            } else {
+                mySuffixesOnPasteList = new String[] { mySuffixesOnPasteText };
+            }
+        }
+        return mySuffixesOnPasteList;
+    }
+
+    @Nullable
+    public Pattern getSuffixesOnPastePattern() {
+        if (mySuffixesOnPastePattern == null && !mySuffixesOnPasteText.isEmpty()) {
+            if (mySuffixOnPastePattern == SuffixOnPastePatternType.REGEX.getIntValue()) {
+                try {
+                    mySuffixesOnPastePattern = Pattern.compile(mySuffixesOnPasteText);
+                } catch (Throwable error) {
+                    mySuffixOnPastePattern = SuffixOnPastePatternType.ANY.getIntValue();
+                    throw error;
+                }
+            } else {
+            // Can build it from the list
+            StringBuilder sb = new StringBuilder();
+            sb.append("(?:\\Q");
+            String sep = "";
+            final String[] suffixList = getSuffixesOnPasteList();
+            assert suffixList != null;
+            for (String suffix : suffixList) {
+                if (!suffix.isEmpty()) {
+                    sb.append(sep);
+                    sep = "\\E|\\Q";
+                    sb.append(suffix);
+                }
+            }
+            sb.append("\\E)\b");
+
+            try {
+                mySuffixesOnPastePattern = Pattern.compile(sb.toString());
+            } catch (Throwable error) {
+                    mySuffixOnPastePattern = SuffixOnPastePatternType.ANY.getIntValue();
+                throw error;
+            }
+            }
+        }
+        return mySuffixesOnPastePattern;
     }
 
     public NumberingOptions getLastNumberingOptions() { return myLastNumberingOptions.copy(); }
@@ -741,12 +790,16 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     public void setMultiPasteShowOptions(final boolean multiPasteShowOptions) { myMultiPasteShowOptions = multiPasteShowOptions; }
     public boolean isMultiPasteShowEolInViewer() { return myMultiPasteShowEolInViewer; }
     public void setMultiPasteShowEolInViewer(final boolean multiPasteShowEolInViewer) { myMultiPasteShowEolInViewer = multiPasteShowEolInViewer; }
-    @NotNull public String getRegexSampleText() { return myRegexSampleText; }
-    public void setRegexSampleText(@NotNull final String regexSampleText) { myRegexSampleText = regexSampleText; }
+    @NotNull public String getPrefixRegexSampleText() { return myPrefixRegexSampleText; }
+    public void setPrefixRegexSampleText(@NotNull final String regexSampleText) { myPrefixRegexSampleText = regexSampleText; }
+    @NotNull public String getSuffixRegexSampleText() { return mySuffixRegexSampleText; }
+    public void setSuffixRegexSampleText(@NotNull final String regexSampleText) { mySuffixRegexSampleText = regexSampleText; }
     public boolean isAddPrefixOnPaste() { return myAddPrefixOnPaste; }
     public void setAddPrefixOnPaste(final boolean addPrefixOnPaste) { myAddPrefixOnPaste = addPrefixOnPaste; }
     public int getPrefixOnPastePattern() { return myPrefixOnPastePattern; }
     public void setPrefixOnPastePattern(final int prefixOnPastePattern) { myPrefixOnPastePattern = prefixOnPastePattern; }
+    public int getSuffixOnPastePattern() { return mySuffixOnPastePattern; }
+    public void setSuffixOnPastePattern(final int suffixOnPastePattern) { mySuffixOnPastePattern = suffixOnPastePattern; }
     public int getLinePasteCaretAdjustment() { return myLinePasteCaretAdjustment; }
     public void setLinePasteCaretAdjustment(final int linePasteCaretAdjustment) { myLinePasteCaretAdjustment = linePasteCaretAdjustment; }
     public boolean isMultiPasteShowInstructions() { return myMultiPasteShowInstructions; }
@@ -765,10 +818,14 @@ public class ApplicationSettings extends BatchSearchReplaceSettings implements P
     public void setPreserveDotCaseOnPaste(final boolean preserveDotCaseOnPaste) { myPreserveDotCaseOnPaste = preserveDotCaseOnPaste; }
     public boolean isPreserveSlashCaseOnPaste() { return myPreserveSlashCaseOnPaste; }
     public void setPreserveSlashCaseOnPaste(final boolean preserveSlashCaseOnPaste) { myPreserveSlashCaseOnPaste = preserveSlashCaseOnPaste; }
-    public boolean isRemovePrefixOnPaste() { return myRemovePrefixOnPaste; }
-    public void setRemovePrefixOnPaste(boolean removePrefixOnPaste) { myRemovePrefixOnPaste = removePrefixOnPaste; }
+    public boolean isRemovePrefixesOnPaste() { return myRemovePrefixOnPaste; }
+    public void setRemovePrefixesOnPaste(boolean removePrefixOnPaste) { myRemovePrefixOnPaste = removePrefixOnPaste; }
+    public boolean isIgnoreSuffixesOnPaste() { return myIgnoreSuffixesOnPaste; }
+    public void setIgnoreSuffixesOnPaste(boolean ignoreSuffixesOnPaste) { myIgnoreSuffixesOnPaste = ignoreSuffixesOnPaste; }
     @NotNull public String getPrefixesOnPasteText() { return myPrefixesOnPasteText; }
-    public void setPrefixesOnPasteText(@NotNull String prefixesOnPasteText) {myPrefixesOnPasteText = prefixesOnPasteText;myPrefixesOnPasteList = null;myPrefixesOnPastePattern = null;}
+    public void setPrefixesOnPasteText(@NotNull String prefixesOnPasteText) {myPrefixesOnPasteText = prefixesOnPasteText; myPrefixesOnPasteList = null;myPrefixesOnPastePattern = null;}
+    @NotNull public String getSuffixesOnPasteText() { return mySuffixesOnPasteText; }
+    public void setSuffixesOnPasteText(@NotNull String suffixesOnPasteText) {mySuffixesOnPasteText = suffixesOnPasteText; mySuffixesOnPasteList = null; mySuffixesOnPastePattern = null;}
     public boolean isPreserveCamelCaseOnPaste() { return myPreserveCamelCaseOnPaste; }
     public void setPreserveCamelCaseOnPaste(boolean preserveCamelCaseOnPaste) { myPreserveCamelCaseOnPaste = preserveCamelCaseOnPaste; }
     public boolean isStartEndAsLineSelection() { return myStartEndAsLineSelection; }

@@ -55,6 +55,7 @@ import com.vladsch.MissingInActions.settings.ApplicationSettings;
 import com.vladsch.MissingInActions.settings.CaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.LinePasteCaretAdjustmentType;
 import com.vladsch.MissingInActions.settings.SelectionPredicateType;
+import com.vladsch.MissingInActions.settings.SuffixOnPastePatternType;
 import com.vladsch.MissingInActions.util.ActionContext;
 import com.vladsch.MissingInActions.util.CaretSnapshot;
 import com.vladsch.MissingInActions.util.CaseFormatPreserver;
@@ -1066,7 +1067,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         final boolean inWriteAction = settings.isOnPastePreserve() && (settings.isPreserveCamelCaseOnPaste()
                 || settings.isPreserveSnakeCaseOnPaste()
                 || settings.isPreserveScreamingSnakeCaseOnPaste()
-                || (settings.isRemovePrefixOnPaste() || settings.isAddPrefixOnPaste()) && !(settings.getPrefixesOnPasteText().isEmpty()))
+                || (settings.isRemovePrefixesOnPaste() || settings.isAddPrefixOnPaste()) && !(settings.getPrefixesOnPasteText().isEmpty()))
                 && myAdjustmentsMap.isInSet(action.getClass(), ActionSetType.PASTE_ACTION);
 
         final int[] cumulativeCaretDelta = new int[] { 0 };
@@ -1078,8 +1079,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             int separators = settings.getPreserveOnPasteSeparators();
 
             params.preserver.studyFormatBefore(editorCaret
-                    , (settings.isRemovePrefixOnPaste() || settings.isAddPrefixOnPaste()) ? settings.getPrefixesOnPasteList() : null
+                    , (settings.isRemovePrefixesOnPaste() || settings.isAddPrefixOnPaste()) ? settings.getPrefixesOnPasteList() : null
                     , settings.getRemovePrefixOnPastePatternType()
+                    , (settings.isIgnoreSuffixesOnPaste()) ? settings.getSuffixesOnPasteList() : null
+                    , SuffixOnPastePatternType.ANY
                     , separators
             );
 
@@ -1130,10 +1133,12 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                                                         , settings.isPreserveDashCaseOnPaste()
                                                         , settings.isPreserveDotCaseOnPaste()
                                                         , settings.isPreserveSlashCaseOnPaste()
-                                                        , settings.isRemovePrefixOnPaste()
+                                                        , settings.isRemovePrefixesOnPaste()
                                                         , settings.isAddPrefixOnPaste()
                                                         , settings.getPrefixesOnPasteList()
                                                         , settings.getRemovePrefixOnPastePatternType()
+                                                        , settings.getSuffixesOnPasteList()
+                                                        , settings.getIgnoreSuffixOnPastePatternType()
                                                 );
                                             }
                                         } else {

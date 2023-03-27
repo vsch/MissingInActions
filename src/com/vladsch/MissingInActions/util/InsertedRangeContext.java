@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
+import com.vladsch.MissingInActions.settings.SuffixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +70,7 @@ public class InsertedRangeContext {
     private int myCaretDelta;
     private StudiedWord myStudiedWord;
     private boolean myPrefixRemoved;
+    private boolean mySuffixRemoved;
 
     public InsertedRangeContext(@NotNull BasedSequence charSequence, int beforeOffset, int afterOffset, int separators) {
         this.charSequence = charSequence;
@@ -104,6 +106,7 @@ public class InsertedRangeContext {
         myStudiedWord = StudiedWord.of(myWord, mySeparators);
         myCaretDelta = 0;
         myPrefixRemoved = false;
+        mySuffixRemoved = false;
     }
 
     @Override
@@ -112,6 +115,7 @@ public class InsertedRangeContext {
                 "myWord='" + myWord + '\'' +
                 ", myCaretDelta=" + myCaretDelta +
                 ", myPrefixRemoved=" + myPrefixRemoved +
+                ", mySuffixRemoved=" + mySuffixRemoved +
                 '}';
     }
 
@@ -129,8 +133,11 @@ public class InsertedRangeContext {
 
     public boolean isPrefixRemoved() { return myPrefixRemoved; }
 
+
     public void setPrefixRemoved(final boolean prefixRemoved) { myPrefixRemoved = prefixRemoved; }
 
+    public boolean isSuffixRemoved() { return mySuffixRemoved; }
+    public void setSuffixRemoved(final boolean suffixRemoved) { mySuffixRemoved = suffixRemoved; }
     // adjust with change to word
     public char charAtStart() { return !myWord.isEmpty() ? myWord.charAt(0) : charAfter; }
 
@@ -234,6 +241,11 @@ public class InsertedRangeContext {
             myWord = matched + myWord.substring(matched.length());
         }
         return matched;
+    }
+
+    public String getMatchedSuffix(final SuffixOnPastePatternType suffixType, final @Nullable String[] suffixList) {
+        SuffixOnPastePatternType type = suffixType == null ? SuffixOnPastePatternType.ANY : suffixType;
+        return type.getMatched(myWord, suffixList);
     }
 
     public boolean addPrefixOrReplaceMismatchedPrefix(final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String prefix, final @Nullable String[] prefixList, @Nullable String secondPrefix) {

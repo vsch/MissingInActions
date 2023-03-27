@@ -67,7 +67,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 @SuppressWarnings("WeakerAccess")
-public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder {
+public class ApplicationSettingsForm implements Disposable {
     private JPanel myMainPanel;
     final private ApplicationSettings mySettings;
 
@@ -104,7 +104,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myPreserveDashCaseOnPaste;
     JBCheckBox myPreserveDotCaseOnPaste;
     JBCheckBox myPreserveSlashCaseOnPaste;
-    JBCheckBox myRemovePrefixOnPaste;
+    JBCheckBox myRemovePrefixesOnPaste;
+    JBCheckBox myIgnoreSuffixesOnPaste;
     JBCheckBox mySelectPasted;
     JBCheckBox mySelectPastedMultiCaret;
     JBCheckBox myStartEndAsLineSelection;
@@ -112,8 +113,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myUnselectToggleCase;
     JBCheckBox myUpDownMovement;
     JBCheckBox myUpDownSelection;
-    JBTextField myPrefixOnPasteText;
-    JButton myEditRegExButton;
+    JBTextField myPrefixesOnPasteText;
+    JBTextField mySuffixesOnPasteText;
+    JButton myEditPrefixRegExButton;
+    JButton myEditSuffixRegExButton;
     JComboBox<String> myAutoLineMode;
     JComboBox<String> myCaretOnMoveSelectionDown;
     JComboBox<String> myCaretOnMoveSelectionUp;
@@ -121,6 +124,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JComboBox<String> myLinePasteCaretAdjustment;
     JComboBox<String> myMouseModifier;
     JComboBox<String> myRemovePrefixOnPastePattern;
+    JComboBox<String> myIgnoreSuffixOnPastePattern;
     JComboBox<String> mySelectPastedMultiCaretPredicate;
     JComboBox<String> mySelectPastedPredicate;
     JCheckBox mySearchCancelOnEscape;
@@ -168,11 +172,41 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
     JBCheckBox myRegisterCaretStateTransferable;
     JBCheckBox myHighlightProjectViewNodes;
 
-    private @NotNull String myRegexSampleText;
+    private @NotNull String myPrefixRegexSampleText;
+    
+    private @NotNull String mySuffixRegexSampleText;
     private final EditingCommitter myEditingCommitter;
 
     private final SettingsComponents<ApplicationSettings> components;
     private final LafManagerListener myLafManagerListener;
+    
+    private final RegExSettingsHolder myPrefixRegEx = new RegExSettingsHolder() {
+        @NotNull @Override public String getPatternText() { return myPrefixesOnPasteText.getText().trim(); }
+        @Override public void setPatternText(final String patternText) { myPrefixesOnPasteText.setText(patternText); }
+
+        @NotNull @Override public String getSampleText() { return myPrefixRegexSampleText; }
+        @Override public void setSampleText(final String sampleText) { myPrefixRegexSampleText = sampleText; }
+        @Override public boolean isCaseSensitive() { return true; }
+        @Override public boolean isBackwards() { return false; }
+        @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
+        @Override public void setBackwards(final boolean isBackwards) { }
+        @Override public boolean isCaretToGroupEnd() { return false; }
+        @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
+    };
+
+    private final RegExSettingsHolder mySuffixRegEx = new RegExSettingsHolder() {
+        @NotNull @Override public String getPatternText() { return mySuffixesOnPasteText.getText().trim(); }
+        @Override public void setPatternText(final String patternText) { mySuffixesOnPasteText.setText(patternText); }
+
+        @NotNull @Override public String getSampleText() { return mySuffixRegexSampleText; }
+        @Override public void setSampleText(final String sampleText) { mySuffixRegexSampleText = sampleText; }
+        @Override public boolean isCaseSensitive() { return true; }
+        @Override public boolean isBackwards() { return false; }
+        @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
+        @Override public void setBackwards(final boolean isBackwards) { }
+        @Override public boolean isCaretToGroupEnd() { return false; }
+        @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
+    };
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
@@ -250,8 +284,10 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myPreserveDashCaseOnPaste, i::isPreserveDashCaseOnPaste, i::setPreserveDashCaseOnPaste),
                         component(myPreserveDotCaseOnPaste, i::isPreserveDotCaseOnPaste, i::setPreserveDotCaseOnPaste),
                         component(myPreserveSlashCaseOnPaste, i::isPreserveSlashCaseOnPaste, i::setPreserveSlashCaseOnPaste),
-                        component(myRemovePrefixOnPaste, i::isRemovePrefixOnPaste, i::setRemovePrefixOnPaste),
-                        component(myPrefixOnPasteText, i::getPrefixesOnPasteText, i::setPrefixesOnPasteText),
+                        component(myRemovePrefixesOnPaste, i::isRemovePrefixesOnPaste, i::setRemovePrefixesOnPaste),
+                        component(myPrefixesOnPasteText, i::getPrefixesOnPasteText, i::setPrefixesOnPasteText),
+                        component(myIgnoreSuffixesOnPaste, i::isIgnoreSuffixesOnPaste, i::setIgnoreSuffixesOnPaste),
+                        component(mySuffixesOnPasteText, i::getSuffixesOnPasteText, i::setSuffixesOnPasteText),
                         component(mySpliceDelimiterText, i::getSpliceDelimiterText, i::setSpliceDelimiterText),
                         component(myOpenQuoteText, i::getOpenQuoteText, i::setOpenQuoteText),
                         component(myClosedQuoteText, i::getClosedQuoteText, i::setClosedQuoteText),
@@ -265,6 +301,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                         component(myUpDownMovement, i::isUpDownMovement, i::setUpDownMovement),
                         component(myUpDownSelection, i::isUpDownSelection, i::setUpDownSelection),
                         component(PrefixOnPastePatternType.ADAPTER, myRemovePrefixOnPastePattern, i::getPrefixOnPastePattern, i::setPrefixOnPastePattern),
+                        component(SuffixOnPastePatternType.ADAPTER, myIgnoreSuffixOnPastePattern, i::getSuffixOnPastePattern, i::setSuffixOnPastePattern),
                         component(SelectionPredicateType.ADAPTER, myDuplicateAtStartOrEndPredicate, i::getDuplicateAtStartOrEndPredicate, i::setDuplicateAtStartOrEndPredicate),
                         component(SelectionPredicateType.ADAPTER, mySelectPastedMultiCaretPredicate, i::getSelectPastedMultiCaretPredicate, i::setSelectPastedMultiCaretPredicate),
                         component(SelectionPredicateType.ADAPTER, mySelectPastedPredicate, i::getSelectPastedPredicate, i::setSelectPastedPredicate),
@@ -272,7 +309,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
             }
         };
 
-        myRegexSampleText = settings.getRegexSampleText();
+        myPrefixRegexSampleText = settings.getPrefixRegexSampleText();
+        mySuffixRegexSampleText = settings.getSuffixRegexSampleText();
 
         final ActionListener actionListener = new ActionListener() {
             @Override
@@ -336,10 +374,12 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySelectPastedMultiCaret.addActionListener(actionListener);
         myDuplicateAtStartOrEnd.addActionListener(actionListener);
         myMouseCamelHumpsFollow.addActionListener(actionListener);
-        myRemovePrefixOnPaste.addActionListener(actionListener);
+        myRemovePrefixesOnPaste.addActionListener(actionListener);
+        myIgnoreSuffixesOnPaste.addActionListener(actionListener);
         myAddPrefixOnPaste.addActionListener(actionListener);
         myOverrideStandardPaste.addActionListener(actionListener);
         myRemovePrefixOnPastePattern.addActionListener(actionListener);
+        myIgnoreSuffixOnPastePattern.addActionListener(actionListener);
         myAutoLineMode.addActionListener(e -> updateOptions(true));
         mySpawnNumericSearch.addActionListener(actionListener);
 
@@ -361,10 +401,15 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myOpenQuoteText.getDocument().addDocumentListener(openQuoteDocumentAdapter);
         myClosedQuoteText.getDocument().addDocumentListener(documentAdapter);
 
-        myEditRegExButton.addActionListener(e -> {
-            boolean valid = RegExTestDialog.showDialog(myMainPanel, this);
-            myRemovePrefixOnPaste.setSelected(valid);
+        myEditPrefixRegExButton.addActionListener(e -> {
+            boolean valid = RegExTestDialog.showDialog(myMainPanel, myPrefixRegEx);
+            myRemovePrefixesOnPaste.setSelected(valid);
             myAddPrefixOnPaste.setSelected(valid);
+        });
+
+        myEditSuffixRegExButton.addActionListener(e -> {
+            boolean valid = RegExTestDialog.showDialog(myMainPanel, mySuffixRegEx);
+            myIgnoreSuffixesOnPaste.setSelected(valid);
         });
 
         ChangeListener changeListener = new ChangeListener() {
@@ -460,35 +505,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         html.closeTag("code").closeTag("body");
         html.closeTag("html");
-        //myHighlightGradientPane.setVisible(true);
         myHighlightGradientPane.setText(html.toFinalizedString());
-        //myHighlightGradientPane.revalidate();
-        //Component component = myHighlightGradientPane;
-        //
-        //List<Component> components = new ArrayList<>();
-        //while (component != null && component != myMainPanel) {
-        //    components.add(component);
-        //    component = component.getParent();
-        //}
-        //
-        //for (int i = components.size(); i-- > 0; ) {
-        //    components.get(i).revalidate();
-        //}
     }
-
-    // @formatter:off
-    @NotNull @Override public String getPatternText() { return myPrefixOnPasteText.getText().trim(); }
-    @Override public void setPatternText(final String patternText) { myPrefixOnPasteText.setText(patternText); }
-
-    @NotNull @Override public String getSampleText() { return myRegexSampleText; }
-    @Override public void setSampleText(final String sampleText) { myRegexSampleText = sampleText; }
-    @Override public boolean isCaseSensitive() { return true; }
-    @Override public boolean isBackwards() { return false; }
-    @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
-    @Override public void setBackwards(final boolean isBackwards) { }
-    @Override public boolean isCaretToGroupEnd() { return false; }
-    @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
-    // @formatter:on
 
     public JComponent getComponent() {
         return myMainPanel;
@@ -504,7 +522,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
                 || (myCustomizedPrevWordBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordBounds() & ~wordMask)
                 || (myCustomizedPrevWordEndBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordEndBounds() & ~wordMask)
                 || (myCustomizedPrevWordStartBounds.getValue() & ~wordMask) != (mySettings.getCustomizedPrevWordStartBounds() & ~wordMask)
-                || !myRegexSampleText.equals(mySettings.getRegexSampleText())
+                || !myPrefixRegexSampleText.equals(mySettings.getPrefixRegexSampleText())
+                || !mySuffixRegexSampleText.equals(mySettings.getSuffixRegexSampleText())
 
                 || components.isModified(mySettings)
                 || myCustomDeleteBackspaceForm.isModified(mySettings)
@@ -518,7 +537,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         mySettings.setCustomizedPrevWordBounds(myCustomizedPrevWordBounds.getValue());
         mySettings.setCustomizedPrevWordEndBounds(myCustomizedPrevWordEndBounds.getValue());
         mySettings.setCustomizedPrevWordStartBounds(myCustomizedPrevWordStartBounds.getValue());
-        mySettings.setRegexSampleText(myRegexSampleText);
+        mySettings.setPrefixRegexSampleText(myPrefixRegexSampleText);
+        mySettings.setSuffixRegexSampleText(mySuffixRegexSampleText);
 
         components.apply(mySettings);
 
@@ -537,7 +557,8 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myCustomizedPrevWordBounds.setValue(mySettings.getCustomizedPrevWordBounds());
         myCustomizedPrevWordEndBounds.setValue(mySettings.getCustomizedPrevWordEndBounds());
         myCustomizedPrevWordStartBounds.setValue(mySettings.getCustomizedPrevWordStartBounds());
-        myRegexSampleText = mySettings.getRegexSampleText();
+        myPrefixRegexSampleText = mySettings.getPrefixRegexSampleText();
+        mySuffixRegexSampleText = mySettings.getSuffixRegexSampleText();
 
         components.reset(mySettings);
         myCustomDeleteBackspaceForm.reset(mySettings);
@@ -606,11 +627,18 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
 
         final boolean regexPrefixes = PrefixOnPastePatternType.ADAPTER.get(myRemovePrefixOnPastePattern) == PrefixOnPastePatternType.REGEX;
         final boolean enablePrefixes = !regexPrefixes &&
-                (myRemovePrefixOnPaste.isSelected() && myRemovePrefixOnPaste.isEnabled()
+                (myRemovePrefixesOnPaste.isSelected() && myRemovePrefixesOnPaste.isEnabled()
                         || myAddPrefixOnPaste.isSelected() && myAddPrefixOnPaste.isEnabled());
 
-        myPrefixOnPasteText.setEnabled(enablePrefixes);
-        myEditRegExButton.setVisible(regexPrefixes);
+        myPrefixesOnPasteText.setEnabled(enablePrefixes);
+        myEditPrefixRegExButton.setVisible(regexPrefixes);
+
+        final boolean regexSuffixes = SuffixOnPastePatternType.ADAPTER.get(myIgnoreSuffixOnPastePattern) == SuffixOnPastePatternType.REGEX;
+        final boolean enableSuffixes = !regexSuffixes &&
+                (myIgnoreSuffixesOnPaste.isSelected() && myIgnoreSuffixesOnPaste.isEnabled());
+
+        mySuffixesOnPasteText.setEnabled(enableSuffixes);
+        myEditSuffixRegExButton.setVisible(regexSuffixes);
 
         myDuplicateAtStartOrEndPredicate.setEnabled(myDuplicateAtStartOrEnd.isEnabled() && myDuplicateAtStartOrEnd.isSelected());
         // no longer needed, using clipboard listener
@@ -659,6 +687,7 @@ public class ApplicationSettingsForm implements Disposable, RegExSettingsHolder 
         myCaretOnMoveSelectionDown = CaretAdjustmentType.ADAPTER.createComboBox();
         myCaretOnMoveSelectionUp = CaretAdjustmentType.ADAPTER.createComboBox();
         myRemovePrefixOnPastePattern = PrefixOnPastePatternType.ADAPTER.createComboBox();
+        myIgnoreSuffixOnPastePattern = SuffixOnPastePatternType.ADAPTER.createComboBox();
         myMouseModifier = MouseModifierType.ADAPTER.createComboBox();
 
         final SpinnerNumberModel model = new SpinnerNumberModel(500, 0, 10000, 50);

@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.util.TextRange;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.settings.PrefixOnPastePatternType;
+import com.vladsch.MissingInActions.settings.SuffixOnPastePatternType;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.plugin.util.StudiedWord;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +63,7 @@ public class CaseFormatPreserver {
     private String hadWordWithPrefix;
     private String hadWordWithSecondPrefix;
     private boolean hadSelection;
+    private String hadWordWithSuffix;
 
     public CaseFormatPreserver() {
         clear();
@@ -95,10 +97,12 @@ public class CaseFormatPreserver {
             @NotNull EditorCaret editorCaret
             , final @Nullable String[] prefixList
             , final @Nullable PrefixOnPastePatternType prefixType
+            , final @Nullable String[] suffixList
+            , final @Nullable SuffixOnPastePatternType suffixType
             , final int separators
     ) {
         final Caret caret = editorCaret.getCaret();
-        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList, separators);
+        studyFormatBefore(editorCaret.getDocumentChars(), caret.getOffset(), caret.getSelectionStart(), caret.getSelectionEnd(), prefixType, prefixList, suffixType, suffixList, separators);
     }
 
     private boolean isCaseAndStyle(boolean isAnyCase, boolean isScreamingCase, boolean isMixedCase, boolean isFirstCapCase) {
@@ -120,6 +124,7 @@ public class CaseFormatPreserver {
             , final int selectionStart
             , final int selectionEnd
             , final @Nullable PrefixOnPastePatternType prefixType, final @Nullable String[] prefixList
+            , final @Nullable SuffixOnPastePatternType suffixType, final @Nullable String[] suffixList
             , final int separators
     ) {
         int beforeOffset = offset;
@@ -136,6 +141,15 @@ public class CaseFormatPreserver {
 
         int expandedBeforeOffset = getPreviousWordStartAtOffset(chars, beforeOffset, EditHelpers.WORD_IDENTIFIER, false, true);
         int expandedAfterOffset = getNextWordEndAtOffset(chars, afterOffset, EditHelpers.WORD_IDENTIFIER, false, true);
+
+        if (suffixList != null) {
+            // exclude these suffixes from case determination
+            InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset, separators);
+            String suffix = e.getMatchedSuffix(suffixType, suffixList);
+            if (suffix != null && !suffix.isEmpty()) {
+                expandedAfterOffset -= suffix.length();
+            }
+        }
 
         InsertedRangeContext e = new InsertedRangeContext(chars, expandedBeforeOffset, expandedAfterOffset, separators);
         InsertedRangeContext w = new InsertedRangeContext(chars, beforeOffset, afterOffset, separators);
@@ -226,6 +240,8 @@ public class CaseFormatPreserver {
             , final boolean addPrefix
             , final @Nullable String[] prefixList
             , final @Nullable PrefixOnPastePatternType prefixType
+            , final @Nullable String[] suffixList
+            , final @Nullable SuffixOnPastePatternType suffixType
     ) {
         InsertedRangeContext i = preserveFormatAfter(
                 editorCaret.getDocumentChars()
@@ -240,6 +256,8 @@ public class CaseFormatPreserver {
                 , addPrefix
                 , prefixType
                 , prefixList
+                , suffixType
+                , suffixList
         );
 
         if (i != null) {
@@ -296,6 +314,8 @@ public class CaseFormatPreserver {
             , final boolean addPrefix
             , final @Nullable PrefixOnPastePatternType prefixType
             , final @Nullable String[] prefixList
+            , final @Nullable SuffixOnPastePatternType suffixType
+            , final @Nullable String[] suffixList
     ) {
         BasedSequence insertedRange = (BasedSequence) range.subSequence(chars);
         boolean isSingleLineChar = insertedRange.indexOf('\n') == -1;
