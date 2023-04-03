@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -55,6 +56,9 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
     private JTextField myPrefix;
     private JTextField mySuffix;
     private JRadioButton myLowerCase;
+    private JLabel myFirstBase;
+    private JLabel myLastBase;
+    private JLabel myStepBase;
 
     private NumberingOptions myOriginalOptions;
     private NumberingOptions myOptions;
@@ -132,7 +136,11 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
 
         DocumentAdapter documentAdapter = new DocumentAdapter() {
             @Override
-            protected void textChanged(@NotNull DocumentEvent e) { myGuard.ifUnguarded(() -> { unguarded_UpdateOptions(); }); }
+            protected void textChanged(@NotNull DocumentEvent e) {
+                myGuard.ifUnguarded(() -> {
+                    unguarded_UpdateOptions();
+                });
+            }
         };
 
         myNumberingBase.addActionListener((event) -> {
@@ -155,6 +163,18 @@ public class NumberingOptionsForm implements SettingsConfigurable<NumberingOptio
         mySuffix.getDocument().addDocumentListener(documentAdapter);
 
         reset();
+    }
+
+    public void setFirstBase(@NotNull String firstBase) {
+        myFirstBase.setText(firstBase);
+    }
+
+    public void setLastBase(@NotNull String lastBase) {
+        myLastBase.setText(lastBase);
+    }
+
+    public void setStepBase(@NotNull String stepBase) {
+        myStepBase.setText(stepBase);
     }
 
     private void unguarded_BaseChanged() {

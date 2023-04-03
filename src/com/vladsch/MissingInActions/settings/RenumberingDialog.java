@@ -29,7 +29,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -57,6 +56,10 @@ public class RenumberingDialog extends DialogWrapper implements NumberingOptions
     private final @NotNull EditorEx myEditor;
     private final @NotNull EditorEx myViewer;
 
+    private @Nullable String mySavedNonShiftFirst;
+    private boolean myLastBitShift;
+    private boolean myRestoreLastNonBitShift;
+
     private RenumberingDialog(JComponent parent, @NotNull EditorEx editor) {
         super(parent, false);
 
@@ -67,6 +70,10 @@ public class RenumberingDialog extends DialogWrapper implements NumberingOptions
         myEditor = editor;
         myViewer = createIdeaEditor("");
         myViewPanel.add(myViewer.getComponent(), BorderLayout.CENTER);
+
+        mySavedNonShiftFirst = null;
+        myLastBitShift = mySettings.getLastNumberingOptions().isBitShift();
+        myRestoreLastNonBitShift = false;
 
         copyEditorSettings();
         updateResults();
@@ -82,7 +89,7 @@ public class RenumberingDialog extends DialogWrapper implements NumberingOptions
             EditorFactory.getInstance().releaseEditor(myViewer);
         }
     }
-    
+
     @Override
     public void optionsChanged(NumberingOptions options) {
         updateResults();
@@ -111,10 +118,49 @@ public class RenumberingDialog extends DialogWrapper implements NumberingOptions
             List<CaretOffsets> carets = new ArrayList<>(myEditor.getCaretModel().getCaretCount());
             StringBuilder sb = new StringBuilder();
 
+            if (options.isBitShift()) {
+                long first = NumberSequenceGenerator.tryExtractNumber(
+                        options.getFirst()
+                        , null
+                        , NumberSequenceGenerator.defaultOct
+                        , options
+                        , NumberSequenceGenerator.defaultBin
+                        , NumberSequenceGenerator.defaultDec
+                        , NumberSequenceGenerator.defaultHex
+                );
+
+                if (first == 0) {
+                    // replace it with a 1 
+                    if (!myLastBitShift) {
+                        mySavedNonShiftFirst = options.getFirst();
+                        myRestoreLastNonBitShift = true;
+                    }
+
+                    options.setFirst(options.getFirst().substring(0, options.getFirst().length() - 1) + "1");
+                    myNumberingOptionsForm.reset(options);
+                }
+            }
+
+            if (options.isBitShift() != myLastBitShift) {
+                if (myRestoreLastNonBitShift && !options.isBitShift()) {
+                    // restore saved non-bit-shift options
+                    options.setFirst(mySavedNonShiftFirst);
+                    myNumberingOptionsForm.reset(options);
+                    myRestoreLastNonBitShift = false;
+                }
+
+                myLastBitShift = options.isBitShift();
+            }
+
+            final NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
+
+            myNumberingOptionsForm.setFirstBase(generator.getFirstNumberBase() > 1 ? String.format("%-3d",generator.getFirstNumberBase()) : "???");
+            myNumberingOptionsForm.setLastBase(generator.getLastNumberBase() > 1 ? String.format("%-3d",generator.getLastNumberBase()) : "???");
+            myNumberingOptionsForm.setStepBase(generator.getStepNumberBase() > 1 ? String.format("%-3d",generator.getStepNumberBase()) : "???");
+
             // copy caret lines to new editor and re-create the carets by replacing selections if they exist
             // or inserting number at carets if no selection is present
             ApplicationManager.getApplication().runReadAction(() -> {
-                NumberSequenceGenerator generator = NumberSequenceGenerator.create(options);
                 int line = -1;
                 int offset = -1;
                 CharSequence chars = myEditor.getDocument().getCharsSequence();

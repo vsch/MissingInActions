@@ -22,6 +22,7 @@
 package com.vladsch.MissingInActions.settings;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class NumberingOptions extends NumberingBaseOptions {
     private String myFirst;
@@ -29,14 +30,26 @@ public class NumberingOptions extends NumberingBaseOptions {
     private int myNumberingBase;
 
     public NumberingOptions() {
-        super();
+        this(NumberingBaseType.ADAPTER.getDefault().getIntValue(), "");
+    }
+    
+    public NumberingOptions(int numberingBase, @NotNull String prefix) {
+        super(prefix);
         myFirst = "0";
         myLast = "";
-        myNumberingBase = NumberingBaseType.ADAPTER.getDefault().getIntValue();
+        myNumberingBase = numberingBase;
     }
 
     public NumberingOptions(@NotNull NumberingOptions other) {
         super(other);
+        myFirst = other.myFirst;
+        myLast = other.myLast;
+        myNumberingBase = other.myNumberingBase;
+    }
+    
+    public void copyFrom(@NotNull NumberingOptions other) {
+        super.copyFrom(other);
+        
         myFirst = other.myFirst;
         myLast = other.myLast;
         myNumberingBase = other.myNumberingBase;

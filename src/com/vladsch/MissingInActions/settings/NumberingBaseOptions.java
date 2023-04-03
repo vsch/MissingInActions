@@ -36,11 +36,14 @@ public class NumberingBaseOptions {
     private boolean myUpperCase;
 
     public NumberingBaseOptions() {
+        this("");
+    }
+    public NumberingBaseOptions(@NotNull String prefix) {
         myStep = "1";
         myBitShift = false;
         myRepeatSameLine = true;
         myTemplate = "";
-        myPrefix = "";
+        myPrefix = prefix;
         mySuffix = "";
         mySeparator = "";
         myDecimalPoint = "";
@@ -49,6 +52,19 @@ public class NumberingBaseOptions {
     }
 
     public NumberingBaseOptions(@NotNull NumberingBaseOptions other) {
+        myStep = other.myStep;
+        myBitShift = other.myBitShift;
+        myRepeatSameLine = other.myRepeatSameLine;
+        myTemplate = other.myTemplate;
+        myPrefix = other.myPrefix;
+        mySuffix = other.mySuffix;
+        mySeparator = other.mySeparator;
+        myDecimalPoint = other.myDecimalPoint;
+        mySeparatorFrequency = other.mySeparatorFrequency;
+        myUpperCase = other.myUpperCase;
+    }
+
+    public void copyFrom(@NotNull NumberingBaseOptions other) {
         myStep = other.myStep;
         myBitShift = other.myBitShift;
         myRepeatSameLine = other.myRepeatSameLine;

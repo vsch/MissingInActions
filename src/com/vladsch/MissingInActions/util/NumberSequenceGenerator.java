@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.util;
 
 import com.vladsch.MissingInActions.settings.NumberingBaseType;
 import com.vladsch.MissingInActions.settings.NumberingOptions;
+import com.vladsch.flexmark.util.misc.CharPredicate;
 import com.vladsch.flexmark.util.misc.Ref;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +41,30 @@ public class NumberSequenceGenerator {
     private Long myNext;
     private Integer myLastLine;
 
+    private int firstNumberBase;
+    private int lastNumberBase;
+
+    private int stepNumberBase;
+
+    public static final NumberingOptions defaultHex = new NumberingOptions(16, "0x");
+    public static final NumberingOptions defaultBin = new NumberingOptions(2, "0b");
+    public static final NumberingOptions defaultDec = new NumberingOptions(10, "");
+    public static final NumberingOptions defaultOct = new NumberingOptions(8, "0");
+
     public NumberSequenceGenerator(@NotNull NumberingOptions options, long first, long step, Long last) {
         myOptions = options;
         myFirst = first;
         myStep = step;
         myLast = last;
-        myNext = first;
+        myNext = options.isBitShift() && first == 0 ? 1 : first;
         myLastLine = null;
     }
+
+    public int getFirstNumberBase() { return firstNumberBase; }
+
+    public int getLastNumberBase() { return lastNumberBase; }
+
+    public int getStepNumberBase() { return stepNumberBase; }
 
     /**
      * Extract a number from given sequence based on prefix/suffix, base and template
@@ -125,31 +142,44 @@ public class NumberSequenceGenerator {
      * Extract a number from given sequence based on prefix/suffix, base and template
      *
      * @param charSequence character sequence from which to extract a number
-     * @param numberBase
      *
      * @return number or null if unable to extract
      */
-    public static long extractNumber(@NotNull CharSequence charSequence, @NotNull NumberingOptions options, int numberBase, @Nullable Ref<Integer> refMaxDigit) {
+    public static long extractNumber(@NotNull CharSequence charSequence, @NotNull NumberingOptions options, @Nullable Ref<Integer> refMaxDigit) {
         BasedSequence chars = BasedSequence.of(charSequence).trim();
+        CharPredicate sign = CharPredicate.anyOf('-', '+');
 
-        if (!options.getPrefix().trim().isEmpty()) chars = chars.removePrefix(options.getPrefix().trim());
-        if (!options.getSuffix().trim().isEmpty()) chars = chars.removeSuffix(options.getSuffix().trim());
-
+        // trim +/- and count -ve, odd is negative, even is positive
+        int numberBase = options.getNumberingBase();
+        boolean negative = false;
+        while (chars.startsWith(sign)) {
+            if (chars.charAt(0) == '-') {
+                negative = !negative;
+            }
+            chars = chars.subSequence(1);
+        }
         chars = chars.trim();
+
+        if (!options.getPrefix().trim().isEmpty()) {
+            // must be a proper prefix, cannot equal to it
+            if (!(chars.startsWith(options.getPrefix()) && !chars.equals(options.getPrefix()))) {
+                if (refMaxDigit != null) refMaxDigit.value = numberBase;
+                return 0;
+            }
+            chars = chars.removePrefix(options.getPrefix().trim());
+        }
+        if (!options.getSuffix().trim().isEmpty()) chars = chars.removeSuffix(options.getSuffix().trim());
 
         // see if we have a template and it matches somewhat
         long number = 0;
-        boolean negative = false;
-        int maxDigit = refMaxDigit != null ? refMaxDigit.value : numberBase - 1;
+        int maxDigit = refMaxDigit != null ? refMaxDigit.value : numberBase;
 
         for (int i = 0; i < chars.length(); i++) {
             char c = chars.charAt(i);
-            if (c == '-' && i == 0) {
-                negative = true;
-                continue;
-            }
+            
+            if (i == 0) maxDigit = 0;
 
-            int digit = c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'z' ? c - 'a' + 10 : c >= 'A' && c <= 'Z' ? c - 'A' + 10 : -1;
+            int digit = c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'z' ? c - 'a' + 10 : c >= 'A' && c <= 'Z' ? c - 'A' + 10 : numberBase;
             if (maxDigit < digit) maxDigit = digit;
             if (digit < 0 || digit >= numberBase) continue;
             number *= numberBase;
@@ -163,25 +193,18 @@ public class NumberSequenceGenerator {
         return number;
     }
 
-    public static long tryExtractNumber(@NotNull String charSequence, @NotNull NumberingOptions options, int... numberBases) {
+    public static long tryExtractNumber(@NotNull String charSequence, @Nullable Ref<Integer> matchedNumberBase, @NotNull NumberingOptions... options) {
         long number = 0;
-        int[] bases = new int[numberBases.length + 1];
 
-        int tryNumberBase = options.getNumberingBase();
-        System.arraycopy(numberBases, 0, bases, 1, numberBases.length);
-        bases[0] = tryNumberBase;
-        tryNumberBase = 0;
-        Ref<Integer> maxDigit = new Ref<>(bases[0] - 1);
+        if (matchedNumberBase != null) matchedNumberBase.value = 0;
 
-        for (int numberBase : bases) {
-            if (tryNumberBase < numberBase && maxDigit.value < numberBase) {
-                tryNumberBase = numberBase;
-            } else {
-                continue;
+        for (NumberingOptions numberingOptions : options) {
+            Ref<Integer> maxDigit = new Ref<>(numberingOptions.getNumberingBase());
+            number = extractNumber(charSequence, numberingOptions, maxDigit);
+            if (maxDigit.value < numberingOptions.getNumberingBase()) {
+                if (matchedNumberBase != null) matchedNumberBase.value = numberingOptions.getNumberingBase();
+                break;
             }
-
-            number = extractNumber(charSequence, options, tryNumberBase, maxDigit);
-            if (maxDigit.value < numberBase) break;
         }
 
         return number;
@@ -189,12 +212,20 @@ public class NumberSequenceGenerator {
 
     @NotNull
     public static NumberSequenceGenerator create(@NotNull NumberingOptions options) {
-        int numberBase = options.getNumberingBase();
-        long first = tryExtractNumber(options.getFirst(), options, 10, 16);
-        Long last = options.getLast().trim().isEmpty() ? null : tryExtractNumber(options.getLast(), options, 10, 16);
-        long step = tryExtractNumber(options.getStep(), options, 10, 16);
+        Ref<Integer> firstBase = new Ref<>(0);
+        Ref<Integer> lastBase = new Ref<>(0);
+        Ref<Integer> stepBase = new Ref<>(0);
+        long first = tryExtractNumber(options.getFirst(), firstBase, defaultOct, options, defaultBin, defaultDec, defaultHex);
+        Long last = options.getLast().trim().isEmpty() ? null : tryExtractNumber(options.getLast(), lastBase, defaultOct, options, defaultBin, defaultDec, defaultHex);
+        long step = tryExtractNumber(options.getStep(), stepBase, defaultOct, options, defaultBin, defaultDec, defaultHex);
         if (step == 0) step = 1;
-        return new NumberSequenceGenerator(options, first, step, last);
+
+        NumberSequenceGenerator generator = new NumberSequenceGenerator(options, first, step, last);
+
+        generator.firstNumberBase = firstBase.value;
+        generator.lastNumberBase = lastBase.value;
+        generator.stepNumberBase = stepBase.value;
+        return generator;
     }
 
     /**

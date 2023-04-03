@@ -87,6 +87,9 @@ function Upd() {
 
 Upd "IdeaIC2021-3-EAP" "plugins-sandbox-mn"
 Upd "IdeaIC2021-2-EAP" "plugins-sandbox-mn"
+Upd "IdeaIC2022-1-EAP" "plugins-sandbox-mn"
+Upd "IdeaIC2022-2-EAP" "plugins-sandbox-mn"
+Upd "IdeaIC2022-3-EAP" "plugins-sandbox-mn"
 
 # for plugin debugging in intellij-community under debugging
 # UpdRaw "/Users/vlad/src/intellij-community/system/plugins-sandbox/plugins"

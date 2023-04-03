@@ -81,7 +81,7 @@
         ]]>
     </description>
 
-    <version>1.8.223.21</version>
+    <version>1.8.223.23</version>
     <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
     <idea-version since-build="212"/>
 

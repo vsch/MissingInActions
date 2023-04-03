@@ -4,6 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
+  - [1.8.223.23 - Dev](#1822323---dev)
   - [1.8.223.21 - Dev](#1822321---dev)
   - [1.8.223.19 - Dev](#1822319---dev)
   - [1.8.218.17 - Dev](#1821817---dev)
@@ -62,6 +63,14 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
+### 1.8.223.23 - Dev
+
+* Add: numbering dialog now recognizes default formats for numbers: binary `0b` prefix, octal
+  `0` prefix, hex `0x` prefix, in addition to the currently selected base format prefix.
+* Add: show base number used to convert first, last and step numbers.
+* Fix: numbering dialog now sets first number to `1` if bit shift is selected and the number is
+  `0`. 
+  
 ### 1.8.223.21 - Dev
 
 * Add: Ignore Suffix on Paste option to allow ignoring certain suffixes when determining case
