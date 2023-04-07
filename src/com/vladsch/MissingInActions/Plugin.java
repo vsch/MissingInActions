@@ -228,7 +228,8 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
     public void initComponent() {
         super.initComponent();
 
-        SharedCaretStateTransferableData.initialize();
+        SharedCaretStateTransferableData.initialize(this);
+        
         myDelayedRunner.addRunnable(SharedCaretStateTransferableData::dispose);
 
         if (myParameterHintsAvailable) {

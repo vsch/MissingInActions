@@ -23,8 +23,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretStateTransferableData;
+import com.intellij.openapi.extensions.ExtensionPointListener;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.extensions.PluginDescriptor;
 import com.intellij.openapi.ide.CopyPasteManager;
+import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.plugin.util.clipboard.AugmentedTextBlockTransferable;
 import com.vladsch.plugin.util.clipboard.ClipboardUtils;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.FlavorEvent;
 import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -157,12 +159,19 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
         }
     };
 
-    final private static FlavorListener ourFlavorListener = new FlavorListener() {
+    final private static ExtensionPointListener<SharedClipboardDataProvider> ourSharedClipboardDataProviderListener = new ExtensionPointListener<SharedClipboardDataProvider>() {
         @Override
-        public void flavorsChanged(FlavorEvent e) {
-            replaceClipboardIfNeeded();
+        public void extensionAdded(@NotNull SharedClipboardDataProvider extension, @NotNull PluginDescriptor pluginDescriptor) {
+            extension.initialize((flavor, loader) -> sharedDataLoaders.put(flavor.getMimeType(), loader));
+        }
+
+        @Override
+        public void extensionRemoved(@NotNull SharedClipboardDataProvider extension, @NotNull PluginDescriptor pluginDescriptor) {
+            extension.removeLoaderIfNeeded((flavor, loader) -> sharedDataLoaders.remove(flavor.getMimeType(), loader));
         }
     };
+
+    final private static FlavorListener ourFlavorListener = e -> replaceClipboardIfNeeded();
 
     private static SharedCaretStateTransferableData getSharedDataOrNull(@NotNull Transferable transferable) {
         try {
@@ -177,7 +186,7 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
         LinkedHashMap<TextBlockTransferableData, BiFunction<Transferable, DataFlavor, Object>> augmentedData = new LinkedHashMap<>();
 
         public void addSharedClipboardData(@NotNull TextBlockTransferableData textBlock, @Nullable BiFunction<Transferable, DataFlavor, Object> dataLoader) {
-            String mimeType = textBlock.getFlavor().getMimeType();
+//            String mimeType = textBlock.getFlavor().getMimeType();
             augmentedData.put(textBlock, dataLoader);
         }
 
@@ -288,15 +297,18 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
         modifiers.setInt(field, field.getModifiers() | Modifier.FINAL);
     }
 
-    public static void initialize() {
+    public static void initialize(@NotNull Plugin plugin) {
         if (!initialized) {
             initialized = true;
 
+            // QUERY: Don't know if this is needed since extensions will be loaded after our initialization
             for (SharedClipboardDataProvider provider : EP_NAME.getExtensions()) {
                 provider.initialize((flavor, loader) -> {
                     sharedDataLoaders.put(flavor.getMimeType(), loader);
                 });
             }
+
+            EP_NAME.addExtensionPointListener(ourSharedClipboardDataProviderListener, plugin);
 
             if (!isClipboardChangeNotificationsAvailable()) {
                 Clipboard clipboard = ClipboardUtils.getSystemClipboard();
@@ -308,7 +320,7 @@ public class SharedCaretStateTransferableData implements TextBlockTransferableDa
                 }
             }
 
-            CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener, ApplicationManager.getApplication());
+            CopyPasteManager.getInstance().addContentChangedListener(ourContentChangedListener, plugin);
             ApplicationManager.getApplication().invokeLater(SharedCaretStateTransferableData::replaceClipboardIfNeeded);
         }
     }
