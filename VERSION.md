@@ -4,6 +4,8 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
+  - [1.8.223.27 - Dev](#1822327---dev)
+  - [1.8.223.25 - Dev](#1822325---dev)
   - [1.8.223.23 - Dev](#1822323---dev)
   - [1.8.223.21 - Dev](#1822321---dev)
   - [1.8.223.19 - Dev](#1822319---dev)
@@ -62,6 +64,14 @@
   - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.223.27 - Dev
+
+* Fix: migrate PluginProjectComponent to project service.
+
+### 1.8.223.25 - Dev
+
+* Fix: deprecated tool window creation API
 
 ### 1.8.223.23 - Dev
 

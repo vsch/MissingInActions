@@ -38,8 +38,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -56,9 +54,8 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.WindowManager;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.ComponentUtil;
@@ -72,11 +69,12 @@ import com.vladsch.MissingInActions.util.SharedCaretStateTransferableData;
 import com.vladsch.MissingInActions.util.highlight.MiaWordHighlightProviderImpl;
 import com.vladsch.flexmark.util.misc.Pair;
 import com.vladsch.plugin.util.AppUtils;
-import com.vladsch.plugin.util.HelpersKt;
+import com.vladsch.plugin.util.AwtRunnable;
 import com.vladsch.plugin.util.OneTimeRunnable;
 import com.vladsch.plugin.util.ui.ColorIterable;
 import com.vladsch.plugin.util.ui.CommonUIShortcuts;
-import com.vladsch.plugin.util.ui.highlight.HighlightProvider;
+import com.vladsch.plugin.util.ui.highlight.HighlightListener;
+import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.service.SharedThreadPool;
@@ -86,7 +84,6 @@ import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
-import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -100,23 +97,22 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.vladsch.plugin.util.AppUtils.isParameterHintsForceUpdateAvailable;
 
-public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponent, Disposable {
+public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
-    final public static int FEATURE_ENHANCED = 1;
+    @SuppressWarnings("unused") final public static int FEATURE_ENHANCED = 1;
     final public static int FEATURE_DEVELOPMENT = 2;
     public static final Editor[] EMPTY_EDITORS = new Editor[0];
     public static final EditorActionListener[] EMPTY_EDITOR_ACTION_LISTENERS = new EditorActionListener[0];
-
     final private HashMap<Editor, LineSelectionManager> myLineSelectionManagers;
     final private HashMap<AnActionEvent, Editor> myActionEventEditorMap;
     final private HashMap<Editor, LinkedHashSet<EditorActionListener>> myEditorActionListeners;
-    final private HashMap<Project, HighlightProvider<ApplicationSettings>> myProjectHighlightProviders;
+    private @Nullable WordHighlightProvider<ApplicationSettings> myProjectHighlightProvider;
     final private HashSet<Editor> myPasteOverrideEditors;
+    final private HashSet<Editor> myDoNotUpdateHighlightersEditors;
     final private AnAction myMultiPasteAction;
     private @Nullable JComponent myPasteOverrideComponent;
     private boolean myInContentManipulation;
@@ -126,17 +122,20 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private boolean myRegisterCaretStateTransferable;
     private OneTimeRunnable myHighlightSaveTask = OneTimeRunnable.NULL;
     private boolean disableSaveHighlights = true;
-    private boolean highlightProjectViewNodes = true;
-
+    private boolean highlightProjectViewNodes;
+    private @Nullable HighlightListener mySearchReplaceHighlightListener;
+    private OneTimeRunnable myEditorHighlightRunner = OneTimeRunnable.NULL;
+    private boolean myInSetProjectHighlighter = false;
 //    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
         myLineSelectionManagers = new HashMap<>();
         myPasteOverrideEditors = new HashSet<>();
+        myDoNotUpdateHighlightersEditors = new HashSet<>();
         myMultiPasteAction = new MiaMultiplePasteAction();
         myActionEventEditorMap = new HashMap<>();
-        myProjectHighlightProviders = new HashMap<>();
+        myProjectHighlightProvider = null;
         myEditorActionListeners = new HashMap<>();
         myPasteOverrideComponent = null;
         myParameterHintsAvailable = AppUtils.isParameterHintsAvailable();
@@ -154,6 +153,12 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             }
             disableSaveHighlights = false;
         });
+
+        initComponent();
+    }
+
+    public void registerDoNotUpdateHighlightersEditors(@NotNull Editor editor) {
+        myDoNotUpdateHighlightersEditors.add(editor);
     }
 
     @NotNull
@@ -161,13 +166,9 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         return myLineSelectionManagers.computeIfAbsent(editor, e -> new LineSelectionManager(editor));
     }
 
-    @Nullable
-    public LineSelectionManager getSelectionManagerOrNull(Editor editor) {
-        return myLineSelectionManagers.get(editor);
-    }
-
     @Override
     public void dispose() {
+
     }
 
     @Override
@@ -182,7 +183,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             // save highlights in application settings
             myHighlightSaveTask.cancel();
             myHighlightSaveTask = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), "Highlight Saver", 500, ModalityState.NON_MODAL, () -> {
-                HashMap<String, Pair<Integer, Integer>> state = getHighlightState();
                 mySettings.setHighlightState(getHighlightState());
                 mySettings.setHighlightWordsCaseSensitive(isHighlightCaseSensitive());
                 mySettings.setHighlightWordsMatchBoundary(isHighlightWordsMatchBoundary());
@@ -208,7 +208,9 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         for (Project project : projects) {
             ProjectView projectView = ProjectView.getInstance(project);
             AbstractProjectViewPane projectViewPane = projectView.getCurrentProjectViewPane();
-            projectViewPane.updateFromRoot(true);
+            if (projectViewPane != null) {
+                projectViewPane.updateFromRoot(true);
+            }
         }
     }
 
@@ -233,9 +235,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             mySavedShowParameterHints = EditorSettingsExternalizable.getInstance().getOptions().SHOW_PARAMETER_NAME_HINTS;
 
             // restore setting on exit, just in case editor change listener didn't
-            myDelayedRunner.addRunnable(() -> {
-                EditorSettingsExternalizable.getInstance().getOptions().SHOW_PARAMETER_NAME_HINTS = mySavedShowParameterHints;
-            });
+            myDelayedRunner.addRunnable(() -> EditorSettingsExternalizable.getInstance().getOptions().SHOW_PARAMETER_NAME_HINTS = mySavedShowParameterHints);
         }
 
         myDisabledShowParameterHints = false;
@@ -286,17 +286,10 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorManagerListener);
         }
 
-        final IdeEventQueue.EventDispatcher eventDispatcher = new IdeEventQueue.EventDispatcher() {
-            @Override
-            public boolean dispatch(@NotNull final AWTEvent e) {
-                return Plugin.this.dispatch(e);
-            }
-        };
+        final IdeEventQueue.EventDispatcher eventDispatcher = Plugin.this::dispatch;
 
         IdeEventQueue.getInstance().addDispatcher(eventDispatcher, this);
-        myDelayedRunner.addRunnable(() -> {
-            IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
-        });
+        myDelayedRunner.addRunnable(() -> IdeEventQueue.getInstance().removeDispatcher(eventDispatcher));
 
         ApplicationManager.getApplication().invokeLater(() -> SharedThreadPool.getInstance().submit(() -> {
             ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(AnActionListener.TOPIC, new AnActionListener() {
@@ -320,9 +313,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
             final CopyPasteManager.ContentChangedListener contentChangedListener = this::clipboardContentChanged;
 
             copyPasteManager.addContentChangedListener(contentChangedListener);
-            myDelayedRunner.addRunnable(() -> {
-                copyPasteManager.removeContentChangedListener(contentChangedListener);
-            });
+            myDelayedRunner.addRunnable(() -> copyPasteManager.removeContentChangedListener(contentChangedListener));
         }));
     }
 
@@ -346,6 +337,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
 
                     if (activeEditor != null) {
                         if (isParameterHintsForceUpdateAvailable()) {
+                            //noinspection UnstableApiUsage
                             ParameterHintsPassFactory.forceHintsUpdateOnNextPass(activeEditor);
                         } else {
                             forceUpdate = true;
@@ -422,21 +414,13 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    public void addEditorActionListener(@NotNull Editor editor, @NotNull EditorActionListener listener) {
-        addEditorActionListener(editor, listener, null);
-    }
-
     public void addEditorActionListener(@NotNull Editor editor, @NotNull EditorActionListener listener, @Nullable Disposable parentDisposable) {
         final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.computeIfAbsent(editor, editor1 -> new LinkedHashSet<>());
         listeners.add(listener);
-        myDelayedRunner.addRunnable(editor, () -> {
-            removeEditorActionListener(editor, listener);
-        });
+        myDelayedRunner.addRunnable(editor, () -> removeEditorActionListener(editor, listener));
 
         if (parentDisposable != null) {
-            Disposer.register(parentDisposable, () -> {
-                removeEditorActionListener(editor, listener);
-            });
+            Disposer.register(parentDisposable, () -> removeEditorActionListener(editor, listener));
         }
     }
 
@@ -469,7 +453,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    void afterActionPerformed(AnAction action, final DataContext dataContext, AnActionEvent event, @NotNull AnActionResult result) {
+    void afterActionPerformed(AnAction action, final DataContext dataContext, AnActionEvent event, @NotNull AnActionResult ignoredResult) {
         Editor editor = myActionEventEditorMap.remove(event);
         if (editor != null) {
             final LinkedHashSet<EditorActionListener> listeners = myEditorActionListeners.get(editor);
@@ -502,34 +486,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
                     }
                 }
             }
-        }
-    }
-
-    void initProjectComponent(@NotNull Project project) {
-
-    }
-
-    void disposeProjectComponent(@NotNull Project project) {
-
-    }
-
-    void projectOpened(@NotNull Project project) {
-
-    }
-
-    void projectClosed(@NotNull Project project) {
-        myProjectHighlightProviders.remove(project);
-    }
-
-    public HighlightProvider<ApplicationSettings> getProjectHighlighter(@NotNull Project project) {
-        return myProjectHighlightProviders.get(project);
-    }
-
-    public void setProjectHighlightProvider(@NotNull Project project, HighlightProvider<ApplicationSettings> highlightProvider) {
-        if (highlightProvider == null) {
-            myProjectHighlightProviders.remove(project);
-        } else {
-            myProjectHighlightProviders.put(project, highlightProvider);
         }
     }
 
@@ -573,9 +529,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
     private void registerPasteOverrides(@NotNull Editor editor) {
         myMultiPasteAction.registerCustomShortcutSet(CommonUIShortcuts.getMultiplePaste(), editor.getContentComponent());
         myPasteOverrideEditors.add(editor);
-        myDelayedRunner.addRunnable(myMultiPasteAction, () -> {
-            unRegisterPasteOverrides(editor);
-        });
+        myDelayedRunner.addRunnable(myMultiPasteAction, () -> unRegisterPasteOverrides(editor));
     }
 
     private void unRegisterPasteOverrides(@NotNull Editor editor) {
@@ -585,28 +539,18 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    public static void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
-        assert editor.getProject() != null;
-        addEditorActiveLookupListener(editor, listener, null);
-    }
-
-    @SuppressWarnings({ "WeakerAccess", "SameParameterValue" })
     public static void addEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener, @Nullable Disposable parentDisposable) {
         assert editor.getProject() != null;
 
-        PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-        if (projectComponent != null) {
-            projectComponent.addEditorActiveLookupListener(editor, listener, parentDisposable);
-        }
+        PluginProjectComponent projectComponent = PluginProjectComponent.getInstance(editor.getProject());
+        projectComponent.addEditorActiveLookupListener(editor, listener, parentDisposable);
     }
 
     public static void removeEditorActiveLookupListener(@NotNull Editor editor, @NotNull EditorActiveLookupListener listener) {
         assert editor.getProject() != null;
 
-        PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-        if (projectComponent != null) {
-            projectComponent.removeEditorActiveLookupListener(editor, listener);
-        }
+        PluginProjectComponent projectComponent = PluginProjectComponent.getInstance(editor.getProject());
+        projectComponent.removeEditorActiveLookupListener(editor, listener);
     }
 
     // EditorFactoryListener
@@ -620,13 +564,9 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         });
 
         if (editor.getProject() != null && !editor.getProject().isDefault()) {
-            PluginProjectComponent projectComponent = editor.getProject().getComponent(PluginProjectComponent.class);
-            if (projectComponent != null) {
-                projectComponent.editorCreated(editor);
-                myDelayedRunner.addRunnable(editor, () -> {
-                    projectComponent.editorReleased(editor);
-                });
-            }
+            PluginProjectComponent projectComponent = PluginProjectComponent.getInstance(editor.getProject());
+            projectComponent.editorCreated(editor);
+            myDelayedRunner.addRunnable(editor, () -> projectComponent.editorReleased(editor));
         }
 
         if (mySettings.isOverrideStandardPaste()) {
@@ -635,23 +575,17 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         }
     }
 
-    public void forAllProjectEditors(@NotNull Project project, @NotNull Consumer<LineSelectionManager> consumer) {
-        for (LineSelectionManager manager : myLineSelectionManagers.values()) {
-            consumer.accept(manager);
-        }
-    }
-
     // EditorFactoryListener
     private void editorReleased(@NotNull EditorFactoryEvent event) {
         myDelayedRunner.runAllFor(event.getEditor());
+        myDoNotUpdateHighlightersEditors.remove(event.getEditor());
     }
 
     // IdeEventQueue.EventDispatcher
     private boolean dispatch(@NotNull final AWTEvent e) {
         if (e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
-            final Component owner = ComponentUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), component -> {
-                return component instanceof JTextComponent;
-            });
+            final Component owner = ComponentUtil.findParentByCondition(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner()
+                    , component -> component instanceof JTextComponent);
 
             if (owner instanceof JComponent) {
                 // register multi-paste if no already registered and remove when focus is lost
@@ -688,39 +622,100 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         return false;
     }
 
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return this.getClass().getName();
+    void projectOpened(@NotNull Project activeProject) {
+        if (myProjectHighlightProvider != null) {
+            // Need to have its editors highlighted with active batch replace window highlights 
+            ApplicationManager.getApplication().invokeLater(() -> updateEditorHighlighters(activeProject));
+        }
+    }
+
+    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
+        return editor == null || editor.isDisposed() || myDoNotUpdateHighlightersEditors.contains(editor);
+    }
+
+    void updateEditorHighlighters(@Nullable Project onlyInProject) {
+        myEditorHighlightRunner.cancel();
+        myEditorHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 500, new AwtRunnable(true, () -> {
+            Editor[] editors = EditorFactory.getInstance().getAllEditors();
+
+            for (Editor editor : editors) {
+                if (shouldNotUpdateHighlighters(editor) || (onlyInProject != null && editor.getProject() == onlyInProject)) continue;
+
+                LineSelectionManager selectionManager = LineSelectionManager.getInstance(editor);
+                selectionManager.setHighlightProvider(getActiveHighlightProvider());
+            }
+        }));
+    }
+
+    void projectClosed(@NotNull Project ignoredProject) {
+
+    }
+
+    public void setProjectHighlightProvider(@NotNull Project activeProject, WordHighlightProvider<ApplicationSettings> highlightProvider) {
+        if (myInSetProjectHighlighter && highlightProvider == null) return;
+        
+        try {
+            myInSetProjectHighlighter = highlightProvider != null;
+            
+            if (myProjectHighlightProvider != null && mySearchReplaceHighlightListener != null) {
+                myProjectHighlightProvider.removeHighlightListener(mySearchReplaceHighlightListener);
+            }
+            
+            mySearchReplaceHighlightListener = null;
+            myProjectHighlightProvider = null;
+
+            if (highlightProvider != null) {
+                myProjectHighlightProvider = highlightProvider;
+                if (mySettings.isHighlightProjectViewNodes()) {
+                    mySearchReplaceHighlightListener = new HighlightListener() {
+                        @Override
+                        public void highlightsUpdated() {
+                            if (mySettings.isHighlightProjectViewNodes()) {
+                                updateProjectViews();
+                            }
+                        }
+                    };
+
+                    myProjectHighlightProvider.addHighlightListener(mySearchReplaceHighlightListener, this);
+                }
+
+                // hide other projects' batch search replace tool window
+                Project[] projects = ProjectManager.getInstance().getOpenProjects();
+                for (Project project : projects) {
+                    if (project != activeProject) {
+                        PluginProjectComponent pluginProjectComponent = PluginProjectComponent.getInstance(project);
+                        ToolWindow searchReplaceToolWindow = pluginProjectComponent.getSearchReplaceToolWindow();
+                        if (searchReplaceToolWindow != null) {
+                            searchReplaceToolWindow.hide();
+                        }
+                    }
+                }
+            }
+
+            if (!myInSetProjectHighlighter || myProjectHighlightProvider == highlightProvider) {
+                // only do this if removing highlight provider did not result in a nested call with a non-null value
+                // this way will result in only one call to updateEditorHighlighters0) with the one that will be the new highlight provider
+                updateEditorHighlighters(null);
+            }
+        } finally {
+            myInSetProjectHighlighter = false;
+        }
     }
 
     public static Plugin getInstance() {
-        return ApplicationManager.getApplication().getComponent(Plugin.class);
+        return ApplicationManager.getApplication().getService(Plugin.class);
     }
 
     public boolean isParameterHintsAvailable() {
         return myParameterHintsAvailable;
     }
 
-    private static int license_features = 0;
+    @SuppressWarnings({ "FieldMayBeFinal", "FieldCanBeLocal" }) private static int license_features = 0;
 
-    @NotNull public static final String productVersion = "0.1.0";
-    private static boolean license_initialized = false;
-
-    public static int getLicensedFeatures() {
-        return license_features;
-    }
+    @SuppressWarnings({ "FieldMayBeFinal", "unused" }) private static boolean license_initialized = false;
 
     public static boolean isFeatureLicensed(int feature) {
         return (license_features & feature) == feature;
-    }
-
-    public static String getProductId() {
-        return Bundle.message("plugin.product-id");
-    }
-
-    private static String getProductDisplayName() {
-        return Bundle.message("plugin.name");
     }
 
     private static final String PLUGIN_ID = "com.vladsch.MissingInActions";
@@ -736,69 +731,18 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         throw new IllegalStateException("Unexpected, plugin cannot find its own plugin descriptor");
     }
 
-    public static String productVersion() {
-        IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
-        String version = pluginDescriptor.getVersion();
-        // truncate version to 3 digits and if had more than 3 append .x, that way
-        // no separate product versions need to be created
-        String[] parts = version.split("\\.", 4);
-        if (parts.length <= 3) {
-            return version;
-        }
-
-        String sep = "";
-        StringBuilder newVersion = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-            newVersion.append(sep);
-            sep = ".";
-            newVersion.append(parts[i]);
-        }
-        newVersion.append(".x");
-        return newVersion.toString();
-    }
-
     public static String fullProductVersion() {
         IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
         return pluginDescriptor.getVersion();
     }
 
-    public static @Nullable
-    Project getActiveProject() {
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
-        Project activeProject = null;
-        for (Project project : projects) {
-            Window window = WindowManager.getInstance().suggestParentWindow(project);
-            if (window != null && window.isActive()) {
-                activeProject = project;
-            }
-        }
-        return activeProject;
+    public @NotNull WordHighlightProvider<ApplicationSettings> getActiveHighlightProvider() {
+        return myProjectHighlightProvider == null ? this : myProjectHighlightProvider;
     }
 
-    public static @Nullable
-    void activatingBatchSearchReplaceToolWindow(@NotNull Project activeProject) {
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
-        for (Project project : projects) {
-            if (project != activeProject) {
-                PluginProjectComponent pluginProjectComponent = PluginProjectComponent.getInstance(project);
-                BatchSearchReplaceToolWindow searchReplaceToolWindow = pluginProjectComponent.getSearchReplaceToolWindow();
-                if (searchReplaceToolWindow != null && searchReplaceToolWindow.isActive()) {
-                    searchReplaceToolWindow.hide();
-                }
-            }
-        }
-    }
-
-    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
-        for (Project project : projects) {
-            PluginProjectComponent pluginProjectComponent = PluginProjectComponent.getInstance(project);
-            BatchSearchReplaceToolWindow searchReplaceToolWindow = pluginProjectComponent.getSearchReplaceToolWindow();
-            if (searchReplaceToolWindow != null && searchReplaceToolWindow.shouldNotUpdateHighlighters(editor)) {
-                return true;
-            }
-        }
-        return false;
+/*
+    public static String getProductId() {
+        return Bundle.message("plugin.product-id");
     }
 
     @Nullable
@@ -832,4 +776,5 @@ public class Plugin extends MiaWordHighlightProviderImpl implements BaseComponen
         String path = getPluginCustomPath();
         return path == null ? null : HelpersKt.suffixWith(path, '/') + fileName;
     }
+*/
 }

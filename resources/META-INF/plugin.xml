@@ -23,6 +23,11 @@
     <id>com.vladsch.MissingInActions</id>
     <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
+    
+    <version>1.8.223.27</version>
+    <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
+    <idea-version since-build="212.4746.92"/>
+
     <description><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
             <h1><img src="https://github.com/vsch/MissingInActions/raw/master/resources/icons/png/Mia_logo@2x.png" height="24" width="42" border="0" style="margin-right:10px;">Missing In Actions</h1>
@@ -81,15 +86,11 @@
         ]]>
     </description>
 
-    <version>1.8.223.23</version>
-    <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
-    <idea-version since-build="212"/>
-
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
             <h3>1.8.214.2 - Release</h3>
             <ul>
-              <li>Fix: Compatibility with 2022.1</li>
+                <li>Fix: Compatibility with 2022.1</li>
             </ul>
             <h3>1.8.212.6 - Release</h3>
             <ul>
@@ -114,7 +115,8 @@
                 <li>Fix: update to split flexmark-util</li>
                 <li>Fix: project view highlighting to match partials, case-insensitive and use word boundary.</li>
                 <li>Fix: do not restore last pasted text selection if the clipboard content does not contain any
-                    caret information.</li>
+                    caret information.
+                </li>
             </ul>
             <h3>1.8.0 - Bug Fix &amp; Feature Release</h3>
             <ul>
@@ -127,48 +129,62 @@
                 <li>Fix: remove deprecated icon use</li>
                 <li>Fix: disposed editor accessed on settings change.</li>
                 <li>Fix: exception caused by trying to set highlight provider on editor for <code>isDefaultProject()</code>
-                    true.</li>
+                    true.
+                </li>
                 <li>Fix: editors double release</li>
                 <li>Fix: search spawn carets numeric only worked if spawn search word boundaries was enabled.</li>
                 <li>Fix: search spawn carets, if the preceding chars form a smart prefix the pattern should not
-                    include that prefix in the list of matches, otherwise matches at start.</li>
+                    include that prefix in the list of matches, otherwise matches at start.
+                </li>
                 <li>Fix: index exception when deleting clipboard history in paste from history</li>
                 <li>Fix: NPE caused by editor in settings open for default project.</li>
                 <li>Fix: NPE in batch search replace</li>
                 <li>Fix: word Highlighter to test first/last char of word being <code>\w</code> before respecting provided
-                    boundary flags. Otherwise no highlights will be done for the pattern.</li>
+                    boundary flags. Otherwise no highlights will be done for the pattern.
+                </li>
                 <li>Fix: change number generator for shift sequences so that if start is 0, then first number is
                     0, next number is 1 if step is &gt;=0 and 0x8000_0000_0000_0000 if &lt;0.
                     <ul>
                         <li>Fix: change number generator to rollover from 1 to 0x8000_0000_0000_0000 when step &lt;0 and
-                            0x8000_0000_0000_0000 to 1 when &gt;=0</li>
+                            0x8000_0000_0000_0000 to 1 when &gt;=0
+                        </li>
                     </ul>
                 </li>
                 <li>Add: option <code>Preserve primary caret on ESCAPE</code> to prevent the IDE from loosing primary caret
-                    information on ESCAPE clearing multi-carets.</li>
+                    information on ESCAPE clearing multi-carets.
+                </li>
                 <li>Fix: on search spawn carets, leave the primary caret where it was an make spawned carets
-                    secondary. That way ESCAPE will leave the primary where it was.</li>
+                    secondary. That way ESCAPE will leave the primary where it was.
+                </li>
                 <li>Fix: batch search/replace highlights would not be shown in tool window editors like search,
-                    etc.</li>
+                    etc.
+                </li>
                 <li>Fix: backward search on <code>\\</code> generated pattern syntax exception. Reverse regex Dev Build
-                    handle odd backslash quoted <code>\Q\\E</code> sequences.</li>
+                    handle odd backslash quoted <code>\Q\\E</code> sequences.
+                </li>
                 <li>Fix: batch search replace update of paste from clipboard button state would hand the IDE
-                    trying to get OS X clipboard. Just left the button enabled for now.</li>
+                    trying to get OS X clipboard. Just left the button enabled for now.
+                </li>
                 <li>Fix: word highlighter to sort in reverse order</li>
                 <li>Fix: missing setting for spawn search boundary matching.</li>
                 <li>Add: option for spawn search to ignore backward word boundaries. ie. Forward search ignores
-                    begin word break, backward search ignores end word break.</li>
+                    begin word break, backward search ignores end word break.
+                </li>
                 <li>Fix: option for case insensitive highlights to actually disable case sensitivity for
-                    highlights and show words in color of first selected word color.</li>
+                    highlights and show words in color of first selected word color.
+                </li>
                 <li>Add: option for word highlighting to not respect word boundary from the selection. When not
-                    matching boundary <code>abc</code> highlight will match <code>abc</code> in <code>abcd</code> and <code>zabc</code> and <code>zabcd</code>.</li>
+                    matching boundary <code>abc</code> highlight will match <code>abc</code> in <code>abcd</code> and <code>zabc</code> and <code>zabcd</code>.
+                </li>
                 <li>Fix: preserve caret line to closest available after smart remove carets or remove
-                    blank/non-blank/comment, etc.</li>
+                    blank/non-blank/comment, etc.
+                </li>
                 <li>Fix: when toggling line/carets try to keep the primary caret position closest to offset before
                     action.
                     <ul>
                         <li>when creating multi-carets from selection make the primary caret closest to the primary
-                            caret before the action.</li>
+                            caret before the action.
+                        </li>
                         <li>when toggling selection keep caret offset at primary caret offset</li>
                         <li>when accepting found/not-found search carets</li>
                     </ul>
@@ -178,21 +194,25 @@
                         <li>Fix: automatically turn on words highlight mode when adding a highlighted word</li>
                         <li>Add: Select highlighted words in file or current selection to create multi-caret selection
                             from highlighted words. Will use document, single selection or multi-caret selection for
-                            limiting search of highlighted words.</li>
+                            limiting search of highlighted words.
+                        </li>
                         <li>Add: <code>Add Selection to Word Highlights in Tandem</code> will tandem highlight words on the same
                             line to the same color. Either when originally highlighted or added to existing highlights
                             when there is a highlight on the same line. Allows to color align related string on the same
                             line for visual validation elsewhere. A limitation is that a word pattern can only have one
                             color associated with it, so multiple tandem color of the same word will result it in being
-                            the last tandem color assigned.</li>
+                            the last tandem color assigned.
+                        </li>
                     </ul>
                 </li>
                 <li>Fix: spawn search for smart paste to add prefixed variations if current word has no prefix.</li>
                 <li>Add: save highlight state to local settings, restore on IDE startup.</li>
                 <li>Fix: merged transferable would erroneously append EOL to multi-line char caret content causing
-                    it to turn into a line selection.</li>
+                    it to turn into a line selection.
+                </li>
                 <li>Add: <code>Delete Replaced Content after Paste</code> paste from history option to delete generated
-                    content after pasting</li>
+                    content after pasting
+                </li>
                 <li>Add: auto delete after paste macro replaced clipboard content if option enabled</li>
                 <li>Fix: preserve on paste to properly handle double prefix and not remove:
                     <ul>
@@ -203,15 +223,19 @@
                 <li>Fix: move line selection up/down with:
                     <ul>
                         <li>No change: column changes to 0 when caret at start of line (caused by exception in update
-                            after move line handler in IDE injected language parsing)</li>
+                            after move line handler in IDE injected language parsing)
+                        </li>
                         <li>To start/To End: column changes between start/end because it did not distinguish between
-                            line/non-line selections.</li>
+                            line/non-line selections.
+                        </li>
                         <li>Remove: anchor/anti-anchor settings, they don&rsquo;t make sense and make the caret toggle with
-                            every move.</li>
+                            every move.
+                        </li>
                     </ul>
                 </li>
                 <li>Fix: toggle direction of selection to set all directions to same orientation, if different
-                    orientations set all to end.</li>
+                    orientations set all to end.
+                </li>
                 <li>Fix: keep/remove carets actions to convert selection to carets before their operation.</li>
                 <li>Fix: caret invalidation causing caret invalid assertion failure.</li>
                 <li>Fix: search spawn without matching all numeric patterns needs to respect begin/end word
@@ -221,14 +245,16 @@
                 <li>Fix: backward caret spawning search ignored numeric/hex numeric settings</li>
                 <li>Add: spawn prefix search option to support paste prefix alternates so spawn on <code>myText</code> will
                     select <code>myText</code>, <code>ourText</code>, <code>getText</code>, <code>isText</code>, <code>setText</code> if <code>my</code>, <code>our</code>, <code>get</code>, <code>set</code> and
-                    <code>is</code> are preserved prefixes.</li>
+                    <code>is</code> are preserved prefixes.
+                </li>
                 <li>Fix: snake case to recognize capitalized first letter(s), pasting on:
                     <ul>
                         <li><code>This_item_name</code> will change pasted text from <code>ThatTextString</code> to <code>That_text_string</code></li>
                         <li><code>This_Item_Name</code> will change pasted text from <code>ThatTextString</code> to <code>That_Text_String</code></li>
                         <li>This applies to all case styles: dash, dot, snake, slash. Will preserve: first cap style
                             (first letter capitalized, rest lowercase), mixed case style (first letter of each word
-                            capitalized), lower case or screaming case.</li>
+                            capitalized), lower case or screaming case.
+                        </li>
                     </ul>
                 </li>
                 <li>Fix: paste from history
@@ -237,14 +263,18 @@
                         <li>Add: <code>To Line</code> action to convert multiple selection to merged <strong>line</strong> content without
                             having to paste it. Opposite of <code>To Carets</code></li>
                         <li>Add: allow preview macro replacement results to be selected and copied as new clipboard
-                            content.</li>
+                            content.
+                        </li>
                         <li>Fix: user macro variable replacement and macro variable replacement are now two independent
-                            options.</li>
+                            options.
+                        </li>
                         <li>Fix: user variable case sensitive only if not using smart paste options for replacement.</li>
                         <li>Fix: replacements from clipboard would duplicate for every caret in replacement content even
-                            when nothing matched&mdash;confusing. Now ignore clipboard</li>
+                            when nothing matched&mdash;confusing. Now ignore clipboard
+                        </li>
                         <li>Add: search highlighting if replacing macro variables or user variable in pasted text is
-                            enabled.</li>
+                            enabled.
+                        </li>
                         <li>Add: option to show text after replacements, with replaced regions highlighted.</li>
                         <li>Add: <code>__Filepath__</code> variants to replaced variables to replace with file path which will be
                             pasted into.
@@ -273,18 +303,6 @@
         </div>
         ]]></change-notes>
 
-    <project-components>
-        <component>
-            <implementation-class>com.vladsch.MissingInActions.PluginProjectComponent</implementation-class>
-        </component>
-    </project-components>
-
-    <application-components>
-        <component>
-            <implementation-class>com.vladsch.MissingInActions.Plugin</implementation-class>
-        </component>
-    </application-components>
-
     <extensionPoints>
         <extensionPoint qualifiedName="com.vladsch.shared.clipboard.data.provider"
                         interface="com.vladsch.MissingInActions.util.SharedClipboardDataProvider"/>
@@ -302,10 +320,21 @@
         <applicationService serviceImplementation="com.vladsch.MissingInActions.manager.NormalAdjustmentMap"/>
         <applicationService serviceImplementation="com.vladsch.MissingInActions.util.MiaCancelableJobScheduler"/>
         <applicationService serviceImplementation="com.vladsch.MissingInActions.settings.ApplicationSettings"/>
+        <applicationService serviceImplementation="com.vladsch.MissingInActions.Plugin"/>
+        <projectService serviceImplementation="com.vladsch.MissingInActions.PluginProjectComponent"/>
 
         <!-- This is the only way to override standard editor shortcuts that are used by others -->
         <!-- <editorActionHandler implementationClass="com.vladsch.MissingInActions.actions.line.DuplicateBeforeAfterActionHandler" action="EditorDuplicate" id="MissingInActions.DuplicateBeforeAfter"/> -->
         <projectViewNodeDecorator implementation="com.vladsch.MissingInActions.util.highlight.MiaProjectViewNodeDecorator" order="last"/>
+
+        <toolWindow factoryClass="com.vladsch.MissingInActions.BatchSearchReplaceToolWindowFactory"
+                    id="Missing In Actions"
+                    anchor="bottom"
+                    canCloseContents="false"
+                    secondary="false"
+                    icon="PluginIcons.Batch_search_Tool"
+                    largeStripeAnchor="left"
+        />
     </extensions>
 
     <actions>

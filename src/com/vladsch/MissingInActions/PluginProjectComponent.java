@@ -25,17 +25,13 @@ import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupManagerListener;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ToolWindow;
+import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
 import com.vladsch.MissingInActions.util.EditorActiveLookupListener;
-import com.vladsch.plugin.util.AppUtils;
 import com.vladsch.plugin.util.DelayedRunner;
 import com.vladsch.plugin.util.LazyFunction;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 
-public class PluginProjectComponent implements ProjectComponent, Disposable {
+public class PluginProjectComponent implements Disposable {
     private static final Logger LOG = Logger.getInstance("com.vladsch.MissingInActions");
 
     final @NotNull Project myProject;
@@ -52,8 +48,8 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     private final HashMap<Editor, LinkedHashSet<EditorActiveLookupListener>> myInActiveLookupListeners;
     private final @NotNull DelayedRunner myDelayedRunner;
     private final Plugin myPlugin;
-    BatchSearchReplaceToolWindow mySearchReplaceToolWindow;
-    private FileEditorManagerListener myEditorManagerListener;
+    BatchReplaceForm myBatchReplaceForm;
+    ToolWindow myToolWindow;
 
     public PluginProjectComponent(@NotNull Project project) {
         myProject = project;
@@ -61,11 +57,22 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         myActiveLookupListeners = new HashMap<>();
         myInActiveLookupListeners = new HashMap<>();
         myDelayedRunner = new DelayedRunner();
+
+        // register editor factory listener
+        myDelayedRunner.addRunnable(myProject, () -> {
+            myInActiveLookupListeners.clear();
+            myActiveLookupListeners.clear();
+        });
+
+        myProject.getMessageBus().connect(this).subscribe(LookupManagerListener.TOPIC, (LookupManagerListener) PluginProjectComponent.this::propertyChange);
+
+        myPlugin.projectOpened(myProject);
+        myDelayedRunner.addRunnable(myProject, () -> myPlugin.projectClosed(myProject));
     }
 
     @Override
     public void dispose() {
-        disposeComponent();
+        myDelayedRunner.runAll();
     }
 
     void propertyChange(Lookup oldValue, Lookup newValue) {
@@ -112,7 +119,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         }
     }
 
-    void editorCreated(@NotNull Editor editor) {
+    void editorCreated(@NotNull Editor ignoredEditor) {
 
     }
 
@@ -126,9 +133,7 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         final LinkedHashSet<EditorActiveLookupListener> listeners = myActiveLookupListeners.computeIfAbsent(editor, editor1 -> new LinkedHashSet<>());
         listeners.add(listener);
         if (parentDisposable != null) {
-            Disposer.register(parentDisposable, () -> {
-                removeEditorActiveLookupListener(editor, listener);
-            });
+            Disposer.register(parentDisposable, () -> removeEditorActiveLookupListener(editor, listener));
         }
     }
 
@@ -147,65 +152,24 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
         }
     }
 
-    @Override
-    public void projectOpened() {
-        // register editor factory listener
-        myPlugin.initProjectComponent(myProject);
-        myDelayedRunner.addRunnable(myProject, () -> {
-            myPlugin.disposeProjectComponent(myProject);
-            myInActiveLookupListeners.clear();
-            myActiveLookupListeners.clear();
-        });
-
-        myProject.getMessageBus().connect(this).subscribe(LookupManagerListener.TOPIC, new LookupManagerListener() {
-            @Override
-            public void activeLookupChanged(@Nullable Lookup oldLookup, @Nullable Lookup newLookup) {
-                PluginProjectComponent.this.propertyChange(oldLookup, newLookup);
-            }
-        });
-
-        myPlugin.projectOpened(myProject);
-        myDelayedRunner.addRunnable(myProject, () -> {
-            myPlugin.projectClosed(myProject);
-        });
-
-        // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
-        if (!ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(myProject)) {
-            ToolWindowManager.getInstance(myProject).invokeLater(() -> {
-                mySearchReplaceToolWindow = new BatchSearchReplaceToolWindow(myProject);
-                Disposer.register(this, mySearchReplaceToolWindow);
-            });
-        }
-
-        Disposer.register(myProject, this);
-    }
-
     public void showBatchSearchReplace() {
-        if (mySearchReplaceToolWindow != null) {
-            mySearchReplaceToolWindow.activate();
+        if (myToolWindow != null) {
+            myToolWindow.show();
         }
     }
 
     public void hideBatchSearchReplace() {
-        if (mySearchReplaceToolWindow != null) {
-            mySearchReplaceToolWindow.hide();
+        if (myToolWindow != null) {
+            myToolWindow.hide();
         }
     }
 
-    public @Nullable BatchSearchReplaceToolWindow getSearchReplaceToolWindow() {
-        return mySearchReplaceToolWindow;
+    public @Nullable ToolWindow getSearchReplaceToolWindow() {
+        return myToolWindow;
     }
 
-    @Override
-    public void projectClosed() {
-//        myDelayedRunner.runAllFor(myProject);
-        myDelayedRunner.runAll();
-    }
-
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return this.getClass().getName();
+    public @Nullable BatchReplaceForm getBatchReplaceForm() {
+        return myBatchReplaceForm;
     }
 
     final static private LazyFunction<Project, PluginProjectComponent> NULL = new LazyFunction<>(PluginProjectComponent::new);
@@ -213,6 +177,6 @@ public class PluginProjectComponent implements ProjectComponent, Disposable {
     @NotNull
     public static PluginProjectComponent getInstance(@NotNull Project project) {
         if (project.isDefault()) return NULL.getValue(project);
-        else return project.getComponent(PluginProjectComponent.class);
+        else return project.getService(PluginProjectComponent.class);
     }
 }

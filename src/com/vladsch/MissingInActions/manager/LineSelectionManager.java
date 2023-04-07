@@ -103,7 +103,6 @@ public class LineSelectionManager implements
         , EditorMouseMotionListener
         , Disposable {
 
-    private static final String ESCAPE_SEARCH = "ESCAPE";
     final private Editor myEditor;
     final private ReEntryGuard myCaretGuard = new ReEntryGuard();
     final private HashMap<Caret, StoredLineSelectionState> mySelectionStates = new HashMap<>();
@@ -138,7 +137,6 @@ public class LineSelectionManager implements
 
     //private AwtRunnable myInvalidateStoredLineStateRunnable = new AwtRunnable(true, this::invalidateStoredLineState);
     private boolean myIsActiveLookup;  // true if a lookup is active in the editor
-    private final LafManagerListener myLafManagerListener;
     private boolean myIsDisposed = false;
 
     @Override
@@ -155,7 +153,7 @@ public class LineSelectionManager implements
         Disposer.dispose(myMessageBusConnection);
         myCaretSpawningHandler = null;
     }
-    
+
     public boolean isDisposed() {
         return myIsDisposed;
     }
@@ -219,7 +217,7 @@ public class LineSelectionManager implements
         myHighlightListener = new HighlightListener() {
             @Override
             public void highlightsUpdated() {
-                int tmp = 0;
+
             }
 
             @Override
@@ -230,7 +228,7 @@ public class LineSelectionManager implements
         Plugin plugin = Plugin.getInstance();
         plugin.addHighlightListener(myHighlightListener, this);
 
-        myLafManagerListener = new LafManagerListener() {
+        LafManagerListener lafManagerListener = new LafManagerListener() {
             UIManager.LookAndFeelInfo lookAndFeel = LafManager.getInstance().getCurrentLookAndFeel();
 
             @Override
@@ -245,8 +243,9 @@ public class LineSelectionManager implements
             }
         };
 
-        MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        settingsConnection.subscribe(LafManagerListener.TOPIC, myLafManagerListener);
+        //noinspection ThisEscapedInObjectConstruction
+        myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
+        myMessageBusConnection.subscribe(LafManagerListener.TOPIC, lafManagerListener);
 
         myCaretHighlighter = caretHighlighter;
         //noinspection ThisEscapedInObjectConstruction
@@ -255,8 +254,6 @@ public class LineSelectionManager implements
         mySettings = ApplicationSettings.getInstance();
         settingsChanged(mySettings);
 
-        //noinspection ThisEscapedInObjectConstruction
-        myMessageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         myMessageBusConnection.subscribe(ApplicationSettingsListener.TOPIC, (ApplicationSettingsListener) this::settingsChanged);
         myCaretSpawningHandler = null;
         myStartCarets = null;
@@ -279,8 +276,6 @@ public class LineSelectionManager implements
         };
         myIsolationHighlightProvider.addHighlightListener(myIsolatedLinesListener, this);
 
-        LineSelectionManager thizz = this;
-
         DocumentListener documentListener = new DocumentListener() {
             @Override
             public void beforeDocumentChange(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
@@ -291,14 +286,8 @@ public class LineSelectionManager implements
             public void documentChanged(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
                 if (myHighlightProvider.isShowHighlights()) {
                     myHighlightRunner.cancel();
-                    myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, () -> {
-                        updateHighlights();
-                    }));
+                    myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 250, new AwtRunnable(true, () -> updateHighlights()));
                 }
-
-                //if (myIsolationHighlighter != null) {
-                //    myIsolationHighlighter.updateHighlights();
-                //}
             }
         };
 
@@ -313,9 +302,8 @@ public class LineSelectionManager implements
                 Project project = myEditor.getProject();
                 if (project != null) {
                     // all project mia tool windows should be checked 
-                    if (project.isDefault() || !plugin.shouldNotUpdateHighlighters(myEditor)) {
-                        HighlightProvider<ApplicationSettings> highlightProvider = plugin.getProjectHighlighter(project);
-                        setHighlightProvider(highlightProvider);
+                    if (project.isDefault() || !Plugin.getInstance().shouldNotUpdateHighlighters(myEditor)) {
+                        setHighlightProvider(plugin.getActiveHighlightProvider());
                     }
                 }
             }
@@ -334,6 +322,7 @@ public class LineSelectionManager implements
         return myCaretSpawningHandler;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public HashMap<String, String> getOnPasteReplacementMap() {
         return myOnPasteReplacementMap;
@@ -352,7 +341,7 @@ public class LineSelectionManager implements
         if (pattern != null) {
             try {
                 if (pattern.isRegex()) {
-                    Pattern test = Pattern.compile(pattern.getPatternText());
+                    Pattern.compile(pattern.getPatternText());
                 }
                 myOnPasteUserSearchPattern = pattern;
             } catch (PatternSyntaxException ignored) {
@@ -408,7 +397,7 @@ public class LineSelectionManager implements
             String searchText = matcher.group();
             String replace = myOnPasteReplacementMap == null ? null : myOnPasteReplacementMap.get(searchText);
             int startLength = sb.length();
-            int replaceLength = 0;
+            int replaceLength;
 
             if (replace != null) {
                 sb.append(replace);
@@ -420,7 +409,7 @@ public class LineSelectionManager implements
 
                 if (smartReplace) {
                     preserver.studyFormatBefore(chars, 0, start, end, prefixPatternType, prefixes, suffixPatternType, suffixes, separators);
-                    String edited = sb.toString() + myOnPasteUserReplacementText + text.substring(end);
+                    String edited = sb + myOnPasteUserReplacementText + text.substring(end);
                     final TextRange range = new TextRange(startLength, startLength + replaceLength);
                     final BasedSequence chars1 = BasedSequence.of(edited);
 
@@ -493,7 +482,6 @@ public class LineSelectionManager implements
             if (myOnPasteUserSearchPattern != null) {
                 sb.append(splice);
                 sb.append(myOnPasteUserSearchPattern.getPatternText(!ApplicationSettings.getInstance().isUserDefinedMacroSmartReplace()));
-                splice = "|";
             }
 
             myOnPasteSearchPattern = Pattern.compile(sb.toString());
@@ -519,7 +507,6 @@ public class LineSelectionManager implements
         myStartMatchedCarets = null;
         myFoundCarets = null;
         myCaretHighlighter.highlightCarets();
-//        myDelayedRunner.runAllFor(ESCAPE_SEARCH);
     }
 
     @Nullable
@@ -558,10 +545,6 @@ public class LineSelectionManager implements
 
     public void setSearchFoundCaretSpawningHandler(@Nullable final RangeLimitedCaretSpawningHandler caretSpawningHandler) {
         myCaretSpawningHandler = caretSpawningHandler;
-    }
-
-    public void setStartCaretStates(@Nullable final List<CaretState> startCaretStates) {
-        myStartCaretStates = startCaretStates;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -632,16 +615,6 @@ public class LineSelectionManager implements
         return myIsolationHighlightProvider.getHighlightLines();
     }
 
-    @Nullable
-    public BitSet addIsolatedLines(@NotNull BitSet bitSet) {
-        return myIsolationHighlightProvider.addHighlightLines(bitSet);
-    }
-
-    @Nullable
-    public BitSet removeIsolatedLines(@NotNull BitSet bitSet) {
-        return myIsolationHighlightProvider.removeHighlightLines(bitSet);
-    }
-
     public boolean isIsolatedMode() {
         return myIsolationHighlightProvider.isHighlightsMode();
     }
@@ -694,10 +667,6 @@ public class LineSelectionManager implements
     @NotNull
     public EditorPositionFactory getPositionFactory() {
         return myPositionFactory;
-    }
-
-    public CaretHighlighter getCaretHighlighter() {
-        return myCaretHighlighter;
     }
 
     @NotNull
@@ -772,9 +741,7 @@ public class LineSelectionManager implements
 
             IdeEventQueue.getInstance().addDispatcher(eventDispatcher, this);
 
-            myDelayedRunner.addRunnable(() -> {
-                IdeEventQueue.getInstance().removeDispatcher(eventDispatcher);
-            });
+            myDelayedRunner.addRunnable(() -> IdeEventQueue.getInstance().removeDispatcher(eventDispatcher));
         }
     }
 
@@ -838,11 +805,13 @@ public class LineSelectionManager implements
         hookListeners(settings);
         myCaretHighlighter.removeCaretHighlight();
         myCaretHighlighter.settingsChanged(settings);
-        Set<Long> excludeList = null;
 
         if (myCaretSpawningHandler != null) {
+            //noinspection ReassignedVariable
+            Set<Long> excludeList = null;
             myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.FOUND, null);
 
+            //noinspection ConstantValue
             excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
             myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
 
@@ -870,17 +839,12 @@ public class LineSelectionManager implements
         // wire ourselves in
         if (isLineSelectionSupported()) {
             myEditor.getCaretModel().addCaretListener(this);
-            myDelayedRunner.addRunnable("CaretListener", () -> {
-                myEditor.getCaretModel().removeCaretListener(this);
-            });
-
-            //myEditor.getSelectionModel().addSelectionListener(this);
-            //myDelayedRunner.addRunnable("CaretListener", () -> {
-            //    myEditor.getSelectionModel().removeSelectionListener(this);
-            //});
+            myDelayedRunner.addRunnable("CaretListener", () -> myEditor.getCaretModel().removeCaretListener(this));
 
             if (myEditor.getProject() != null) {
-                Plugin.addEditorActiveLookupListener(myEditor, this);
+                // NOTE: LineSelectionManager has lifespan of the editor, so when editor is disposed this listener will be disposed too
+                Plugin.addEditorActiveLookupListener(myEditor, this, null);
+                myDelayedRunner.addRunnable("ActiveLookup", () -> Plugin.removeEditorActiveLookupListener(myEditor, this));
             }
 
             if (settings.isMouseLineSelection()) {
@@ -913,14 +877,7 @@ public class LineSelectionManager implements
         myCaretGuard.guard(runnable);
     }
 
-    public void ifUnguarded(@NotNull Runnable runnable) {myCaretGuard.ifUnguarded(runnable);}
-
-    public void ifUnguarded(boolean ifGuardedRunOnExit, @NotNull Runnable runnable) {myCaretGuard.ifUnguarded(ifGuardedRunOnExit, runnable);}
-
-    public void ifUnguarded(@NotNull Runnable runnable, @Nullable Runnable runOnGuardExit) {myCaretGuard.ifUnguarded(runnable, runOnGuardExit);}
-
-    public boolean unguarded() {return myCaretGuard.unguarded();}
-
+    @SuppressWarnings({ "MethodMayBeStatic", "unused" })
     private void println(String message) {
         if (Plugin.isFeatureLicensed(Plugin.FEATURE_DEVELOPMENT)) {
             System.out.println(message);
@@ -1002,15 +959,15 @@ public class LineSelectionManager implements
         return myActionSelectionAdjuster.getSavedSelections();
     }
 
-    private boolean isControlledSelect(EditorMouseEvent e) {
-        boolean ctrl = (e.getMouseEvent().getModifiers() & (MouseEvent.CTRL_MASK)) != 0;
+    private static boolean isControlledSelect(EditorMouseEvent e) {
+        boolean ctrl = (e.getMouseEvent().getModifiersEx() & (MouseEvent.CTRL_DOWN_MASK)) != 0;
         return ctrl ^ (ApplicationSettings.getInstance().getMouseModifier() == MouseModifierType.CTRL_LINE.intValue);
     }
 
     @Override
     public void mouseReleased(EditorMouseEvent e) {
         if (e.getArea() == EDITING_AREA && !myEditor.getSettings().isUseSoftWraps() && !myEditor.isColumnMode()) {
-            int offset = myEditor.getCaretModel().getOffset();
+            //int offset = myEditor.getCaretModel().getOffset();
             //println("mouse released offset: " + offset + " anchor: " + myMouseAnchor /*+ " event:" + e.getMouseEvent()*/ + " isConsumed " + e.isConsumed());
 
             // adjust it one final time
@@ -1135,27 +1092,6 @@ public class LineSelectionManager implements
             }
         });
     }
-
-    private void invalidateStoredLineState() {
-        // clear any states for carets that don't have selection to eliminate using a stale state
-        for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-            StoredLineSelectionState state = mySelectionStates.get(caret);
-            if (state != null) {
-                if (state == myPrimarySelectionState) {
-                    state.resetToDefault();
-                } else {
-                    mySelectionStates.remove(caret);
-                }
-            }
-        }
-    }
-
-    //@Override
-    //public void selectionChanged(SelectionEvent e) {
-    //    //if (e.getEditor() == myEditor) {
-    //    //    myCaretGuard.ifUnguarded(myInvalidateStoredLineStateRunnable, false);
-    //    //}
-    //}
 
     @Override
     public void caretAdded(@NotNull CaretEvent e) {

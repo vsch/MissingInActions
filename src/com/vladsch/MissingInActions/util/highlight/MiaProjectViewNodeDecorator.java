@@ -25,11 +25,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.packageDependencies.ui.PackageDependenciesNode;
-import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
+import com.vladsch.plugin.util.ui.highlight.WordHighlightProvider;
 
 import java.awt.Color;
 import java.util.Map;
@@ -49,8 +48,9 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
     @Override
     public void decorate(ProjectViewNode node, PresentationData presentation) {
         if (mySettings.isHighlightProjectViewNodes() && myPlugin.isHighlightsMode()) {
-            Pattern pattern = myPlugin.getHighlightPattern();
-            Map<String, Integer> highlightWordFlags = myPlugin.getHighlightRangeFlags();
+            WordHighlightProvider<ApplicationSettings> wordHighlightProvider = myPlugin.getActiveHighlightProvider();
+            Pattern pattern = wordHighlightProvider.getHighlightPattern();
+            Map<String, Integer> highlightWordFlags = wordHighlightProvider.getHighlightRangeFlags();
 
             if (highlightWordFlags != null && pattern != null) {
                 String text = presentation.getPresentableText();
@@ -85,11 +85,11 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
                             int startOffset = matcher.start();
                             int endOffset = matcher.end();
 
-                            String range = myPlugin.getAdjustedRange(group);
+                            String range = wordHighlightProvider.getAdjustedRange(group);
                             int flags = highlightWordFlags.getOrDefault(range, 0);
-                            int index = myPlugin.getHighlightRangeIndex(range);
+                            int index = wordHighlightProvider.getHighlightRangeIndex(range);
 
-                            TextAttributes attributes = myPlugin.getHighlightAttributes(index, flags, 0, text.length(), null, null, EffectType.BOLD_DOTTED_LINE, 0);
+                            TextAttributes attributes = wordHighlightProvider.getHighlightAttributes(index, flags, 0, text.length(), null, null, EffectType.BOLD_DOTTED_LINE, 0);
 
                             if (attributes != null) {
                                 if (lastOffset < startOffset) {
@@ -118,10 +118,5 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
                 }
             }
         }
-    }
-
-    @Override
-    public void decorate(PackageDependenciesNode node, ColoredTreeCellRenderer cellRenderer) {
-
     }
 }

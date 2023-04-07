@@ -23,6 +23,7 @@ package com.vladsch.MissingInActions.actions.pattern;
 
 import com.intellij.ide.CopyPasteManagerEx;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.Caret;
@@ -173,9 +174,9 @@ public class BatchReplaceForm implements Disposable {
     private @Nullable HashMap<Integer, SearchData> myLineSearchData = null;
     private int[] myIndexedWordCounts = null;
     private TextRange myFoundRange = null;
-    private boolean myHighlightSearchLines = false;
-    private boolean myHighlightReplaceLines = false;
-    private boolean myBatchTandemEdit = false;
+    private boolean myHighlightSearchLines;
+    private boolean myHighlightReplaceLines;
+    private boolean myBatchTandemEdit;
     private boolean myIsIncludeMode = false;
 
     private ArrayList<TextRange> myExcludedRanges = null;
@@ -193,12 +194,12 @@ public class BatchReplaceForm implements Disposable {
 
     private int myFoundIndex = -1;
     private Boolean myFoundBackwards = null;
-    private boolean myInUpdate = false;
+    private boolean myInUpdate;
     private long myLastEditorSync = Long.MIN_VALUE;
     private Editor myLastSyncEditor = null;
     private boolean myIsActive = false;
+    private boolean myWasActive = false;
     private OneTimeRunnable myHighlightRunner = OneTimeRunnable.NULL;
-    private OneTimeRunnable myEditorHighlightRunner = OneTimeRunnable.NULL;
     private boolean myPendingForcedUpdate = false;
     private boolean myPendingReplace = false;
     private boolean myInTandemEdit = false;
@@ -216,20 +217,12 @@ public class BatchReplaceForm implements Disposable {
         return editor == myLastSyncEditor || myLastEditorSync + (long) BatchReplaceForm.DELAY_MILLIS < System.currentTimeMillis();
     }
 
-    BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getWarningTextFieldBackground() {
+    private static BackgroundColor getWarningTextFieldBackground() {
         return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
-    private BackgroundColor getValidTextFieldBackground() {
+    private static BackgroundColor getValidTextFieldBackground() {
         return BackgroundColor.of(UIUtil.getTextFieldBackground());
-    }
-
-    BackgroundColor getSelectedTextFieldBackground() {
-        return BackgroundColor.of(mySampleText.getSelectionColor());
     }
 
     @Override
@@ -307,7 +300,7 @@ public class BatchReplaceForm implements Disposable {
     }
 
     public void setActiveEditor(@Nullable Editor editor) {
-        if (shouldNotUpdateHighlighters(editor)) return;
+        if (Plugin.getInstance().shouldNotUpdateHighlighters(editor)) return;
 
         if (editor != null && editor.isDisposed()) {
             editor = null;
@@ -336,25 +329,6 @@ public class BatchReplaceForm implements Disposable {
                 myHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 100, new AwtRunnable(true, () -> updateOptions(true)));
             }
         }
-    }
-
-    public boolean shouldNotUpdateHighlighters(@Nullable Editor editor) {
-        return editor == null || editor.isDisposed() || editor == mySearchEditor || editor == myReplaceEditor || editor == myOptionsEditor;
-    }
-
-    public void updateHighlighters() {
-        myEditorHighlightRunner.cancel();
-        myEditorHighlightRunner = OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), 500, new AwtRunnable(true, () -> {
-            Editor[] editors = EditorFactory.getInstance().getAllEditors();
-            Plugin plugin = Plugin.getInstance();
-
-            for (Editor editor : editors) {
-                if (shouldNotUpdateHighlighters(editor) || plugin.shouldNotUpdateHighlighters(editor)) continue;
-
-                LineSelectionManager selectionManager = LineSelectionManager.getInstance(editor);
-                selectionManager.setHighlightProvider(myIsActive ? myEditorSearchHighlightProvider : null);
-            }
-        }));
     }
 
     private class MainEditorCaretListener implements CaretListener {
@@ -403,12 +377,10 @@ public class BatchReplaceForm implements Disposable {
         FileEditorManagerListener editorManagerListener = new FileEditorManagerListener() {
             @Override
             public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
             }
 
             @Override
             public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
             }
 
             @Override
@@ -417,6 +389,13 @@ public class BatchReplaceForm implements Disposable {
                 setActiveEditor(activeEditor);
             }
         };
+
+        ApplicationManager.getApplication().invokeLater(() -> {
+            // NOTE: Now that we have delayed creation, we miss the current editor call back 
+            Editor editor = FileEditorManager.getInstance(myProject).getSelectedTextEditor();
+            setActiveEditor(editor);
+            activeStatusChanged();
+        });
 
         myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorManagerListener);
     }
@@ -469,7 +448,6 @@ public class BatchReplaceForm implements Disposable {
         LineSelectionManager.getInstance(myOptionsEditor).setHighlightProvider(myOptionsHighlightProvider);
 
         myHighlightListener = new MainEditorHighlightListener();
-        myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener, this);
 
         mySearchSortUp.setIcon(PluginIcons.Sort_up);
         mySearchSortDown.setIcon(PluginIcons.Sort_down);
@@ -525,7 +503,6 @@ public class BatchReplaceForm implements Disposable {
         myReplaceEditor.getScrollingModel().addVisibleAreaListener(myVisibleAreaListener);
         myOptionsEditor.getScrollingModel().addVisibleAreaListener(myVisibleAreaListener);
 
-        final ActionListener actionListener = e -> updateOptions(false);
         final ActionListener textChangedActionListener = e -> updateOptions(true);
 
         myFindNext.addActionListener(e -> findNext());
@@ -678,11 +655,8 @@ public class BatchReplaceForm implements Disposable {
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
             String lastImport = myProject.getBasePath() + "/" + "batch-search-replace.xml";
-            VirtualFile lastImportFile = null;
-            if (!lastImport.isEmpty()) {
-                File file = new File(lastImport);
-                lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
-            }
+            File file = new File(lastImport);
+            VirtualFile lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             if (lastImportFile == null) lastImportFile = projectBaseDir;
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
@@ -742,11 +716,8 @@ public class BatchReplaceForm implements Disposable {
             fileChooserDescriptor.setDescription(description);
             FileChooserDialogImpl fileChooserDialog = new FileChooserDialogImpl(fileChooserDescriptor, myMainPanel, myProject);
             String lastImport = myProject.getBasePath() + "/" + "batch-search-replace.json";
-            VirtualFile lastImportFile = null;
-            if (!lastImport.isEmpty()) {
-                File file = new File(lastImport);
-                lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
-            }
+            File file = new File(lastImport);
+            VirtualFile lastImportFile = VirtualFileManager.getInstance().findFileByUrl("file://" + file.getPath());
             if (lastImportFile == null) lastImportFile = projectBaseDir;
 
             VirtualFile[] files = fileChooserDialog.choose(myProject, lastImportFile);
@@ -805,18 +776,7 @@ public class BatchReplaceForm implements Disposable {
         if (propertyName.equals("ancestor")) {
             myIsActive = evt.getNewValue() != null;
 
-            if (myEditor != null) {
-                if (myIsActive) {
-                    // need to close all other projects' Mia tool windows or they conflict
-                    Plugin.activatingBatchSearchReplaceToolWindow(myProject);
-                    updateOptions(true);
-                } else {
-                    saveSettings();
-                }
-
-                Plugin.getInstance().setProjectHighlightProvider(myProject, myIsActive ? myEditorSearchHighlightProvider : null);
-                updateHighlighters();
-            }
+            activeStatusChanged();
         } else if (propertyName.equals("Frame.active")) {
             if (!(boolean) evt.getNewValue()) {
                 saveSettings();
@@ -824,12 +784,30 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    public boolean isActive() {
-        return myIsActive;
+    private void activeStatusChanged() {
+        if (myWasActive && !myIsActive) {
+            saveSettings();
+            myEditorSearchHighlightProvider.removeHighlightListener(myHighlightListener);
+        }
+
+        // remove from previous provider
+        if (myIsActive || myWasActive) {
+            Plugin.getInstance().setProjectHighlightProvider(myProject, myIsActive ? myEditorSearchHighlightProvider : null);
+        }
+
+        if (myIsActive) {
+            myEditorSearchHighlightProvider.addHighlightListener(myHighlightListener, this);
+            updateOptions(true);
+//
+//            // do a manual call after connection
+//            ApplicationManager.getApplication().invokeLater(() -> myHighlightListener.highlightsUpdated());
+        }
+        
+        myWasActive = myIsActive;
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void copyRegEx(final boolean replaceText) {
+    private void copyRegEx(final boolean ignoredReplaceText) {
         if (myEditorSearchHighlightProvider.haveHighlights()) {
             Pattern pattern = myEditorSearchHighlightProvider.getHighlightPattern();
             if (pattern != null && !pattern.pattern().isEmpty()) {
@@ -860,7 +838,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    private boolean importFromJSON(final BatchSearchReplaceSettings settings, final BoxedJsObject presets) {
+    private static boolean importFromJSON(final BatchSearchReplaceSettings settings, final BoxedJsObject presets) {
         boolean hadPreset = false;
 
         for (String presetName : presets.keySet()) {
@@ -909,10 +887,12 @@ public class BatchReplaceForm implements Disposable {
             int optionsLines = options.length;
             int iMax = Math.max(searchLines, Math.max(replaceLines, optionsLines));
 
+            //noinspection unused
             boolean hadErrors = false;
             for (int i = 0; i < iMax; i++) {
                 String searchText = null;
                 String replaceText = null;
+                //noinspection unused
                 String optionsText = "";
 
                 if (i < searchLines) searchText = search[i];
@@ -928,6 +908,7 @@ public class BatchReplaceForm implements Disposable {
                 } else {
                     if (replaceText != null && !replaceText.isEmpty()) {
                         // TODO: highlight as ignored
+                        //noinspection UnusedAssignment
                         hadErrors = true;
                     }
                 }
@@ -1057,8 +1038,6 @@ public class BatchReplaceForm implements Disposable {
     }
 
     private void fillPresets() {
-        //boolean savedInUpdate = myInUpdate;
-        //myInUpdate = true;
         String presetName = mySettings.getBatchPresetName();
         myPresets.removeAllItems();
         ArrayList<String> presetNames = new ArrayList<>(mySettings.getBatchPresets().keySet());
@@ -1080,6 +1059,9 @@ public class BatchReplaceForm implements Disposable {
         Document doc = EditorFactory.getInstance().createDocument(charSequence);
         FileType fileType = FileTypeManager.getInstance().getStdFileType("text");
         Editor editor = EditorFactory.getInstance().createEditor(doc, myProject, fileType, false);
+
+        Plugin.getInstance().registerDoNotUpdateHighlightersEditors(editor);
+
         editor.getSettings().setFoldingOutlineShown(false);
         editor.getSettings().setLineNumbersShown(false);
         editor.getSettings().setLineMarkerAreaShown(false);
@@ -1109,21 +1091,8 @@ public class BatchReplaceForm implements Disposable {
             // compare line count for search/replace, ignore options, ignore trailing empty lines, EOL is ignored
             myReset.setEnabled(myExcludedRanges != null);
 
-            final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
-            final Transferable[] contents = copyPasteManager.getAllContents();
             // NOTE: checking has tendency to hang the IDE, no harm in having button enabled
-            boolean clipboardLoadEnabled = true;
-//            if (contents.length > 1) {
-//                // we take top two
-//                try {
-//                    final String replaceText = (String) contents[0].getTransferData(DataFlavor.stringFlavor);
-//                    final String searchText = (String) contents[1].getTransferData(DataFlavor.stringFlavor);
-//                    clipboardLoadEnabled = !replaceText.isEmpty() && !searchText.isEmpty();
-//                } catch (UnsupportedFlavorException | IOException ignored) {
-//                }
-//            }
-
-            myGetFromClipboard.setEnabled(clipboardLoadEnabled);
+            myGetFromClipboard.setEnabled(true);
 
             myFoundRange = null;
 
@@ -1624,8 +1593,6 @@ public class BatchReplaceForm implements Disposable {
         if (!myEditorSearchHighlightProvider.getHighlightPattern().pattern().isEmpty()) {
             WriteCommandAction.runWriteCommandAction(myProject, () -> {
                 int caretOffset = myEditor.getDocument().getTextLength();
-                //myEditor.getCaretModel().getPrimaryCaret().setSelection(length, length);
-                //myEditor.getCaretModel().getPrimaryCaret().moveToOffset(length);
 
                 WordHighlighter<?> highlighter = (WordHighlighter<?>) LineSelectionManager.getInstance(myEditor).getHighlighter();
                 myFoundBackwards = true;
@@ -1897,7 +1864,7 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
-    private static int countOccurrences(CharSequence charSequence, char c) {
+    private static int countOccurrences(CharSequence charSequence, @SuppressWarnings("SameParameterValue") char c) {
         int iMax = charSequence.length();
         int occurrences = 0;
         for (int i = 0; i < iMax; i++) {
@@ -1963,22 +1930,19 @@ public class BatchReplaceForm implements Disposable {
         }
     }
 
+    @SuppressWarnings("unused")
     private String checkRegEx(final String pattern) {
         final String patternText = pattern.trim();
-        //Color validBackground = getValidTextFieldBackground();
-        //Color selectedBackground = getSelectedTextFieldBackground();
-        //Color invalidBackground = getInvalidTextFieldBackground();
         Color warningBackground = getWarningTextFieldBackground();
         String error = "";
         String warning = "";
 
-        Pattern regexPattern;
         Matcher matcher = null;
         boolean isBadRegEx = false;
 
         if (!patternText.isEmpty()) {
             try {
-                regexPattern = Pattern.compile(patternText);
+                Pattern.compile(patternText);
             } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                 error = e.getMessage();
                 isBadRegEx = true;
@@ -2058,15 +2022,6 @@ public class BatchReplaceForm implements Disposable {
 
         @Override
         public RangeHighlighter rangeHighlighterCreated(final RangeHighlighter rangeHighlighter, final int line, final int index, final int startOffset, final int endOffset) {
-            //int count = 0;
-            //SearchData searchData = myLineSearchData.get(line);
-            //if (searchData != null && myIndexedWordCounts != null && searchData.wordIndex < myIndexedWordCounts.length) {
-            //    count =  myIndexedWordCounts[searchData.wordIndex];
-            //}
-            //
-            //if (count > 0) {
-            //    rangeHighlighter.setErrorStripeTooltip("tooltip");
-            //}
             return rangeHighlighter;
         }
 

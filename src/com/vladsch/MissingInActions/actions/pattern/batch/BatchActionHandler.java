@@ -28,7 +28,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
-import com.vladsch.MissingInActions.BatchSearchReplaceToolWindow;
 import com.vladsch.MissingInActions.PluginProjectComponent;
 import com.vladsch.MissingInActions.actions.pattern.BatchReplaceForm;
 import com.vladsch.MissingInActions.util.MiaCancelableJobScheduler;
@@ -48,13 +47,10 @@ public class BatchActionHandler extends EditorActionHandler {
     protected boolean isEnabledForCaret(@NotNull final Editor editor, @NotNull final Caret caret, final DataContext dataContext) {
         Project project = dataContext.getData(CommonDataKeys.PROJECT);
         if (editor instanceof EditorEx && project != null) {
-            BatchSearchReplaceToolWindow toolWindow = PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow();
-            if (toolWindow != null) {
-                BatchReplaceForm batchSearchReplace = toolWindow.getBatchSearchReplace();
-                if (batchSearchReplace != null) {
-                    batchSearchReplace.setActiveEditor((EditorEx) editor);
-                    return batchSearchReplace.isActionEnabled(myAction);
-                }
+            BatchReplaceForm batchSearchReplace = PluginProjectComponent.getInstance(project).getBatchReplaceForm();
+            if (batchSearchReplace != null) {
+                batchSearchReplace.setActiveEditor((EditorEx) editor);
+                return batchSearchReplace.isActionEnabled(myAction);
             }
         }
         return false;
@@ -64,16 +60,13 @@ public class BatchActionHandler extends EditorActionHandler {
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
         Project project = dataContext.getData(CommonDataKeys.PROJECT);
         if (editor instanceof EditorEx && project != null) {
-            BatchSearchReplaceToolWindow toolWindow = PluginProjectComponent.getInstance(project).getSearchReplaceToolWindow();
-            if (toolWindow != null) {
-                BatchReplaceForm batchSearchReplace = toolWindow.getBatchSearchReplace();
-                if (batchSearchReplace != null) {
-                    batchSearchReplace.setActiveEditor((EditorEx) editor);
-                    batchSearchReplace.doAction(myAction);
-                    MiaCancelableJobScheduler.getInstance().schedule(100, () -> {
-                        editor.getContentComponent().requestFocus();
-                    });
-                }
+            BatchReplaceForm batchSearchReplace = PluginProjectComponent.getInstance(project).getBatchReplaceForm();
+            if (batchSearchReplace != null) {
+                batchSearchReplace.setActiveEditor((EditorEx) editor);
+                batchSearchReplace.doAction(myAction);
+                MiaCancelableJobScheduler.getInstance().schedule(100, () -> {
+                    editor.getContentComponent().requestFocus();
+                });
             }
         }
     }

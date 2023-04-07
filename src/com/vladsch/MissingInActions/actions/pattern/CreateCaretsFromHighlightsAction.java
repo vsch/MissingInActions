@@ -56,7 +56,7 @@ public class CreateCaretsFromHighlightsAction extends AnAction implements LineSe
 
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) manager.getHighlighter();
+            WordHighlighter<ApplicationSettings> highlighter = manager.getHighlighter() instanceof WordHighlighter ? (WordHighlighter<ApplicationSettings>) manager.getHighlighter() : null;
 
             if (highlighter != null) {
                 EditorCaret editorCaret = getSelectionRange(editor, manager);
@@ -77,7 +77,7 @@ public class CreateCaretsFromHighlightsAction extends AnAction implements LineSe
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (editor != null && Plugin.getInstance().haveHighlights()) {
             LineSelectionManager manager = LineSelectionManager.getInstance(editor);
-            WordHighlighter<ApplicationSettings> highlighter = (WordHighlighter<ApplicationSettings>) manager.getHighlighter();
+            WordHighlighter<ApplicationSettings> highlighter = manager.getHighlighter() instanceof WordHighlighter ? (WordHighlighter<ApplicationSettings>) manager.getHighlighter() : null;
 
             if (highlighter != null) {
                 final CaretModel caretModel = editor.getCaretModel();

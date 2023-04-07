@@ -211,7 +211,7 @@ public class ApplicationSettingsForm implements Disposable {
     public ApplicationSettingsForm(ApplicationSettings settings) {
         mySettings = settings;
 
-        components = new SettingsComponents<ApplicationSettings>() {
+        components = new SettingsComponents<>() {
             @Override
             protected Settable[] createComponents(@NotNull ApplicationSettings i) {
                 return new Settable[] {
