@@ -22,7 +22,6 @@
 package com.vladsch.MissingInActions.settings;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class NumberingOptions extends NumberingBaseOptions {
     private String myFirst;

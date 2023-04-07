@@ -28,7 +28,6 @@ import com.intellij.codeInsight.generation.actions.AutoIndentLinesAction;
 import com.intellij.ide.actions.RedoAction;
 import com.intellij.ide.actions.UndoAction;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.actions.*;
 import com.vladsch.MissingInActions.actions.PopSelectionAction;
 import com.vladsch.MissingInActions.actions.RecallSelectionListAction;

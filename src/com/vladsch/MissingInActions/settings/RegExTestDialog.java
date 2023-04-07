@@ -33,7 +33,6 @@ import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ElementProducer;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.ListTableModel;
-import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
 import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
@@ -63,9 +62,6 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.vladsch.plugin.util.ui.Helpers.errorColor;
-import static com.vladsch.plugin.util.ui.Helpers.warningColor;
 
 public class RegExTestDialog extends DialogWrapper {
     JPanel myMainPanel;
