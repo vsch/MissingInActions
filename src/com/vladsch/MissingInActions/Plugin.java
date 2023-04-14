@@ -126,7 +126,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
     private @Nullable HighlightListener mySearchReplaceHighlightListener;
     private OneTimeRunnable myEditorHighlightRunner = OneTimeRunnable.NULL;
     private boolean myInSetProjectHighlighter = false;
-//    final private AppRestartRequiredChecker<ApplicationSettings> myRestartRequiredChecker = new AppRestartRequiredChecker<ApplicationSettings>(Bundle.message("settings.restart-required.title"));
 
     public Plugin() {
         super(ApplicationSettings.getInstance());
@@ -229,7 +228,7 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
         super.initComponent();
 
         SharedCaretStateTransferableData.initialize(this);
-        
+
         myDelayedRunner.addRunnable(SharedCaretStateTransferableData::dispose);
 
         if (myParameterHintsAvailable) {
@@ -654,14 +653,14 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
 
     public void setProjectHighlightProvider(@NotNull Project activeProject, WordHighlightProvider<ApplicationSettings> highlightProvider) {
         if (myInSetProjectHighlighter && highlightProvider == null) return;
-        
+
         try {
             myInSetProjectHighlighter = highlightProvider != null;
-            
+
             if (myProjectHighlightProvider != null && mySearchReplaceHighlightListener != null) {
                 myProjectHighlightProvider.removeHighlightListener(mySearchReplaceHighlightListener);
             }
-            
+
             mySearchReplaceHighlightListener = null;
             myProjectHighlightProvider = null;
 
@@ -697,6 +696,10 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
                 // only do this if removing highlight provider did not result in a nested call with a non-null value
                 // this way will result in only one call to updateEditorHighlighters0) with the one that will be the new highlight provider
                 updateEditorHighlighters(null);
+
+                if (highlightProvider == null) {
+                    updateProjectViews();
+                }
             }
         } finally {
             myInSetProjectHighlighter = false;
@@ -740,42 +743,4 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
     public @NotNull WordHighlightProvider<ApplicationSettings> getActiveHighlightProvider() {
         return myProjectHighlightProvider == null ? this : myProjectHighlightProvider;
     }
-
-/*
-    public static String getProductId() {
-        return Bundle.message("plugin.product-id");
-    }
-
-    @Nullable
-    public static String getPluginCustomPath() {
-        String[] variants = { PathManager.getHomePath(), PathManager.getPluginsPath() };
-
-        for (String variant : variants) {
-            String path = variant + "/" + getProductId();
-            if (LocalFileSystem.getInstance().findFileByPath(path) != null) {
-                return path;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public static String getPluginPath() {
-        String[] variants = { PathManager.getPluginsPath() };
-
-        for (String variant : variants) {
-            String path = variant + "/" + getProductId();
-            if (LocalFileSystem.getInstance().findFileByPath(path) != null) {
-                return path;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public static String getPluginFilePath(String fileName) {
-        String path = getPluginCustomPath();
-        return path == null ? null : HelpersKt.suffixWith(path, '/') + fileName;
-    }
-*/
 }

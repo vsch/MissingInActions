@@ -5,6 +5,7 @@
 ### Version History
 - [Missing In Actions](#missing-in-actions)
   - [1.8.223.27 - Dev](#1822327---dev)
+  - [1.8.223.27 - Dev](#1822327---dev-1)
   - [1.8.223.25 - Dev](#1822325---dev)
   - [1.8.223.23 - Dev](#1822323---dev)
   - [1.8.223.21 - Dev](#1822321---dev)
@@ -64,6 +65,11 @@
   - [0.6.0 - Bug Fix and Features](#060---bug-fix-and-features)
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
+
+### 1.8.223.27 - Dev
+
+* Fix: closing batch/replace toolwindow would not clear project highlights if no word
+  highlighter was available.
 
 ### 1.8.223.27 - Dev
 
