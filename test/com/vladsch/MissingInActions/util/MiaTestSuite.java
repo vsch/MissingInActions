@@ -16,11 +16,15 @@
  */
 package com.vladsch.MissingInActions.util;
 
+import com.vladsch.plugin.util.PluginUtilTestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        PluginUtilTestSuite.class,
+        CaseFormatPreserverTest.class,
+        StudiedWordTest.class
 })
 public class MiaTestSuite {
 }

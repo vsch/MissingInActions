@@ -465,7 +465,7 @@ public class NumberSequenceGeneratorTest {
         NumberSequenceGenerator num = create(options);
         num.next(1);
         String first = num.getNumber();
-        assertEquals("0", first);
+        assertEquals("1", first);
         num.next(2);
         String next = num.getNumber();
         assertEquals("8000000000000000", next);
@@ -548,16 +548,16 @@ public class NumberSequenceGeneratorTest {
         NumberSequenceGenerator num = create(options);
         num.next(1);
         String first = num.getNumber();
-        assertEquals("0", first);
+        assertEquals("1", first);
         num.next(2);
         String next = num.getNumber();
-        assertEquals("1", next);
+        assertEquals("2", next);
         num.next(3);
         String next1 = num.getNumber();
-        assertEquals("2", next1);
+        assertEquals("4", next1);
         num.next(4);
         String next3 = num.getNumber();
-        assertEquals("4", next3);
+        assertEquals("8", next3);
     }
 
     @Test

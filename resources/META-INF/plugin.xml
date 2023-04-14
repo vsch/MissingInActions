@@ -22,7 +22,7 @@
 <idea-plugin url="http://github.com/vsch/MissingInActions">
     <id>com.vladsch.MissingInActions</id>
     <name>Missing In Actions</name>
-    <vendor email="vladimir.schneider@gmail.com" url="http://www.vladsch.com">Vladimir Schneider</vendor>
+    <vendor email="vladimir.schneider@gmail.com" url="https://github.com/vsch">Vladimir Schneider</vendor>
     
     <version>1.8.223.27</version>
     <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
@@ -436,7 +436,7 @@
         <group id="MissingInActions.MultiCaretFriendlyGroup" text="Multi Caret Friendly">
             <action class="com.vladsch.MissingInActions.actions.line.DeleteToLineEndNotEolAction"
                     id="MissingInActions.DeleteToLineEndNotEol"
-                    text="Delete to Line End not EOL"
+                    text="Delete To Line End Not EOL"
                     description="Delete to line end not eol">
             </action>
 
@@ -527,14 +527,14 @@
 
             <action class="com.vladsch.MissingInActions.actions.character.DeleteToWordEndNotEolAction"
                     id="MissingInActions.DeleteToWordEndNotEol"
-                    text="Delete to Word End not EOL"
+                    text="Delete To Word End Not EOL"
                     description="Delete to word end not eol">
             </action>
 
             <action class="com.vladsch.MissingInActions.actions.character.DeleteToWordEndNotEolInDifferentHumpsModeAction"
                     id="MissingInActions.DeleteToWordEndNotEolInDifferentHumpsMode"
-                    text='Delete to Word End in Different "CamelHumps" Mode not EOL'
-                    description='Delete to word end in different "camelhumps" mode not eol'>
+                    text='Delete To Word End In Different "CamelHumps" Mode Not EOL'
+                    description='Delete to word end in different "camel humps" mode not eol'>
             </action>
         </group>
 
@@ -985,13 +985,10 @@
                 id="MissingInActions.GenerateException"
                 text="Generate Exception"
                 icon="PluginIcons.Generate_exception"
-                description="Generates an Exception when invoked. Used to test now Action Exceptions are handled">
+                description="Generates an Exception when invoked. Used to test how Action Exceptions are handled">
         </action>
 
         <group id="MissingInActions.Toolbars" text="Missing In Actions Toolbar">
-            <!--<separator/>-->
-            <!--<reference id="MissingInActions.BatchSearchReplace"/>-->
-            <!--<separator/>-->
             <reference id="MissingInActions.GenerateException"/>
             <reference id="MissingInActions.ToggleOnPastePreserve"/>
             <group id="MissingInActions.IsolationModeMenu"
@@ -1050,13 +1047,6 @@
                 >
             </group>
             <separator/>
-            <!--<group id="MissingInActions.CaretSearchMenu"-->
-            <!--class="com.vladsch.MissingInActions.actions.ToolbarDefaultActionGroup"-->
-            <!--text="Multi-Caret Search/Spawn Actions"-->
-            <!--popup="true"-->
-            <!--icon="PluginIcons.Menu_spawn"-->
-            <!--&gt;-->
-            <!--</group>-->
             <reference id="MissingInActions.ToggleSpawnSmartPrefixSearch"/>
             <reference id="MissingInActions.ToggleSpawnMatchBoundarySearch"/>
             <reference id="MissingInActions.ToggleSpawnNumericSearch"/>
@@ -1065,9 +1055,6 @@
             <reference id="MissingInActions.BackwardSearchCaretSpawning"/>
             <reference id="MissingInActions.SearchCaretsOptions"/>
             <separator/>
-            <!--<action id="MissingInActions.Pattern" class="com.vladsch.MissingInActions.actions.pattern.PatternAction" text="Caret Search Pattern">-->
-            <!--<keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>-->
-            <!--</action>-->
             <reference id="MissingInActions.AcceptFoundCarets"/>
             <reference id="MissingInActions.AcceptNotFoundCarets"/>
             <reference id="MissingInActions.CancelFoundCarets"/>
@@ -1090,5 +1077,4 @@
         </group>
 
     </actions>
-
 </idea-plugin>

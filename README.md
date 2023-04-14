@@ -19,6 +19,7 @@
   - [Auto Line Selections](#auto-line-selections)
     - [Mouse Selections](#mouse-selections)
 
+
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
 * Automatic Selection stack, stores last 5 selections by default. Recall last selection or any
@@ -322,7 +323,8 @@ selection when the mouse button is released.
 [#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
+<!-- @IGNORE PREVIOUS: link -->
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
+<!-- @IGNORE PREVIOUS: link -->
 [Version Notes]: /VERSION.md
-[Paste From History: A Power User Feature]: https://vladsch.com/blog/20
 
