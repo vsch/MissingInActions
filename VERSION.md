@@ -4,19 +4,7 @@
 
 ### Version History
 - [Missing In Actions](#missing-in-actions)
-  - [1.8.223.31 - Dev](#1822331---dev)
-  - [1.8.223.29 - Dev](#1822329---dev)
-  - [1.8.223.27 - Dev](#1822327---dev)
-  - [1.8.223.25 - Dev](#1822325---dev)
-  - [1.8.223.23 - Dev](#1822323---dev)
-  - [1.8.223.21 - Dev](#1822321---dev)
-  - [1.8.223.19 - Dev](#1822319---dev)
-  - [1.8.218.17 - Dev](#1821817---dev)
-  - [1.8.218.15 - Dev](#1821815---dev)
-  - [1.8.218.13 - Dev](#1821813---dev)
-  - [1.8.218.11 - Dev](#1821811---dev)
-  - [1.8.218.3 - Dev](#182183---dev)
-  - [1.8.218.1 - Dev](#182181---dev)
+  - [1.8.231.2 (2023-04-23) - Release](#182312-2023-04-23---release)
   - [1.8.214.2 - Release](#182142---release)
   - [1.8.212.6 - Release](#182126---release)
   - [1.8.212.4 - Release](#182124---release)
@@ -67,75 +55,36 @@
   - [0.5.1 - Bug Fix](#051---bug-fix)
   - [0.5.0 - Initial Release](#050---initial-release)
 
-### 1.8.223.31 - Dev
+### 1.8.231.2 (2023-04-23) - Release
 
-* [ ] Fix: deprecated API usage.
+* Fix: deprecated API usage, where possible without breaking compatibility with older IDEs.
 * Fix: migrate to gradle build system.
-
-### 1.8.223.29 - Dev
-
 * Fix: closing batch/replace toolwindow would not clear project highlights if no word
   highlighter was available.
-
-### 1.8.223.27 - Dev
-
 * Fix: migrate PluginProjectComponent to project service.
-
-### 1.8.223.25 - Dev
-
 * Fix: deprecated tool window creation API
-
-### 1.8.223.23 - Dev
-
 * Add: numbering dialog now recognizes default formats for numbers: binary `0b` prefix, octal
   `0` prefix, hex `0x` prefix, in addition to the currently selected base format prefix.
 * Add: show base number used to convert first, last and step numbers.
 * Fix: numbering dialog now sets first number to `1` if bit shift is selected and the number is
   `0`. 
-  
-### 1.8.223.21 - Dev
-
 * Add: Ignore Suffix on Paste option to allow ignoring certain suffixes when determining case
   style of paste destination.
-  
-### 1.8.223.19 - Dev
-
 * Fix: caret spawning search when test part is numeric but not at start/end then use `\D` to
   mark non-digit boundary.
-  
 * Fix: caret spawning options dialog now updates carets in preview when shifting focus, even if
   regex was not changed, to allow recreating carets after they are removed by an escape when in
   the viewer.
-
 * Fix: compatibility for 212+
-  
 * Fix: editor not disposed in caret spawning dialog and renumber dialog
-
-### 1.8.218.17 - Dev
-
 * Fix: word highlight would not correctly highlight word if not at start of word and no
   selection in multi caret mode.
-
-### 1.8.218.15 - Dev
-
 * Fix: stack overflow due to recursion on highlight update
-
-### 1.8.218.13 - Dev
-
-* Fix: add/remove highlightword if caret on start of identifier would select to start of file.
-
-### 1.8.218.11 - Dev
-
+* Fix: add/remove highlight word if caret on start of identifier would select to start of file.
 * Add: Add/Remove Highlight word will now select word under caret if no selection. In multi
   caret mode only if no carets have selections.
-
-### 1.8.218.3 - Dev
-
 * Migrated to Kotlin language level 1.8 and Java bytecode 11. Dev on 2022.3 with 2022.2 used for
   debugging. 2022.3 as target environment fails to launch.
-
-### 1.8.218.1 - Dev
-
 * Fix: Numbering dialog would stop updating preview if options were changed
 
 ### 1.8.214.2 - Release

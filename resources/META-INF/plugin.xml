@@ -1,22 +1,5 @@
 <!--
-  ~ Copyright (c) 2016-2022 Vladimir Schneider <vladimir.schneider@gmail.com>
-  ~
-  ~ Licensed to the Apache Software Foundation (ASF) under one
-  ~ or more contributor license agreements.  See the NOTICE file
-  ~ distributed with this work for additional information
-  ~ regarding copyright ownership.  The ASF licenses this file
-  ~ to you under the Apache License, Version 2.0 (the
-  ~ "License"); you may not use this file except in compliance
-  ~ with the License.  You may obtain a copy of the License at
-  ~
-  ~   http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied.  See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
+  ~ Copyright 2016-2023 2023 Vladimir Schneider <vladimir.schneider@gmail.com> Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE.txt file.
   -->
 
 <idea-plugin url="http://github.com/vsch/MissingInActions">
@@ -24,7 +7,7 @@
     <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="https://github.com/vsch">Vladimir Schneider</vendor>
     
-    <version>1.8.223.31</version>
+    <version>1.8.231.2</version>
     <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
     <idea-version since-build="212.4746.92"/>
 
@@ -88,6 +71,38 @@
 
     <change-notes><![CDATA[
         <div xmlns="http://www.w3.org/1999/html">
+            <h3>1.8.231.2 (2023-04-23) - Release</h3>
+            <ul>
+                <li>Fix: deprecated API usage, where possible without breaking compatibility with older IDEs.</li>
+                <li>Fix: migrate to gradle build system.</li>
+                <li>Fix: closing batch/replace toolwindow would not clear project highlights if no word
+                    highlighter was available.</li>
+                <li>Fix: migrate PluginProjectComponent to project service.</li>
+                <li>Fix: deprecated tool window creation API</li>
+                <li>Add: numbering dialog now recognizes default formats for numbers: binary <code>0b</code> prefix, octal
+                    <code>0</code> prefix, hex <code>0x</code> prefix, in addition to the currently selected base format prefix.</li>
+                <li>Add: show base number used to convert first, last and step numbers.</li>
+                <li>Fix: numbering dialog now sets first number to <code>1</code> if bit shift is selected and the number is
+                    <code>0</code>.</li>
+                <li>Add: Ignore Suffix on Paste option to allow ignoring certain suffixes when determining case
+                    style of paste destination.</li>
+                <li>Fix: caret spawning search when test part is numeric but not at start/end then use <code>\D</code> to
+                    mark non-digit boundary.</li>
+                <li>Fix: caret spawning options dialog now updates carets in preview when shifting focus, even if
+                    regex was not changed, to allow recreating carets after they are removed by an escape when in
+                    the viewer.</li>
+                <li>Fix: compatibility for 212+</li>
+                <li>Fix: editor not disposed in caret spawning dialog and renumber dialog</li>
+                <li>Fix: word highlight would not correctly highlight word if not at start of word and no
+                    selection in multi caret mode.</li>
+                <li>Fix: stack overflow due to recursion on highlight update</li>
+                <li>Fix: add/remove highlight word if caret on start of identifier would select to start of file.</li>
+                <li>Add: Add/Remove Highlight word will now select word under caret if no selection. In multi
+                    caret mode only if no carets have selections.</li>
+                <li>Migrated to Kotlin language level 1.8 and Java bytecode 11. Dev on 2022.3 with 2022.2 used for
+                    debugging. 2022.3 as target environment fails to launch.</li>
+                <li>Fix: Numbering dialog would stop updating preview if options were changed</li>
+            </ul>
             <h3>1.8.214.2 - Release</h3>
             <ul>
                 <li>Fix: Compatibility with 2022.1</li>

@@ -4,7 +4,7 @@ plugins {
     id "org.jetbrains.intellij" version "1.13.3"
 }
 
-def pluginVersion = "1.8.223.31"
+def pluginVersion = "1.8.231.2"
 def pluginSinceBuild = "212.4746.92"
 def pluginUntilBuild = ""
 def flexmarkVersion = "0.64.0"
