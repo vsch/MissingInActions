@@ -38,9 +38,7 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -116,7 +114,19 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
                 VirtualFile virtualFile = editor.getVirtualFile();
                 PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
                 Language language = psiFile == null ? null : psiFile.getLanguage();
-                FileType fileType = virtualFile.getFileType();
+                /* From the deprecation comment:
+                    Use one of the following methods:
+                    
+                    CodeStyle.getLanguageSettings(PsiFile, Language) to get common settings for a language.
+                    CodeStyle.getCustomSettings(PsiFile, Class) to get custom settings.
+                    
+                    If PsiFile is not applicable, use CodeStyle.getSettings(Project) but only in cases when using main project settings 
+                    is logically the only choice in a given context. It shouldn't be used just because the existing code doesn't allow 
+                    to easily retrieve a PsiFile. Otherwise, the code will not catch up with proper file code style settings since the 
+                    settings may differ for different files depending on their scope.
+                    
+                    vsch: in this case it is definitely the only choice, since the psiFile is not available when this call is made
+                 */
                 @SuppressWarnings("deprecation")
                 CommonCodeStyleSettings styleSettings = psiFile != null ? CodeStyle.getLanguageSettings(psiFile, language) : CodeStyleSettingsManager.getSettings(project);
                 IndentOptions indentOptions = styleSettings.getIndentOptions();
@@ -125,7 +135,7 @@ public class TabAlignCaretTextAction extends AnAction implements LineSelectionAw
 
                 // do the editor preview update from source editor, include carets and selections, replacing selections with numbers
                 int finalColumn = column;
-                carets.sort((o1, o2) -> Comparing.compare(o2.getOffset(), o1.getOffset()));
+                carets.sort((o1, o2) -> o2.getOffset() - o1.getOffset());
 
                 WriteCommandAction.runWriteCommandAction(project, () -> {
                     for (Caret caret : carets) {

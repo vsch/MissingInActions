@@ -118,9 +118,9 @@ public class LineSelectionManager implements
     private final CaretHighlighter myCaretHighlighter;
     ApplicationSettings mySettings;
     @Nullable private RangeLimitedCaretSpawningHandler myCaretSpawningHandler;
-    @Nullable private Set<CaretEx> myStartCarets;
-    @Nullable private Set<CaretEx> myStartMatchedCarets;
-    @Nullable private Set<CaretEx> myFoundCarets;
+    @Nullable private Set<Caret> myStartCarets;
+    @Nullable private Set<Caret> myStartMatchedCarets;
+    @Nullable private Set<Caret> myFoundCarets;
     @Nullable private List<CaretState> myStartCaretStates;
     final @NotNull LineRangeHighlightProvider<ApplicationSettings> myIsolationHighlightProvider;
     @Nullable LineRangeHighlighter<ApplicationSettings> myIsolationHighlighter;
@@ -278,11 +278,6 @@ public class LineSelectionManager implements
 
         DocumentListener documentListener = new DocumentListener() {
             @Override
-            public void beforeDocumentChange(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
-
-            }
-
-            @Override
             public void documentChanged(@NotNull final com.intellij.openapi.editor.event.DocumentEvent event) {
                 if (myHighlightProvider.isShowHighlights()) {
                     myHighlightRunner.cancel();
@@ -314,7 +309,7 @@ public class LineSelectionManager implements
     }
 
     public static boolean isCaretAttributeAvailable() {
-        return CaretEx.HAVE_VISUAL_ATTRIBUTES;
+        return true;
     }
 
     @Nullable
@@ -495,10 +490,10 @@ public class LineSelectionManager implements
         myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.DEFAULT, null);
 
         //noinspection ConstantConditions
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+        excludeList = CaretUtils.getExcludedCoordinates(excludeList, myFoundCarets);
         myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
 
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+        excludeList = CaretUtils.getExcludedCoordinates(excludeList, myStartMatchedCarets);
         myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
 
         myCaretSpawningHandler = null;
@@ -514,18 +509,16 @@ public class LineSelectionManager implements
         return myStartCaretStates;
     }
 
-    @Nullable
-    public Set<CaretEx> getStartCarets() {
+    public @Nullable Set<Caret> getStartCarets() {
         return myStartCarets;
     }
 
-    @Nullable
-    public Set<CaretEx> getStartMatchedCarets() {
+    public @Nullable Set<Caret> getStartMatchedCarets() {
         return myStartMatchedCarets;
     }
 
     @Nullable
-    public Set<CaretEx> getFoundCarets() {
+    public Set<Caret> getFoundCarets() {
         return myFoundCarets;
     }
 
@@ -550,43 +543,43 @@ public class LineSelectionManager implements
     @SuppressWarnings("ConstantConditions")
     private void setStartCarets(@Nullable final Collection<Caret> carets) {
         Set<Long> excludeList = null;
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
-        excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+        excludeList = CaretUtils.getExcludedCoordinates(excludeList, myFoundCarets);
+        excludeList = CaretUtils.getExcludedCoordinates(excludeList, myStartMatchedCarets);
 
         myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.DEFAULT, excludeList);
         if (carets == null) {
             myStartCarets = null;
         } else {
             myStartCarets = new HashSet<>(carets.size());
-            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+            Caret myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
             getMatchedCarets(carets, excludeList, myPrimaryCaret, myStartCarets);
             myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
         }
     }
 
     private void setStartMatchedCarets(@Nullable final Collection<Caret> carets) {
-        Set<Long> excludeList = CaretEx.getExcludedCoordinates(null, myFoundCarets);
+        Set<Long> excludeList = CaretUtils.getExcludedCoordinates(null, myFoundCarets);
 
         myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.DEFAULT, excludeList);
         if (carets == null) {
             myStartMatchedCarets = null;
         } else {
             myStartMatchedCarets = new HashSet<>(carets.size());
-            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+            Caret myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
             getMatchedCarets(carets, excludeList, myPrimaryCaret, myStartMatchedCarets);
             myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
         }
     }
 
-    private void getMatchedCarets(@NotNull final Collection<Caret> carets, final Set<Long> excludeList, CaretEx myPrimaryCaret, final Set<CaretEx> matchedCarets) {
+    private void getMatchedCarets(@NotNull final Collection<Caret> carets, final Set<Long> excludeList, Caret myPrimaryCaret, final Set<Caret> matchedCarets) {
         for (Caret caret : carets) {
-            if (excludeList != null && excludeList.contains(CaretEx.getCoordinates(caret))) continue;
+            if (excludeList != null && excludeList.contains(CaretUtils.getCoordinates(caret))) continue;
 
-            if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+            if (myPrimaryCaret != null && myPrimaryCaret.equals(caret)) {
                 myCaretHighlighter.setPrimaryCaret(null);
                 myPrimaryCaret = null;
             }
-            matchedCarets.add(new CaretEx(caret));
+            matchedCarets.add(caret);
         }
     }
 
@@ -596,14 +589,14 @@ public class LineSelectionManager implements
             myFoundCarets = null;
         } else {
             myFoundCarets = new HashSet<>(carets.size());
-            CaretEx myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
+            Caret myPrimaryCaret = myCaretHighlighter.getPrimaryCaret();
 
             for (Caret caret : carets) {
-                if (myPrimaryCaret != null && myPrimaryCaret.isCaret(caret)) {
+                if (myPrimaryCaret != null && myPrimaryCaret.equals(caret)) {
                     myCaretHighlighter.setPrimaryCaret(null);
                     myPrimaryCaret = null;
                 }
-                myFoundCarets.add(new CaretEx(caret));
+                myFoundCarets.add(caret);
             }
 
             myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.FOUND, null);
@@ -812,10 +805,10 @@ public class LineSelectionManager implements
             myCaretHighlighter.highlightCaretList(myFoundCarets, CaretAttributeType.FOUND, null);
 
             //noinspection ConstantValue
-            excludeList = CaretEx.getExcludedCoordinates(excludeList, myFoundCarets);
+            excludeList = CaretUtils.getExcludedCoordinates(excludeList, myFoundCarets);
             myCaretHighlighter.highlightCaretList(myStartMatchedCarets, CaretAttributeType.START_MATCHED, excludeList);
 
-            excludeList = CaretEx.getExcludedCoordinates(excludeList, myStartMatchedCarets);
+            excludeList = CaretUtils.getExcludedCoordinates(excludeList, myStartMatchedCarets);
             myCaretHighlighter.highlightCaretList(myStartCarets, CaretAttributeType.START, excludeList);
         }
 
@@ -1126,7 +1119,7 @@ public class LineSelectionManager implements
     }
 
     public void runActionWithAdjustments(final AnAction action) {
-        myActionSelectionAdjuster.runAction(action, false);
+        myActionSelectionAdjuster.runAction(action);
     }
 
     private static class StoredLineSelectionState {

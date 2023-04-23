@@ -27,8 +27,8 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
-import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable;
 import com.intellij.ui.ComponentUtil;
 import com.intellij.ui.DocumentAdapter;
@@ -52,7 +52,6 @@ import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.HyperlinkEvent;
@@ -61,7 +60,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -173,39 +171,78 @@ public class ApplicationSettingsForm implements Disposable {
     JBCheckBox myHighlightProjectViewNodes;
 
     private @NotNull String myPrefixRegexSampleText;
-    
+
     private @NotNull String mySuffixRegexSampleText;
     private final EditingCommitter myEditingCommitter;
 
     private final SettingsComponents<ApplicationSettings> components;
-    private final LafManagerListener myLafManagerListener;
-    
-    private final RegExSettingsHolder myPrefixRegEx = new RegExSettingsHolder() {
-        @NotNull @Override public String getPatternText() { return myPrefixesOnPasteText.getText().trim(); }
-        @Override public void setPatternText(final String patternText) { myPrefixesOnPasteText.setText(patternText); }
 
-        @NotNull @Override public String getSampleText() { return myPrefixRegexSampleText; }
-        @Override public void setSampleText(final String sampleText) { myPrefixRegexSampleText = sampleText; }
-        @Override public boolean isCaseSensitive() { return true; }
-        @Override public boolean isBackwards() { return false; }
-        @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
-        @Override public void setBackwards(final boolean isBackwards) { }
-        @Override public boolean isCaretToGroupEnd() { return false; }
-        @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
+    private final RegExSettingsHolder myPrefixRegEx = new RegExSettingsHolder() {
+        @NotNull
+        @Override
+        public String getPatternText() { return myPrefixesOnPasteText.getText().trim(); }
+
+        @Override
+        public void setPatternText(final String patternText) { myPrefixesOnPasteText.setText(patternText); }
+
+        @NotNull
+        @Override
+        public String getSampleText() { return myPrefixRegexSampleText; }
+
+        @Override
+        public void setSampleText(final String sampleText) { myPrefixRegexSampleText = sampleText; }
+
+        @Override
+        public boolean isCaseSensitive() { return true; }
+
+        @Override
+        public boolean isBackwards() { return false; }
+
+        @Override
+        public void setCaseSensitive(final boolean isCaseSensitive) { }
+
+        @Override
+        public void setBackwards(final boolean isBackwards) { }
+
+        @Override
+        public boolean isCaretToGroupEnd() { return false; }
+
+        @Override
+        public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
     };
 
     private final RegExSettingsHolder mySuffixRegEx = new RegExSettingsHolder() {
-        @NotNull @Override public String getPatternText() { return mySuffixesOnPasteText.getText().trim(); }
-        @Override public void setPatternText(final String patternText) { mySuffixesOnPasteText.setText(patternText); }
+        @NotNull
+        @Override
+        public String getPatternText() { return mySuffixesOnPasteText.getText().trim(); }
 
-        @NotNull @Override public String getSampleText() { return mySuffixRegexSampleText; }
-        @Override public void setSampleText(final String sampleText) { mySuffixRegexSampleText = sampleText; }
-        @Override public boolean isCaseSensitive() { return true; }
-        @Override public boolean isBackwards() { return false; }
-        @Override public void setCaseSensitive(final boolean isCaseSensitive) { }
-        @Override public void setBackwards(final boolean isBackwards) { }
-        @Override public boolean isCaretToGroupEnd() { return false; }
-        @Override public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
+        @Override
+        public void setPatternText(final String patternText) { mySuffixesOnPasteText.setText(patternText); }
+
+        @NotNull
+        @Override
+        public String getSampleText() { return mySuffixRegexSampleText; }
+
+        @Override
+        public void setSampleText(final String sampleText) { mySuffixRegexSampleText = sampleText; }
+
+        @Override
+        public boolean isCaseSensitive() { return true; }
+
+        @Override
+        public boolean isBackwards() { return false; }
+
+        @Override
+        public void setCaseSensitive(final boolean isCaseSensitive) { }
+
+        @Override
+        public void setBackwards(final boolean isBackwards) { }
+
+        @Override
+        public boolean isCaretToGroupEnd() { return false; }
+
+        @Override
+        public void setCaretToGroupEnd(final boolean isCaretToGroupEnd) { }
     };
 
     public ApplicationSettingsForm(ApplicationSettings settings) {
@@ -213,7 +250,8 @@ public class ApplicationSettingsForm implements Disposable {
 
         components = new SettingsComponents<>() {
             @Override
-            protected Settable[] createComponents(@NotNull ApplicationSettings i) {
+            protected Settable<ApplicationSettings>[] createComponents(@NotNull ApplicationSettings i) {
+                //noinspection unchecked
                 return new Settable[] {
                         component(AutoLineModeType.ADAPTER, myAutoLineMode, i::getAutoLineMode, i::setAutoLineMode),
                         component(CaretAdjustmentType.ADAPTER, myCaretOnMoveSelectionDown, i::getCaretOnMoveSelectionDown, i::setCaretOnMoveSelectionDown),
@@ -312,12 +350,7 @@ public class ApplicationSettingsForm implements Disposable {
         myPrefixRegexSampleText = settings.getPrefixRegexSampleText();
         mySuffixRegexSampleText = settings.getSuffixRegexSampleText();
 
-        final ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                updateOptions(false);
-            }
-        };
+        final ActionListener actionListener = e -> updateOptions(false);
 
         if (!Plugin.getInstance().isParameterHintsAvailable()) {
             myDisableParameterInfo.setEnabled(false);
@@ -325,7 +358,7 @@ public class ApplicationSettingsForm implements Disposable {
             myDisableParameterInfo.setToolTipText(Bundle.message("settings.multi-caret.disable-parameter-info.not-available.description"));
         }
 
-        myLafManagerListener = new LafManagerListener() {
+        LafManagerListener lafManagerListener = new LafManagerListener() {
             boolean darculaUI = UIUtil.isUnderDarcula();
 
             @Override
@@ -334,9 +367,10 @@ public class ApplicationSettingsForm implements Disposable {
                 if (darculaUI != underDarcula) {
                     darculaUI = underDarcula;
 
-                    SettingsComponents<ApplicationSettings> colorComponents = new SettingsComponents<ApplicationSettings>() {
+                    SettingsComponents<ApplicationSettings> colorComponents = new SettingsComponents<>() {
                         @Override
-                        protected Settable[] createComponents(@NotNull ApplicationSettings i) {
+                        protected Settable<ApplicationSettings>[] createComponents(@NotNull ApplicationSettings i) {
+                            //noinspection unchecked
                             return new Settable[] {
                                     component(myPrimaryCaretColor, i::primaryCaretColorRGB, i::primaryCaretColorRGB),
                                     component(myIsolatedForegroundColor, i::isolatedForegroundColorRGB, i::isolatedForegroundColorRGB),
@@ -363,7 +397,7 @@ public class ApplicationSettingsForm implements Disposable {
             }
         };
 
-        ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(LafManagerListener.TOPIC, myLafManagerListener);
+        ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(LafManagerListener.TOPIC, lafManagerListener);
 
         myVersion.setText(Bundle.message("settings.version.label") + " " + Plugin.fullProductVersion());
 
@@ -412,12 +446,7 @@ public class ApplicationSettingsForm implements Disposable {
             myIgnoreSuffixesOnPaste.setSelected(valid);
         });
 
-        ChangeListener changeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                updateGradient();
-            }
-        };
+        ChangeListener changeListener = e -> updateGradient();
 
         myGradientSaturationMin.addChangeListener(changeListener);
         myGradientSaturationMax.addChangeListener(changeListener);
@@ -445,12 +474,10 @@ public class ApplicationSettingsForm implements Disposable {
             setContentBody(Bundle.message("settings.caret-visual-attributes.description"));
         } else {
             myCaretVisualAttributesPane.setVisible(false);
-            mySearchStartCaretColor.setUpdateRunnable(() -> {
-                mySearchStartMatchedCaretColor.setUnselectedColor(mySearchStartCaretColor.getColor());
-            });
+            mySearchStartCaretColor.setUpdateRunnable(() -> mySearchStartMatchedCaretColor.setUnselectedColor(mySearchStartCaretColor.getColor()));
         }
 
-        DefaultColorsScheme scheme = DefaultColorSchemesManager.getInstance().getFirstScheme();
+        EditorColorsScheme scheme = EditorColorsManager.getInstance().getGlobalScheme();
         Color color = scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
         myRecalledSelectionColor.setUnselectedColor(color);
 
@@ -577,7 +604,6 @@ public class ApplicationSettingsForm implements Disposable {
         AutoLineModeType type = AutoLineModeType.ADAPTER.get(myAutoLineMode);
         boolean enabled = false;
         boolean selected = false;
-        boolean untestedSelected = false;
         boolean forced = false;
 
         if (type == AutoLineModeType.ENABLED) {

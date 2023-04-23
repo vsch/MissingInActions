@@ -34,8 +34,8 @@ public interface CaretHighlighter {
         // @formatter:off
         @Override public void caretAdded(@NotNull Caret caret) { }
         @Override public void caretRemoved(@NotNull Caret caret) { }
-        @Override public CaretEx getPrimaryCaret() { return null; }
-        @Override public void highlightCaretList( @Nullable final Collection<CaretEx> carets, @NotNull final CaretAttributeType attributeType, @Nullable final Set<Long> excludeList) { }
+        @Override public@Nullable  Caret getPrimaryCaret() { return null; }
+        @Override public void highlightCaretList( final@Nullable  Collection<Caret> carets, @NotNull final CaretAttributeType attributeType, @Nullable final Set<Long> excludeList) { }
         @Override public void highlightCarets() { }
         @Override public void settingsChanged(ApplicationSettings settings) { }
         @Override public void removeCaretHighlight() { }
@@ -46,10 +46,10 @@ public interface CaretHighlighter {
 
     void updateCaretHighlights();
     @Nullable
-    CaretEx getPrimaryCaret();
+    Caret getPrimaryCaret();
     void settingsChanged(ApplicationSettings settings);
     void removeCaretHighlight();
-    void highlightCaretList(@Nullable Collection<CaretEx> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<Long> excludeList);
+    void highlightCaretList(@Nullable Collection<Caret> carets, @NotNull CaretAttributeType attributeType, @Nullable Set<Long> excludeList);
     void highlightCarets();
     void caretAdded(@NotNull Caret caret);
     void caretRemoved(@NotNull Caret caret);

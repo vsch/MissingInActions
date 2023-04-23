@@ -28,7 +28,7 @@ import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.util.text.CharArrayUtil;
-import com.vladsch.MissingInActions.manager.CaretEx;
+import com.vladsch.MissingInActions.manager.CaretUtils;
 import com.vladsch.MissingInActions.manager.EditorCaret;
 import com.vladsch.MissingInActions.manager.EditorPosition;
 import com.vladsch.MissingInActions.manager.EditorPositionFactory;
@@ -132,7 +132,6 @@ public class ActionUtils {
 
                 if (editorCaret.isLine() && convertLinesToCarets) {
                     EditorPosition selStart = f.fromOffset(selectionModel.getSelectionStart());
-                    EditorPosition selEnd = f.fromOffset(selectionModel.getSelectionEnd());
 
                     caretModel.removeSecondaryCarets();
 
@@ -141,9 +140,8 @@ public class ActionUtils {
 
                     int selectionLineCount = editorCaret.getSelectionLineCount();
                     if (selectionLineCount == 1) {
-                        // one liner, we restore char selection
-                        editorCaret.toCharSelection()
-                                .commit();
+                        // one-liner, we restore char selection
+                        editorCaret.toCharSelection().commit();
                     } else {
                         int endLine = selStart.line + selectionLineCount;
                         editorCaret.removeSelection();
@@ -238,21 +236,6 @@ public class ActionUtils {
             if (newIndex != index) {
                 // need to move the primary to last position in the list
                 // the data will not change just the position in the list, so we swap the two
-
-//                    caretModel.removeSecondaryCarets();
-//
-//                    ArrayList<CaretState> reOrderedStates = new ArrayList<>(caretStates);
-//
-//                    int i = 0;
-//                    for (CaretState caretState : reOrderedStates) {
-//                        LogicalPosition position = caretState.getCaretPosition();
-//
-//                        if (position != null) {
-//                            Caret caret = i == 0 ? caretModel.getPrimaryCaret() : caretModel.addCaret(editor.logicalToVisualPosition(position), i == newIndex);
-//                            EditHelpers.restoreState(caret, caretState, true);
-//                            i++;
-//                        }
-//                    }
                 Caret caret = getCaretAtIndex(caretModel, newIndex, positionSorted);
                 if (caret != null) {
                     VisualPosition visualPosition = caret.getVisualPosition();
@@ -281,16 +264,16 @@ public class ActionUtils {
 
         if (wantFoundCarets) {
             // keep only found position carets
-            Set<CaretEx> foundCarets = manager.getFoundCarets();
+            Set<Caret> foundCarets = manager.getFoundCarets();
             if (foundCarets != null) {
                 if (preservePrimaryCaretOffset) preserver = new CaretOffsetPreserver(manager.getEditor().getCaretModel().getPrimaryCaret().getOffset());
                 Set<Long> carets = new HashSet<>(foundCarets.size());
-                for (CaretEx caretEx : foundCarets) {
-                    carets.add(caretEx.getCoordinates());
+                for (Caret caret : foundCarets) {
+                    carets.add(CaretUtils.getCoordinates(caret));
                 }
 
                 for (Caret caret : editor.getCaretModel().getAllCarets()) {
-                    if (!carets.contains(CaretEx.getCoordinates(caret))) {
+                    if (!carets.contains(CaretUtils.getCoordinates(caret))) {
                         editor.getCaretModel().removeCaret(caret);
                     } else if (preserver != null) {
                         preserver.tryCaret(caret);
@@ -303,16 +286,16 @@ public class ActionUtils {
             List<CaretState> caretStates = manager.getStartCaretStates();
 
             if (caretStates != null) {
-                Set<CaretEx> startMatchedCarets = manager.getStartMatchedCarets();
+                Set<Caret> startMatchedCarets = manager.getStartMatchedCarets();
                 if (startMatchedCarets != null) {
-                    Set<Long> excludeList = CaretEx.getExcludedCoordinates(null, startMatchedCarets);
-                    Set<CaretEx> foundCarets = manager.getFoundCarets();
-                    excludeList = CaretEx.getExcludedCoordinates(excludeList, foundCarets);
+                    Set<Long> excludeList = CaretUtils.getExcludedCoordinates(null, startMatchedCarets);
+                    Set<Caret> foundCarets = manager.getFoundCarets();
+                    excludeList = CaretUtils.getExcludedCoordinates(excludeList, foundCarets);
                     List<CaretState> keepCarets = new ArrayList<>(caretStates.size() - startMatchedCarets.size());
                     if (preservePrimaryCaretOffset) preserver = new CaretOffsetPreserver(manager.getEditor().getCaretModel().getPrimaryCaret().getOffset());
 
                     for (CaretState caretState : caretStates) {
-                        if (excludeList != null && caretState.getCaretPosition() != null && excludeList.contains(CaretEx.getCoordinates(caretState.getCaretPosition()))) continue;
+                        if (excludeList != null && caretState.getCaretPosition() != null && excludeList.contains(CaretUtils.getCoordinates(caretState.getCaretPosition()))) continue;
                         keepCarets.add(caretState);
                         if (preserver != null) preserver.tryOffset(caretState.getCaretPosition() == null ? -1 : manager.getEditor().logicalPositionToOffset(caretState.getCaretPosition()));
                     }

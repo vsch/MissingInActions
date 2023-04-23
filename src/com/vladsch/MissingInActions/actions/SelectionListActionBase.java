@@ -28,7 +28,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.ex.DefaultColorSchemesManager;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
@@ -69,7 +69,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
 
     @NotNull
     @Override
-    public JComponent createCustomComponent(@NotNull final Presentation presentation,  @NotNull String place) {
+    public JComponent createCustomComponent(@NotNull final Presentation presentation, @NotNull String place) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(super.createCustomComponent(presentation, place), BorderLayout.CENTER);
         return panel;
@@ -81,6 +81,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
     }
 
     protected abstract boolean removeRangeMarker(final AnActionEvent e, Editor editor, @Nullable RangeMarker previousSelection);
+
     protected abstract void actionPerformed(final AnActionEvent e, Editor editor, @Nullable RangeMarker previousSelection);
 
     @Nullable
@@ -206,7 +207,7 @@ abstract public class SelectionListActionBase extends MiaComboBoxAction implemen
         RangeMarker marker = markers[markerIndex];
 
         ApplicationSettings settings = ApplicationSettings.getInstance();
-        Color color = settings.isRecalledSelectionColorEnabled() ? settings.recalledSelectionColorRGB() : DefaultColorSchemesManager.getInstance().getFirstScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
+        Color color = settings.isRecalledSelectionColorEnabled() ? settings.recalledSelectionColorRGB() : EditorColorsManager.getInstance().getGlobalScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
         RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(marker.getStartOffset(), marker.getEndOffset(), HighlighterLayer.LAST + 1, new TextAttributes(null, color, null, EffectType.BOLD_DOTTED_LINE, 0), HighlighterTargetArea.EXACT_RANGE);
         editor.putUserData(RANGE_HIGHLIGHTER, rangeHighlighter);
         oldHighlighter = editor.getUserData(RANGE_HIGHLIGHTER);

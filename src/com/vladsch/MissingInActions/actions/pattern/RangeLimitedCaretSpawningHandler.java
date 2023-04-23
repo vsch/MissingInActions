@@ -30,7 +30,7 @@ import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.vladsch.MissingInActions.actions.ActionUtils;
 import com.vladsch.MissingInActions.actions.CaretOffsetPreserver;
-import com.vladsch.MissingInActions.manager.CaretEx;
+import com.vladsch.MissingInActions.manager.CaretUtils;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
@@ -45,7 +45,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.vladsch.MissingInActions.manager.CaretEx.getCoordinates;
+import static com.vladsch.MissingInActions.manager.CaretUtils.getCoordinates;
 
 /**
  * These limit their range of effect within their own selection, start/end of line, or the next/prev caret location
@@ -169,7 +169,7 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                 }
             }
 
-            removePrimary = !keptCarets.containsKey(CaretEx.getCoordinates(primaryCaret));
+            removePrimary = !keptCarets.containsKey(CaretUtils.getCoordinates(primaryCaret));
             List<Caret> createdCarets = new ArrayList<>();
 
             if (keptCarets.isEmpty() && createList.isEmpty()) {
@@ -199,12 +199,12 @@ abstract public class RangeLimitedCaretSpawningHandler extends EditorActionHandl
                     Caret firstCaret = keptCarets.values().iterator().next();
                     primaryCaret.moveToLogicalPosition(firstCaret.getLogicalPosition());
                     primaryCaret.setSelection(firstCaret.getSelectionStart(), firstCaret.getSelectionEnd());
-                    keptCarets.remove(CaretEx.getCoordinates(firstCaret));
+                    keptCarets.remove(CaretUtils.getCoordinates(firstCaret));
                 }
 
                 // keep only ones in list
                 for (Caret caret1 : caretList) {
-                    if (!keptCarets.containsKey(CaretEx.getCoordinates(caret1))) {
+                    if (!keptCarets.containsKey(CaretUtils.getCoordinates(caret1))) {
                         caretModel.removeCaret(caret1);
                     }
                 }

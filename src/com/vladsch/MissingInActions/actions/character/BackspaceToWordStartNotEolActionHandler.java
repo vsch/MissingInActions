@@ -40,9 +40,10 @@ import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.editor.actions.EditorActionUtil;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.vladsch.MissingInActions.util.EditHelpers;
-import gnu.trove.TIntHashSet;
-import gnu.trove.TIntIntHashMap;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.BitSet;
+import java.util.HashMap;
 
 import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_FOLDING_REGION;
 import static com.vladsch.MissingInActions.util.EditHelpers.END_OF_LEADING_BLANKS;
@@ -74,15 +75,15 @@ public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHa
      * </tr>
      * </table>
      */
-    private static final TIntHashSet QUOTE_SYMBOLS = new TIntHashSet();
+    private static final BitSet QUOTE_SYMBOLS = new BitSet();
     static {
-        QUOTE_SYMBOLS.add('\'');
-        QUOTE_SYMBOLS.add('\"');
+        QUOTE_SYMBOLS.set('\'');
+        QUOTE_SYMBOLS.set('\"');
     }
 
-    private static final int[] QUOTE_SYMBOLS_ARRAY = QUOTE_SYMBOLS.toArray();
+    private static final int[] QUOTE_SYMBOLS_ARRAY = QUOTE_SYMBOLS.stream().toArray();
 
-    @NotNull final private TIntIntHashMap myQuotesNumber = new TIntIntHashMap();
+    @NotNull final private HashMap<Integer, Integer> myQuotesNumber = new HashMap<>();
     final private boolean myNegateCamelMode;
 
     public BackspaceToWordStartNotEolActionHandler(boolean negateCamelMode) {
@@ -129,9 +130,9 @@ public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHa
         EditHelpers.moveCaretToPreviousWordStartOrEnd(editor, false, camel, boundaryFlags);
 
         for (int offset = caretModel.getOffset(); offset > minOffset; offset = caretModel.getOffset()) {
-            char previous = text.charAt(offset - 1);
-            char current = text.charAt(offset);
-            if (QUOTE_SYMBOLS.contains(current)) {
+            int previous = text.charAt(offset - 1);
+            int current = text.charAt(offset);
+            if (QUOTE_SYMBOLS.get(current)) {
                 if (Character.isWhitespace(previous)) {
                     break;
                 } else if (offset < endOffset - 1 && !Character.isJavaIdentifierPart(text.charAt(offset + 1))) {
@@ -147,7 +148,7 @@ public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHa
                 break;
             }
 
-            if (QUOTE_SYMBOLS.contains(previous)) {
+            if (QUOTE_SYMBOLS.get(previous)) {
                 if (myQuotesNumber.get(previous) % 2 == 0) {
                     // Was 'one "two[caret]", now 'one "[caret]two"', we want 'one [caret]"two"'
                     editor.getCaretModel().moveToOffset(offset - 1);
@@ -161,9 +162,9 @@ public class BackspaceToWordStartNotEolActionHandler extends EditorWriteActionHa
         document.deleteString(startOffset, endOffset);
     }
 
-    private static void countQuotes(@NotNull TIntIntHashMap holder, @NotNull CharSequence text, int start, int end) {
+    private static void countQuotes(@NotNull HashMap<Integer, Integer> holder, @NotNull CharSequence text, int start, int end) {
         for (int i = end - 1; i >= start; i--) {
-            char c = text.charAt(i);
+            int c = text.charAt(i);
             if (holder.containsKey(c)) {
                 holder.put(c, holder.get(c) + 1);
             }

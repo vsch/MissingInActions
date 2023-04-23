@@ -68,6 +68,10 @@ public class PluginProjectComponent implements Disposable {
 
         myPlugin.projectOpened(myProject);
         myDelayedRunner.addRunnable(myProject, () -> myPlugin.projectClosed(myProject));
+
+        // it is either dispose on project, or not dispose at all.
+        //noinspection IncorrectParentDisposable
+        Disposer.register(myProject, this);
     }
 
     @Override

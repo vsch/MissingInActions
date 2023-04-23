@@ -49,7 +49,7 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
 
     @Override
     public void decorate(PackageDependenciesNode node, ColoredTreeCellRenderer cellRenderer) {
-        // TODO: consider highlighting package dependencies
+        // NOTE: this is not called for ProjectViewNode and is deprecated in later versions
     }
 
     @Override

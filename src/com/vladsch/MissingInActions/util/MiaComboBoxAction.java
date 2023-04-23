@@ -26,6 +26,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
@@ -195,31 +196,19 @@ public abstract class MiaComboBoxAction extends ComboBoxAction implements Custom
         return myPopupShowing;
     }
 
-    protected boolean shouldShowDisabledActions() {
-        return false;
-    }
-
-    @NotNull
     @Override
-    protected DefaultActionGroup createPopupActionGroup(final JComponent button) {
+    protected @NotNull DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {
         Editor editor = (Editor) ((MiaComboBoxButton) button).myPresentation.getClientProperty(COMBO_BOX_EDITOR_PROPERTY_KEY);
         return createPopupActionGroup(button, editor);
     }
 
+    @Override
+    protected @NotNull DefaultActionGroup createPopupActionGroup(JComponent button) {
+        return createPopupActionGroup(button, SimpleDataContext.builder().build());
+    }
+
     @NotNull
     protected abstract DefaultActionGroup createPopupActionGroup(@Nullable JComponent button, @Nullable Editor editor);
-
-    protected int getMaxRows() {
-        return 30;
-    }
-
-    protected int getMinHeight() {
-        return 1;
-    }
-
-    protected int getMinWidth() {
-        return 1;
-    }
 
     protected void actionSelected(@Nullable Editor editor, ListSelectionEvent e) {
 

@@ -24,7 +24,7 @@
     <name>Missing In Actions</name>
     <vendor email="vladimir.schneider@gmail.com" url="https://github.com/vsch">Vladimir Schneider</vendor>
     
-    <version>1.8.223.29</version>
+    <version>1.8.223.31</version>
     <depends optional="true" config-file="plugin-intellilang.xml">com.intellij.modules.java</depends>
     <idea-version since-build="212.4746.92"/>
 

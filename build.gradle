@@ -4,7 +4,7 @@ plugins {
     id "org.jetbrains.intellij" version "1.13.3"
 }
 
-def pluginVersion = "1.8.223.29"
+def pluginVersion = "1.8.223.31"
 def pluginSinceBuild = "212.4746.92"
 def pluginUntilBuild = ""
 def flexmarkVersion = "0.64.0"
@@ -20,7 +20,8 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version = "2021.3"
+//    version = "2021.2.4"
+    version = "2021.2"
     type = "IC" // Target IDE Platform
     plugins = ["java"]
     downloadSources = true

@@ -101,7 +101,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     final private @NotNull LinkedHashMap<AnActionEvent, AnAction> myActionEventActionMap = new LinkedHashMap<>();
     final private @NotNull LineSelectionManager myManager;
     final private @NotNull Editor myEditor;
-    private @NotNull ActionAdjustmentMap myAdjustmentsMap = ActionAdjustmentMap.EMPTY;
+    private final @NotNull ActionAdjustmentMap myAdjustmentsMap;
     private final @NotNull AtomicInteger myNestingLevel = new AtomicInteger(0);
     //private @Nullable RangeMarker myLastSelectionMarker = null;
     private @Nullable RangeMarker myTentativeSelectionMarker = null;
@@ -114,7 +114,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     final private HashSet<OneTimeRunnable> myRunBeforeActions = new HashSet<>();
 
     // this one is indexed by the class for which the runnable should be canceled since the action is running again
-    final private HashMap<Class, HashSet<OneTimeRunnable>> myCancelActionsMap = new HashMap<>();
+    @SuppressWarnings("rawtypes") final private HashMap<Class, HashSet<OneTimeRunnable>> myCancelActionsMap = new HashMap<>();
 
     ActionSelectionAdjuster(@NotNull LineSelectionManager manager, @NotNull ActionAdjustmentMap normalAdjustmentMap) {
         myManager = manager;
@@ -187,11 +187,11 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     // treat immediately followed duplicates as one call
     final private static Pair<String, String> EDITOR_ACTION_ACTION_PERFORMED = new Pair<>("com.intellij.openapi.editor.actionSystem.EditorAction", "actionPerformed");
 
-    private boolean matchStackElement(StackTraceElement stackTraceElement, Pair<String, String> classMethod) {
+    private static boolean matchStackElement(StackTraceElement stackTraceElement, Pair<String, String> classMethod) {
         return stackTraceElement.getClassName().equals(classMethod.getFirst()) && stackTraceElement.getMethodName().equals(classMethod.getSecond());
     }
 
-    private int nestedStackActions(StackTraceElement[] stackTrace) {
+    private static int nestedStackActions(StackTraceElement[] stackTrace) {
         // these are source action triggers
         int levels = 0;
         int i = stackTrace.length;
@@ -218,9 +218,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     @Override
     public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
-        if (EDITOR.getData(dataContext) != myEditor) {
-            assert EDITOR.getData(dataContext) == myEditor;
-        }
+        assert EDITOR.getData(dataContext) == myEditor;
 
         int nesting = myNestingLevel.incrementAndGet();
         if (nesting > 1) {
@@ -268,6 +266,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         if (caretSpawningHandler != null) {
             if (myManager.getStartCaretStates() != null) {
+                //noinspection StatementWithEmptyBody
                 if (action instanceof CaretSearchAwareAction || myAdjustmentsMap.isInSet(action.getClass(), SEARCH_AWARE_CARET_ACTION)) {
                     // do nothing the action will handle it
                 } else if (action instanceof CaretMoveAction || myAdjustmentsMap.isInSet(action.getClass(), MOVE_SEARCH_CARET_ACTION)) {
@@ -281,6 +280,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 }
             } else {
                 myManager.clearSearchFoundCarets();
+                //noinspection UnusedAssignment
                 caretSpawningHandler = null;
             }
         }
@@ -289,6 +289,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             if (!myEditor.isColumnMode()) {
                 if (debug) System.out.println("Before " + action + ", nesting: " + myNestingLevel.get());
                 cancelTriggeredAction(action.getClass());
+                
                 if (!myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
                     runBeforeTriggeredActions();
                 }
@@ -304,25 +305,21 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                             LOG.error("adjustBeforeAction exception", e);
 
                             // remove stuff added for after action and cleanup
-                            Collection<Runnable> runnable = myAfterActions.getAfterAction(event);
                             Collection<Runnable> cleanup = myAfterActionsCleanup.getAfterAction(event);
                             if (cleanup != null) cleanup.forEach(Runnable::run);
                         }
                     });
-                }
-
-                if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
-                    runAfterAction(event, () -> addTriggeredAction(action.getClass()));
                 }
             } else {
                 if (debug) System.out.println("Before " + action);
                 cancelTriggeredAction(action.getClass());
                 runBeforeTriggeredActions();
 
-                // this is not necessarily line mode dependent
-                if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
-                    runAfterAction(event, () -> addTriggeredAction(action.getClass()));
-                }
+            }
+            
+            // this is not necessarily line mode dependent
+            if (myAdjustmentsMap.hasTriggeredAction(action.getClass())) {
+                runAfterAction(event, () -> addTriggeredAction(action.getClass()));
             }
         }
     }
@@ -347,10 +344,9 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 if (debug) System.out.println("running After " + action + ", nesting: " + myNestingLevel.get() + "\n");
                 // after actions should not check for support, that was done in before, just do what is in the queue
                 guard(() -> runnable.forEach(Runnable::run));
-                if (cleanup != null) cleanup.forEach(Runnable::run);
-            } else if (cleanup != null) {
-                cleanup.forEach(Runnable::run);
             }
+            
+            if (cleanup != null) cleanup.forEach(Runnable::run);
         } catch (Throwable e) {
             LOG.error("lastActionCleanup error", e);
         } finally {
@@ -398,9 +394,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
             // rerun on new caret position after action
             final RangeLimitedCaretSpawningHandler finalCaretSpawningHandler = caretSpawningHandler;
-            myManager.guard(() -> {
-                finalCaretSpawningHandler.doAction(myManager, myEditor, null, null);
-            });
+            myManager.guard(() -> finalCaretSpawningHandler.doAction(myManager, myEditor, null, null));
         }
     }
 
@@ -458,15 +452,10 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         if (caretSpawningHandler != null) {
             if (myManager.getStartCaretStates() != null) {
                 // keep only found position carets
-                Set<CaretEx> foundCarets = myManager.getFoundCarets();
+                Set<Caret> foundCarets = myManager.getFoundCarets();
                 if (foundCarets != null) {
-                    Set<Caret> carets = new HashSet<>(foundCarets.size());
-                    for (CaretEx caretEx : foundCarets) {
-                        carets.add(caretEx.getCaret());
-                    }
-
                     for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        if (!carets.contains(caret)) {
+                        if (!foundCarets.contains(caret)) {
                             myEditor.getCaretModel().removeCaret(caret);
                         }
                     }
@@ -491,11 +480,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
     }
 
-    private void forAllCarets(@NotNull AnActionEvent event, Consumer<Caret> runnable, @NotNull Consumer<Caret> afterAction) {
-        forAllCarets(runnable);
-        afterActionForAllCarets(event, afterAction);
-    }
-
     private void guard(Runnable runnable) {
         myManager.guard(runnable);
     }
@@ -503,6 +487,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     /**
      * run commands that are scheduled to run before any other actions
      */
+    @SuppressWarnings("rawtypes")
     private void runBeforeTriggeredActions() {
         // remove them from the list of cancellable commands
         ArrayList<OneTimeRunnable> list = new ArrayList<>(myRunBeforeActions);
@@ -525,6 +510,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         });
     }
 
+    @SuppressWarnings("rawtypes")
     private void cancelTriggeredAction(Class action) {
         Set<OneTimeRunnable> oneTimeRunnables = myCancelActionsMap.remove(action);
         if (oneTimeRunnables != null) {
@@ -538,7 +524,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
     @NotNull
     @SuppressWarnings("SameParameterValue")
-    private AnActionEvent createAnEvent(AnAction action, boolean autoTriggered) {
+    private AnActionEvent createAnEvent(AnAction action) {
         Presentation presentation = action.getTemplatePresentation().clone();
         DataContext context = DataManager.getInstance().getDataContext(myEditor.getComponent());
         return new AnActionEvent(null, dataContext(context, true), ActionPlaces.UNKNOWN, presentation, ActionManager.getInstance(), 0);
@@ -552,8 +538,8 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     }
 
     @SuppressWarnings("WeakerAccess")
-    public void runAction(AnAction action, boolean autoTriggered) {
-        AnActionEvent event = createAnEvent(action, autoTriggered);
+    public void runAction(AnAction action) {
+        AnActionEvent event = createAnEvent(action);
         Editor editor = EDITOR.getData(event.getDataContext());
         if (editor == myEditor) {
             ActionUtil.performActionDumbAwareWithCallbacks(action, event);
@@ -568,7 +554,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
     private void addTriggeredAction(Class<?> action) {
         TriggeredAction triggeredAction = myAdjustmentsMap.getTriggeredAction(action);
         if (triggeredAction != null && triggeredAction.isEnabled()) {
-            OneTimeRunnable runnable = new OneTimeRunnable(true, () -> runAction(triggeredAction.getAction(), true));
+            OneTimeRunnable runnable = new OneTimeRunnable(true, () -> runAction(triggeredAction.getAction()));
 
             HashSet<OneTimeRunnable> actions = myCancelActionsMap.computeIfAbsent(action, anAction -> new HashSet<>());
             if (debug) System.out.println("Adding triggered task " + runnable);
@@ -579,28 +565,6 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             // now schedule it to run
             OneTimeRunnable.schedule(MiaCancelableJobScheduler.getInstance(), triggeredAction.getDelay(), runnable);
         }
-    }
-
-    private interface CaretBeforeAction {
-        void run(@NotNull Caret caret, @NotNull ActionContext context);
-    }
-
-    private interface CaretAfterAction {
-        void run(@NotNull Caret caret, @Nullable CaretSnapshot snapshot);
-    }
-
-    private void forAllCarets(@NotNull AnActionEvent event, CaretBeforeAction runnable, @NotNull CaretAfterAction afterAction) {
-        final ActionContext context = new ActionContext();
-
-        for (Caret caret1 : myEditor.getCaretModel().getAllCarets()) {
-            runnable.run(caret1, context);
-        }
-
-        myAfterActions.addAfterAction(event, () -> {
-            for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                afterAction.run(caret, context.get(caret));
-            }
-        });
     }
 
     private interface EditorCaretBeforeAction {
@@ -648,6 +612,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         forAllEditorCaretsInWriteAction(event, inWriteAction, runnable, afterAction, null);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void forAllEditorCaretsInWriteAction(
             @NotNull AnActionEvent event,
             boolean inWriteAction,
@@ -659,13 +624,11 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         forAllEditorCarets(context, runnable);
 
         if (inWriteAction) {
-            myAfterActions.addAfterAction(event, () -> {
-                WriteCommandAction.runWriteCommandAction(myEditor.getProject(), () -> {
-                    for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
-                        afterAction.run(myManager.getEditorCaret(caret), context.get(caret));
-                    }
-                });
-            });
+            myAfterActions.addAfterAction(event, () -> WriteCommandAction.runWriteCommandAction(myEditor.getProject(), () -> {
+                for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
+                    afterAction.run(myManager.getEditorCaret(caret), context.get(caret));
+                }
+            }));
         } else {
             myAfterActions.addAfterAction(event, () -> {
                 for (Caret caret : myEditor.getCaretModel().getAllCarets()) {
@@ -805,9 +768,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 // DONE: with both selection models
                 // delete line selection action
                 if (settings.isDeleteOperations()) {
-                    forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                        return editorCaret.hasSelection() && editorCaret.isLine();
-                    }, (editorCaret, snapshot) -> {
+                    forAllEditorCarets(event, (editorCaret, snapshot) -> editorCaret.hasSelection() && editorCaret.isLine(), (editorCaret, snapshot) -> {
                         if (snapshot != null) snapshot.restoreColumn();
                     });
                 }
@@ -830,9 +791,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             if (adjustments == COPY___IF_NO_SELECTION__TO_LINE_RESTORE_COLUMN) {
                 // DONE: all selection models
                 if (settings.isCopyLineOrLineSelection()) {
-                    forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                        return !editorCaret.hasSelection() || editorCaret.isLine();
-                    }, (editorCaret, snapshot) -> {
+                    forAllEditorCarets(event, (editorCaret, snapshot) -> !editorCaret.hasSelection() || editorCaret.isLine(), (editorCaret, snapshot) -> {
                         if (snapshot != null && !snapshot.hasSelection()) {
                             if (editorCaret.canSafelyTrimOrExpandToFullLineSelection()) {
                                 editorCaret
@@ -898,26 +857,21 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
                         if (myAdjustmentsMap.isInSet(action.getClass(), MOVE_LINE_UP_AUTO_INDENT_TRIGGER, MOVE_LINE_DOWN_AUTO_INDENT_TRIGGER)) {
                             if (value != -1) {
-                                boolean doneIt = CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
-                                                .to(CaretAdjustmentType.TO_START, () -> {
-                                                    if (editorCaret.isLine()) {
-                                                        editorCaret.setStartAnchor(false);
-                                                    } else {
-                                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
-                                                    }
-                                                })
-                                                .to(CaretAdjustmentType.TO_END, () -> {
-                                                    if (editorCaret.isLine()) {
-                                                        editorCaret.setStartAnchor(true);
-                                                    } else {
-                                                        editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
-                                                    }
-                                                })
-//                                        .to(CaretAdjustmentType.TO_ANCHOR, () -> {
-//                                        })
-//                                        .to(CaretAdjustmentType.TO_ANTI_ANCHOR, () -> {
-//                                            editorCaret.setIsStartAnchorUpdateAnchorColumn(!editorCaret.isStartAnchor());
-//                                        })
+                                CaretAdjustmentType.ADAPTER.onFirst(value, map -> map
+                                        .to(CaretAdjustmentType.TO_START, () -> {
+                                            if (editorCaret.isLine()) {
+                                                editorCaret.setStartAnchor(false);
+                                            } else {
+                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(false);
+                                            }
+                                        })
+                                        .to(CaretAdjustmentType.TO_END, () -> {
+                                            if (editorCaret.isLine()) {
+                                                editorCaret.setStartAnchor(true);
+                                            } else {
+                                                editorCaret.setIsStartAnchorUpdateAnchorColumn(true);
+                                            }
+                                        })
                                 );
 
                                 editorCaret.commit();
@@ -933,9 +887,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
             // DONE: all selection models
             // toggle case adjustment
             if (settings.isUnselectToggleCase()) {
-                forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                    return !editorCaret.hasSelection();
-                }, (editorCaret, snapshot) -> {
+                forAllEditorCarets(event, (editorCaret, snapshot) -> !editorCaret.hasSelection(), (editorCaret, snapshot) -> {
                     if (editorCaret.hasSelection() && snapshot != null) {
                         snapshot.removeSelection();
                         myManager.resetSelectionState(editorCaret.getCaret());
@@ -1029,7 +981,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         // these can replace selections, need to move to start, after if pasted was lines, then we should restore caret pos
         class Params extends CaretSnapshot.Params<Params> {
             long timestamp;
-            CaseFormatPreserver preserver = new CaseFormatPreserver();
+            final CaseFormatPreserver preserver = new CaseFormatPreserver();
 
             Params(CaretSnapshot snapshot) {
                 super(snapshot);
@@ -1038,9 +990,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
 
         final LinePasteCaretAdjustmentType adjustment = LinePasteCaretAdjustmentType.ADAPTER.findEnum(settings.getLinePasteCaretAdjustment());
         updateLastPastedClipboardCarets(ClipboardCaretContent.getTransferable(myEditor, event.getDataContext()), adjustment, true);
-        final CopyPasteManager.ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> {
-            updateLastPastedClipboardCarets(newTransferable, adjustment, false);
-        };
+        final CopyPasteManager.ContentChangedListener contentChangedListener = (oldTransferable, newTransferable) -> updateLastPastedClipboardCarets(newTransferable, adjustment, false);
 
         final CopyPasteManagerEx copyPasteManager = CopyPasteManagerEx.getInstanceEx();
         copyPasteManager.addContentChangedListener(contentChangedListener);
@@ -1054,9 +1004,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                 final Transferable transferable = allContents.length > 0 ? allContents[0] : null;
                 if (transferable != null && transferable.isDataFlavorSupported(DeleteAfterPasteTransferableData.FLAVOR)) {
                     // we delete this one, it is a repeat and only useful for exact copy of duped lines, but on after action of all nested actions are done
-                    myAfterActionsCleanup.addAfterAction(LAST_CLEANUP_EVENT, () -> {
-                        copyPasteManager.removeContent(transferable);
-                    });
+                    myAfterActionsCleanup.addAfterAction(LAST_CLEANUP_EVENT, () -> copyPasteManager.removeContent(transferable));
                 }
             }
 
@@ -1111,12 +1059,12 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                             if (rawRange != null) {
                                 final BasedSequence documentChars = editorCaret.getDocumentChars();
                                 if (rawRange.getEndOffset() < documentChars.length()) {
-                                    CharSequence beforeShift = rawRange.subSequence(documentChars);
+                                    //CharSequence beforeShift = rawRange.subSequence(documentChars);
                                     TextRange range = rawRange.shiftRight(cumulativeCaretDelta[0]);
-                                    CharSequence afterShift = range.subSequence(documentChars);
+                                    //CharSequence afterShift = range.subSequence(documentChars);
+                                    //noinspection StatementWithEmptyBody
                                     if (!caretContent.getContent().isDataFlavorSupported(CaretStateTransferableData.FLAVOR)) {
                                         // pasted text does not have caret information, so do not restore text
-                                        int tmp = 0;
                                     } else {
                                         editorCaret.setSelection(range.getStartOffset(), range.getEndOffset());
 
@@ -1206,15 +1154,14 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
     }
 
+    @SuppressWarnings("unused")
     private void autoIndentLines(ApplicationSettings settings, AnAction action, AnActionEvent event) {
         Boolean AUTO_TRIGGERED = AUTO_TRIGGERED_ACTION.getData(event.getDataContext());
         boolean autoTriggered = AUTO_TRIGGERED != null && AUTO_TRIGGERED;
 
         // only process this if auto-triggered, not manual
         if (autoTriggered) {
-            forAllEditorCarets(event, (editorCaret, snapshot) -> {
-                return true;
-            }, (editorCaret, snapshot) -> {
+            forAllEditorCarets(event, (editorCaret, snapshot) -> true, (editorCaret, snapshot) -> {
                 if (snapshot != null) {
                     if (!snapshot.hasSelection() && !editorCaret.hasSelection()) {
                         // need to fix column position for indentation change
@@ -1245,6 +1192,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
         }
     }
 
+    @SuppressWarnings("unused")
     private void adjustMoveCaretUpDownWithSelection(ApplicationSettings settings, AnAction action, AnActionEvent event) {
         if (settings.isUpDownSelection()) {
             forAllEditorCarets(event, (editorCaret, snapshot) -> {
@@ -1274,7 +1222,7 @@ public class ActionSelectionAdjuster implements EditorActionListener, Disposable
                     }
 
                     if (!snapshot.isLine()) {
-                        // pause on line only if just created a line selection
+                        // pause on the line only if newly created line selection
                         boolean pauseOnLine = editorCaret.getSelectionLineCount() == 2;
 
                         if (editorCaret.isStartAnchor()) {

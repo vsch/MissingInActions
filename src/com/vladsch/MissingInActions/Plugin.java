@@ -268,16 +268,6 @@ public class Plugin extends MiaWordHighlightProviderImpl implements Disposable {
         if (myParameterHintsAvailable) {
             FileEditorManagerListener editorManagerListener = new FileEditorManagerListener() {
                 @Override
-                public void fileOpened(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
-                }
-
-                @Override
-                public void fileClosed(@NotNull final FileEditorManager source, @NotNull final VirtualFile file) {
-
-                }
-
-                @Override
                 public void selectionChanged(@NotNull final FileEditorManagerEvent event) {
                     updateEditorParameterHints(getEditorEx(event.getNewEditor()), event.getNewEditor() != event.getOldEditor());
                 }

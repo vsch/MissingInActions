@@ -24,6 +24,7 @@ package com.vladsch.MissingInActions;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ex.ProjectEx;
 import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
@@ -58,17 +59,12 @@ class BatchSearchReplaceToolWindowFactory implements ToolWindowFactory, DumbAwar
     @Override
     public boolean isApplicable(@NotNull Project project) {
         // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
-        return !ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(project);
-    }
-
-    @Override
-    public void init(@NotNull ToolWindow toolWindow) {
-
+        return !ApplicationManager.getApplication().isUnitTestMode() || !(project instanceof ProjectEx && ((ProjectEx)project).isLight());
     }
 
     @Override
     public boolean shouldBeAvailable(@NotNull Project project) {
         // NOTE: disable for light project tests, project is never closed and leaves editors unreleased causing test failures.
-        return !ApplicationManager.getApplication().isUnitTestMode() || !ProjectManagerImpl.isLight(project);
+        return !ApplicationManager.getApplication().isUnitTestMode() || !(project instanceof ProjectEx && ((ProjectEx)project).isLight());
     }
 }

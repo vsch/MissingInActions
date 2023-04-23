@@ -39,8 +39,6 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.MissingInActions.Bundle;
-import com.vladsch.MissingInActions.manager.CaretEx;
-import com.vladsch.MissingInActions.manager.EditorPositionFactory;
 import com.vladsch.MissingInActions.manager.LineSelectionManager;
 import com.vladsch.MissingInActions.settings.RegExSettingsHolder;
 import com.vladsch.flexmark.util.html.ui.BackgroundColor;
@@ -57,14 +55,10 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SearchCaretsOptionsDialog extends DialogWrapper {
@@ -77,27 +71,18 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
     private JBCheckBox myCaseSensitive;
     private JButton myFocusViewer;
     private JBCheckBox myCaretToEndGroup;
-    private boolean myIsBadRegEx;
 
     private final @NotNull EditorEx myEditor;
     private final @NotNull EditorEx myViewer;
 
     private final RegExSettingsHolder mySettingsHolder;
 
-    private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
-    }
-
-    private BackgroundColor getWarningTextFieldBackground() {
+    private static BackgroundColor getWarningTextFieldBackground() {
         return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
-    private BackgroundColor getValidTextFieldBackground() {
+    private static BackgroundColor getValidTextFieldBackground() {
         return BackgroundColor.of(UIUtil.getTextFieldBackground());
-    }
-
-    private BackgroundColor getSelectedTextFieldBackground() {
-        return BackgroundColor.of(mySampleText.getSelectionColor());
     }
 
     public boolean saveSettings(boolean onlySamples) {
@@ -140,16 +125,11 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
             myViewer.getContentComponent().requestFocus();
         });
 
-        final ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (checkRegEx(myPattern).isEmpty()) {
-                    updateViewer();
-                }
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    myViewer.getContentComponent().requestFocus();
-                });
+        final ActionListener actionListener = e -> {
+            if (checkRegEx(myPattern).isEmpty()) {
+                updateViewer();
             }
+            ApplicationManager.getApplication().invokeLater(() -> myViewer.getContentComponent().requestFocus());
         };
 
         myCaseSensitive.addActionListener(actionListener);
@@ -185,6 +165,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected EditorEx createIdeaEditor(CharSequence charSequence) {
         Document doc = EditorFactory.getInstance().createDocument(charSequence);
         Editor editor = EditorFactory.getInstance().createEditor(doc, myEditor.getProject(), myEditor.getVirtualFile().getFileType(), true);
@@ -203,6 +184,7 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         }
     }
 
+    @SuppressWarnings({ "CommentedOutCode", "GrazieInspection" })
     private void copyEditorSettings() {
         //boolean isRightMarginShown(); void setRightMarginShown(boolean val);
         //boolean areGutterIconsShown(); void setGutterIconsShown(boolean gutterIconsShown);
@@ -242,39 +224,39 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         Project myEditorProject = myEditor.getProject();
 
         // @formatter:off
-        ignoreErrors(()->{ myViewerSettings.setRightMarginShown(myEditorSettings.isRightMarginShown()); });
-        ignoreErrors(()->{ myViewerSettings.setGutterIconsShown(myEditorSettings.areGutterIconsShown()); });
-        ignoreErrors(()->{ myViewerSettings.setAdditionalPageAtBottom(myEditorSettings.isAdditionalPageAtBottom()); });
-        ignoreErrors(()->{ myViewerSettings.setAllowSingleLogicalLineFolding(myEditorSettings.isAllowSingleLogicalLineFolding()); });
-        ignoreErrors(()->{ myViewerSettings.setAnimatedScrolling(myEditorSettings.isAnimatedScrolling()); });
-        ignoreErrors(()->{ myViewerSettings.setAutoCodeFoldingEnabled(myEditorSettings.isAutoCodeFoldingEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setBlinkCaret(myEditorSettings.isBlinkCaret()); });
-        ignoreErrors(()->{ myViewerSettings.setBlockCursor(myEditorSettings.isBlockCursor()); });
-        ignoreErrors(()->{ myViewerSettings.setCamelWords(myEditorSettings.isCamelWords()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretInsideTabs(myEditorSettings.isCaretInsideTabs()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretRowShown(myEditorSettings.isCaretRowShown()); });
-        ignoreErrors(()->{ myViewerSettings.setDndEnabled(myEditorSettings.isDndEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setFoldingOutlineShown(myEditorSettings.isFoldingOutlineShown()); });
-        ignoreErrors(()->{ myViewerSettings.setIndentGuidesShown(myEditorSettings.isIndentGuidesShown()); });
-        ignoreErrors(()->{ myViewerSettings.setInnerWhitespaceShown(myEditorSettings.isInnerWhitespaceShown()); });
-        ignoreErrors(()->{ myViewerSettings.setLeadingWhitespaceShown(myEditorSettings.isLeadingWhitespaceShown()); });
-        ignoreErrors(()->{ myViewerSettings.setLineMarkerAreaShown(myEditorSettings.isLineMarkerAreaShown()); });
-        ignoreErrors(()->{ myViewerSettings.setLineNumbersShown(myEditorSettings.isLineNumbersShown()); });
-        ignoreErrors(()->{ myViewerSettings.setMouseClickSelectionHonorsCamelWords(myEditorSettings.isMouseClickSelectionHonorsCamelWords()); });
-        ignoreErrors(()->{ myViewerSettings.setRefrainFromScrolling(myEditorSettings.isRefrainFromScrolling()); });
-        ignoreErrors(()->{ myViewerSettings.setSmartHome(myEditorSettings.isSmartHome()); });
-        ignoreErrors(()->{ myViewerSettings.setTrailingWhitespaceShown(myEditorSettings.isTrailingWhitespaceShown()); });
-        ignoreErrors(()->{ myViewerSettings.setUseCustomSoftWrapIndent(myEditorSettings.isUseCustomSoftWrapIndent()); });
-        ignoreErrors(()->{ myViewerSettings.setUseSoftWraps(myEditorSettings.isUseSoftWraps()); });
+        ignoreErrors(()->myViewerSettings.setRightMarginShown(myEditorSettings.isRightMarginShown()));
+        ignoreErrors(()->myViewerSettings.setGutterIconsShown(myEditorSettings.areGutterIconsShown()));
+        ignoreErrors(()->myViewerSettings.setAdditionalPageAtBottom(myEditorSettings.isAdditionalPageAtBottom()));
+        ignoreErrors(()->myViewerSettings.setAllowSingleLogicalLineFolding(myEditorSettings.isAllowSingleLogicalLineFolding()));
+        ignoreErrors(()->myViewerSettings.setAnimatedScrolling(myEditorSettings.isAnimatedScrolling()));
+        ignoreErrors(()->myViewerSettings.setAutoCodeFoldingEnabled(myEditorSettings.isAutoCodeFoldingEnabled()));
+        ignoreErrors(()->myViewerSettings.setBlinkCaret(myEditorSettings.isBlinkCaret()));
+        ignoreErrors(()->myViewerSettings.setBlockCursor(myEditorSettings.isBlockCursor()));
+        ignoreErrors(()->myViewerSettings.setCamelWords(myEditorSettings.isCamelWords()));
+        ignoreErrors(()->myViewerSettings.setCaretInsideTabs(myEditorSettings.isCaretInsideTabs()));
+        ignoreErrors(()->myViewerSettings.setCaretRowShown(myEditorSettings.isCaretRowShown()));
+        ignoreErrors(()->myViewerSettings.setDndEnabled(myEditorSettings.isDndEnabled()));
+        ignoreErrors(()->myViewerSettings.setFoldingOutlineShown(myEditorSettings.isFoldingOutlineShown()));
+        ignoreErrors(()->myViewerSettings.setIndentGuidesShown(myEditorSettings.isIndentGuidesShown()));
+        ignoreErrors(()->myViewerSettings.setInnerWhitespaceShown(myEditorSettings.isInnerWhitespaceShown()));
+        ignoreErrors(()->myViewerSettings.setLeadingWhitespaceShown(myEditorSettings.isLeadingWhitespaceShown()));
+        ignoreErrors(()->myViewerSettings.setLineMarkerAreaShown(myEditorSettings.isLineMarkerAreaShown()));
+        ignoreErrors(()->myViewerSettings.setLineNumbersShown(myEditorSettings.isLineNumbersShown()));
+        ignoreErrors(()->myViewerSettings.setMouseClickSelectionHonorsCamelWords(myEditorSettings.isMouseClickSelectionHonorsCamelWords()));
+        ignoreErrors(()->myViewerSettings.setRefrainFromScrolling(myEditorSettings.isRefrainFromScrolling()));
+        ignoreErrors(()->myViewerSettings.setSmartHome(myEditorSettings.isSmartHome()));
+        ignoreErrors(()->myViewerSettings.setTrailingWhitespaceShown(myEditorSettings.isTrailingWhitespaceShown()));
+        ignoreErrors(()->myViewerSettings.setUseCustomSoftWrapIndent(myEditorSettings.isUseCustomSoftWrapIndent()));
+        ignoreErrors(()->myViewerSettings.setUseSoftWraps(myEditorSettings.isUseSoftWraps()));
         //ignoreErrors(()->{ myViewerSettings.setVariableInplaceRenameEnabled(myEditorSettings.isVariableInplaceRenameEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setVirtualSpace(myEditorSettings.isVirtualSpace()); });
-        ignoreErrors(()->{ myViewerSettings.setWheelFontChangeEnabled(myEditorSettings.isWheelFontChangeEnabled()); });
-        ignoreErrors(()->{ myViewerSettings.setWhitespacesShown(myEditorSettings.isWhitespacesShown()); });
+        ignoreErrors(()->myViewerSettings.setVirtualSpace(myEditorSettings.isVirtualSpace()));
+        ignoreErrors(()->myViewerSettings.setWheelFontChangeEnabled(myEditorSettings.isWheelFontChangeEnabled()));
+        ignoreErrors(()->myViewerSettings.setWhitespacesShown(myEditorSettings.isWhitespacesShown()));
         //ignoreErrors(()->{ myViewerSettings.setAdditionalColumnsCount(myEditorSettings.getAdditionalColumnsCount()); });
         //ignoreErrors(()->{ myViewerSettings.setAdditionalLinesCount(myEditorSettings.getAdditionalLinesCount()); });
-        ignoreErrors(()->{ myViewerSettings.setCaretBlinkPeriod(myEditorSettings.getCaretBlinkPeriod()); });
-        ignoreErrors(()->{ myViewerSettings.setCustomSoftWrapIndent(myEditorSettings.getCustomSoftWrapIndent()); });
-        ignoreErrors(()->{ myViewerSettings.setLineCursorWidth(myEditorSettings.getLineCursorWidth()); });
+        ignoreErrors(()->myViewerSettings.setCaretBlinkPeriod(myEditorSettings.getCaretBlinkPeriod()));
+        ignoreErrors(()->myViewerSettings.setCustomSoftWrapIndent(myEditorSettings.getCustomSoftWrapIndent()));
+        ignoreErrors(()->myViewerSettings.setLineCursorWidth(myEditorSettings.getLineCursorWidth()));
         // @formatter:on
 
         //boolean isUseTabCharacter(Project project); void setUseTabCharacter(boolean useTabCharacter);
@@ -282,10 +264,10 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         //int getRightMargin(Project project); void setRightMargin(int myRightMargin);
         //int getTabSize(Project project); void setTabSize(int tabSize);
         // @formatter:off
-        ignoreErrors(() -> { myViewerSettings.setUseTabCharacter(myEditorSettings.isUseTabCharacter(myEditorProject)); });
+        ignoreErrors(() -> myViewerSettings.setUseTabCharacter(myEditorSettings.isUseTabCharacter(myEditorProject)));
         //ignoreErrors(() -> { myViewerSettings.setWrapWhenTypingReachesRightMargin(myEditorSettings.isWrapWhenTypingReachesRightMargin(myEditorProject)); });
-        ignoreErrors(() -> { myViewerSettings.setRightMargin(myEditorSettings.getRightMargin(myEditorProject)); });
-        ignoreErrors(() -> { myViewerSettings.setTabSize(myEditorSettings.getTabSize(myEditorProject)); });
+        ignoreErrors(() -> myViewerSettings.setRightMargin(myEditorSettings.getRightMargin(myEditorProject)));
+        ignoreErrors(() -> myViewerSettings.setTabSize(myEditorSettings.getTabSize(myEditorProject)));
         // @formatter:on
     }
 
@@ -293,8 +275,6 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         List<LogicalPosition> carets = new ArrayList<>(myEditor.getCaretModel().getCaretCount());
         StringBuilder sb = new StringBuilder();
         LineSelectionManager otherManager = LineSelectionManager.getInstance(myEditor);
-        Set<CaretEx> foundCarets = otherManager.getFoundCarets();
-        Set<Long> foundCoords = CaretEx.getExcludedCoordinates(null, foundCarets);
         List<CaretState> states = otherManager.getStartCaretStates();
         assert states != null;
 
@@ -305,7 +285,6 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         ApplicationManager.getApplication().runReadAction(() -> {
             DocumentEx document = myEditor.getDocument();
             CharSequence chars = document.getCharsSequence();
-            EditorPositionFactory f = LineSelectionManager.getInstance(myViewer).getPositionFactory();
 
             int i = 0;
             for (CaretState caret : states) {
@@ -363,9 +342,8 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
         return myMainPanel;
     }
 
-    @NotNull
     @Override
-    protected Action[] createActions() {
+    protected Action @NotNull [] createActions() {
         super.createDefaultActions();
         return new Action[] { getOKAction(), getCancelAction() };
     }
@@ -401,29 +379,21 @@ public class SearchCaretsOptionsDialog extends DialogWrapper {
 
     private String checkRegEx(final JTextField pattern) {
         final String patternText = pattern.getText().trim();
-        //Color validBackground = getValidTextFieldBackground();
-        //Color selectedBackground = getSelectedTextFieldBackground();
-        //Color invalidBackground = getInvalidTextFieldBackground();
-        Color warningBackground = getWarningTextFieldBackground();
         String error = "";
-        String warning = "";
-
-        Pattern regexPattern;
-        Matcher matcher = null;
-        myIsBadRegEx = false;
+        boolean isBadRegEx = false;
 
         if (!myPattern.getText().trim().isEmpty()) {
             try {
-                regexPattern = Pattern.compile(patternText);
+                Pattern.compile(patternText);
             } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                 error = e.getMessage();
-                myIsBadRegEx = true;
+                isBadRegEx = true;
             }
         } else {
             error = "empty pattern";
         }
 
-        if (!myIsBadRegEx) {
+        if (!isBadRegEx) {
             myViewPanel.setVisible(true);
             myTextPane.setVisible(false);
         } else {
