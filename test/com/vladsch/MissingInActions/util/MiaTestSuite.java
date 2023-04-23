@@ -16,13 +16,13 @@
  */
 package com.vladsch.MissingInActions.util;
 
-import com.vladsch.plugin.util.PluginUtilTestSuite;
+import com.vladsch.MissingInActions.settings.NumberSequenceGeneratorTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        PluginUtilTestSuite.class,
+        NumberSequenceGeneratorTest.class,
         CaseFormatPreserverTest.class,
         StudiedWordTest.class
 })

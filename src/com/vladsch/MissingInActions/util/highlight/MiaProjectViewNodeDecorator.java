@@ -25,6 +25,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.packageDependencies.ui.PackageDependenciesNode;
+import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.vladsch.MissingInActions.Plugin;
 import com.vladsch.MissingInActions.settings.ApplicationSettings;
@@ -43,6 +45,11 @@ public class MiaProjectViewNodeDecorator implements ProjectViewNodeDecorator {
     public MiaProjectViewNodeDecorator() {
         mySettings = ApplicationSettings.getInstance();
         myPlugin = Plugin.getInstance();
+    }
+
+    @Override
+    public void decorate(PackageDependenciesNode node, ColoredTreeCellRenderer cellRenderer) {
+        // TODO: consider highlighting package dependencies
     }
 
     @Override

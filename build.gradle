@@ -1,0 +1,96 @@
+plugins {
+    id "java"
+    id "org.jetbrains.kotlin.jvm" version "1.8.20"
+    id "org.jetbrains.intellij" version "1.13.3"
+}
+
+def pluginVersion = "1.8.223.29"
+def pluginSinceBuild = "212.4746.92"
+def pluginUntilBuild = ""
+def flexmarkVersion = "0.64.0"
+def javaVersion = "11"
+
+group = "com.vladsch.plugins"
+version = pluginVersion
+
+repositories {
+    mavenCentral()
+}
+
+// Configure Gradle IntelliJ Plugin
+// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
+intellij {
+    version = "2021.3"
+    type = "IC" // Target IDE Platform
+    plugins = ["java"]
+    downloadSources = true
+}
+
+dependencies {
+    testAnnotationProcessor "junit:junit:4.13.2"
+    testImplementation "junit:junit:4.13.2"
+
+    implementation "com.vladsch.flexmark:flexmark-util:$flexmarkVersion"
+    implementation("com.vladsch.flexmark:flexmark-tree-iteration:$flexmarkVersion") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
+    implementation "com.vladsch.boxed-json:boxed-json:0.5.18"
+    implementation "org.glassfish:javax.json:1.1.4"
+    implementation files("lib/plugin-util.jar")
+    implementation files("lib/reverse-regex-util.jar")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src"]
+            resources.srcDirs = ["resources"]
+        }
+        kotlin {
+            //noinspection GroovyAssignabilityCheck
+            srcDirs = ["src"]
+        }
+    }
+    test {
+        java {
+            srcDirs = ["test"]
+//            resources.srcDirs = ["test/resources"]
+        }
+        kotlin {
+            //noinspection GroovyAssignabilityCheck
+            srcDirs = ["test"]
+        }
+    }
+}
+
+// Set the JVM compatibility versions
+compileJava {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = javaVersion
+}
+
+tasks {
+    patchPluginXml {
+        sinceBuild = pluginSinceBuild
+        untilBuild = pluginUntilBuild
+        version = pluginVersion
+    }
+
+    runPluginVerifier {
+
+    }
+
+    signPlugin {
+        certificateChainFile = file(System.getenv("CERTIFICATE_CHAIN"))
+        privateKeyFile = file(System.getenv("PRIVATE_KEY"))
+        password = System.getenv("PRIVATE_KEY_PASSWORD")
+    }
+
+    publishPlugin {
+        token = System.getenv("PUBLISH_TOKEN")
+    }
+}

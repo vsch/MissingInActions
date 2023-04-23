@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MissingInActions.iml" filepath="$PROJECT_DIR$/MissingInActions.iml" />
-      <module fileurl="file://$PROJECT_DIR$/intelliJAPI/intelliJAPI.iml" filepath="$PROJECT_DIR$/intelliJAPI/intelliJAPI.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../plugin-util/plugin-util.iml" filepath="$PROJECT_DIR$/../plugin-util/plugin-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MissingInActions.test.iml" filepath="$PROJECT_DIR$/.idea/modules/MissingInActions.test.iml" />
     </modules>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA jdk" project-jdk-type="IDEA JDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-  <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/MissingInActions.wiki" vcs="Git" />
   </component>
 </project>

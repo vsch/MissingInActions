@@ -25,3 +25,7 @@ out/
 /dist/MissingInActions.1.8.218.17.zip
 /dist/MissingInActions.1.8.223.19.zip
 /dist/MissingInActions.1.8.223.21.zip
+/excluded-lib/
+/build/
+/.gradle/
+/gradle/wrapper/gradle-wrapper.jar
