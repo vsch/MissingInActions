@@ -8,17 +8,11 @@
 [TOC]: #
 
 ### Table of Contents
-- [Next Version 1.9.0 - Bug Fix & Feature Release](#next-version-190---bug-fix--feature-release)
-- [Version 1.8.0 - Bug Fix & Feature Release](#version-180---bug-fix--feature-release)
-- [Version 1.7.4 - Bug Fix Release](#version-174---bug-fix-release)
-- [Version 1.7.2 - Bug Fix Release](#version-172---bug-fix-release)
-- [Version 1.7.0 - Enhancement Release](#version-170---enhancement-release)
-- [Why Do I Need Mia?](#why-do-i-need-mia)
-  - [What you didn't know you were missing](#what-you-didnt-know-you-were-missing)
+- [Why Did I Need Mia?](#why-did-i-need-mia)
+  - [What You Didn't Know Was Missing](#what-you-didnt-know-was-missing)
   - [Auto Indent Lines after Move Lines Up/Down](#auto-indent-lines-after-move-lines-updown)
   - [Auto Line Selections](#auto-line-selections)
     - [Mouse Selections](#mouse-selections)
-
 
 Adds missing editor actions for end of word navigation but that is just the beginning:
 
@@ -46,11 +40,13 @@ Adds missing editor actions for end of word navigation but that is just the begi
 
   Default prefixes: `my`, `our`, `is`, `get`, `set` to allow pasting over member fields, static
   fields, getters and setters.
+
 * Enable Auto Line Selections and select full lines without loosing time or column position by
   moving the caret to the start of line when selecting or pasting.
 
   **Choose** whether you want to **paste full line** selections: **above** or **below** the
   current line regardless of the caret's column.
+
 * Toggle between selection and multiple carets on selected lines to save time re-selecting the
   same text again.
 
@@ -66,120 +62,65 @@ Adds missing editor actions for end of word navigation but that is just the begi
   * **duplicate line/block for each caret** in the clipboard content for multiple caret
     selections and paste content into each selection
   * see caret information stored on the clipboard for each content entry
+
 * Many more options and adjustments to make multiple caret text editing fast, efficient and
   indispensable.
-
-## Next Version 1.9.0 - Bug Fix & Feature Release ##
 
 * Option to use word highlights to highlight Project View nodes. Useful when you have to isolate
   files or directories based on a list and want visual queues in the project view.
 
   ![Screenshot_HighlightProjectView](assets/images/Screenshot_HighlightProjectView.png)
 
-## Version 1.8.0 - Bug Fix & Feature Release ##
+[Version History][]
 
-[Version Notes][]
+## Why Did I Need Mia? ##
 
-* Option `Preserve primary caret on ESCAPE` to prevent the IDE from ignoring the primary caret
-  and selecting the first caret as primary when using ESCAPE to clear multiple carets.
-* Option for search spawn carets to ignore word boundaries. ie. Forward search ignores begin
-  word break, backward search ignores end word break.
-* Option for word highlighting to ignore word boundary around selection. When ignoring boundary,
-  highlighting `abc` will highlight `abc` in: `abcd`, `zabc` and `zabcd`.
-* Highlighted word actions:
-  * Turn on words highlight mode when adding a highlighted word
-  * Action to select highlighted words in file or current selection and create multi-caret
-    selection of highlighted words. Will use document, single selection or multi-caret selection
-    for limiting highlighted words.
-  * `Add Selection to Word Highlights in Tandem` will tandem highlight words on the same line to
-    the same color.
-* Save highlight state to local settings, restore on IDE startup.
-* Spawn prefix search option to support paste prefix alternates so spawn on `myText` will select
-  `myText`, `ourText`, `getText`, `isText`, `setText` if `my`, `our`, `get`, `set` and
-* Paste from history
-  * `Delete Replaced Content after Paste` paste from history option to delete generated content
-    after pasting
-  * Paste spliced & quoted to work if current editor is a plain Swing editor (text boxes)
-  * `To Line` action to convert multiple selection to merged **line** content without having to
-    paste it. Opposite of `To Carets`
-  * Allow preview macro replacement results to be selected and copied as new clipboard content.
-  * User macro variable replacement and macro variable replacement are now two independent
-    options.
-  * Search matches are highlighted in preview when replacing macro variables or user variable in
-    pasted text are enabled.
-  * Option to show resulting text after replacement, with replaced regions highlighted to help
-    "debug" the template.
-  * `__Filepath__` variants added to replaced variables. Replaced with file path of the file
-    into which test is pasted:
-    * `__Filepath__` : file path as is.
-    * `__FILEPATH__` : file path all caps.
-    * `__filepath__` : file path lowercase.
-    * `__File-path__` : file path with leading `/` removed and `/` replaced by `-`.
-    * `__FILE-PATH__` : file path as above but in all caps.
-    * `__file-path__` : file path as above but in lowercase.
-    * `__File.path__` : file path with leading `/` removed and `/` replaced by `.`.
-    * `__FILE.PATH__` : file path as above but in all caps.
-    * `__file.path__` : file path as above but in lowercase.
-* Change number generator for shift sequences:
-  * to rollover from start of 0, to 1 when step is 0 or positive and to 0x8000_0000_0000_0000 if
-    step is negative. Allows bit shift patterns to start with 0.
-  * to rollover from 1 to 0x8000_0000_0000_0000 when step negative and rollover from
-    0x8000_0000_0000_0000 to 1 when step is 0 or positive.
-
-## Version 1.7.4 - Bug Fix Release ##
-
-* Fix: [#23, Plugin changes built-in IDEA behavior]
-  * Disable caret adjustments for cut/duplicate line if line adjustments are disabled
-  * Disable caret adjustments for cut if delete line selection caret adjustments are disabled.
-* Fix: update to latest plugin-util
-* Fix: handle spurious IOException in shared transferable
-* Add: `resources/search/searchableOptions.xml` for full text search across all configuration
-  settings.
-* Fix: too strict clipboard content comparison during replacement would not replace shared
-  content in some circumstances. Replaced with string comparison of clipboard content.
-* Fix: Moved png and svg icons to different sub-directories. IDE versions 2017 generates a gray
-  scale icon from svg generated by Illustrator but it will try to load svg icon when png is
-  requested if both are in the same directory.
-
-## Version 1.7.2 - Bug Fix Release ##
-
-* Fix: clipboard sharing code prevented duplicated caret content to be deleted after paste from
-  being automatically deleted.
-* Fix: When `User defined macro` is disabled but selected, paste from history does duplication
-  by whatever clipboard content is selected.
-* Fix: when adding/removing/clearing highlighters using actions, hides batch search/replace
-  window to eliminate confusion of not seeing highlight action.
-* Fix: change `Without Formatting` to `No Formatting`, shorten to take less space.
-* Add: tooltip text to paste from history buttons.
-* Add: highlights of corresponding options when mouse hovers over paste spliced and
-  quoted/spliced.
-
-## Version 1.7.0 - Enhancement Release ##
-
-* New: multiple caret clipboard content is now shared between IDE instances so copying in one
-  and pasting in another does not loose the clipboard caret information.
-* Add: separate `Quoted Spliced` button to eliminate sticky quoted flag affecting `Spliced`
-
-## Why Do I Need Mia? ##
-
-IntelliJ development tools are the best of breed when it comes to language support, refactoring
-and the rest of intelligent language features but I find they suffer in their text editing
-capabilities, especially when it comes multiple caret editing.
+IntelliJ's development tools are the best of breed when it comes to language support,
+refactoring and the rest of intelligent language features, but I find they suffer in their text
+editing capabilities, especially when it comes to multiple caret editing.
 
 I wrote and maintained my own editor for over two decades, only because I could not find the
-functionality I needed elsewhere. When I started development on a Mac, I no longer wanted to
-maintain that old war horse which was getting long in the tooth. I was sure that I was not going
-to rewrite it for the Mac and decided that I will give it up and get used to IntelliJ way of
-editing.
+functionality I needed elsewhere. I was using multi-caret editing, with smart caret adjustments
+in my editor since 1998. It spoiled me. I learned to adopt a naming convention and coding style
+to facilitate refactoring large blocks of code using multi-caret mode, regardless of the
+programming language.
+
+When I started development on a Mac, I no longer wanted to maintain that old war horse which was
+getting long in the tooth. I was sure that I was not going to rewrite it for the Mac and decided
+that I will give it up and get used to IntelliJ way of editing.
 
 I made the switch but found for some batch edits I still preferred to fire up Parallels Desktop
-with Windows 10 and do the edit in my old workhorse. I am now in the process of bringing some of
-its features to JetBrains IDEs with my Mia plugin.
+with Windows 10 and do the edit in my old workhorse. Eventually, I found that I was doing this
+was more trouble than it was worth because the editor was becoming incompatible with Windows
+updates. I needed a solution on the Mac, and one which would not require me to rewrite my
+editor.
 
-### What you didn't know you were missing ###
+I started writing Mia to address a feature request, outstanding for 8 years on YouTrack, asking
+to add Mac style next/previous word navigation to IntelliJ. I was surprised to find that the
+feature was ignored for so long. I thought it was a no-brainer to implement, which it was. Once
+I had a basic plugin to extend the editor, adding the functions I wanted was inevitable.
 
-This plugin adds multi caret aware actions, line selections, smart paste and seamless switching
-between selection and multiple carets:
+I have since completed the process of bringing the old editor features to JetBrains IDEs with my
+Mia plugin and added many improvements to the originals. There are only two features still
+missing:
+
+* Smart Insert Mode: In this mode the editor preserves column aligned text as you edit by
+  inserting/deleting spaces down stream in the line to keep column aligned text unmolested. It
+  helps if there are tab stops defined for the columns to let the editor know where you want the
+  text to be aligned, but not a strict requirement.
+
+* Drag/Drop-Replace: In this mode, dragged text replaces the destination word/identifier/lines
+  instead of moving or inserting text at the dropped location. Personally, I find the default
+  copy, or worse, move text useless for code editing.
+
+  Once I had drag/drop-replace implemented in my editor, I found I often preferred it for
+  replacing identifiers in copied block of source code. In Mia, with its smart paste feature,
+  this mode should be even more useful.
+
+### What You Didn't Know Was Missing ###
+
+This plugin adds multi-caret aware actions, line selections, smart paste and seamless switching
+between selection and multiple carets, low-lighting of lines, and much more:
 
 1. Move caret, with and without selection, to next/previous start/end of word, including a
    customizable set of actions where you can completely tune all the boundary stops these
@@ -215,6 +156,7 @@ between selection and multiple carets:
      otherwise,
 
    * always below the caret line
+
 6. Auto Line Indent on move line or selection up or down. With every other editing operation,
    the IDE seems to remember to adjust indentation automatically, at least as an option. This
    operation was left out of the club for some reason, leaving the code indentation messed up,
@@ -247,7 +189,7 @@ especially in multi-caret mode, a joy:
    then use the join lines action.
 
 3. Seamless switching between line selections and multiple carets on each line using the "Toggle
-   Between Carets and Line Selection" action, allowing re-use of already selected text. To me
+   Between Carets and Line Selection" action, allowing re-use of already selected text. To me,
    selections and multiple carets are just manifestations of me telling the editor what I am
    focusing on. I should be able to switch between the two modes instead of having to re-select
    the lines, again and again.
@@ -273,6 +215,7 @@ especially in multi-caret mode, a joy:
 
    Every time I use it feels like magic. I know it isn't, I had to write debug the code, but it
    still feels that way.
+
 6. Duplicate Line or Selection for Carets on Clipboard action is a multiple caret user's dream.
    It makes modifying a line or lines for repeated variations an effortless joy. A live example
    from Mia's own source code. I needed variations for several functions based on naming
@@ -320,11 +263,10 @@ Use the Ctrl key while selecting to disable auto line selections. Keep the Ctrl 
 until after you release the mouse button, otherwise the selection will be changed to a line
 selection when the mouse button is released.
 
-[#23, Plugin changes built-in IDEA behavior]: https://github.com/vsch/MissingInActions/issues/23
 [JetBrains plugin page]: https://plugins.jetbrains.com/plugin/9257-missing-in-actions
 [Mia Dupe For Clipboard Carets]: ../../raw/master/assets/images/noload/MiaDupeForClipboardCarets.gif
 <!-- @IGNORE PREVIOUS: link -->
 [Mia Smart Paste Multi Caret]: ../../raw/master/assets/images/noload/MiaSmartPasteMultiCaret.gif
 <!-- @IGNORE PREVIOUS: link -->
-[Version Notes]: /VERSION.md
+[Version History]: /VERSION.md
 
